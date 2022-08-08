@@ -1,0 +1,17 @@
+<Project Sdk="MSBuild.Sdk.Extras/2.0.54">
+  <PropertyGroup>
+    <TargetFrameworks>uap10.0.18362;netstandard2.0;xamarinios10;xamarinmac20;monoandroid12.0</TargetFrameworks>
+  </PropertyGroup>
+  <ItemGroup>
+    <UnoRuntimeProjectReference Include="MZikmund.App.Core.Wasm.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="buildTransitive\**">
+      <PackagePath>buildTransitive</PackagePath>
+      <Pack>true</Pack>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Uno.UI" Version="4.5.0-dev.372" />
+  </ItemGroup>
+</Project>
