@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Uno.UI.Runtime.Skia" Version="3.0.0-PullRequest-3602-17779-1-3602.956" />
+    <PackageReference Include="Uno.UI.Runtime.Skia" Version="4.6.0-dev.727" />
   </ItemGroup>
 
 </Project>

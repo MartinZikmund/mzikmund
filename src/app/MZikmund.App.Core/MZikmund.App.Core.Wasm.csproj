@@ -5,6 +5,6 @@
     <RootNamespace>MZikmund.App.Core</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Uno.UI.Runtime.WebAssembly" Version="4.5.0-dev.372" />
+    <PackageReference Include="Uno.UI.Runtime.WebAssembly" Version="4.6.0-dev.727" />
   </ItemGroup>
 </Project>
