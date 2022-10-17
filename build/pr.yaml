@@ -10,7 +10,6 @@ steps:
     packageType: 'sdk'
     version: '6.x'
     installationPath: $(Agent.ToolsDirectory)/dotnet
-- task: DotNetCoreCLI@2
+- task: VSBuild@1
   inputs:
-    command: 'build'
-    projects: 'src/MZikmund.sln'
+    solution: '**\*.sln'
