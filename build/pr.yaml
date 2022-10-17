@@ -4,12 +4,23 @@ pr:
 pool:
   vmImage: windows-latest
 
+variables:
+  solution: '**/*.sln'
+
 steps:
+- task: NuGetToolInstaller@1
+
+- task: NuGetCommand@2
+  inputs:
+    restoreSolution: '$(solution)'
+
 - task: UseDotNet@2
   inputs:
     packageType: 'sdk'
     version: '6.x'
     installationPath: $(Agent.ToolsDirectory)/dotnet
+
 - task: VSBuild@1
   inputs:
-    solution: '**\*.sln'
+    platform: 'x86'
+    solution: '$(solution)'
