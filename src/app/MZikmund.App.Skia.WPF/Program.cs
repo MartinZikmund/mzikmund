@@ -1,3 +1,3 @@
-namespace MZikmund.App.Skia.Gtk
+namespace MZikmund.App.Skia.Wpf
 {
 }

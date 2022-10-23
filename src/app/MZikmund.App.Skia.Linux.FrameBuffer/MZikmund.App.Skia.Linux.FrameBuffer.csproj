@@ -2,7 +2,7 @@
   <PropertyGroup>
     <OutputType Condition="'$(Configuration)'=='Release'">WinExe</OutputType>
     <OutputType Condition="'$(Configuration)'=='Debug'">Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup Condition="exists('..\MZikmund.App.UWP')">
     <EmbeddedResource Include="..\MZikmund.App.UWP\Package.appxmanifest" LogicalName="Package.appxmanifest" />
