@@ -17,6 +17,9 @@ steps:
     version: '7.x'
     installationPath: $(Agent.ToolsDirectory)/dotnet
 
+- powershell: dotnet workload install macos maccatalyst ios android maui
+  displayName: Install Latest .NET Workloads
+
 - task: NuGetToolInstaller@1
 
 - task: NuGetCommand@2
