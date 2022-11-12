@@ -1,4 +1,4 @@
-<linker>
+﻿<linker>
   <assembly fullname="MZikmund.App.Wasm" />
   <assembly fullname="Uno.UI" />
   <assembly fullname="Microsoft.Extensions.Options" />
