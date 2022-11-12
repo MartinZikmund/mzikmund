@@ -10,17 +10,21 @@ variables:
   solution: '**/*.sln'
 
 steps:
+
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '7.x'
+    installationPath: $(Agent.ToolsDirectory)/dotnet
+
+- powershell: dotnet workload install macos maccatalyst ios android maui
+  displayName: Install Latest .NET Workloads
+
 - task: NuGetToolInstaller@1
 
 - task: NuGetCommand@2
   inputs:
     restoreSolution: '$(solution)'
-
-- task: UseDotNet@2
-  inputs:
-    packageType: 'sdk'
-    version: '6.x'
-    installationPath: $(Agent.ToolsDirectory)/dotnet
 
 - task: VSBuild@1
   inputs:
