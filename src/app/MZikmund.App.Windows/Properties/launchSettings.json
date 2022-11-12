@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "MZikmund.App.Windows": {
+      "commandName": "MsixPackage"
+    }
+  }
+}
