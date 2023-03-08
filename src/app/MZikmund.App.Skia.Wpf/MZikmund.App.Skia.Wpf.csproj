@@ -17,19 +17,18 @@
     </AssemblyAttribute>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0" />
-    <PackageReference Include="Uno.WinUI.Skia.Wpf" Version="4.6.19" />
-    <PackageReference Include="Uno.WinUI.RemoteControl" Version="4.6.19" Condition="'$(Configuration)'=='Debug'" />
-    <PackageReference Include="Uno.UI.Adapter.Microsoft.Extensions.Logging" Version="4.6.19" />
-    <PackageReference Include="Uno.WinUI.Lottie" Version="4.6.19" />
+    <PackageReference Include="Uno.WinUI.Skia.Wpf" Version="4.8.0-dev.761" />
+    <PackageReference Include="Uno.WinUI.RemoteControl" Version="4.8.0-dev.761" Condition="'$(Configuration)'=='Debug'" />
+    <PackageReference Include="Uno.UI.Adapter.Microsoft.Extensions.Logging" Version="4.8.0-dev.761" />
+    <PackageReference Include="Uno.WinUI.Lottie" Version="4.8.0-dev.761" />
     <PackageReference Include="SkiaSharp.Skottie" Version="2.88.3" />
     <PackageReference Include="SkiaSharp.Views.Uno.WinUI" Version="2.88.3" />
   </ItemGroup>
   <ItemGroup>
-    <UpToDateCheckInput Include="..\MZikmund.App.Shared\**\*.xaml" />
+    <ApplicationDefinition Include="Wpf\App.xaml" XamlRuntime="Wpf" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Assets\Fonts\uno-fluentui-assets.ttf" />
+    <ProjectReference Include="..\MZikmund.App\MZikmund.App.csproj" />
   </ItemGroup>
-  <Import Project="..\MZikmund.App.Shared\MZikmund.App.Shared.projitems" Label="Shared" />
+  <Import Project="..\MZikmund.App.Base\base.props" />
 </Project>

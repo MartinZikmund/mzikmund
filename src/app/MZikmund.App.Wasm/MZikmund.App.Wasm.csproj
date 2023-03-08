@@ -3,7 +3,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net7.0</TargetFramework>
     <NoWarn>NU1701</NoWarn>
-		<WasmPWAManifestFile>manifest.json</WasmPWAManifestFile>
+		<WasmPWAManifestFile>manifest.webmanifest</WasmPWAManifestFile>
 	</PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <MonoRuntimeDebuggerEnabled>true</MonoRuntimeDebuggerEnabled>
@@ -12,16 +12,24 @@
     <DebugSymbols>true</DebugSymbols>
     <!--
 		IL Linking is disabled in Debug configuration.
-		When building in Release, see https://platform.uno/docs/articles/features/using-il-linker-webassembly.html
+		When building in Release, see https://aka.platform.uno/wasm-il-linker
 		-->
     <WasmShellILLinkerEnabled>false</WasmShellILLinkerEnabled>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <!-- XAML Resource trimming https://aka.platform.uno/xaml-trimming -->
+    <!--<UnoXamlResourcesTrimming>true</UnoXamlResourcesTrimming>-->
+    <!-- Improve performance with AOT builds https://aka.platform.uno/wasm-aot -->
+    <!-- <WasmShellMonoRuntimeExecutionMode>InterpreterAndAOT</WasmShellMonoRuntimeExecutionMode> -->
+    <!-- Temporarily uncomment to generate an AOT profile https://aka.platform.uno/wasm-aot-profile -->
+    <!-- <WasmShellGenerateAOTProfile>true</WasmShellGenerateAOTProfile> -->
+  </PropertyGroup>
   <ItemGroup>
     <Content Include="Assets\SplashScreen.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <UpToDateCheckInput Include="..\MZikmund.App.Shared\**\*.xaml" />
-  </ItemGroup>
+		
+		<Content Include="manifest.webmanifest" /><Content Include="Assets\AppIcon-*.png" />
+		
+	</ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="WasmCSS\Fonts.css" />
     <EmbeddedResource Include="WasmScripts\AppManifest.js" />
@@ -44,12 +52,15 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="6.0.0" />
     <PackageReference Include="Uno.Extensions.Logging.WebAssembly.Console" Version="1.4.0" />
-    <PackageReference Include="Uno.WinUI.WebAssembly" Version="4.6.19" />
-    <PackageReference Include="Uno.WinUI.RemoteControl" Version="4.6.19" Condition="'$(Configuration)'=='Debug'" />
-    <PackageReference Include="Uno.UI.Adapter.Microsoft.Extensions.Logging" Version="4.6.19" />
-    <PackageReference Include="Uno.Wasm.Bootstrap" Version="7.0.3" />
-    <PackageReference Include="Uno.Wasm.Bootstrap.DevServer" Version="7.0.3" />
-    <PackageReference Include="Uno.WinUI.Lottie" Version="4.6.19" />
+    <PackageReference Include="Uno.WinUI.WebAssembly" Version="4.8.0-dev.761" />
+    <PackageReference Include="Uno.WinUI.RemoteControl" Version="4.8.0-dev.761" Condition="'$(Configuration)'=='Debug'" />
+    <PackageReference Include="Uno.UI.Adapter.Microsoft.Extensions.Logging" Version="4.8.0-dev.761" />
+    <PackageReference Include="Uno.Wasm.Bootstrap" Version="7.0.11" />
+    <PackageReference Include="Uno.Wasm.Bootstrap.DevServer" Version="7.0.11" />
+    <PackageReference Include="Uno.WinUI.Lottie" Version="4.8.0-dev.761" />
   </ItemGroup>
-  <Import Project="..\MZikmund.App.Shared\MZikmund.App.Shared.projitems" Label="Shared" Condition="Exists('..\MZikmund.App.Shared\MZikmund.App.Shared.projitems')" />
+  <ItemGroup>
+    <ProjectReference Include="..\MZikmund.App\MZikmund.App.csproj" />
+  </ItemGroup>
+  <Import Project="..\MZikmund.App.Base\base.props" />
 </Project>

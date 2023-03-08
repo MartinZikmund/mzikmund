@@ -23,6 +23,6 @@ public partial class MainWindow : Window
 	{
 		InitializeComponent();
 
-		root.Content = new global::Uno.UI.Skia.Platform.WpfHost(Dispatcher, () => new MZikmund.App.App());
+		root.Content = new global::Uno.UI.Skia.Platform.WpfHost(Dispatcher, () => new MZikmund.App.AppHead());
 	}
 }
