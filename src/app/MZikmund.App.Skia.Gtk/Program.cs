@@ -3,7 +3,7 @@ using GLib;
 using Uno.UI.Runtime.Skia;
 
 namespace MZikmund.App.Skia.Gtk;
-internal class Program
+public sealed class Program
 {
 	static void Main(string[] args)
 	{
@@ -13,7 +13,7 @@ internal class Program
 			expArgs.ExitApplication = true;
 		};
 
-		var host = new GtkHost(() => new App());
+		var host = new GtkHost(() => new AppHead());
 
 		host.Run();
 	}
