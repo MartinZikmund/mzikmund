@@ -1,23 +1,23 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType Condition="'$(Configuration)'=='Release'">WinExe</OutputType>
-    <OutputType Condition="'$(Configuration)'=='Debug'">Exe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
-  </PropertyGroup>
-  <ItemGroup Condition="exists('..\MZikmund.App.Windows')">
-    <EmbeddedResource Include="..\MZikmund.App.Windows\Package.appxmanifest" LogicalName="Package.appxmanifest" />
-    <Content Include="..\MZikmund.App.Windows\Images\StoreLogo.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Uno.WinUI.Skia.Gtk" Version="4.8.0-dev.761" />
-    <PackageReference Include="Uno.WinUI.RemoteControl" Version="4.8.0-dev.761" Condition="'$(Configuration)'=='Debug'" />
-    <PackageReference Include="Uno.UI.Adapter.Microsoft.Extensions.Logging" Version="4.8.0-dev.761" />
-    <PackageReference Include="Uno.WinUI.Lottie" Version="4.8.0-dev.761" />
-    <PackageReference Include="SkiaSharp.Views.Uno.WinUI" Version="2.88.3" />
-    <PackageReference Include="SkiaSharp.Skottie" Version="2.88.3" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\MZikmund.App\MZikmund.App.csproj" />
-  </ItemGroup>
-  <Import Project="..\MZikmund.App.Base\base.props" />
+	<PropertyGroup>
+		<OutputType Condition="'$(Configuration)'=='Release'">WinExe</OutputType>
+		<OutputType Condition="'$(Configuration)'=='Debug'">Exe</OutputType>
+		<TargetFramework>net7.0</TargetFramework>
+	</PropertyGroup>
+	<ItemGroup Condition="exists('..\MZikmund.App.Windows')">
+		<EmbeddedResource Include="..\MZikmund.App.Windows\Package.appxmanifest" LogicalName="Package.appxmanifest" />
+		<Content Include="..\MZikmund.App.Windows\Images\StoreLogo.png" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Uno.WinUI.Skia.Gtk" Version="4.8.0-dev.761" />
+		<PackageReference Include="Uno.WinUI.RemoteControl" Version="4.8.0-dev.761" Condition="'$(Configuration)'=='Debug'" />
+		<PackageReference Include="Uno.UI.Adapter.Microsoft.Extensions.Logging" Version="4.8.0-dev.761" />
+		<PackageReference Include="Uno.WinUI.Lottie" Version="4.8.0-dev.761" />
+		<PackageReference Include="SkiaSharp.Views.Uno.WinUI" Version="2.88.3" />
+		<PackageReference Include="SkiaSharp.Skottie" Version="2.88.3" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\MZikmund.App\MZikmund.App.csproj" />
+	</ItemGroup>
+	<Import Project="..\MZikmund.App.Base\base.props" />
 </Project>
