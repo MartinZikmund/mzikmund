@@ -4,13 +4,14 @@ using Android.OS;
 using Android.Views;
 using Android.Widget;
 
-namespace MZikmund.App;
-[Activity(
+namespace MZikmund.App.Droid
+{
+	[Activity(
 		MainLauncher = true,
 		ConfigurationChanges = global::Uno.UI.ActivityHelper.AllConfigChanges,
-		WindowSoftInputMode = SoftInput.AdjustPan | SoftInput.StateHidden
+		WindowSoftInputMode = SoftInput.AdjustNothing | SoftInput.StateHidden
 	)]
-public class MainActivity : Microsoft.UI.Xaml.ApplicationActivity
-{
+	public class MainActivity : Microsoft.UI.Xaml.ApplicationActivity
+	{
+	}
 }
-

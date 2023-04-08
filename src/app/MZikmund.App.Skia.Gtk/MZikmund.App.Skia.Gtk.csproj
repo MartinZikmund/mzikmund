@@ -4,20 +4,35 @@
 		<OutputType Condition="'$(Configuration)'=='Debug'">Exe</OutputType>
 		<TargetFramework>net7.0</TargetFramework>
 	</PropertyGroup>
-	<ItemGroup Condition="exists('..\MZikmund.App.Windows')">
-		<EmbeddedResource Include="..\MZikmund.App.Windows\Package.appxmanifest" LogicalName="Package.appxmanifest" />
-		<Content Include="..\MZikmund.App.Windows\Images\StoreLogo.png" />
-	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Uno.WinUI.Skia.Gtk" Version="4.8.0-dev.761" />
-		<PackageReference Include="Uno.WinUI.RemoteControl" Version="4.8.0-dev.761" Condition="'$(Configuration)'=='Debug'" />
-		<PackageReference Include="Uno.UI.Adapter.Microsoft.Extensions.Logging" Version="4.8.0-dev.761" />
-		<PackageReference Include="Uno.WinUI.Lottie" Version="4.8.0-dev.761" />
+		<EmbeddedResource Include="Package.appxmanifest" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Uno.Resizetizer" Version="1.0.2" />
+		<PackageReference Include="Uno.WinUI.Skia.Gtk" Version="4.8.15" />
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.1.0" />
+		<PackageReference Include="Uno.Extensions.Configuration" Version="2.3.2" />
+		<PackageReference Include="Uno.Extensions.Http" Version="2.3.2" />
+		<PackageReference Include="Uno.Extensions.Http.Refit" Version="2.3.2" />
+		<PackageReference Include="Uno.Extensions.Logging.WinUI" Version="2.3.2" />
+		<PackageReference Include="Uno.Extensions.Serialization.Http" Version="2.3.2" />
+		<PackageReference Include="Uno.Extensions.Serialization.Refit" Version="2.3.2" />
+		<PackageReference Include="Uno.Toolkit.WinUI" Version="2.5.5" />
+		<PackageReference Include="Uno.Extensions.Authentication.WinUI" Version="2.3.2" />
+		<PackageReference Include="Uno.Extensions.Hosting.WinUI" Version="2.3.2" />
+		<PackageReference Include="Uno.Extensions.Localization.WinUI" Version="2.3.2" />
+		<PackageReference Include="Uno.Extensions.Navigation.Toolkit.WinUI" Version="2.3.2" />
+		<PackageReference Include="Uno.Extensions.Navigation.WinUI" Version="2.3.2" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.0.0" />
 		<PackageReference Include="SkiaSharp.Views.Uno.WinUI" Version="2.88.3" />
 		<PackageReference Include="SkiaSharp.Skottie" Version="2.88.3" />
+		<PackageReference Include="Uno.WinUI.RemoteControl" Version="4.8.15" Condition="'$(Configuration)'=='Debug'" />
+		<PackageReference Include="Uno.UI.Adapter.Microsoft.Extensions.Logging" Version="4.8.15" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\MZikmund.App\MZikmund.App.csproj" />
+		<ProjectReference Include="..\MZikmund.App.DataContracts\MZikmund.App.DataContracts.csproj" />
 	</ItemGroup>
 	<Import Project="..\MZikmund.App.Base\base.props" />
 </Project>

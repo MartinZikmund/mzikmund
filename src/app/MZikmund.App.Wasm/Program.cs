@@ -1,15 +1,14 @@
-﻿using System;
-using Microsoft.UI.Xaml;
-
-namespace MZikmund.App.Wasm;
-public sealed class Program
+namespace MZikmund.App.Wasm
 {
-	private static App _app;
-
-	static int Main(string[] args)
+	public class Program
 	{
-		Microsoft.UI.Xaml.Application.Start(_ => _app = new AppHead());
+		private static App? _app;
 
-		return 0;
+		public static int Main(string[] args)
+		{
+			Microsoft.UI.Xaml.Application.Start(_ => _app = new AppHead());
+
+			return 0;
+		}
 	}
 }
