@@ -1,34 +1,28 @@
-﻿using System;
+using System;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Navigation;
-using Windows.ApplicationModel;
-using Windows.ApplicationModel.Activation;
 
-namespace MZikmund.App;
-/// <summary>
-/// Provides application-specific behavior to supplement the default Application class.
-///
-/// Your own code may be placed in the MZikmund.App/App.cs class.
-/// </summary>
-public sealed partial class AppHead : App
+namespace MZikmund.App
 {
-	static AppHead()
-		=> InitializeLogging();
-
-	/// <summary>
-	/// Initializes the singleton application object. This is the first line of authored code
-	/// executed, and as such is the logical equivalent of main() or WinMain().
-	/// </summary>
-	public AppHead()
-		=> this.InitializeComponent();
-
-	/// <summary>
-	/// Configures global Uno Platform logging
-	/// </summary>
-	private static void InitializeLogging()
+	public sealed partial class AppHead : App
 	{
+		static AppHead() =>
+			InitializeLogging();
+
+		/// <summary>
+		/// Initializes the singleton application object. This is the first line of authored code
+		/// executed, and as such is the logical equivalent of main() or WinMain().
+		/// </summary>
+		public AppHead()
+		{
+			this.InitializeComponent();
+		}
+
+		/// <summary>
+		/// Configures global Uno Platform logging
+		/// </summary>
+		private static void InitializeLogging()
+		{
 #if DEBUG
 		// Logging is disabled by default for release builds, as it incurs a significant
 		// initialization cost from Microsoft.Extensions.Logging setup. If startup performance
@@ -41,7 +35,7 @@ public sealed partial class AppHead : App
 		{
 #if __WASM__
 			builder.AddProvider(new global::Uno.Extensions.Logging.WebAssembly.WebAssemblyConsoleLoggerProvider());
-#elif __IOS__ && !__MACCATALYST__
+#elif __IOS__ || __MACCATALYST__
 			builder.AddProvider(new global::Uno.Extensions.Logging.OSLogLoggerProvider());
 #elif NETFX_CORE
 			builder.AddDebug();
@@ -58,22 +52,22 @@ public sealed partial class AppHead : App
 			builder.AddFilter("Microsoft", LogLevel.Warning);
 
 			// Generic Xaml events
-			// builder.AddFilter("Windows.UI.Xaml", LogLevel.Debug );
-			// builder.AddFilter("Windows.UI.Xaml.VisualStateGroup", LogLevel.Debug );
-			// builder.AddFilter("Windows.UI.Xaml.StateTriggerBase", LogLevel.Debug );
-			// builder.AddFilter("Windows.UI.Xaml.UIElement", LogLevel.Debug );
-			// builder.AddFilter("Windows.UI.Xaml.FrameworkElement", LogLevel.Trace );
+			// builder.AddFilter("Microsoft.UI.Xaml", LogLevel.Debug );
+			// builder.AddFilter("Microsoft.UI.Xaml.VisualStateGroup", LogLevel.Debug );
+			// builder.AddFilter("Microsoft.UI.Xaml.StateTriggerBase", LogLevel.Debug );
+			// builder.AddFilter("Microsoft.UI.Xaml.UIElement", LogLevel.Debug );
+			// builder.AddFilter("Microsoft.UI.Xaml.FrameworkElement", LogLevel.Trace );
 
 			// Layouter specific messages
-			// builder.AddFilter("Windows.UI.Xaml.Controls", LogLevel.Debug );
-			// builder.AddFilter("Windows.UI.Xaml.Controls.Layouter", LogLevel.Debug );
-			// builder.AddFilter("Windows.UI.Xaml.Controls.Panel", LogLevel.Debug );
+			// builder.AddFilter("Microsoft.UI.Xaml.Controls", LogLevel.Debug );
+			// builder.AddFilter("Microsoft.UI.Xaml.Controls.Layouter", LogLevel.Debug );
+			// builder.AddFilter("Microsoft.UI.Xaml.Controls.Panel", LogLevel.Debug );
 
 			// builder.AddFilter("Windows.Storage", LogLevel.Debug );
 
 			// Binding related messages
-			// builder.AddFilter("Windows.UI.Xaml.Data", LogLevel.Debug );
-			// builder.AddFilter("Windows.UI.Xaml.Data", LogLevel.Debug );
+			// builder.AddFilter("Microsoft.UI.Xaml.Data", LogLevel.Debug );
+			// builder.AddFilter("Microsoft.UI.Xaml.Data", LogLevel.Debug );
 
 			// Binder memory references tracking
 			// builder.AddFilter("Uno.UI.DataBinding.BinderReferenceHolder", LogLevel.Debug );
@@ -91,6 +85,6 @@ public sealed partial class AppHead : App
 		global::Uno.UI.Adapter.Microsoft.Extensions.Logging.LoggingAdapter.Initialize();
 #endif
 #endif
+		}
 	}
 }
-

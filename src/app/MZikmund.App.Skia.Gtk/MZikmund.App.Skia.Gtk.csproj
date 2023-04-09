@@ -4,17 +4,19 @@
 		<OutputType Condition="'$(Configuration)'=='Debug'">Exe</OutputType>
 		<TargetFramework>net7.0</TargetFramework>
 	</PropertyGroup>
-	<ItemGroup Condition="exists('..\MZikmund.App.Windows')">
-		<EmbeddedResource Include="..\MZikmund.App.Windows\Package.appxmanifest" LogicalName="Package.appxmanifest" />
-		<Content Include="..\MZikmund.App.Windows\Images\StoreLogo.png" />
-	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Uno.WinUI.Skia.Gtk" Version="4.8.0-dev.761" />
-		<PackageReference Include="Uno.WinUI.RemoteControl" Version="4.8.0-dev.761" Condition="'$(Configuration)'=='Debug'" />
-		<PackageReference Include="Uno.UI.Adapter.Microsoft.Extensions.Logging" Version="4.8.0-dev.761" />
-		<PackageReference Include="Uno.WinUI.Lottie" Version="4.8.0-dev.761" />
+		<EmbeddedResource Include="Package.appxmanifest" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Uno.Resizetizer" Version="1.0.2" />
+		<PackageReference Include="Uno.WinUI.Skia.Gtk" Version="4.8.15" />
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.1.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.0.0" />
 		<PackageReference Include="SkiaSharp.Views.Uno.WinUI" Version="2.88.3" />
 		<PackageReference Include="SkiaSharp.Skottie" Version="2.88.3" />
+		<PackageReference Include="Uno.WinUI.RemoteControl" Version="4.8.15" Condition="'$(Configuration)'=='Debug'" />
+		<PackageReference Include="Uno.UI.Adapter.Microsoft.Extensions.Logging" Version="4.8.15" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\MZikmund.App\MZikmund.App.csproj" />
