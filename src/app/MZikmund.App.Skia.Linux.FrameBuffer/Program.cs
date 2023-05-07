@@ -1,12 +1,13 @@
-﻿using System;
 using Microsoft.UI.Xaml;
+using System;
 using Uno.UI.Runtime.Skia;
 using Windows.UI.Core;
 
-namespace MZikmund.App;
-public sealed class Program
+namespace MZikmund.App.Skia.Framebuffer;
+
+public class Program
 {
-	static void Main(string[] args)
+	public static void Main(string[] args)
 	{
 		try
 		{
@@ -14,18 +15,21 @@ public sealed class Program
 
 			var host = new FrameBufferHost(() =>
 			{
-				// Framebuffer applications don't have a WindowManager to rely
-				// on. To close the application, we can hook onto CoreWindow events
-				// which dispatch keyboard input, and close the application as a result.
-				// This block can be moved to App.xaml.cs if it does not interfere with other
-				// platforms that may use the same keys.
-				CoreWindow.GetForCurrentThread().KeyDown += (s, e) =>
+				if (CoreWindow.GetForCurrentThread() is { } window)
 				{
-					if (e.VirtualKey == Windows.System.VirtualKey.F12)
+					// Framebuffer applications don't have a WindowManager to rely
+					// on. To close the application, we can hook onto CoreWindow events
+					// which dispatch keyboard input, and close the application as a result.
+					// This block can be moved to App.xaml.cs if it does not interfere with other
+					// platforms that may use the same keys.
+					window.KeyDown += (s, e) =>
 					{
-						Application.Current.Exit();
-					}
-				};
+						if (e.VirtualKey == Windows.System.VirtualKey.F12)
+						{
+							Application.Current.Exit();
+						}
+					};
+				}
 
 				return new AppHead();
 			});
