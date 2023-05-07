@@ -12,9 +12,10 @@ using Com.Nostra13.Universalimageloader.Core;
 using Microsoft.UI.Xaml.Media;
 
 namespace MZikmund.App.Droid;
+
 [global::Android.App.ApplicationAttribute(
 	Label = "@string/ApplicationName",
-	Icon = "@mipmap/icon",
+	Icon = "@mipmap/iconapp",
 	LargeHeap = true,
 	HardwareAccelerated = true,
 	Theme = "@style/AppTheme"
@@ -39,3 +40,4 @@ public class Application : Microsoft.UI.Xaml.NativeApplication
 		ImageSource.DefaultImageLoader = ImageLoader.Instance.LoadImageAsync;
 	}
 }
+

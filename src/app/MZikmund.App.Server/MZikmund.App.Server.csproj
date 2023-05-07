@@ -2,15 +2,18 @@
 
 	<PropertyGroup>
 		<TargetFramework>net7.0</TargetFramework>
-		<Nullable>enable</Nullable>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<NoWarn>$(NoWarn);CS1591</NoWarn>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\MZikmund.App.Wasm\MZikmund.App.Wasm.csproj" />
+		<ProjectReference Include="..\MZikmund.App.DataContracts\MZikmund.App.DataContracts.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Uno.Wasm.Bootstrap.Server" Version="7.0.0-dev.195" />
+		<PackageReference Include="Swashbuckle.AspNetCore" />
+		<PackageReference Include="Uno.Wasm.Bootstrap.Server" />
 	</ItemGroup>
 
 </Project>
