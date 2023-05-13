@@ -63,10 +63,6 @@
 	</Choose>
 
 	<ItemGroup>
-		<ProjectReference Include="..\MZikmund.App.DataContracts\MZikmund.App.DataContracts.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<UnoImage Include="Assets\**\*.svg" />
 		<EmbeddedResource Include="appsettings.json" />
 		<EmbeddedResource Include="appsettings.*.json"

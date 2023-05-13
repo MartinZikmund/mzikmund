@@ -73,7 +73,6 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\MZikmund.App\MZikmund.App.csproj" />
-		<ProjectReference Include="..\MZikmund.App.DataContracts\MZikmund.App.DataContracts.csproj" />
 	</ItemGroup>
 	<Import Project="..\MZikmund.App.Base\base.props" />
 </Project>
