@@ -8,7 +8,6 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\MZikmund.App.Wasm\MZikmund.App.Wasm.csproj" />
-		<ProjectReference Include="..\MZikmund.App.DataContracts\MZikmund.App.DataContracts.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
