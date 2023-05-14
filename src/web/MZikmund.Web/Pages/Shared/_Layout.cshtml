@@ -1,16 +1,19 @@
 ﻿<!DOCTYPE html>
-<html lang="en" data-bs-theme="dark">
+<html lang="en" data-bs-theme="light">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - MZikmund.Web</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0-alpha1/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/MZikmund.Web.styles.css" asp-append-version="true" />
+    <title>@ViewData[ViewDataProperties.Title] - MZikmund.Web</title>
+
+    <partial name="_HeadMetaPartial" />
+    <partial name="_HeadLinksPartial" />
+
+    <partial name="_HeadStylesPartial" />
+    <partial name="_HeadScriptsPartial" />
+
+    @RenderSection(LayoutSections.Head, required: false)
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm box-shadow mb-4">
             <div class="container">
                 <a class="navbar-brand" asp-area="" asp-page="/Index">
                     <img src="~/img/logo.png" width="48" alt="Martin Zikmund" />
@@ -22,32 +25,35 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
+                            <a class="nav-link" asp-area="" asp-page="/Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
+                            <a class="nav-link" asp-area="" asp-page="/Privacy">Privacy</a>
                         </li>
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
+    @RenderSection(LayoutSections.AboveMain, false)
     <div class="container">
-        <main role="main" class="pb-3">
+        <main role="main" class="pb-4">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <footer class="box-shadow footer text-muted">
         <div class="container">
-            &copy; 2022 - MZikmund.Web - <a asp-area="" asp-page="/Privacy">Privacy</a>
+            <div class="row justify-content-center mb-0 pb-0">
+                <div class="col-12 align-content-center">
+                    <p class="text-center mb-0">&copy; @DateTimeOffset.UtcNow.Year - Martin Zikmund</p>
+                </div>             
+            </div>
         </div>
     </footer>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0-alpha1/js/bootstrap.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <partial name="_CookieConsentPartial" />
 
-    @await RenderSectionAsync("Scripts", required: false)
+    @RenderSection(LayoutSections.BodyEnd, required: false)
 </body>
 </html>

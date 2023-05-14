@@ -1,0 +1,43 @@
+﻿@using Microsoft.AspNetCore.Http.Features
+
+@{
+    var consentFeature = Context.Features.Get<ITrackingConsentFeature>();
+    var showBanner = !consentFeature?.CanTrack ?? false;
+    var cookieString = consentFeature?.CreateConsentCookie();
+}
+
+@if (showBanner)
+{
+    <div class="alert text-center" id="cookie-alert" role="alert">
+        <b>Cookies</b> &#x1F36A; This web needs to use cookies to work great.<a href="https://cookiesandyou.com/" target="_blank">Learn more</a>
+
+        <button type="button" class="btn btn-primary btn-sm acceptcookies" data-cookie-string="@cookieString" aria-label="Close">
+            I agree
+        </button>
+    </div>
+    <script type="text/javascript">
+        /*
+* Bootstrap Cookie Alert by Wruczek
+* https://github.com/Wruczek/Bootstrap-Cookie-Alert
+* Released under MIT license
+*/
+        (function () {
+            "use strict";
+
+            var cookieAlert = document.querySelector("#cookie-alert");
+            var acceptCookies = document.querySelector(".acceptcookies");
+
+            if (!cookieAlert) {
+                return;
+            }
+
+            cookieAlert.offsetHeight; // Force browser to trigger reflow (https://stackoverflow.com/a/39451131)
+            cookieAlert.classList.add("show");
+
+            acceptCookies.addEventListener("click", function () {
+                document.cookie = acceptCookies.dataset.cookieString;
+                cookieAlert.classList.remove("show");
+            });
+        })();
+    </script>
+}
