@@ -13,7 +13,7 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm box-shadow mb-4">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm shadow-sm mb-4">
             <div class="container">
                 <a class="navbar-brand" asp-area="" asp-page="/Index">
                     <img src="~/img/logo.png" width="48" alt="Martin Zikmund" />
@@ -42,13 +42,20 @@
         </main>
     </div>
 
-    <footer class="box-shadow footer text-muted">
-        <div class="container">
-            <div class="row justify-content-center mb-0 pb-0">
-                <div class="col-12 align-content-center">
-                    <p class="text-center mb-0">&copy; @DateTimeOffset.UtcNow.Year - Martin Zikmund</p>
-                </div>             
+    <footer class="mt-auto  fixed-bottom">
+        <div class="container d-flex flex-wrap justify-content-between align-items-center py-3 border-top">
+            <div class="col-md-4 d-flex align-items-center">
+                <a href="/" class="mb-3 me-2 mb-md-0 text-muted text-decoration-none lh-1">
+                    <img src="~/img/logo.png" style="opacity: 0.8" width="24" alt="Martin Zikmund" />
+                </a>
+                <span class="mb-3 mb-md-0 text-muted">© 2022 Martin Zikmund</span>
             </div>
+
+            <ul class="nav col-md-4 justify-content-end list-unstyled d-flex">
+                <li class="ms-3"><a class="text-muted" href="#"><svg class="bi" width="24" height="24"><use xlink:href="#twitter"></use></svg></a></li>
+                <li class="ms-3"><a class="text-muted" href="#"><svg class="bi" width="24" height="24"><use xlink:href="#instagram"></use></svg></a></li>
+                <li class="ms-3"><a class="text-muted" href="#"><svg class="bi" width="24" height="24"><use xlink:href="#facebook"></use></svg></a></li>
+            </ul>
         </div>
     </footer>
 
