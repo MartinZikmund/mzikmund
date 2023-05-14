@@ -33,7 +33,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Platforms", "Platforms", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{4176D01F-A1BE-49BA-A734-E5B519D0C4B7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MZikmund.Web.Data", "web\MZikmund.Web.Data\MZikmund.Web.Data.csproj", "{32801CD7-1B90-4F68-845B-F38B4C672AFB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MZikmund.Web.Data", "web\MZikmund.Web.Data\MZikmund.Web.Data.csproj", "{32801CD7-1B90-4F68-845B-F38B4C672AFB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4540BD52-5745-4278-9ECA-F61335586670}"
 	ProjectSection(SolutionItems) = preProject

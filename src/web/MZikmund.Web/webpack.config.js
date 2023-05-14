@@ -22,7 +22,7 @@ module.exports = {
             name: 'MZikmund',
             type: 'var'
         },
-        filename: 'app-client.js',
+        filename: 'site.js',
         path: path.resolve(__dirname, './wwwroot/js'),
     }
 };
