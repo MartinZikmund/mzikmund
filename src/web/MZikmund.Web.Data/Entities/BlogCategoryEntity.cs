@@ -4,7 +4,7 @@ public class BlogCategoryEntity
 {
 	public BlogCategoryEntity()
 	{
-		Posts = new HashSet<BlogPostCategoryEntity>();
+		Posts = new HashSet<BlogPostEntity>();
 	}
 
 	public Guid Id { get; set; }

@@ -9,7 +9,7 @@
     <partial name="_HeadStylesPartial" />
     <partial name="_HeadScriptsPartial" />
 
-    @RenderSection(LayoutSections.Head, required: false)
+    @await RenderSectionAsync(LayoutSections.Head, required: false)
 </head>
 <body>
     <header>
@@ -35,7 +35,7 @@
             </div>
         </nav>
     </header>
-    @RenderSection(LayoutSections.AboveMain, false)
+    @await RenderSectionAsync(LayoutSections.AboveMain, false)
     <div class="container">
         <main role="main" class="pb-4">
             @RenderBody()
@@ -48,7 +48,7 @@
                 <a href="/" class="mb-3 me-2 mb-md-0 text-muted text-decoration-none lh-1">
                     <img src="~/img/logo.png" style="opacity: 0.8" width="24" alt="Martin Zikmund" />
                 </a>
-                <span class="mb-3 mb-md-0 text-muted">© 2022 Martin Zikmund</span>
+                <span class="mb-3 mb-md-0 text-muted">© @DateTimeOffset.UtcNow.Year Martin Zikmund</span>
             </div>
 
             <ul class="nav col-md-4 justify-content-end list-unstyled d-flex">
@@ -61,6 +61,7 @@
 
     <partial name="_CookieConsentPartial" />
 
-    @RenderSection(LayoutSections.BodyEnd, required: false)
+    @await RenderSectionAsync(LayoutSections.BodyEnd, required: false)
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

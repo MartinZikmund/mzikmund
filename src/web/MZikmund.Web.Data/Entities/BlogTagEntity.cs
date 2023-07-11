@@ -2,6 +2,11 @@
 
 public class BlogTagEntity
 {
+	public BlogTagEntity()
+	{
+		Posts = new HashSet<BlogPostEntity>();
+	}
+
 	public Guid Id { get; set; }
 
 	public string DisplayName { get; set; } = "";

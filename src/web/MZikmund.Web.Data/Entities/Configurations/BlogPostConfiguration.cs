@@ -7,9 +7,12 @@ internal class BlogPostConfiguration : IEntityTypeConfiguration<BlogPostEntity>
 	public void Configure(EntityTypeBuilder<BlogPostEntity> builder)
 	{
 		builder.Property(c => c.Id).ValueGeneratedNever();
-		builder.Property(c => c.DisplayName).HasMaxLength(64);
-		builder.Property(c => c.Description).HasMaxLength(256);
-		builder.Property(c => c.RouteName).HasMaxLength(64);
+		builder.Property(c => c.Title).HasMaxLength(256);
+		builder.Property(c => c.RouteName).HasMaxLength(256);
+		builder.Property(c => c.Abstract).HasMaxLength(2048);
+		builder.Property(c => c.Content).HasMaxLength(10000);
+		builder.Property(c => c.HeroImageUrl).HasMaxLength(256);
+		builder.Property(c => c.LanguageCode).HasMaxLength(12);
 
 		builder
 			.HasMany(c => c.Categories)
