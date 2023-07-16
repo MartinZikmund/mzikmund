@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "MZikmund.LegacyMigration (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "MZikmund.LegacyMigration (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
