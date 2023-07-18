@@ -1,6 +1,6 @@
 ﻿namespace MZikmund.Web.Data.Entities;
 
-internal class BlogPostDraftEntity
+public class PostRevisionEntity
 {
 	public Guid Id { get; set; }
 
@@ -8,5 +8,5 @@ internal class BlogPostDraftEntity
 
 	public DateTimeOffset CreatedDate { get; set; }
 
-	public string Content { get; set; }
+	public string Content { get; set; } = "";
 }

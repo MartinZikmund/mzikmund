@@ -1,0 +1,10 @@
+﻿@page
+@model MZikmund.Web.Areas.Blog.Pages.IndexModel
+@{
+    <div class="row">
+        @foreach (var post in Model.BlogPosts)
+        {
+            <partial name="_BlogListItemPartial" model="post" />
+        }
+    </div>
+}

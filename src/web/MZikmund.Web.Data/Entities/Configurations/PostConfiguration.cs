@@ -2,19 +2,22 @@
 
 namespace MZikmund.Web.Data.Entities.Configurations;
 
-internal class BlogPostConfiguration : IEntityTypeConfiguration<BlogPostEntity>
+internal class PostConfiguration : IEntityTypeConfiguration<PostEntity>
 {
-	public void Configure(EntityTypeBuilder<BlogPostEntity> builder)
+	public void Configure(EntityTypeBuilder<PostEntity> builder)
 	{
 		builder.Property(c => c.Id).ValueGeneratedNever();
-		builder.Property(c => c.DisplayName).HasMaxLength(64);
-		builder.Property(c => c.Description).HasMaxLength(256);
-		builder.Property(c => c.RouteName).HasMaxLength(64);
+		builder.Property(c => c.Title).HasMaxLength(256);
+		builder.Property(c => c.RouteName).HasMaxLength(256);
+		builder.Property(c => c.Abstract).HasMaxLength(2048);
+		builder.Property(c => c.Content).HasMaxLength(10000);
+		builder.Property(c => c.HeroImageUrl).HasMaxLength(256);
+		builder.Property(c => c.LanguageCode).HasMaxLength(12);
 
 		builder
 			.HasMany(c => c.Categories)
 			.WithMany(p => p.Posts)
-			.UsingEntity<BlogPostCategoryEntity>(
+			.UsingEntity<PostCategoryEntity>(
 				j => j
 					.HasOne(pt => pt.Category)
 					.WithMany()
@@ -27,7 +30,7 @@ internal class BlogPostConfiguration : IEntityTypeConfiguration<BlogPostEntity>
 		builder
 			.HasMany(c => c.Tags)
 			.WithMany(p => p.Posts)
-			.UsingEntity<BlogPostTagEntity>(
+			.UsingEntity<PostTagEntity>(
 				j => j
 					.HasOne(pt => pt.Tag)
 					.WithMany()

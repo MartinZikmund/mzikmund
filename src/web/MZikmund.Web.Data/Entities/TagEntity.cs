@@ -1,7 +1,12 @@
 ﻿namespace MZikmund.Web.Data.Entities;
 
-public class BlogTagEntity
+public class TagEntity
 {
+	public TagEntity()
+	{
+		Posts = new HashSet<PostEntity>();
+	}
+
 	public Guid Id { get; set; }
 
 	public string DisplayName { get; set; } = "";
@@ -10,5 +15,5 @@ public class BlogTagEntity
 
 	public string RouteName { get; set; } = "";
 
-	public virtual ICollection<BlogPostEntity> Posts { get; set; }
+	public virtual ICollection<PostEntity> Posts { get; set; }
 }

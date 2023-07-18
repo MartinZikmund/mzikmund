@@ -1,0 +1,55 @@
+﻿@page
+@using Microsoft.AspNetCore.Http.Extensions
+@model MZikmund.Web.Areas.Blog.Pages.PostModel
+
+@{
+    ViewData[ViewDataProperties.Title] = Model.BlogPost.Localizations[0].Title;
+}
+
+@section Head
+{
+    <meta property="og:url" content="@Request.GetDisplayUrl()" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="@Model.BlogPost.Localizations[0].Title" />
+    <meta property="og:description" content="Tincidunt integer eu augue augue nunc elit dolor, luctus placerat scelerisque euismod, iaculis eu lacus nunc mi elit, vehicula ut laoreet ac, aliquam sit amet justo nunc tempor, metus vel." /> <!-- TODO -->
+    <meta property="og:image" content="@Model.BlogPost.Localizations[0].HeroImage" />
+    <meta property="og:image:height" content="378" /><!--TODO-->
+    <meta property="og:image:height" content="832" /><!--TODO-->
+    <meta name="twitter:image:alt" content="Alt text for image" /><!-- TODO -->
+    <meta name="keywords" content="" /><!-- TODO -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@@mzikmunddev" />
+    <meta name="twitter:title" content="@Model.BlogPost.Localizations[0].Title" />
+    <meta name="twitter:description" content="Tincidunt integer eu augue augue nunc elit dolor, luctus placerat scelerisque euismod, iaculis eu lacus nunc mi elit, vehicula ut laoreet ac, aliquam sit amet justo nunc tempor, metus vel." /> <!-- TODO -->
+    <meta name="twitter:image" content="@Model.BlogPost.Localizations[0].HeroImage" />
+    <meta property="twitter:image:height" content="378" /> <!--TODO-->
+    <meta property="twitter:image:height" content="832" /><!--TODO-->
+}
+
+<article class="blog-post">
+    <header>
+        <img class="hero-image shadow mb-3 img-fluid mx-auto d-block" src="@Model.BlogPost.Localizations[0].HeroImage" />
+
+        <h1 class="display-4 text-center text-primary">@Model.BlogPost.Localizations[0].Title</h1>
+        <div class="lead text-center">@Model.BlogPost.Localizations[0].PublishDate!.Value.Date.ToOrdinalWords()</div>
+    </header>
+    <div class="post-content">
+        @Html.Raw(Model.BlogPost.Localizations[0].Content)
+    </div>
+
+    <footer class="text-center">
+        <section class="mt-3">
+            @foreach (var tag in Model.Tags)
+            {
+                <a class="badge badge-secondary" href="#">@*@tag.DisplayName*@</a>
+            }
+        </section>
+        <h2>@LocalizedStrings.RecommendedArticles</h2>
+        <div class="container">
+            <div class="row justify-content-center">
+                <partial name="_BlogListItemPartial" model="Model.BlogPost" />
+                <partial name="_BlogListItemPartial" model="Model.BlogPost" />
+            </div>
+        </div>
+    </footer>
+</article>
