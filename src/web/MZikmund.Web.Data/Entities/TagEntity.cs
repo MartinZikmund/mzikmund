@@ -1,10 +1,10 @@
 ﻿namespace MZikmund.Web.Data.Entities;
 
-public class BlogCategoryEntity
+public class TagEntity
 {
-	public BlogCategoryEntity()
+	public TagEntity()
 	{
-		Posts = new HashSet<BlogPostEntity>();
+		Posts = new HashSet<PostEntity>();
 	}
 
 	public Guid Id { get; set; }
@@ -13,9 +13,7 @@ public class BlogCategoryEntity
 
 	public string? Description { get; set; }
 
-	public string? Icon { get; set; }
-
 	public string RouteName { get; set; } = "";
 
-	public virtual ICollection<BlogPostEntity> Posts { get; set; }
+	public virtual ICollection<PostEntity> Posts { get; set; }
 }

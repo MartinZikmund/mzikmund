@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml;
 using MZikmund.LegacyMigration.Json;
+using MZikmund.LegacyMigration.Processors;
 using Newtonsoft.Json;
 using Windows.Storage;
 using Windows.Storage.Pickers;
@@ -54,12 +55,21 @@ internal partial class MainViewModel : ObservableObject
 		var posts = await Parse<Post>(files.FirstOrDefault(f => f.Name == PostsFileName));
 		var postMeta = await Parse<PostMeta>(files.FirstOrDefault(files => files.Name == PostMetaFileName));
 		var terms = await Parse<Term>(files.FirstOrDefault(files => files.Name == TermsFileName));
-		var termTaxonomy = await Parse<TermTaxonomy>(files.FirstOrDefault(files => files.Name == TermTaxonomyFileName));
+		var termTaxonomies = await Parse<TermTaxonomy>(files.FirstOrDefault(files => files.Name == TermTaxonomyFileName));
 		var termRelationships = await Parse<TermRelationship>(files.FirstOrDefault(files => files.Name == TermRelationshipsFileName));
 
+		var uniqueTaxonomies = termTaxonomies.Select(t => t.Taxonomy).Distinct();
 
-		var uniqueTaxonomies = termTaxonomy.Select(t => t.Taxonomy).Distinct();
+		var categoryProcessor = new CategoryProcessor(terms, termRelationships, termTaxonomies);
+		var categories = categoryProcessor.Process();
+		var tagProcessor = new TagProcessor(terms, termRelationships, termTaxonomies);
+		var tags = tagProcessor.Process();
 
+		var postTypes = posts.Select(p => p.PostType).Distinct();
+		var postStatuses = posts.Select(p => p.PostStatus).Distinct();
+
+		var postProcessor = new PostProcessor(posts, postMeta, terms, termRelationships, termTaxonomies, tags, categories);
+		var processedPosts = postProcessor.Process();
 	}
 
 	private async Task<IList<T>> Parse<T>(StorageFile sourceFile)

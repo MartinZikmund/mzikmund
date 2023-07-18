@@ -2,9 +2,9 @@
 
 namespace MZikmund.Web.Data.Entities.Configurations;
 
-internal class BlogPostConfiguration : IEntityTypeConfiguration<BlogPostEntity>
+internal class PostConfiguration : IEntityTypeConfiguration<PostEntity>
 {
-	public void Configure(EntityTypeBuilder<BlogPostEntity> builder)
+	public void Configure(EntityTypeBuilder<PostEntity> builder)
 	{
 		builder.Property(c => c.Id).ValueGeneratedNever();
 		builder.Property(c => c.Title).HasMaxLength(256);
@@ -17,7 +17,7 @@ internal class BlogPostConfiguration : IEntityTypeConfiguration<BlogPostEntity>
 		builder
 			.HasMany(c => c.Categories)
 			.WithMany(p => p.Posts)
-			.UsingEntity<BlogPostCategoryEntity>(
+			.UsingEntity<PostCategoryEntity>(
 				j => j
 					.HasOne(pt => pt.Category)
 					.WithMany()
@@ -30,7 +30,7 @@ internal class BlogPostConfiguration : IEntityTypeConfiguration<BlogPostEntity>
 		builder
 			.HasMany(c => c.Tags)
 			.WithMany(p => p.Posts)
-			.UsingEntity<BlogPostTagEntity>(
+			.UsingEntity<PostTagEntity>(
 				j => j
 					.HasOne(pt => pt.Tag)
 					.WithMany()
