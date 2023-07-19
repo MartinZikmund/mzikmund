@@ -8,14 +8,18 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="Styles\**" />
-	  <Content Remove="Styles\**" />
-	  <EmbeddedResource Remove="Styles\**" />
-	  <None Remove="Styles\**" />
+		<Compile Remove="Styles\**" />
+		<Content Remove="Styles\**" />
+		<EmbeddedResource Remove="Styles\**" />
+		<None Remove="Styles\**" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Scripts\" />
+		<Folder Include="Scripts\" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="MediatR" Version="12.1.1" />
 	</ItemGroup>
 
 </Project>

@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using MediatR;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Hosting;
 using MZikmund.Dtos.Blog.Posts;
@@ -15,23 +16,20 @@ namespace MZikmund.Web.Areas.Blog.Pages;
 public class PostModel : PageModel
 {
 	private readonly IHostEnvironment _host;
+	private readonly IMediator _mediator;
 	private readonly IMarkdown _markdown;
 	private readonly ILocalizationInfo _localizationInfo;
-	private readonly IBlogPostsService _blogPostsService;
-	private readonly IBlogTagsService _blogTagsService;
 	private readonly IHighlightableGistHtmlGenerator _highlightableGistHtmlGenerator;
 
 	public PostModel(
 		IHostEnvironment host,
-		IBlogPostsService blogPostsService,
-		IBlogTagsService blogTagsService,
+		IMediator mediator,
 		IMarkdown markdown,
 		ILocalizationInfo localizationInfo,
 		IHighlightableGistHtmlGenerator highlightableGistHtmlGenerator)
 	{
 		_host = host;
-		_blogPostsService = blogPostsService;
-		_blogTagsService = blogTagsService;
+		_mediator = mediator;
 		_markdown = markdown;
 		_localizationInfo = localizationInfo;
 		_highlightableGistHtmlGenerator = highlightableGistHtmlGenerator;

@@ -2,21 +2,18 @@
 // Copyright (c) Martin Zikmund. All rights reserved.
 // </copyright>
 
-using System.Linq;
-using System.Threading.Tasks;
+using MediatR;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using MZikmund.Dtos.Blog.Posts;
-using MZikmund.Logic.Services.Blog;
 
 namespace MZikmund.Web.Areas.Blog.Pages;
 
 public class IndexModel : PageModel
 {
-	private readonly IBlogPostsService _blogPostsService;
+	private readonly IMediator _mediator;
 
-	public IndexModel(IBlogPostsService blogPostsService)
+	public IndexModel(IMediator mediator)
 	{
-		_blogPostsService = blogPostsService;
+		_mediator = mediator;
 	}
 
 	public BlogPostDto[] BlogPosts { get; set; }
