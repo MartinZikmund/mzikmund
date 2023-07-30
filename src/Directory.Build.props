@@ -12,6 +12,7 @@
 		<RepositoryUrl>https://github.com/MartinZikmund/mzikmund</RepositoryUrl>
 
 		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+		<EnableWindowsTargeting>true</EnableWindowsTargeting>
 	</PropertyGroup>
 
 	<PropertyGroup>
