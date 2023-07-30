@@ -13,7 +13,7 @@ public class PostEntity
 
 	public Guid Id { get; set; }
 
-	public string Title { get; set; }
+	public string Title { get; set; } = "";
 
 	public DateTimeOffset? CreatedDate { get; set; }
 
@@ -23,15 +23,15 @@ public class PostEntity
 
 	public PostStatus Status { get; set; }
 
-	public string HeroImageUrl { get; set; }
+	public string? HeroImageUrl { get; set; }
 
-	public string LanguageCode { get; set; }
+	public string LanguageCode { get; set; } = "";
 
-	public string Content { get; set; }
+	public string Content { get; set; } = "";
 
-	public string Abstract { get; set; }
+	public string Abstract { get; set; } = "";
 
-	public string RouteName { get; set; }
+	public string RouteName { get; set; } = "";
 
 	public virtual ICollection<CategoryEntity> Categories { get; set; }
 

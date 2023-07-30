@@ -50,8 +50,8 @@ internal sealed class PostProcessor
 			var metas = _postMetas.Where(p => p.PostId == post.Id).ToArray();
 			var terms = _termRelationships
 				.Where(tr => tr.ObjectId == post.Id)
-				.Select(tr => _termTaxonomies.FirstOrDefault(t => t.TermTaxonomyId == tr.TermTaxonomyId))
-				.Select(tx => (tx, _terms.FirstOrDefault(t => t.TermId == tx.TermId)))
+				.Select(tr => _termTaxonomies.Single(t => t.TermTaxonomyId == tr.TermTaxonomyId))
+				.Select(tx => (tx, _terms.Single(t => t.TermId == tx.TermId)))
 				.ToArray();
 
 			var postEntity = new PostEntity()

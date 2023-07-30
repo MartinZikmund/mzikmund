@@ -6,7 +6,7 @@ public class PostTagEntity
 
 	public Guid TagId { get; set; }
 
-	public virtual PostEntity Post { get; set; }
+	public virtual PostEntity? Post { get; set; }
 
-	public virtual TagEntity Tag { get; set; }
+	public virtual TagEntity? Tag { get; set; }
 }

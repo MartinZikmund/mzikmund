@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿#nullable disable
+
 using Newtonsoft.Json;
 
 namespace MZikmund.LegacyMigration.Json;

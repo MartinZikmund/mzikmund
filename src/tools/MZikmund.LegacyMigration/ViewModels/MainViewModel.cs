@@ -26,10 +26,10 @@ internal sealed partial class MainViewModel : ObservableObject
 
 	public MainViewModel(Window window)
 	{
-		_window = window;
+		_window = window ?? throw new ArgumentNullException(nameof(window));
 	}
 
-	public StorageFolder SourceFolder { get; set; }
+	public StorageFolder? SourceFolder { get; set; }
 
 	[RelayCommand]
 	public async Task OpenSourceFolderAsync()
@@ -72,11 +72,22 @@ internal sealed partial class MainViewModel : ObservableObject
 		var processedPosts = postProcessor.Process();
 	}
 
-	private async Task<IList<T>> Parse<T>(StorageFile sourceFile)
+	private async Task<IList<T>> Parse<T>(StorageFile? sourceFile)
 	{
+		if (sourceFile is null)
+		{
+			throw new ArgumentNullException(nameof(sourceFile));
+		}
+
 		using var stream = await sourceFile.OpenStreamForReadAsync();
 
 		var json = await File.ReadAllTextAsync(sourceFile.Path);
-		return JsonConvert.DeserializeObject<IList<T>>(json);
+		var result = JsonConvert.DeserializeObject<IList<T>>(json);
+		if (result is null)
+		{
+			throw new InvalidOperationException("Could not parse JSON file.");
+		}
+
+		return result;
 	}
 }
