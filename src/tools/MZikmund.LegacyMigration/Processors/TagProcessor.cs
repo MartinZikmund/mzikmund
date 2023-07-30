@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace MZikmund.LegacyMigration.Processors;
 
-internal class TagProcessor
+internal sealed class TagProcessor
 {
 	private readonly IList<Term> _terms;
 	private readonly IList<TermRelationship> _termRelationships;

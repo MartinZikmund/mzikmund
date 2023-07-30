@@ -7,7 +7,7 @@ using MZikmund.Web.Data.Entities;
 
 namespace MZikmund.LegacyMigration.Processors;
 
-internal class PostProcessor
+internal sealed class PostProcessor
 {
 	private readonly IList<Post> _posts;
 	private readonly IList<PostMeta> _postMetas;
@@ -19,6 +19,8 @@ internal class PostProcessor
 
 	private readonly CultureInfo _czechLanguage = new CultureInfo("cs-CZ");
 	private readonly CultureInfo _englishLanguage = new CultureInfo("en-US");
+
+	private readonly ReverseMarkdown.Converter _reverseMarkdownConverter = new();
 
 	public PostProcessor(
 		IList<Post> posts,
@@ -56,7 +58,7 @@ internal class PostProcessor
 			{
 				Id = Guid.NewGuid(),
 				Title = post.PostTitle,
-				Content = post.PostContent,
+				Content = FromWordpressContent(post.PostContent),
 				CreatedDate = FromWordpressDate(post.PostDateGmt),
 				LastModifiedDate = FromWordpressDate(post.PostModifiedGmt),
 				PublishedDate = FromWordpressDate(post.PostDateGmt),
@@ -119,5 +121,13 @@ internal class PostProcessor
 			case "en_us": return _englishLanguage.TwoLetterISOLanguageName;
 			default: throw new InvalidOperationException("Invalid language");
 		}
+	}
+
+	private string FromWordpressContent(string content)
+	{
+		// TODO: Convert Gist links to custom extension
+		// TODO: Convert image URLs to new storage
+		// TODO: Convert [caption] sections
+		return _reverseMarkdownConverter.Convert(content);
 	}
 }

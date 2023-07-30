@@ -14,7 +14,7 @@ using Windows.Storage.Pickers;
 
 namespace MZikmund.LegacyMigration.ViewModels;
 
-internal partial class MainViewModel : ObservableObject
+internal sealed partial class MainViewModel : ObservableObject
 {
 	private const string PostMetaFileName = "wp_postmeta.json";
 	private const string PostsFileName = "wp_posts.json";

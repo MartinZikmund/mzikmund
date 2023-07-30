@@ -1,0 +1,18 @@
+﻿@*@using System.Globalization
+@using Microsoft.Extensions.Localization
+@using MZikmund.Localization
+
+@{
+    Layout = "_Layout";
+    ViewData[ViewDataProperties.ActiveMenuItem] = MenuItem.Blog;
+}
+
+@section Head
+{
+    @RenderSection(LayoutSections.Head, required: false)
+}
+
+<div class="blog">
+    @RenderBody()
+</div>
+*@

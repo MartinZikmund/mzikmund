@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace MZikmund.LegacyMigration.Json;
 
-internal class TermTaxonomy
+internal sealed class TermTaxonomy
 {
 	[JsonProperty("term_taxonomy_id")]
 	public long TermTaxonomyId { get; set; }

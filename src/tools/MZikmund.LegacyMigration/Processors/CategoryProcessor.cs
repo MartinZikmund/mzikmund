@@ -7,7 +7,7 @@ using MZikmund.Web.Data.Entities;
 
 namespace MZikmund.LegacyMigration.Processors;
 
-internal class CategoryProcessor
+internal sealed class CategoryProcessor
 {
 	private readonly IList<Term> _terms;
 	private readonly IList<TermRelationship> _termRelationships;

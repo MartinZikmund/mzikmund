@@ -2,7 +2,7 @@
 
 namespace MZikmund.Web.Data.Entities.Configurations;
 
-internal class PostConfiguration : IEntityTypeConfiguration<PostEntity>
+internal sealed class PostConfiguration : IEntityTypeConfiguration<PostEntity>
 {
 	public void Configure(EntityTypeBuilder<PostEntity> builder)
 	{

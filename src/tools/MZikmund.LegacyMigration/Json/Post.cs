@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace MZikmund.LegacyMigration.Json;
 
-internal class Post
+internal sealed class Post
 {
 	[JsonProperty("ID")]
 	public long Id { get; set; }

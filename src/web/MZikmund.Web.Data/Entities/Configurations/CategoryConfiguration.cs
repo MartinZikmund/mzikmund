@@ -2,7 +2,7 @@
 
 namespace MZikmund.Web.Data.Entities.Configurations;
 
-internal class CategoryConfiguration : IEntityTypeConfiguration<CategoryEntity>
+internal sealed class CategoryConfiguration : IEntityTypeConfiguration<CategoryEntity>
 {
 	public void Configure(EntityTypeBuilder<CategoryEntity> builder)
 	{
