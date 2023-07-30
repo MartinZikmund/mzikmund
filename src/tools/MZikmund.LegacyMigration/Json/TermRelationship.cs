@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace MZikmund.LegacyMigration.Json;
 
-internal class TermRelationship
+internal sealed class TermRelationship
 {
 	[JsonProperty("object_id")]
 	public long ObjectId { get; set; }

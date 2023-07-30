@@ -4,6 +4,8 @@
 
 using MediatR;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using MZikmund.Web.Core.Blog;
+using MZikmund.Web.Core.Dtos.Blog;
 
 namespace MZikmund.Web.Areas.Blog.Pages;
 
@@ -16,10 +18,10 @@ public class IndexModel : PageModel
 		_mediator = mediator;
 	}
 
-	public BlogPostDto[] BlogPosts { get; set; }
+	public Post[] BlogPosts { get; set; }
 
 	public async Task OnGet()
 	{
-		BlogPosts = (await _blogPostsService.GetAllAsync()).ToArray();
+		BlogPosts = await _mediator.Send(new GetPostsQuery());
 	}
 }

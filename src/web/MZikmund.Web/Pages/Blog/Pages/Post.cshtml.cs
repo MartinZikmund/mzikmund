@@ -1,15 +1,8 @@
-using System;
-using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Hosting;
-using MZikmund.Dtos.Blog.Posts;
-using MZikmund.Dtos.Blog.Tags;
-using MZikmund.Logic.Abstractions;
-using MZikmund.Logic.Abstractions.Localization;
-using MZikmund.Logic.Abstractions.Markdown;
-using MZikmund.Logic.Services.Blog;
-using MZikmund.Shared.Enums.Blog;
+using MZikmund.Web.Core.Blog;
+using MZikmund.Web.Core.Dtos.Blog;
+using MZikmund.Web.Services;
 
 namespace MZikmund.Web.Areas.Blog.Pages;
 
@@ -17,41 +10,34 @@ public class PostModel : PageModel
 {
 	private readonly IHostEnvironment _host;
 	private readonly IMediator _mediator;
-	private readonly IMarkdown _markdown;
-	private readonly ILocalizationInfo _localizationInfo;
-	private readonly IHighlightableGistHtmlGenerator _highlightableGistHtmlGenerator;
+	private readonly IMarkdownConverter _markdownConverter;
 
 	public PostModel(
 		IHostEnvironment host,
 		IMediator mediator,
-		IMarkdown markdown,
-		ILocalizationInfo localizationInfo,
-		IHighlightableGistHtmlGenerator highlightableGistHtmlGenerator)
+		IMarkdownConverter markdownConverter)
 	{
 		_host = host;
 		_mediator = mediator;
-		_markdown = markdown;
-		_localizationInfo = localizationInfo;
-		_highlightableGistHtmlGenerator = highlightableGistHtmlGenerator;
+		_markdownConverter = markdownConverter;
 	}
 
-	public BlogPostDto BlogPost { get; set; }
+	public Post BlogPost { get; set; }
 
-	public BlogTagDto[] Tags { get; set; }
+	public Tag[] Tags { get; set; }
 
-	public async Task OnGet(int id)
+	public async Task OnGet(string routeName)
 	{
-		BlogPost = await _blogPostsService.GetAsync(id);
-		throw new NotImplementedException();
+		BlogPost = await _mediator.Send(new GetPostByRouteNameQuery(routeName));
 		//Tags = await _blogTagsService.GetForPostAsync(id, _localizationInfo.CurrentLanguageId);
-		if (BlogPost.ContentType == BlogPostContentType.ExtendedMarkdown)
-		{
-			BlogPost.Localizations[0].Content = _markdown.ToHtml(BlogPost.Localizations[0].Content);
-		}
-		else
-		{
+		//if (BlogPost.ContentType == BlogPostContentType.ExtendedMarkdown)
+		//{
+		//	BlogPost.Localizations[0].Content = _markdown.ToHtml(BlogPost.Localizations[0].Content);
+		//}
+		//else
+		//{
 
-		}
+		//}
 		//var matches = Regex.Matches(BlogPost.Content, "https://gist.github.com/.*");
 		//foreach (Match match in matches)
 		//{

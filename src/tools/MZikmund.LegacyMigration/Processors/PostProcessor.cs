@@ -7,7 +7,7 @@ using MZikmund.Web.Data.Entities;
 
 namespace MZikmund.LegacyMigration.Processors;
 
-internal class PostProcessor
+internal sealed class PostProcessor
 {
 	private readonly IList<Post> _posts;
 	private readonly IList<PostMeta> _postMetas;

@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace MZikmund.LegacyMigration.Json;
 
-internal class PostMeta
+internal sealed class PostMeta
 {
 	[JsonProperty("meta_id")]
 	public long MetaId { get; set; }

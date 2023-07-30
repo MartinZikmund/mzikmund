@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MZikmund.Web.Data.Entities.Configurations;
 
-internal class TagConfiguration : IEntityTypeConfiguration<TagEntity>
+internal sealed class TagConfiguration : IEntityTypeConfiguration<TagEntity>
 {
 	public void Configure(EntityTypeBuilder<TagEntity> builder)
 	{
