@@ -6,7 +6,7 @@ public class PostCategoryEntity
 
 	public Guid CategoryId { get; set; }
 
-	public virtual PostEntity Post { get; set; }
+	public virtual PostEntity? Post { get; set; }
 
-	public virtual CategoryEntity Category { get; set; }
+	public virtual CategoryEntity? Category { get; set; }
 }

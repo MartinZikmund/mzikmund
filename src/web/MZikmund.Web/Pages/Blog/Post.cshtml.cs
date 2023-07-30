@@ -4,7 +4,7 @@ using MZikmund.Web.Core.Blog;
 using MZikmund.Web.Core.Dtos.Blog;
 using MZikmund.Web.Services;
 
-namespace MZikmund.Web.Areas.Blog.Pages;
+namespace MZikmund.Web.Pages.Blog;
 
 public class PostModel : PageModel
 {
@@ -22,9 +22,9 @@ public class PostModel : PageModel
 		_markdownConverter = markdownConverter;
 	}
 
-	public Post BlogPost { get; set; }
+	public Post? BlogPost { get; set; }
 
-	public Tag[] Tags { get; set; }
+	public Tag[]? Tags { get; set; }
 
 	public async Task OnGet(string routeName)
 	{

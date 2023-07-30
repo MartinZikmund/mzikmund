@@ -7,6 +7,6 @@ internal record struct ProcessedPosts(
 	IDictionary<long, PostEntity> Posts,
 	IList<PostCategoryEntity> PostCategories,
 	IList<PostTagEntity> PostTags,
-	IList<PostRevisionEntity> PostRevisions)
+	IList<PostRevisionEntity>? PostRevisions)
 {
 }

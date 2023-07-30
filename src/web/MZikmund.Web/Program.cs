@@ -1,7 +1,13 @@
+using MZikmund.Web.Core;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddMediatR(config =>
+{
+	config.RegisterServicesFromAssemblyContaining<CoreAssemblyMarker>();
+});
 
 var app = builder.Build();
 

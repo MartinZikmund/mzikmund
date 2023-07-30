@@ -2,8 +2,6 @@
 
 	<PropertyGroup>
 		<TargetFramework>net7.0</TargetFramework>
-		<Nullable>enable</Nullable>
-		<ImplicitUsings>enable</ImplicitUsings>
 		<NoWarn>CA1852</NoWarn>
 	</PropertyGroup>
 
@@ -19,7 +17,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="MediatR" Version="12.1.1" />
+		<PackageReference Include="MediatR" />
+		<PackageReference Include="AutoMapper" />
 	</ItemGroup>
 
 	<ItemGroup>

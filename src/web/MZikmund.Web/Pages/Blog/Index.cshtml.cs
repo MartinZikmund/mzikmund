@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using MZikmund.Web.Core.Blog;
 using MZikmund.Web.Core.Dtos.Blog;
 
-namespace MZikmund.Web.Areas.Blog.Pages;
+namespace MZikmund.Web.Pages.Blog;
 
 public class IndexModel : PageModel
 {
@@ -18,7 +18,7 @@ public class IndexModel : PageModel
 		_mediator = mediator;
 	}
 
-	public Post[] BlogPosts { get; set; }
+	public IReadOnlyList<Post> BlogPosts { get; set; } = Array.Empty<Post>();
 
 	public async Task OnGet()
 	{

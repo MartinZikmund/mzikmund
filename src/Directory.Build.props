@@ -1,7 +1,66 @@
 <Project ToolsVersion="15.0">
+	<Import Project="$(SolutionDir)\TargetingOverride.props" Condition="exists('$(SolutionDir)\TargetingOverride.props')" />
+
 	<PropertyGroup>
 		<Copyright>Martin Zikmund 2023</Copyright>
 		<Author>Martin Zikmund</Author>
-		<EnableWindowsTargeting>true</EnableWindowsTargeting>
+
+		<DefaultLanguage>en-US</DefaultLanguage>
+		<LangVersion>11.0</LangVersion>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<RepositoryUrl>https://github.com/MartinZikmund/mzikmund</RepositoryUrl>
+
+		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
 	</PropertyGroup>
+
+	<PropertyGroup>
+		<AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
+		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+		<IsTestProject>$(MSBuildProjectName.Contains('Test'))</IsTestProject>
+		<IsSampleProject>$(MSBuildProjectName.Contains('Sample'))</IsSampleProject>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<IsAndroid>false</IsAndroid>
+		<IsIOS>false</IsIOS>
+		<IsMac>false</IsMac>
+		<IsMacCatalyst>false</IsMacCatalyst>
+		<IsWinAppSdk>false</IsWinAppSdk>
+	</PropertyGroup>
+
+	<Choose>
+		<When Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+			<PropertyGroup>
+				<IsAndroid>true</IsAndroid>
+				<SupportedOSPlatformVersion>21.0</SupportedOSPlatformVersion>
+			</PropertyGroup>
+		</When>
+		<When Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+			<PropertyGroup>
+				<IsIOS>true</IsIOS>
+				<SupportedOSPlatformVersion>14.2</SupportedOSPlatformVersion>
+			</PropertyGroup>
+		</When>
+		<When Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'macos'">
+			<PropertyGroup>
+				<IsMac>true</IsMac>
+				<SupportedOSPlatformVersion>10.14</SupportedOSPlatformVersion>
+			</PropertyGroup>
+		</When>
+		<When Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">
+			<PropertyGroup>
+				<IsMacCatalyst>true</IsMacCatalyst>
+				<SupportedOSPlatformVersion>14.0</SupportedOSPlatformVersion>
+			</PropertyGroup>
+		</When>
+		<When Condition="$(TargetFramework.Contains('windows10'))">
+			<PropertyGroup>
+				<IsWinAppSdk>true</IsWinAppSdk>
+				<SupportedOSPlatformVersion>10.0.18362.0</SupportedOSPlatformVersion>
+				<TargetPlatformMinVersion>10.0.18362.0</TargetPlatformMinVersion>
+			</PropertyGroup>
+		</When>
+	</Choose>
 </Project>
