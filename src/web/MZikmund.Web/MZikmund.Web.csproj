@@ -19,6 +19,7 @@
 	<ItemGroup>
 		<PackageReference Include="MediatR" />
 		<PackageReference Include="AutoMapper" />
+		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" />
 	</ItemGroup>
 
 	<ItemGroup>

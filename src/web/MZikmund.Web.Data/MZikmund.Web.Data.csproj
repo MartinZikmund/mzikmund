@@ -9,4 +9,8 @@
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\MZikmund.Web.Configuration\MZikmund.Web.Configuration.csproj" />
+	</ItemGroup>
+
 </Project>

@@ -8,7 +8,7 @@ namespace MZikmund.Web.Configuration.Connections;
 
 public interface IConnectionStringProvider
 {
-	string? DatabaseConnection { get; }
+	string? Database { get; }
 
 	string? SendGrid { get; }
 

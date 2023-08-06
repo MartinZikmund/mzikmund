@@ -8,7 +8,7 @@ public class DbContextRepository<T> : IRepository<T> where T : class
 {
 	protected readonly DbContext DbContext;
 
-	public DbContextRepository(DbContext ctx) => DbContext = ctx;
+	public DbContextRepository(DatabaseContext ctx) => DbContext = ctx;
 
 	public Task Clear(CancellationToken ct = default)
 	{

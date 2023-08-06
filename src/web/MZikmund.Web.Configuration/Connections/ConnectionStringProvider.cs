@@ -15,7 +15,7 @@ public class ConnectionStringProvider : IConnectionStringProvider
 		_configuration = configuration;
 	}
 
-	public string? DatabaseConnection => _configuration.GetConnectionString(DatabaseConnectionKey);
+	public string? Database => _configuration.GetConnectionString(DatabaseConnectionKey);
 
 	public string? SendGrid => _configuration.GetConnectionString(SendGridApiKey);
 

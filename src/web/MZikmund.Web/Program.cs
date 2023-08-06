@@ -1,5 +1,7 @@
+using AutoMapper;
 using MZikmund.Web.Configuration.Connections;
 using MZikmund.Web.Core;
+using MZikmund.Web.Data.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,6 +40,7 @@ app.Run();
 
 void ConfigureServices(IServiceCollection services)
 {
+	services.AddAutoMapper(typeof(CoreAssemblyMarker).Assembly);
 	services.AddSingleton<IConnectionStringProvider, ConnectionStringProvider>();
-	services.AddDataContext(connStr!);
+	services.AddDataContext();
 }

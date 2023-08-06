@@ -2,6 +2,7 @@
 	<ItemGroup>
 		<!-- Web -->
 		<PackageVersion Include="AutoMapper" Version="12.0.1" />
+		<PackageVersion Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
 		<PackageVersion Include="MediatR" Version="12.1.1" />
 		<PackageVersion Include="Microsoft.EntityFrameworkCore.Proxies" Version="7.0.9" />
 		<PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.9" />
