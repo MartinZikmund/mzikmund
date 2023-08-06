@@ -19,9 +19,11 @@
 	<ItemGroup>
 		<PackageReference Include="MediatR" />
 		<PackageReference Include="AutoMapper" />
+		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" />
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\MZikmund.Web.Configuration\MZikmund.Web.Configuration.csproj" />
 	  <ProjectReference Include="..\MZikmund.Web.Core\MZikmund.Web.Core.csproj" />
 	</ItemGroup>
 
