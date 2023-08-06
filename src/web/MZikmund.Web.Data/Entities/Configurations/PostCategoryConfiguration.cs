@@ -6,5 +6,6 @@ internal sealed class PostCategoryConfiguration : IEntityTypeConfiguration<PostC
 {
 	public void Configure(EntityTypeBuilder<PostCategoryEntity> builder)
 	{
+		builder.HasKey(pc => new { pc.PostId, pc.CategoryId });
 	}
 }

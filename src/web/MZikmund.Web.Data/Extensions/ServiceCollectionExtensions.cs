@@ -18,6 +18,7 @@ public static class ServiceCollectionExtensions
 				.UseSqlServer(connectionStringProvider.Database, builder =>
 				{
 					builder.EnableRetryOnFailure(3, TimeSpan.FromSeconds(30), null);
+					builder.MigrationsAssembly(typeof(DbContextRepository<>).Assembly.FullName);
 				}).
 				EnableDetailedErrors();
 		});
