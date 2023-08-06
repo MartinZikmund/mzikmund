@@ -1,6 +1,8 @@
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using MZikmund.Web.Configuration.Connections;
 using MZikmund.Web.Core;
+using MZikmund.Web.Data;
 using MZikmund.Web.Data.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,6 +19,13 @@ builder.Services.AddMediatR(config =>
 ConfigureServices(builder.Services);
 
 var app = builder.Build();
+
+// Todo: Improve this
+using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
+{
+	var context = serviceScope.ServiceProvider.GetRequiredService<DatabaseContext>();
+	context.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

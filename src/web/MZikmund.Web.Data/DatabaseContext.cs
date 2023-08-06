@@ -22,22 +22,11 @@ public class DatabaseContext : DbContext
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
-		// base.OnModelCreating(modelBuilder);
+		base.OnModelCreating(modelBuilder);
+
+		modelBuilder.ApplyConfiguration(new PostCategoryConfiguration());
+		modelBuilder.ApplyConfiguration(new PostConfiguration());
 		modelBuilder.ApplyConfiguration(new CategoryConfiguration());
 		modelBuilder.ApplyConfiguration(new TagConfiguration());
-
-		modelBuilder
-			.Entity<PostEntity>()
-			.HasMany(p => p.Tags)
-			.WithMany(p => p.Posts)
-			.UsingEntity<PostTagEntity>(
-				j => j
-					.HasOne(pt => pt.Tag)
-					.WithMany()
-					.HasForeignKey(pt => pt.TagId),
-				j => j
-					.HasOne(pt => pt.Post)
-					.WithMany()
-					.HasForeignKey(pt => pt.PostId));
 	}
 }
