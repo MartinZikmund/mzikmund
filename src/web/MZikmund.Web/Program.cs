@@ -1,6 +1,9 @@
+using MZikmund.Web.Configuration.Connections;
 using MZikmund.Web.Core;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
 
 // Add services to the container.
 builder.Services.AddRazorPages();
@@ -8,6 +11,8 @@ builder.Services.AddMediatR(config =>
 {
 	config.RegisterServicesFromAssemblyContaining<CoreAssemblyMarker>();
 });
+
+ConfigureServices(builder.Services);
 
 var app = builder.Build();
 
@@ -29,3 +34,10 @@ app.UseAuthorization();
 app.MapRazorPages();
 
 app.Run();
+
+
+void ConfigureServices(IServiceCollection services)
+{
+	services.AddSingleton<IConnectionStringProvider, ConnectionStringProvider>();
+	services.AddDataContext(connStr!);
+}

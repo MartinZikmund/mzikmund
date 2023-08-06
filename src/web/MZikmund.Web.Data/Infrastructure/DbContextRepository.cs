@@ -4,11 +4,11 @@ using System.Linq.Expressions;
 
 namespace MZikmund.Web.Data.Infrastructure;
 
-public abstract class DbContextRepository<T> : IRepository<T> where T : class
+public class DbContextRepository<T> : IRepository<T> where T : class
 {
 	protected readonly DbContext DbContext;
 
-	protected DbContextRepository(DbContext ctx) => DbContext = ctx;
+	public DbContextRepository(DbContext ctx) => DbContext = ctx;
 
 	public Task Clear(CancellationToken ct = default)
 	{
