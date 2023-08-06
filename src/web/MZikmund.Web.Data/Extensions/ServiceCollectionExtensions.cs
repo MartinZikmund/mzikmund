@@ -14,13 +14,14 @@ public static class ServiceCollectionExtensions
 		services.AddDbContext<DatabaseContext>((provider, options) =>
 		{
 			var connectionStringProvider = provider.GetRequiredService<IConnectionStringProvider>();
-			options.UseLazyLoadingProxies()
+			options
+				.UseLazyLoadingProxies()
 				.UseSqlServer(connectionStringProvider.Database, builder =>
 				{
 					builder.EnableRetryOnFailure(3, TimeSpan.FromSeconds(30), null);
 					builder.MigrationsAssembly(typeof(DbContextRepository<>).Assembly.FullName);
-				}).
-				EnableDetailedErrors();
+				})
+				.EnableDetailedErrors();
 		});
 
 		return services;

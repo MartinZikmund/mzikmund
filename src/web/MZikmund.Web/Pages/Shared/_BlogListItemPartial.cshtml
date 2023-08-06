@@ -1,11 +1,11 @@
-﻿@*@model MZikmund.Dtos.Blog.Posts.BlogPostDto
+﻿@model MZikmund.Web.Core.Dtos.Blog.Post
 <div class="col-md-6 col-lg-4 p-3 p-md-3 d-flex align-items-stretch">
-    <a asp-area="Blog" asp-page="Post" asp-route-id="@Model.Id" class="text-center card shadow-sm article-card">
-        <img class="card-img-top" src="@Model.Localizations[0].HeroImage" alt="Card image">
-
+    <a asp-area="Blog" asp-page="Post" asp-route-routename="@Model.RouteName" class="text-center card shadow-sm article-card">
+        @*<img class="card-img-top" src="@Model.Localizations[0].HeroImage" alt="Card image">
+*@
         <div class="card-body align-bottom">
-            <h3 class="card-title text-primary">@Model.Localizations[0].Title</h3>
-            <h6 class="card-subtitle text-muted mb-2">@Model.Localizations[0].PublishDate!.Value.Date.ToOrdinalWords()</h6>
+            <h3 class="card-title text-primary">@Model.Title</h3>
+            @*<h6 class="card-subtitle text-muted mb-2">@Model.Localizations[0].PublishDate!.Value.Date.ToOrdinalWords()</h6>*@
             <p class="card-text text-body">
                 Tincidunt integer eu augue augue nunc elit dolor, luctus placerat scelerisque euismod, iaculis eu lacus nunc mi elit, vehicula ut laoreet ac, aliquam sit amet justo nunc tempor, metus vel.
             </p>
@@ -15,4 +15,4 @@
             <span href="#" class="btn btn-outline-primary">Read more...</span>
         </footer>
     </a>
-</div>*@
+</div>

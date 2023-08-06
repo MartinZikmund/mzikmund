@@ -5,9 +5,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.UI.Xaml;
 using MZikmund.LegacyMigration.Json;
 using MZikmund.LegacyMigration.Processors;
+using MZikmund.Web.Data;
 using Newtonsoft.Json;
 using Windows.Storage;
 using Windows.Storage.Pickers;
@@ -70,6 +72,45 @@ internal sealed partial class MainViewModel : ObservableObject
 
 		var postProcessor = new PostProcessor(posts, postMeta, terms, termRelationships, termTaxonomies, tags, categories);
 		var processedPosts = postProcessor.Process();
+
+		var contextOptionsBuilder = new DbContextOptionsBuilder<DatabaseContext>();
+		contextOptionsBuilder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=MZikmundDb;Trusted_Connection=True;");
+		var databaseContext = new DatabaseContext(contextOptionsBuilder.Options);
+
+		foreach (var category in categories.Values)
+		{
+			databaseContext.Add(category);
+		}
+
+		await databaseContext.SaveChangesAsync();
+
+		foreach (var tag in tags.Values)
+		{
+			databaseContext.Add(tag);
+		}
+
+		await databaseContext.SaveChangesAsync();
+
+		foreach (var post in processedPosts.Posts.Values)
+		{
+			databaseContext.Add(post);
+		}
+
+		await databaseContext.SaveChangesAsync();
+
+		foreach (var postTag in processedPosts.PostTags)
+		{
+			databaseContext.Add(postTag);
+		}
+
+		await databaseContext.SaveChangesAsync();
+
+		foreach (var postCategory in processedPosts.PostCategories)
+		{
+			databaseContext.Add(postCategory);
+		}
+
+		await databaseContext.SaveChangesAsync();
 	}
 
 	private async Task<IList<T>> Parse<T>(StorageFile? sourceFile)
