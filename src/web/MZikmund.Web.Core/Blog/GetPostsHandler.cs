@@ -22,6 +22,6 @@ internal sealed class GetPostsHandler : IRequestHandler<GetPostsQuery, IReadOnly
 	public async Task<IReadOnlyList<Post>> Handle(GetPostsQuery request, CancellationToken cancellationToken)
 	{
 		var posts = await _postsRepository.ListAsync();
-		return posts.Select(p => _mapper.Map<Post>(p)).ToArray();
+		return posts.OrderByDescending(p => p.PublishedDate).Select(p => _mapper.Map<Post>(p)).ToArray();
 	}
 }
