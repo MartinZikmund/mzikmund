@@ -24,11 +24,14 @@ public class PostModel : PageModel
 
 	public Post? BlogPost { get; set; }
 
+	public string HtmlContent { get; set; } = "";
+
 	public Tag[]? Tags { get; set; }
 
 	public async Task OnGet(string routeName)
 	{
 		BlogPost = await _mediator.Send(new GetPostByRouteNameQuery(routeName));
+		HtmlContent = await _markdownConverter.ToHtmlAsync(BlogPost.Content);
 		//Tags = await _blogTagsService.GetForPostAsync(id, _localizationInfo.CurrentLanguageId);
 		//if (BlogPost.ContentType == BlogPostContentType.ExtendedMarkdown)
 		//{

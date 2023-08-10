@@ -1,12 +1,27 @@
-﻿using MediatR;
+﻿using AutoMapper;
+using MediatR;
 using MZikmund.Web.Core.Dtos.Blog;
+using MZikmund.Web.Data.Entities;
+using MZikmund.Web.Data.Infrastructure;
 
 namespace MZikmund.Web.Core.Blog;
 
 public class GetPostByRouteNameHandler : IRequestHandler<GetPostByRouteNameQuery, Post>
 {
-	public Task<Post> Handle(GetPostByRouteNameQuery request, CancellationToken cancellationToken)
+	private readonly IRepository<PostEntity> _postsRepository;
+	private readonly IMapper _mapper;
+
+	public GetPostByRouteNameHandler(
+		IRepository<PostEntity> postsRepository,
+		IMapper mapper)
 	{
-		throw new NotImplementedException();
+		_postsRepository = postsRepository;
+		_mapper = mapper;
+	}
+
+	public async Task<Post> Handle(GetPostByRouteNameQuery request, CancellationToken cancellationToken)
+	{
+		var post = await _postsRepository.GetAsync(p => p.RouteName.Equals(request.RouteName));
+		return _mapper.Map<Post>(post);
 	}
 }
