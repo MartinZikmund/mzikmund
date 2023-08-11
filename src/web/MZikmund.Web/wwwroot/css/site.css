@@ -13,6 +13,12 @@ html {
   min-height: 100%;
 }
 
-body {
-  margin-bottom: 60px;
+article {
+  max-width: 50em;
+  margin: auto;
+}
+
+article figure {
+    width: 100%;
+    text-align: center;
 }

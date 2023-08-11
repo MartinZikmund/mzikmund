@@ -9,9 +9,15 @@
     <partial name="_HeadStylesPartial" />
     <partial name="_HeadScriptsPartial" />
 
+    <!-- add after bootstrap.min.css -->
+    <link rel="stylesheet"
+          href="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.css" />
+    <!-- add after bootstrap.min.js or bootstrap.bundle.min.js -->
+    <script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script>
+
     @await RenderSectionAsync(LayoutSections.Head, required: false)
 </head>
-<body>
+<body data-bs-spy="scroll" data-bs-target="#toc">
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm shadow-sm mb-4">
             <div class="container">
@@ -42,7 +48,7 @@
         </main>
     </div>
 
-    <footer class="mt-auto  fixed-bottom">
+    <footer class="footer mt-auto py-3 bg-light">
         <div class="container d-flex flex-wrap justify-content-between align-items-center py-3 border-top">
             <div class="col-md-4 d-flex align-items-center">
                 <a href="/" class="mb-3 me-2 mb-md-0 text-muted text-decoration-none lh-1">

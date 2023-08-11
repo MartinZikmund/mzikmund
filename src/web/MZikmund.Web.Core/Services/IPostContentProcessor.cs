@@ -2,7 +2,7 @@
 
 namespace MZikmund.Web.Core.Services;
 
-internal interface IPostContentProcessor
+public interface IPostContentProcessor
 {
 	Task<string> ProcessAsync(Post post);
 }

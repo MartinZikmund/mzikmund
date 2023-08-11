@@ -1,8 +1,9 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace MZikmund.Web.Core.Services;
 
-internal class Cache
+public class Cache : ICache
 {
 	private readonly IMemoryCache _inMemoryCache;
 

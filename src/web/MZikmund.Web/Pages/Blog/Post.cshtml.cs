@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MZikmund.Web.Core.Blog;
 using MZikmund.Web.Core.Dtos.Blog;
+using MZikmund.Web.Core.Services;
 using MZikmund.Web.Services;
 
 namespace MZikmund.Web.Pages.Blog;
@@ -10,16 +11,16 @@ public class PostModel : PageModel
 {
 	private readonly IHostEnvironment _host;
 	private readonly IMediator _mediator;
-	private readonly IMarkdownConverter _markdownConverter;
+	private readonly IPostContentProcessor _postContentProcessor;
 
 	public PostModel(
 		IHostEnvironment host,
 		IMediator mediator,
-		IMarkdownConverter markdownConverter)
+		IPostContentProcessor postContentProcessor)
 	{
 		_host = host;
 		_mediator = mediator;
-		_markdownConverter = markdownConverter;
+		_postContentProcessor = postContentProcessor;
 	}
 
 	public Post? BlogPost { get; set; }
@@ -31,7 +32,7 @@ public class PostModel : PageModel
 	public async Task OnGet(string routeName)
 	{
 		BlogPost = await _mediator.Send(new GetPostByRouteNameQuery(routeName));
-		HtmlContent = await _markdownConverter.ToHtmlAsync(BlogPost.Content);
+		HtmlContent = await _postContentProcessor.ProcessAsync(BlogPost);
 		//Tags = await _blogTagsService.GetForPostAsync(id, _localizationInfo.CurrentLanguageId);
 		//if (BlogPost.ContentType == BlogPostContentType.ExtendedMarkdown)
 		//{
