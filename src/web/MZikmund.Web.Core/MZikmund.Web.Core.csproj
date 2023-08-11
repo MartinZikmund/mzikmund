@@ -5,12 +5,15 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="AutoMapper" />
-	  <PackageReference Include="MediatR" />
+		<PackageReference Include="Markdig" />
+		<PackageReference Include="Markdown.ColorCode" />
+		<PackageReference Include="AutoMapper" />
+		<PackageReference Include="Newtonsoft.Json" />
+		<PackageReference Include="MediatR" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\MZikmund.Web.Data\MZikmund.Web.Data.csproj" />
+		<ProjectReference Include="..\MZikmund.Web.Data\MZikmund.Web.Data.csproj" />
 	</ItemGroup>
 
 </Project>

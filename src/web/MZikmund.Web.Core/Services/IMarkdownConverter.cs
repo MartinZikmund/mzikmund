@@ -2,5 +2,7 @@
 
 public interface IMarkdownConverter
 {
-	Task<string> ToHtmlAsync(string markdown);
+	string ToHtml(string markdown);
+
+	string ToPlainText(string markdown);
 }

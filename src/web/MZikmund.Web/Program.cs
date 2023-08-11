@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using MZikmund.Web.Configuration.Connections;
 using MZikmund.Web.Core;
+using MZikmund.Web.Core.Services;
 using MZikmund.Web.Data;
 using MZikmund.Web.Data.Extensions;
 using MZikmund.Web.Services;
@@ -51,7 +52,9 @@ app.Run();
 void ConfigureServices(IServiceCollection services)
 {
 	services.AddAutoMapper(typeof(CoreAssemblyMarker).Assembly);
+	services.AddSingleton<ICache, Cache>();
 	services.AddSingleton<IConnectionStringProvider, ConnectionStringProvider>();
 	services.AddSingleton<IMarkdownConverter, MarkdownConverter>();
+	services.AddSingleton<IPostContentProcessor, PostContentProcessor>();
 	services.AddDataContext();
 }
