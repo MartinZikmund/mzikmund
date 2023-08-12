@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 using MZikmund.LegacyMigration.Json;
 using MZikmund.Web.Data.Entities;
 
@@ -127,7 +128,57 @@ internal sealed class PostProcessor
 	{
 		// TODO: Convert Gist links to custom extension
 		// TODO: Convert image URLs to new storage
-		// TODO: Convert [caption] sections
-		return _reverseMarkdownConverter.Convert(content);
+		content = ReplaceNonBreakingSpaces(content);
+		content = AdjustSpacing(content);
+		content = _reverseMarkdownConverter.Convert(content);
+		return TransformWordpressCaption(content);
+	}
+
+	private string TransformWordpressCaption(string content)
+	{
+		// Define the patterns
+		string captionWithLinkPattern = @"\[caption id=""[^""]*"" align=""[^""]*"" width=""[^""]*""\]\[(?<imageLinkWithOuterLink>!\[.*?\]\(.*?\))\]\((?<outerLink>.*?)\) (?<captionContent>.*?)\[/caption\]";
+		string captionWithoutLinkPattern = @"\[caption id=""[^""]*"" align=""[^""]*"" width=""[^""]*""\](?<imageLink>!\[.*?\]\(.*?\)) (?<captionContent>.*?)\[/caption\]";
+
+		// Transformation logic for captions with links
+		string TransformWithLink(Match match)
+		{
+			var imageLinkWithOuterLink = match.Groups["imageLinkWithOuterLink"].Value;
+			var outerLink = match.Groups["outerLink"].Value;
+			var captionContent = match.Groups["captionContent"].Value;
+
+			return $"\n^^^\n[{imageLinkWithOuterLink.Trim()}]({outerLink.Trim()})\n^^^ {captionContent}\n";
+		}
+
+		// Transformation logic for captions without links
+		string TransformWithoutLink(Match match)
+		{
+			var imageLink = match.Groups["imageLink"].Value;
+			var captionContent = match.Groups["captionContent"].Value;
+
+			return $"\n^^^\n{imageLink.Trim()}\n^^^ {captionContent}\n";
+		}
+
+		// Apply the transformations
+		var transformedContent = Regex.Replace(content, captionWithLinkPattern, TransformWithLink);
+		transformedContent = Regex.Replace(transformedContent, captionWithoutLinkPattern, TransformWithoutLink);
+
+		return transformedContent;
+	}
+
+	public string ReplaceNonBreakingSpaces(string s)
+	{
+		return s.Replace("\u00A0", " ");
+	}
+
+	private string AdjustSpacing(string content)
+	{
+		// Move spaces outside for opening tags
+		content = Regex.Replace(content, @"(<(?:strong|em|b|i)>) ", " $1");
+
+		// Move spaces outside for closing tags
+		content = Regex.Replace(content, @" (</(?:strong|em|b|i)>)", "$1 ");
+
+		return content;
 	}
 }
