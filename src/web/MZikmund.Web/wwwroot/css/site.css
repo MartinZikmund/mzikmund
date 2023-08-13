@@ -18,7 +18,36 @@ article {
   margin: auto;
 }
 
-article figure {
+  article figure {
     width: 100%;
     text-align: center;
+  }
+
+.blog pre {
+  padding: 1em;
+  border-radius: 2px;
+  background-color: #fff;
+  border: 1px solid #AAA;
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05);
 }
+
+[data-theme=dark] .blog pre {
+  background-color: #000;
+  border: 1px solid #333;
+}
+
+a.article-card {
+  transition: all .25s;
+  transition-timing-function: ease-out;
+  color: inherit;
+}
+
+  a.article-card:hover {
+    transform: scale(1.05);
+    text-decoration: none;
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
+  }
+
+  a.article-card {
+    text-decoration: none;
+  }

@@ -56,7 +56,7 @@ internal sealed class PostProcessor
 			{
 				Id = Guid.NewGuid(),
 				Title = post.PostTitle,
-				Content = FromWordpressContent(post),
+				Content = FromWordpressContent(post.PostContent),
 				CreatedDate = FromWordpressDate(post.PostDateGmt),
 				LastModifiedDate = FromWordpressDate(post.PostModifiedGmt),
 				PublishedDate = FromWordpressDate(post.PostDateGmt),
@@ -121,13 +121,8 @@ internal sealed class PostProcessor
 		}
 	}
 
-	private string FromWordpressContent(Post post)
+	private string FromWordpressContent(string content)
 	{
-		var content = post.PostContent;
-		if (post.PostName == "connect2017cs")
-		{
-
-		}
 		// TODO: Convert Gist links to custom extension
 		// TODO: Convert image URLs to new storage
 		content = ReplaceNonBreakingSpaces(content);

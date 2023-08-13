@@ -5,7 +5,7 @@
 *@
         <div class="card-body align-bottom">
             <h3 class="card-title text-primary">@Model.Title</h3>
-            @*<h6 class="card-subtitle text-muted mb-2">@Model.Localizations[0].PublishDate!.Value.Date.ToOrdinalWords()</h6>*@
+            <h6 class="card-subtitle text-muted mb-2">@((Model.PublishedDate ?? Model.LastModifiedDate).Humanize())</h6>
             <p class="card-text text-body">
                 Tincidunt integer eu augue augue nunc elit dolor, luctus placerat scelerisque euismod, iaculis eu lacus nunc mi elit, vehicula ut laoreet ac, aliquam sit amet justo nunc tempor, metus vel.
             </p>
