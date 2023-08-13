@@ -134,6 +134,8 @@ internal sealed class PostProcessor
 		content = AdjustSpacing(content);
 		content = _reverseMarkdownConverter.Convert(content);
 		content = SpaceImages(content);
+		content = FormatYouTuBeEmbeds(content);
+		content = FormatYouTubeComEmbeds(content);
 		return TransformWordpressCaption(content);
 	}
 
@@ -192,5 +194,27 @@ internal sealed class PostProcessor
 
 		// Replace the matched pattern with newlines
 		return Regex.Replace(content, pattern, m => "\n\n" + m.Value.Trim() + "\n\n");
+	}
+
+	public static string FormatYouTuBeEmbeds(string input)
+	{
+		// Regular expression pattern to match '  youtu.be/*link*  ' with two spaces on both sides
+		string pattern = @"  (https://youtu\.be/[^\s]+)  ";
+
+		// Replacing the found links with the desired format
+		string formattedText = Regex.Replace(input, pattern, "\n\n![youtu.be]($1)\n\n");
+
+		return formattedText;
+	}
+
+	public static string FormatYouTubeComEmbeds(string input)
+	{
+		// Regular expression pattern to match '  youtu.be/*link*  ' with two spaces on both sides
+		string pattern = @"  (https://youtube\.com/[^\s]+)  ";
+
+		// Replacing the found links with the desired format
+		string formattedText = Regex.Replace(input, pattern, "\n\n![youtube.com]($1)\n\n");
+
+		return formattedText;
 	}
 }
