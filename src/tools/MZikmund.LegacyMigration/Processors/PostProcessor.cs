@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using System.Text.RegularExpressions;
 using MZikmund.LegacyMigration.Json;
 using MZikmund.Web.Data.Entities;
@@ -21,7 +18,7 @@ internal sealed class PostProcessor
 	private readonly CultureInfo _czechLanguage = new CultureInfo("cs-CZ");
 	private readonly CultureInfo _englishLanguage = new CultureInfo("en-US");
 
-	private readonly ReverseMarkdown.Converter _reverseMarkdownConverter = new();
+	private readonly ReverseMarkdown.Converter _reverseMarkdownConverter = new(new ReverseMarkdown.Config() { DefaultCodeBlockLanguage = "csharp", GithubFlavored = true });
 
 	public PostProcessor(
 		IList<Post> posts,
@@ -59,7 +56,7 @@ internal sealed class PostProcessor
 			{
 				Id = Guid.NewGuid(),
 				Title = post.PostTitle,
-				Content = FromWordpressContent(post.PostContent),
+				Content = FromWordpressContent(post),
 				CreatedDate = FromWordpressDate(post.PostDateGmt),
 				LastModifiedDate = FromWordpressDate(post.PostModifiedGmt),
 				PublishedDate = FromWordpressDate(post.PostDateGmt),
@@ -124,13 +121,19 @@ internal sealed class PostProcessor
 		}
 	}
 
-	private string FromWordpressContent(string content)
+	private string FromWordpressContent(Post post)
 	{
+		var content = post.PostContent;
+		if (post.PostName == "connect2017cs")
+		{
+
+		}
 		// TODO: Convert Gist links to custom extension
 		// TODO: Convert image URLs to new storage
 		content = ReplaceNonBreakingSpaces(content);
 		content = AdjustSpacing(content);
 		content = _reverseMarkdownConverter.Convert(content);
+		content = SpaceImages(content);
 		return TransformWordpressCaption(content);
 	}
 
@@ -180,5 +183,14 @@ internal sealed class PostProcessor
 		content = Regex.Replace(content, @" (</(?:strong|em|b|i)>)", "$1 ");
 
 		return content;
+	}
+
+	private string SpaceImages(string content)
+	{
+		// Regular expression to match markdown images surrounded by pair of spaces
+		string pattern = @"  \!\[.*?\]\(.*?\)  ";
+
+		// Replace the matched pattern with newlines
+		return Regex.Replace(content, pattern, m => "\n\n" + m.Value.Trim() + "\n\n");
 	}
 }
