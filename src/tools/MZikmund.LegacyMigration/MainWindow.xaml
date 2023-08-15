@@ -8,8 +8,10 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Spacing="8" VerticalAlignment="Center">
 		<Button Command="{x:Bind ViewModel.OpenSourceFolderCommand}">Open source folder</Button>
-		<Button Command="{x:Bind ViewModel.TryParseSourcesCommand}">Try parse</Button>
+		<TextBox PlaceholderText="OpenAI API key" Text="{x:Bind ViewModel.OpenAiApiKey, Mode=TwoWay}" />
+		<Button Command="{x:Bind ViewModel.AddExcerptsCommand}">Add excerpts</Button>
+		<Button Command="{x:Bind ViewModel.TryParseSourcesCommand}">Parse and upload</Button>
     </StackPanel>
 </Window>

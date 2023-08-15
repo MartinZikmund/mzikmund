@@ -20,6 +20,7 @@ internal sealed partial class MainViewModel : ObservableObject
 {
 	private const string PostMetaFileName = "wp_postmeta.json";
 	private const string PostsFileName = "wp_posts.json";
+	private const string EnrichedPostsFileName = "wp_posts_enriched.json";
 	private const string TermRelationshipsFileName = "wp_term_relationships.json";
 	private const string TermTaxonomyFileName = "wp_term_taxonomy.json";
 	private const string TermsFileName = "wp_terms.json";
@@ -32,6 +33,8 @@ internal sealed partial class MainViewModel : ObservableObject
 	}
 
 	public StorageFolder? SourceFolder { get; set; }
+
+	public string OpenAiApiKey { get; set; } = string.Empty;
 
 	[RelayCommand]
 	public async Task OpenSourceFolderAsync()
@@ -54,7 +57,7 @@ internal sealed partial class MainViewModel : ObservableObject
 		}
 
 		var files = await SourceFolder.GetFilesAsync();
-		var posts = await Parse<Post>(files.FirstOrDefault(f => f.Name == PostsFileName));
+		var posts = await Parse<Post>(files.FirstOrDefault(f => f.Name == EnrichedPostsFileName) ?? files.FirstOrDefault(f => f.Name == PostsFileName));
 		var postMeta = await Parse<PostMeta>(files.FirstOrDefault(files => files.Name == PostMetaFileName));
 		var terms = await Parse<Term>(files.FirstOrDefault(files => files.Name == TermsFileName));
 		var termTaxonomies = await Parse<TermTaxonomy>(files.FirstOrDefault(files => files.Name == TermTaxonomyFileName));
@@ -111,6 +114,30 @@ internal sealed partial class MainViewModel : ObservableObject
 		}
 
 		await databaseContext.SaveChangesAsync();
+	}
+
+	[RelayCommand]
+	public async Task AddExcerptsAsync()
+	{
+		if (SourceFolder is null)
+		{
+			return;
+		}
+
+		var files = await SourceFolder.GetFilesAsync();
+		var posts = await Parse<Post>(files.FirstOrDefault(f => f.Name == PostsFileName));
+		var enricher = new ExcerptEnricher(OpenAiApiKey);
+		var terms = await Parse<Term>(files.FirstOrDefault(files => files.Name == TermsFileName));
+		var termTaxonomies = await Parse<TermTaxonomy>(files.FirstOrDefault(files => files.Name == TermTaxonomyFileName));
+		var termRelationships = await Parse<TermRelationship>(files.FirstOrDefault(files => files.Name == TermRelationshipsFileName));
+
+		var uniqueTaxonomies = termTaxonomies.Select(t => t.Taxonomy).Distinct();
+
+		await enricher.EnrichAsync(posts, terms, termRelationships, termTaxonomies);
+
+		var targetFile = await SourceFolder.CreateFileAsync(EnrichedPostsFileName, CreationCollisionOption.ReplaceExisting);
+		var content = JsonConvert.SerializeObject(posts);
+		await FileIO.WriteTextAsync(targetFile, content);
 	}
 
 	private async Task<IList<T>> Parse<T>(StorageFile? sourceFile)

@@ -7,7 +7,7 @@
             <h3 class="card-title text-primary">@Model.Title</h3>
             <h6 class="card-subtitle text-muted mb-2">@((Model.PublishedDate ?? Model.LastModifiedDate).Humanize())</h6>
             <p class="card-text text-body">
-                @Model.Abstract
+                @Html.Raw(Model.Abstract)
             </p>
         </div>
         <footer class="card-footer">
