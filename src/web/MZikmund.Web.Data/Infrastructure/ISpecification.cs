@@ -11,9 +11,9 @@ public interface ISpecification<T>
 
 	Func<IQueryable<T>, IIncludableQueryable<T, object>>? Include { get; }
 
-	Expression<Func<T, object>>? OrderBy { get; }
+	Expression<Func<T, object?>>? OrderBy { get; }
 
-	Expression<Func<T, object>>? OrderByDescending { get; }
+	Expression<Func<T, object?>>? OrderByDescending { get; }
 
 	int Take { get; }
 

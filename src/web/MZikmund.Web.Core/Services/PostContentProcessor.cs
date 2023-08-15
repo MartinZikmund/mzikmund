@@ -2,8 +2,8 @@
 using System.Globalization;
 using Newtonsoft.Json;
 using System.Text.RegularExpressions;
-using MZikmund.Web.Core.Dtos.Blog;
 using MZikmund.Web.Services;
+using MZikmund.Web.Core.Dtos;
 
 namespace MZikmund.Web.Core.Services;
 public class PostContentProcessor : IPostContentProcessor

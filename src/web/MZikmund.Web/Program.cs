@@ -9,8 +9,6 @@ using MZikmund.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddMediatR(config =>
@@ -56,5 +54,8 @@ void ConfigureServices(IServiceCollection services)
 	services.AddSingleton<IConnectionStringProvider, ConnectionStringProvider>();
 	services.AddSingleton<IMarkdownConverter, MarkdownConverter>();
 	services.AddSingleton<IPostContentProcessor, PostContentProcessor>();
+
+	services.AddLocalization(options => options.ResourcesPath = "Resources");
+
 	services.AddDataContext();
 }
