@@ -1,7 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MZikmund.Web.Core.Blog;
-using MZikmund.Web.Core.Dtos.Blog;
+using MZikmund.Web.Core.Dtos;
 using MZikmund.Web.Core.Services;
 using MZikmund.Web.Services;
 

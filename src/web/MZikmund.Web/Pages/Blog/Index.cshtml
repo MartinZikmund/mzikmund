@@ -2,9 +2,6 @@
 @model MZikmund.Web.Pages.Blog.IndexModel
 @{
     <div class="row">
-        @foreach (var post in Model.BlogPosts)
-        {
-            <partial name="_BlogListItemPartial" model="post" />
-        }
+        <partial name="_PostList" model="Model.BlogPosts" />
     </div>
 }

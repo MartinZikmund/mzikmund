@@ -5,7 +5,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MZikmund.Web.Core.Blog;
-using MZikmund.Web.Core.Dtos.Blog;
+using MZikmund.Web.Core.Dtos;
+using X.PagedList;
 
 namespace MZikmund.Web.Pages.Blog;
 
@@ -18,10 +19,18 @@ public class IndexModel : PageModel
 		_mediator = mediator;
 	}
 
-	public IReadOnlyList<Post> BlogPosts { get; set; } = Array.Empty<Post>();
+	public StaticPagedList<PostListItem> BlogPosts { get; private set; } = null!;
 
-	public async Task OnGet()
+	public async Task OnGet(int pageNumber = 1)
 	{
-		BlogPosts = await _mediator.Send(new GetPostsQuery());
+		RouteData.Values.ToList();
+		var pageSize = 12; // TODO: Include in configuration
+						   //var pagesize = _blogConfig.ContentSettings.PostListPageSize;
+		var posts = await _mediator.Send(new ListPostsQuery(pageNumber, pageSize));
+		var totalPostsCount = await _mediator.Send(new CountPostsQuery());
+
+		var list = new StaticPagedList<PostListItem>(posts, pageNumber, pageSize, totalPostsCount);
+
+		BlogPosts = list;
 	}
 }

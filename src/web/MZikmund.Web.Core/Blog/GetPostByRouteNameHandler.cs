@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
-using MZikmund.Web.Core.Dtos.Blog;
+using MZikmund.Web.Core.Dtos;
 using MZikmund.Web.Data.Entities;
 using MZikmund.Web.Data.Infrastructure;
 

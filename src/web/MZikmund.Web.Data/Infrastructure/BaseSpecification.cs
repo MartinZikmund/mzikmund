@@ -17,9 +17,9 @@ public abstract class BaseSpecification<T> : ISpecification<T>
 
 	public Func<IQueryable<T>, IIncludableQueryable<T, object>>? Include { get; private set; }
 
-	public Expression<Func<T, object>>? OrderBy { get; private set; }
+	public Expression<Func<T, object?>>? OrderBy { get; private set; }
 
-	public Expression<Func<T, object>>? OrderByDescending { get; private set; }
+	public Expression<Func<T, object?>>? OrderByDescending { get; private set; }
 
 	public int Take { get; private set; }
 
@@ -41,9 +41,9 @@ public abstract class BaseSpecification<T> : ISpecification<T>
 		IsPagingEnabled = true;
 	}
 
-	protected virtual void ApplyOrderBy(Expression<Func<T, object>> expression) => OrderBy = expression;
+	protected virtual void ApplyOrderBy(Expression<Func<T, object?>> expression) => OrderBy = expression;
 
-	protected virtual void ApplyOrderByDescending(Expression<Func<T, object>> expression) => OrderByDescending = expression;
+	protected virtual void ApplyOrderByDescending(Expression<Func<T, object?>> expression) => OrderByDescending = expression;
 }
 
 // https://stackoverflow.com/questions/457316/combining-two-expressions-expressionfunct-bool

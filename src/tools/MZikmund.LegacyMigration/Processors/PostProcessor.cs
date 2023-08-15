@@ -1,7 +1,12 @@
 ﻿using System.Globalization;
 using System.Text.RegularExpressions;
+using System.Threading;
+using Microsoft.IdentityModel.Protocols;
 using MZikmund.LegacyMigration.Json;
 using MZikmund.Web.Data.Entities;
+using OpenAI;
+using OpenAI.Managers;
+using OpenAI.ObjectModels.RequestModels;
 
 namespace MZikmund.LegacyMigration.Processors;
 
@@ -52,16 +57,19 @@ internal sealed class PostProcessor
 				.Select(tx => (tx, _terms.Single(t => t.TermId == tx.TermId)))
 				.ToArray();
 
+			var content = FromWordpressContent(post.PostContent);
+			var excerpt = _reverseMarkdownConverter.Convert(post.PostExcerpt);
 			var postEntity = new PostEntity()
 			{
 				Id = Guid.NewGuid(),
 				Title = post.PostTitle,
-				Content = FromWordpressContent(post.PostContent),
+				Content = content,
 				CreatedDate = FromWordpressDate(post.PostDateGmt),
 				LastModifiedDate = FromWordpressDate(post.PostModifiedGmt),
 				PublishedDate = FromWordpressDate(post.PostDateGmt),
 				RouteName = post.PostName,
 				Status = PostStatus.Published,
+				Abstract = excerpt
 			};
 			//postEntity.Tags = _termRelationships
 			//	.Where(tr => tr.ObjectId == post.ID)
