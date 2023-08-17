@@ -13,4 +13,8 @@ public class Post
 	public DateTimeOffset? PublishedDate { get; set; }
 
 	public DateTimeOffset? LastModifiedDate { get; set; }
+
+	public Category[] Categories { get; set; } = Array.Empty<Category>();
+
+	public Tag[] Tags { get; set; } = Array.Empty<Tag>();
 }
