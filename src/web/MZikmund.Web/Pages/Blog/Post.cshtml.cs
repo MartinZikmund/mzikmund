@@ -23,11 +23,11 @@ public class PostModel : PageModel
 		_postContentProcessor = postContentProcessor;
 	}
 
-	public Post? BlogPost { get; set; }
+	public Post BlogPost { get; set; } = null!;
 
 	public string HtmlContent { get; set; } = "";
 
-	public Tag[]? Tags { get; set; }
+	public string MetaKeywords { get; set; } = "";
 
 	public async Task OnGet(string routeName)
 	{

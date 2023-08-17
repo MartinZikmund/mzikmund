@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using MZikmund.Web.Core.Dtos;
 using MZikmund.Web.Data.Entities;
 using MZikmund.Web.Data.Infrastructure;
@@ -21,7 +22,11 @@ public class GetPostByRouteNameHandler : IRequestHandler<GetPostByRouteNameQuery
 
 	public async Task<Post> Handle(GetPostByRouteNameQuery request, CancellationToken cancellationToken)
 	{
-		var post = await _postsRepository.GetAsync(p => p.RouteName.Equals(request.RouteName));
+		var post = await _postsRepository.AsQueryable()
+			.Where(p => p.RouteName.Equals(request.RouteName))
+			.Include(nameof(PostEntity.Tags))
+			.Include(nameof(PostEntity.Categories))
+			.FirstOrDefaultAsync();
 		return _mapper.Map<Post>(post);
 	}
 }

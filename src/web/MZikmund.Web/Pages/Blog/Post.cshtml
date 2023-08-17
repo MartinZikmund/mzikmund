@@ -7,11 +7,11 @@
 }
 
 @section Head
-{
+{    
     <meta property="og:url" content="@Request.GetDisplayUrl()" />
     <meta property="og:type" content="article" />
     <meta property="og:title" content="@Model.BlogPost?.Title" />
-    <meta property="og:description" content="Tincidunt integer eu augue augue nunc elit dolor, luctus placerat scelerisque euismod, iaculis eu lacus nunc mi elit, vehicula ut laoreet ac, aliquam sit amet justo nunc tempor, metus vel." /> <!-- TODO -->
+    <meta property="og:description" content="@Model.BlogPost!.Abstract" />
     @* <meta property="og:image" content="@Model.BlogPost.Localizations[0].HeroImage" /> *@
     <meta property="og:image:height" content="378" /><!--TODO-->
     <meta property="og:image:height" content="832" /><!--TODO-->
@@ -20,7 +20,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:creator" content="@@mzikmunddev" />
     <meta name="twitter:title" content="@Model.BlogPost?.Title" />
-    <meta name="twitter:description" content="Tincidunt integer eu augue augue nunc elit dolor, luctus placerat scelerisque euismod, iaculis eu lacus nunc mi elit, vehicula ut laoreet ac, aliquam sit amet justo nunc tempor, metus vel." /> <!-- TODO -->
+    <meta name="twitter:description" content="@Model.BlogPost!.Abstract" />
     @* <meta name="twitter:image" content="@Model.BlogPost.Localizations[0].HeroImage" /> *@
     <meta property="twitter:image:height" content="378" /> <!--TODO-->
     <meta property="twitter:image:height" content="832" /><!--TODO-->
@@ -32,8 +32,23 @@
 
         <h1 class="display-4 text-center text-primary">@Model.BlogPost?.Title</h1>
         @* <div class="lead text-center">@Model.BlogPost?.PublishDate!.Value.Date.ToOrdinalWords()</div> *@
+        <p class="text-center lead mb-1 mt-2">
+            @foreach (var tag in Model.BlogPost!.Categories)
+            {
+                <span class="badge bg-primary">@tag.DisplayName</span>
+            }
+        </p>
+        <p class="text-center text-secondary">@Model.BlogPost.PublishedDate.Humanize()</p>
     </header>
     <div class="post-content">
         @Html.Raw(Model.HtmlContent)
     </div>
+    <footer>
+        <p class="text-center">
+            @foreach (var tag in Model.BlogPost!.Tags)
+            {
+                <span class="badge rounded-pill bg-secondary">#@tag.DisplayName</span>
+            }
+        </p>
+    </footer>
 </article>
