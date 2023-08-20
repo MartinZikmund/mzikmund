@@ -1,6 +1,7 @@
 ﻿@page
 @model MZikmund.Web.Pages.Blog.IndexModel
 @{
+    <h1 class="display-4 text-center text-primary">@Localizer["Blog"]</h1>
     <div class="row">
         <partial name="_PostList" model="Model.BlogPosts" />
     </div>

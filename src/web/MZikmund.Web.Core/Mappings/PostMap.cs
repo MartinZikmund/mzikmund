@@ -2,7 +2,7 @@
 using MZikmund.Web.Core.Dtos;
 using MZikmund.Web.Data.Entities;
 
-namespace MZikmund.Web.Core.Mappings.Blog;
+namespace MZikmund.Web.Core.Mappings;
 
 public class PostMap : Profile
 {

@@ -11,27 +11,38 @@ using X.PagedList;
 
 namespace MZikmund.Web.Pages.Blog;
 
-public class IndexModel : PageModel
+public class TagPostListModel : PageModel
 {
 	private readonly IMediator _mediator;
 
-	public IndexModel(IMediator mediator)
+	public TagPostListModel(IMediator mediator)
 	{
 		_mediator = mediator;
 	}
 
+	public Tag Tag { get; private set; } = null!;
+
 	public StaticPagedList<PostListItem> BlogPosts { get; private set; } = null!;
 
-	public async Task OnGet(int pageNumber = 1)
+	public async Task<IActionResult> OnGet(string tagName, int pageNumber = 1)
 	{
-		RouteData.Values.ToList();
+		var tag = await _mediator.Send(new GetTagByRouteNameQuery(tagName));
+		if (tag is null)
+		{
+			return NotFound();
+		}
+
+		Tag = tag;
+
 		var pageSize = 12; // TODO: Include in configuration
 						   //var pagesize = _blogConfig.ContentSettings.PostListPageSize;
-		var posts = await _mediator.Send(new ListPostsQuery(pageNumber, pageSize));
-		var totalPostsCount = await _mediator.Send(new CountPostsQuery());
+		var posts = await _mediator.Send(new ListPostsQuery(pageNumber, pageSize, TagId: tag.Id));
+		var totalPostsCount = await _mediator.Send(new CountPostsQuery(TagId: tag.Id));
 
 		var list = new StaticPagedList<PostListItem>(posts, pageNumber, pageSize, totalPostsCount);
 
 		BlogPosts = list;
+
+		return Page();
 	}
 }
