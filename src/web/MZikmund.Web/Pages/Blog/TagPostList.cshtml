@@ -1,0 +1,8 @@
+﻿@page "/Blog/Tags/{tagName}"
+@model MZikmund.Web.Pages.Blog.TagPostListModel
+@{
+    <h1 class="display-4 text-center text-secondary">#@Model.Tag.DisplayName</h1>
+    <div class="row">
+        <partial name="_PostList" model="Model.BlogPosts" />
+    </div>
+}

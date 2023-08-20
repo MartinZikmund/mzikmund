@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 using MZikmund.Web.Configuration.Connections;
 using MZikmund.Web.Core;
@@ -19,6 +20,8 @@ builder.Services.AddMediatR(config =>
 ConfigureServices(builder.Services);
 
 var app = builder.Build();
+
+app.UseRewriter(new RewriteOptions().AddRedirectToNonWwwPermanent());
 
 // Todo: Improve this
 using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
