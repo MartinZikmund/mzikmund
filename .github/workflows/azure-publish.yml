@@ -37,7 +37,9 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    defaults:
+      run:
+        working-directory: ./src        
     steps:
       - uses: actions/checkout@v3
 
@@ -54,7 +56,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-
 
-      - name: Build with dotnet
+      - name: Build with .NET
         run: dotnet build --configuration Release
 
       - name: dotnet publish
