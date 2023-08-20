@@ -17,15 +17,18 @@
 # For more information on the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # For more samples to get started with GitHub Action workflows to deploy to Azure: https://github.com/Azure/actions-workflow-samples
 
-name: Build and deploy ASP.Net Core app to an Azure Web App
+name: Deploy to Azure
 
 env:
   AZURE_WEBAPP_NAME: app-mzikmund    # set this to the name of your Azure Web App
   AZURE_WEBAPP_PACKAGE_PATH: './src/web/MZimund.Web'      # set this to the path to your web app project, defaults to the repository root
   DOTNET_VERSION: '7'                 # set this to the .NET Core version to use
+name: Full build
 
 on:
   push:
+    branches: [ "main" ]
+  pull_request:
     branches: [ "main" ]
   workflow_dispatch:
 
