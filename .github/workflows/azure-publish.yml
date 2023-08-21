@@ -36,7 +36,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     defaults:
       run:
         working-directory: ./src        
@@ -56,8 +56,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-
 
+      - name: Restore dependencies
+        run: dotnet restore
+
       - name: Build with .NET
-        run: dotnet build --configuration Release
+        run: dotnet build --no-restore --configuration Release
 
       - name: dotnet publish
         run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
@@ -65,8 +68,9 @@ jobs:
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
         with:
-          name: .net-app
+          name: MZikmund.Web
           path: ${{env.DOTNET_ROOT}}/myapp
+          retention-days: 2
 
   deploy:
     permissions:
@@ -81,7 +85,7 @@ jobs:
       - name: Download artifact from build job
         uses: actions/download-artifact@v3
         with:
-          name: .net-app
+          name: MZikmund.Web
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
