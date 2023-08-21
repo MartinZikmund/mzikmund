@@ -39,7 +39,7 @@ jobs:
     runs-on: windows-latest
     defaults:
       run:
-        working-directory: ./src        
+        working-directory: ./src/web/MZikmund.Web
     steps:
       - uses: actions/checkout@v3
 
