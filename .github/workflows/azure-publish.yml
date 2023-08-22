@@ -26,7 +26,8 @@ jobs:
         uses: actions/setup-dotnet@v2
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
-
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3.8.1    
       - name: Set up dependency caching for faster builds
         uses: actions/cache@v3
         with:
@@ -35,8 +36,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-
 
-      - name: Restore dependencies
+      - name: Restore .NET dependencies
         run: dotnet restore
+
+      - name: Restore Node.js dependencies
+        run: npm install
 
       - name: Build with .NET
         run: dotnet build --no-restore --configuration Release

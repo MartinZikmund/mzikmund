@@ -6,21 +6,23 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Remove="Styles\**" />
-		<Content Remove="Styles\**" />
-		<EmbeddedResource Remove="Styles\**" />
-		<None Remove="Styles\**" />
+	  <Content Remove="compilerconfig.json" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Scripts\" />
+	  <None Include="compilerconfig.json" />
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="BuildWebCompiler2022" />
 		<PackageReference Include="Humanizer" />
 		<PackageReference Include="MediatR" />
 		<PackageReference Include="AutoMapper" />
 		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" />
+		<PackageReference Include="Microsoft.TypeScript.MSBuild">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 		<PackageReference Include="Newtonsoft.Json" />
 		<PackageReference Include="X.PagedList.Mvc.Core" />
 	</ItemGroup>
@@ -28,6 +30,10 @@
 	<ItemGroup>
 		<ProjectReference Include="..\MZikmund.Web.Configuration\MZikmund.Web.Configuration.csproj" />
 		<ProjectReference Include="..\MZikmund.Web.Core\MZikmund.Web.Core.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="wwwroot\js\" />
 	</ItemGroup>
 
 </Project>
