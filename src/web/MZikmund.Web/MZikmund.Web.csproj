@@ -6,17 +6,26 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Remove="Styles\**" />
-		<Content Remove="Styles\**" />
-		<EmbeddedResource Remove="Styles\**" />
-		<None Remove="Styles\**" />
+	  <Content Remove="compilerconfig.json" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Scripts\" />
+	  <None Remove="src\js\site.js" />
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Content Include="src\js\site.js">
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+	  </Content>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="compilerconfig.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="BuildWebCompiler2022" />
 		<PackageReference Include="Humanizer" />
 		<PackageReference Include="MediatR" />
 		<PackageReference Include="AutoMapper" />
@@ -28,6 +37,10 @@
 	<ItemGroup>
 		<ProjectReference Include="..\MZikmund.Web.Configuration\MZikmund.Web.Configuration.csproj" />
 		<ProjectReference Include="..\MZikmund.Web.Core\MZikmund.Web.Core.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="src\scss\" />
 	</ItemGroup>
 
 </Project>
