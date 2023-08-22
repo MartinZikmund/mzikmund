@@ -23,7 +23,9 @@ jobs:
     - name: Restore .NET dependencies
       run: dotnet restore
     - name: Restore Node.js dependencies
-      run: npm install
+      run: 
+        cd web/MZikmund.Web
+        npm install
     - name: Build
       run: dotnet build --no-restore --configuration Release
     - name: Test
