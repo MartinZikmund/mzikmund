@@ -1,3 +1,3 @@
-import { ThemeSwitchManager } from "./ThemeSwitchManager";
+//import { ThemeSwitchManager } from "./ThemeSwitchManager";
 
-ThemeSwitchManager.init();
+//ThemeSwitchManager.init();
