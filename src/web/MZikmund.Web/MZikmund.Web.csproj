@@ -10,17 +10,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Remove="src\js\site.js" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Content Include="src\js\site.js">
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-	  </Content>
-	</ItemGroup>
-
-	<ItemGroup>
 	  <None Include="compilerconfig.json" />
 	</ItemGroup>
 
@@ -37,10 +26,6 @@
 	<ItemGroup>
 		<ProjectReference Include="..\MZikmund.Web.Configuration\MZikmund.Web.Configuration.csproj" />
 		<ProjectReference Include="..\MZikmund.Web.Core\MZikmund.Web.Core.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="src\scss\" />
 	</ItemGroup>
 
 </Project>
