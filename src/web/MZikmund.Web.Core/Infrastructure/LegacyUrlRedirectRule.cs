@@ -75,13 +75,15 @@ public partial class LegacyUrlRedirectRule : IRule
 			return;
 		}
 
-		SetResponse(context, NewUrl);
+		// TODO: Handle category/tag pages
+
+		SetResponse(context, NewUrl, false);
 	}
 
-	private void SetResponse(RewriteContext context, string url)
+	private void SetResponse(RewriteContext context, string url, bool permanent = true)
 	{
 		var response = context.HttpContext.Response;
-		response.StatusCode = (int)HttpStatusCode.TemporaryRedirect; // TODO: Use permanent redirect
+		response.StatusCode = (int)(permanent ? HttpStatusCode.MovedPermanently : HttpStatusCode.TemporaryRedirect);
 		response.Headers[HeaderNames.Location] = url;
 		context.Result = RuleResult.EndResponse;
 	}
