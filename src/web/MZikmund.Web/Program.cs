@@ -24,9 +24,13 @@ var app = builder.Build();
 
 app.UseRewriter(new RewriteOptions()
 	.AddRedirect(
-		@"blog\.mzikmund\.[a-zA-Z]{2,3}/\d{4}/\d{1,2}/([a-zA-Z0-9\-]+)/?",
+		@"blog\.mzikmund\.[a-zA-Z]{2,3}\/\d{4}\/\d{1,2}\/([a-zA-Z0-9\-]+)\/?",
 		"https://mzikmund.dev/blog/$1",
 		(int)HttpStatusCode.PermanentRedirect)
+	.AddRedirect(
+		@"blog\.mzikmund\.[a-zA-Z]",
+		"https://mzikmund.dev/",
+		(int)HttpStatusCode.TemporaryRedirect)
 	.AddRedirectToNonWwwPermanent());
 
 // Todo: Improve this
