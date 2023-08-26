@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 using MZikmund.Web.Configuration.Connections;
 using MZikmund.Web.Core;
+using MZikmund.Web.Core.Infrastructure;
 using MZikmund.Web.Core.Services;
 using MZikmund.Web.Data;
 using MZikmund.Web.Data.Extensions;
@@ -22,7 +23,9 @@ ConfigureServices(builder.Services);
 
 var app = builder.Build();
 
-app.UseRewriter(new RewriteOptions().AddRedirectToNonWwwPermanent());
+app.UseRewriter(new RewriteOptions()
+	.Add(new LegacyUrlRedirectRule())
+	.AddRedirectToNonWwwPermanent());
 
 // Todo: Improve this
 using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())

@@ -8,6 +8,7 @@
 		<PackageReference Include="Markdig" />
 		<PackageReference Include="Markdown.ColorCode" />
 		<PackageReference Include="AutoMapper" />
+		<PackageReference Include="Microsoft.AspNetCore.Rewrite" />
 		<PackageReference Include="Newtonsoft.Json" />
 		<PackageReference Include="MediatR" />
 	</ItemGroup>
