@@ -10,7 +10,7 @@ using Microsoft.Net.Http.Headers;
 
 namespace MZikmund.Web.Core.Infrastructure;
 
-internal partial class LegacyUrlRedirectRule : IRule
+public partial class LegacyUrlRedirectRule : IRule
 {
 	private const string BlogLegacyUrl = "blog.mzikmund.";
 	private const string ComLegacyUrl = "mzikmund.com";
@@ -81,7 +81,7 @@ internal partial class LegacyUrlRedirectRule : IRule
 	private void SetResponse(RewriteContext context, string url)
 	{
 		var response = context.HttpContext.Response;
-		response.StatusCode = (int)HttpStatusCode.TemporaryRedirect;
+		response.StatusCode = (int)HttpStatusCode.TemporaryRedirect; // TODO: Use permanent redirect
 		response.Headers[HeaderNames.Location] = url;
 		context.Result = RuleResult.EndResponse;
 	}
