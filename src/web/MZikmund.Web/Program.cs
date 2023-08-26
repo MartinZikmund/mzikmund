@@ -22,16 +22,7 @@ ConfigureServices(builder.Services);
 
 var app = builder.Build();
 
-app.UseRewriter(new RewriteOptions()
-	.AddRedirect(
-		@"blog\.mzikmund\.[a-zA-Z]{2,3}\/\d{4}\/\d{1,2}\/([a-zA-Z0-9\-]+)\/?",
-		"https://mzikmund.dev/blog/$1",
-		(int)HttpStatusCode.PermanentRedirect)
-	.AddRedirect(
-		@"blog\.mzikmund\.[a-zA-Z]",
-		"https://mzikmund.dev/",
-		(int)HttpStatusCode.TemporaryRedirect)
-	.AddRedirectToNonWwwPermanent());
+app.UseRewriter(new RewriteOptions().AddRedirectToNonWwwPermanent());
 
 // Todo: Improve this
 using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
