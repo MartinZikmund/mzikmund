@@ -11,7 +11,7 @@ using MZikmund.Web.Data.Extensions;
 using MZikmund.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.Services.AddApplicationInsightsTelemetry();
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddMediatR(config =>
