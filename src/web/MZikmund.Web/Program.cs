@@ -58,6 +58,12 @@ void ConfigureServices(IServiceCollection services)
 	services.AddSingleton<IMarkdownConverter, MarkdownConverter>();
 	services.AddSingleton<IPostContentProcessor, PostContentProcessor>();
 
+	services.Configure<RouteOptions>(option =>
+	{
+		option.LowercaseUrls = true;
+		option.LowercaseQueryStrings = true;
+	});
+
 	services.AddLocalization(options => options.ResourcesPath = "Resources");
 
 	services.AddDataContext();
