@@ -75,6 +75,8 @@ public partial class LegacyUrlRedirectRule : IRule
 			return;
 		}
 
+		// TODO: Handle category/tag pages
+
 		SetResponse(context, NewUrl, false);
 	}
 
