@@ -81,7 +81,7 @@ public partial class LegacyUrlRedirectRule : IRule
 	private void SetResponse(RewriteContext context, string url)
 	{
 		var response = context.HttpContext.Response;
-		response.StatusCode = (int)HttpStatusCode.TemporaryRedirect; // TODO: Use permanent redirect
+		response.StatusCode = (int)HttpStatusCode.MovedPermanently;
 		response.Headers[HeaderNames.Location] = url;
 		context.Result = RuleResult.EndResponse;
 	}
