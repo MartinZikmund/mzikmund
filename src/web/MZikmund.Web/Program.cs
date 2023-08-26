@@ -62,6 +62,7 @@ void ConfigureServices(IServiceCollection services)
 	{
 		option.LowercaseUrls = true;
 		option.LowercaseQueryStrings = true;
+		option.AppendTrailingSlash = false;
 	});
 
 	services.AddLocalization(options => options.ResourcesPath = "Resources");
