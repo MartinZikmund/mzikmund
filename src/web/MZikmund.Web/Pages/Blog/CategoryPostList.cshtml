@@ -1,5 +1,10 @@
 ﻿@page "/Blog/Categories/{categoryName}"
 @model MZikmund.Web.Pages.Blog.CategoryPostListModel
+
+@{
+    MetaTags.Title = Model.Category.DisplayName;
+}
+
 @{
     <h1 class="display-4 text-center text-primary">@Model.Category.DisplayName</h1>
     <div class="row">

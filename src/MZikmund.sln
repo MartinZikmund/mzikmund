@@ -27,7 +27,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MZikmund.LegacyMigration", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MZikmund.Web.Core", "web\MZikmund.Web.Core\MZikmund.Web.Core.csproj", "{69F52E39-812D-4ABE-BFF8-D8290D6B156A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MZikmund.Web.Core.Tests", "web\MZikmund.Web.Core.Tests\MZikmund.Web.Core.Tests.csproj", "{CFAD7F7D-3F38-4252-885B-EE16DC147787}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MZikmund.Web.Core.Tests", "web\MZikmund.Web.Core.Tests\MZikmund.Web.Core.Tests.csproj", "{CFAD7F7D-3F38-4252-885B-EE16DC147787}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

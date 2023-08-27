@@ -1,5 +1,10 @@
 ﻿@page "/Blog/Tags/{tagName}"
 @model MZikmund.Web.Pages.Blog.TagPostListModel
+
+@{
+    MetaTags.Title = Model.Tag.DisplayName;
+}
+
 @{
     <h1 class="display-4 text-center text-secondary">#@Model.Tag.DisplayName</h1>
     <div class="row">

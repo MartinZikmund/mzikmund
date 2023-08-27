@@ -33,6 +33,7 @@ public class PostModel : PageModel
 	{
 		BlogPost = await _mediator.Send(new GetPostByRouteNameQuery(routeName));
 		HtmlContent = await _postContentProcessor.ProcessAsync(BlogPost);
+		MetaKeywords = string.Join(", ", BlogPost.Tags.Select(t => t.DisplayName));
 		//Tags = await _blogTagsService.GetForPostAsync(id, _localizationInfo.CurrentLanguageId);
 		//if (BlogPost.ContentType == BlogPostContentType.ExtendedMarkdown)
 		//{

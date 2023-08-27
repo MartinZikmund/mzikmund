@@ -1,5 +1,6 @@
 ﻿@using MZikmund.Web
 @using MZikmund.Web.Core;
+@using MZikmund.Web.Core.Content.Meta;
 @using MZikmund.Web.Helpers.Constants
 @using MZikmund.Web.Core.Dtos;
 @using X.PagedList;
@@ -15,3 +16,4 @@
 
 @inject IStringLocalizer<WebAssemblyMarker> Localizer
 @inject Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet JavaScriptSnippet
+@inject MetaTagsInfo MetaTags
