@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 using MZikmund.Web.Configuration.Connections;
 using MZikmund.Web.Core;
+using MZikmund.Web.Core.Content.Meta;
 using MZikmund.Web.Core.Infrastructure;
 using MZikmund.Web.Core.Services;
 using MZikmund.Web.Data;
@@ -61,6 +62,8 @@ void ConfigureServices(IServiceCollection services)
 	services.AddSingleton<IConnectionStringProvider, ConnectionStringProvider>();
 	services.AddSingleton<IMarkdownConverter, MarkdownConverter>();
 	services.AddSingleton<IPostContentProcessor, PostContentProcessor>();
+	services.AddHttpContextAccessor();
+	services.AddScoped<MetaTagsInfo>();
 
 	services.Configure<RouteOptions>(option =>
 	{

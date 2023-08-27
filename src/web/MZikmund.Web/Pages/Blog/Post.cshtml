@@ -1,29 +1,12 @@
 ﻿@page "/Blog/{RouteName}"
+@using System.Linq
 @using Microsoft.AspNetCore.Http.Extensions
 @model MZikmund.Web.Pages.Blog.PostModel
 
 @{
-    ViewData[ViewDataProperties.Title] = Model.BlogPost?.Title ?? "";
-}
-
-@section Head
-{    
-    <meta property="og:url" content="@Request.GetDisplayUrl()" />
-    <meta property="og:type" content="article" />
-    <meta property="og:title" content="@Model.BlogPost?.Title" />
-    <meta property="og:description" content="@Model.BlogPost!.Abstract" />
-    @* <meta property="og:image" content="@Model.BlogPost.Localizations[0].HeroImage" /> *@
-    <meta property="og:image:height" content="378" /><!--TODO-->
-    <meta property="og:image:height" content="832" /><!--TODO-->
-    <meta name="twitter:image:alt" content="Alt text for image" /><!-- TODO -->
-    <meta name="keywords" content="" /><!-- TODO -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:creator" content="@@mzikmunddev" />
-    <meta name="twitter:title" content="@Model.BlogPost?.Title" />
-    <meta name="twitter:description" content="@Model.BlogPost!.Abstract" />
-    @* <meta name="twitter:image" content="@Model.BlogPost.Localizations[0].HeroImage" /> *@
-    <meta property="twitter:image:height" content="378" /> <!--TODO-->
-    <meta property="twitter:image:height" content="832" /><!--TODO-->
+    MetaTags.Title = Model.BlogPost?.Title ?? "";
+    MetaTags.Description = Model.BlogPost?.Abstract ?? "";
+    MetaTags.Keywords = Model.MetaKeywords;
 }
 
 <article class="blog-post">

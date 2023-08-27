@@ -1,0 +1,23 @@
+﻿@using MZikmund.Web.Core.Content.Meta;
+@using Microsoft.AspNetCore.Http.Extensions
+@inject MetaTagsInfo MetaTags
+@inject IHttpContextAccessor HttpContextAccessor
+
+<meta name="description" content="@MetaTags.Description" />
+<meta property="og:title" content="@MetaTags.Title" />
+<meta property="og:description" content="@MetaTags.Description" />
+<meta property="og:image" content="@MetaTags.Image" />
+<meta property="og:image:alt" content="@MetaTags.ImageAlt" />
+<meta name="twitter:card" content="@MetaTags.TwitterCardValue" />
+@if (HttpContextAccessor.HttpContext is not null)
+{
+    <meta property="og:url" content="@HttpContextAccessor.HttpContext?.Request.GetDisplayUrl()" />
+}
+<meta property="og:type" content="article" />
+
+@* TODO: Add missing metas <meta property="og:type" content="" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content" />
+<meta property="twitter:image:height" content="378" /> <!--TODO-->
+<meta property="twitter:image:height" content="832" />
+*@
