@@ -35,12 +35,13 @@ internal sealed class ListPostsHandler : IRequestHandler<ListPostsQuery, IReadOn
 		var specification = new ListPostsSpecification(request.Page, request.PageSize, request.CategoryId, request.TagId);
 		var posts = await _postsRepository.SelectAsync(specification, post => new PostListItem
 		{
-			Content = post.Content, //TODO: Get summary only
 			LastModifiedDate = post.LastModifiedDate,
 			PublishedDate = post.PublishedDate,
 			RouteName = post.RouteName,
 			Title = post.Title,
-			Abstract = post.Abstract
+			Abstract = post.Abstract,
+			HeroImageAlt = post.HeroImageAlt,
+			HeroImageUrl = post.HeroImageUrl
 		});
 
 		foreach (var post in posts)

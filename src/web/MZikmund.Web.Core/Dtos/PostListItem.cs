@@ -13,4 +13,8 @@ public class PostListItem
 	public DateTimeOffset? PublishedDate { get; set; }
 
 	public DateTimeOffset? LastModifiedDate { get; set; }
+
+	public string? HeroImageUrl { get; set; }
+
+	public string? HeroImageAlt { get; set; }
 }
