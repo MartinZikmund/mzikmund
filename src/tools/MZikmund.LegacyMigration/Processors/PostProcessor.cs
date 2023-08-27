@@ -104,6 +104,28 @@ internal sealed class PostProcessor
 				}
 			}
 
+			if (_postMetas.FirstOrDefault(pm => pm.PostId == post.Id && pm.MetaKey == "mtm_data") is { } heroImageInfo)
+			{
+				// Extracting twitter:image value
+				string twitterImagePattern = @"twitter:image"";s:7:""content"";s:\d+:""([^""]+)""";
+				string ogImagePattern = @"og:image"";s:7:""content"";s:\d+:""([^""]+)""";
+				Match twitterImageMatch = Regex.Match(heroImageInfo.MetaValue, twitterImagePattern);
+				Match ogImageMatch = Regex.Match(heroImageInfo.MetaValue, ogImagePattern);
+
+				// Extracting twitter:image:alt value
+				string twitterImageAltPattern = @"twitter:image:alt"";s:7:""content"";s:\d+:""([^""]+)""";
+				Match twitterImageAltMatch = Regex.Match(heroImageInfo.MetaValue, twitterImageAltPattern);
+
+				if (twitterImageMatch.Success || ogImageMatch.Success)
+				{
+					postEntity.HeroImageUrl = twitterImageMatch.Success ? twitterImageMatch.Groups[1].Value : ogImageMatch.Groups[1].Value;
+					if (twitterImageAltMatch.Success)
+					{
+						postEntity.HeroImageAlt = twitterImageAltMatch.Groups[1].Value;
+					}
+				}
+			}
+
 			posts.Add(post.Id, postEntity);
 		}
 		return new ProcessedPosts(posts, postCategories, postTags, null);
@@ -139,6 +161,7 @@ internal sealed class PostProcessor
 		content = SpaceImages(content);
 		content = FormatYouTuBeEmbeds(content);
 		content = FormatYouTubeComEmbeds(content);
+		// TODO: Proess galleries
 		return TransformWordpressCaption(content);
 	}
 

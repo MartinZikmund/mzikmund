@@ -13,6 +13,7 @@ internal sealed class PostConfiguration : IEntityTypeConfiguration<PostEntity>
 		builder.Property(c => c.Content).HasMaxLength(10000);
 		builder.Property(c => c.HeroImageUrl).HasMaxLength(256);
 		builder.Property(c => c.LanguageCode).HasMaxLength(12);
+		builder.Property(c => c.HeroImageAlt).HasMaxLength(256);
 
 		builder
 			.HasMany(c => c.Categories)

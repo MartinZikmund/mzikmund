@@ -10,6 +10,7 @@ using Microsoft.UI.Xaml;
 using MZikmund.LegacyMigration.Json;
 using MZikmund.LegacyMigration.Processors;
 using MZikmund.Web.Data;
+using MZikmund.Web.Data.Entities;
 using Newtonsoft.Json;
 using Windows.Storage;
 using Windows.Storage.Pickers;
@@ -78,39 +79,72 @@ internal sealed partial class MainViewModel : ObservableObject
 
 		var contextOptionsBuilder = new DbContextOptionsBuilder<DatabaseContext>();
 		contextOptionsBuilder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=MZikmundDb;Trusted_Connection=True;");
-		var databaseContext = new DatabaseContext(contextOptionsBuilder.Options);
+		using var databaseContext = new DatabaseContext(contextOptionsBuilder.Options);
+		//databaseContext.Database.Migrate();
+
+		var existingCategories = new HashSet<string>(await databaseContext.Category.Select(c => c.RouteName).ToListAsync());
+		var existingTags = new HashSet<string>(await databaseContext.Tag.Select(c => c.RouteName).ToListAsync());
+		var allPosts = await databaseContext.Post.Select(p => new { Route = p.RouteName, Id = p.Id }).ToListAsync();
+		var existingPosts = new HashSet<string>(allPosts.Select(c => c.Route));
 
 		foreach (var category in categories.Values)
 		{
-			databaseContext.Add(category);
+			if (!existingCategories.Contains(category.RouteName))
+			{
+				databaseContext.Add(category);
+			}
 		}
 
 		await databaseContext.SaveChangesAsync();
 
 		foreach (var tag in tags.Values)
 		{
-			databaseContext.Add(tag);
+			if (!existingTags.Contains(tag.RouteName))
+			{
+				databaseContext.Add(tag);
+			}
 		}
 
 		await databaseContext.SaveChangesAsync();
 
+		List<PostEntity> newPosts = new List<PostEntity>();
+
 		foreach (var post in processedPosts.Posts.Values)
 		{
-			databaseContext.Add(post);
+			if (!existingPosts.Contains(post.RouteName))
+			{
+				databaseContext.Add(post);
+				newPosts.Add(post);
+			}
+			else
+			{
+				var existingPost = allPosts.Single(p => p.Route == post.RouteName);
+				var updatePost = new PostEntity() { Id = existingPost.Id };
+				databaseContext.Attach(updatePost);
+				updatePost.HeroImageUrl = post.HeroImageUrl;
+				updatePost.HeroImageAlt = post.HeroImageAlt;
+				updatePost.Abstract = post.Abstract;
+			}
 		}
 
 		await databaseContext.SaveChangesAsync();
 
 		foreach (var postTag in processedPosts.PostTags)
 		{
-			databaseContext.Add(postTag);
+			if (newPosts.Any(p => p.Id == postTag.PostId))
+			{
+				databaseContext.Add(postTag);
+			}
 		}
 
 		await databaseContext.SaveChangesAsync();
 
 		foreach (var postCategory in processedPosts.PostCategories)
 		{
-			databaseContext.Add(postCategory);
+			if (newPosts.Any(p => p.Id == postCategory.PostId))
+			{
+				databaseContext.Add(postCategory);
+			}
 		}
 
 		await databaseContext.SaveChangesAsync();

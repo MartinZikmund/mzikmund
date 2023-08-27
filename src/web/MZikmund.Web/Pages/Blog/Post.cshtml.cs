@@ -34,20 +34,5 @@ public class PostModel : PageModel
 		BlogPost = await _mediator.Send(new GetPostByRouteNameQuery(routeName));
 		HtmlContent = await _postContentProcessor.ProcessAsync(BlogPost);
 		MetaKeywords = string.Join(", ", BlogPost.Tags.Select(t => t.DisplayName));
-		//Tags = await _blogTagsService.GetForPostAsync(id, _localizationInfo.CurrentLanguageId);
-		//if (BlogPost.ContentType == BlogPostContentType.ExtendedMarkdown)
-		//{
-		//	BlogPost.Localizations[0].Content = _markdown.ToHtml(BlogPost.Localizations[0].Content);
-		//}
-		//else
-		//{
-
-		//}
-		//var matches = Regex.Matches(BlogPost.Content, "https://gist.github.com/.*");
-		//foreach (Match match in matches)
-		//{
-		//    var generated = _highlightableGistHtmlGenerator.Generate(new Uri(match.Value));
-		//    BlogPost.Content = BlogPost.Content.Replace(match.Value, generated, StringComparison.OrdinalIgnoreCase);
-		//}
 	}
 }

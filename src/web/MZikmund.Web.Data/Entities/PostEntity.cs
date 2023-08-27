@@ -25,6 +25,8 @@ public class PostEntity
 
 	public string? HeroImageUrl { get; set; }
 
+	public string? HeroImageAlt { get; set; }
+
 	public string LanguageCode { get; set; } = "";
 
 	public string Content { get; set; } = "";

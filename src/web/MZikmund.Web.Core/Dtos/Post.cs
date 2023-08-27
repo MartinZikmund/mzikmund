@@ -10,6 +10,10 @@ public class Post
 
 	public string Abstract { get; set; } = "";
 
+	public string? HeroImageUrl { get; set; }
+
+	public string? HeroImageAlt { get; set; }
+
 	public DateTimeOffset? PublishedDate { get; set; }
 
 	public DateTimeOffset? LastModifiedDate { get; set; }
