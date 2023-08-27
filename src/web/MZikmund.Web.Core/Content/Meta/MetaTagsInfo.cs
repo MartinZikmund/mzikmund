@@ -17,6 +17,8 @@ public class MetaTagsInfo
 		}
 	}
 
+	public string MetaTitle => string.IsNullOrEmpty(Title) ? "Martin Zikmund" : Title;
+
 	public string Title { get; set; } = "";
 
 	public string Description { get; set; } =
