@@ -8,7 +8,7 @@ public class MetaTagsInfo
 		{
 			if (string.IsNullOrEmpty(Title))
 			{
-				return "Martin Zikmund";
+				return "Martin Zikmund — Open-source Developer, Speaker";
 			}
 			else
 			{
@@ -17,7 +17,7 @@ public class MetaTagsInfo
 		}
 	}
 
-	public string MetaTitle => string.IsNullOrEmpty(Title) ? "Martin Zikmund" : Title;
+	public string MetaTitle => string.IsNullOrEmpty(Title) ? "Martin Zikmund — Open-source Developer, Speaker" : Title;
 
 	public string Title { get; set; } = "";
 
