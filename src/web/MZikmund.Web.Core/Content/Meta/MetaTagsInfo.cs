@@ -27,7 +27,7 @@ public class MetaTagsInfo
 	public string Keywords { get; set; } =
 		"software, open-source, development, IT, climbing, Lego";
 
-	public string Image { get; set; } = "https://cdn.mzikmund.dev/assets/socialbanner.jpg";
+	public string Image { get; set; } = "https://cdn.mzikmund.dev/assets/socialbannermd.jpg";
 
 	public string ImageAlt { get; set; } = "Author giving a talk at a tech conference.";
 
