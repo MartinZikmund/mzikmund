@@ -7,7 +7,7 @@
 	},
 	"devDependencies": {
 		"@types/jquery": "3.5.18",
-		"eslint": "^8.48.0",
+		"eslint": "^8.49.0",
 		"ts-loader": "9.4.4",
 		"sass": "1.66.1",
 		"sass-loader": "13.3.2"
