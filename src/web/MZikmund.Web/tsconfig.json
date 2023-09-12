@@ -1,11 +1,18 @@
 {
+	"compileOnSave": true,
 	"compilerOptions": {
 		"noImplicitAny": false,
 		"noEmitOnError": true,
 		"removeComments": false,
 		"sourceMap": true,
-		"target": "es5"
+		"target": "es6",
+		"outFile": "wwwroot/js/site.js",
+		"module": "system",
+		"strict": true,
 	},
+	"include": [
+		"Scripts/**/*"
+	],
 	"exclude": [
 		"node_modules",
 		"wwwroot"
