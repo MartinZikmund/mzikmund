@@ -1,3 +1,3 @@
-//import { ThemeSwitchManager } from "./ThemeSwitchManager";
+/// <reference path="ThemeSwitchManager.ts" />
 
-//ThemeSwitchManager.init();
+MZikmund.Theming.ThemeSwitchManager.init();
