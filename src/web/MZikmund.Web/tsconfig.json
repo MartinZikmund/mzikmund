@@ -4,7 +4,6 @@
 		"noImplicitAny": false,
 		"noEmitOnError": true,
 		"removeComments": false,
-		"sourceMap": true,
 		"target": "es6",
 		"outFile": "wwwroot/js/site.js",
 		"module": "system",

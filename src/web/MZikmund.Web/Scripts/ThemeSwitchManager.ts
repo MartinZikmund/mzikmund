@@ -13,7 +13,7 @@ namespace MZikmund.Theming {
 	export class ThemeSwitchManager {
 
 		public static init() {
-			$(() => {
+			document.addEventListener("DOMContentLoaded", () => {
 				ThemeSwitchManager.initTheme();
 			});
 
@@ -39,8 +39,8 @@ namespace MZikmund.Theming {
 
 			if (loaded) {
 				//clear theme selection
-				$("#theme-dropdown a.dropdown-item").removeClass("selected");
-				$("#theme-dropdown a[data-value='" + requestedTheme.toString().toLowerCase() + "'").addClass("selected");
+				document.querySelectorAll("#theme-dropdown a.dropdown-item").forEach(item => item.classList.remove("selected"));
+				document.querySelectorAll("#theme-dropdown a[data-value='" + requestedTheme.toString().toLowerCase() + "'").forEach(item => item.classList.add("selected"));
 			}
 
 			var displayTheme: DisplayTheme;
@@ -51,18 +51,17 @@ namespace MZikmund.Theming {
 				displayTheme = <DisplayTheme><string>requestedTheme;
 			}
 
-			document.documentElement.removeAttribute("data-theme");
-
-			document.documentElement.setAttribute("data-theme", displayTheme.toString().toLowerCase());
+			document.documentElement.removeAttribute("data-bs-theme");
+			document.documentElement.setAttribute("data-bs-theme", displayTheme.toString().toLowerCase());
 		}
 
 		private static initTheme() {
 
-			$("#theme-dropdown a.dropdown-item").click(function (e) {
+			document.querySelectorAll("#theme-dropdown a.dropdown-item").forEach(item => item.addEventListener("click", function (e) {
 				e.preventDefault();
-				localStorage.setItem('ui-theme', $(this).data('value'));
+				localStorage.setItem('ui-theme', (e.currentTarget as HTMLElement).getAttribute("data-value") ?? "");
 				ThemeSwitchManager.updateTheme(true);
-			});
+			}));
 
 			if (window.matchMedia) {
 				window.matchMedia('(prefers-color-scheme: dark)').addEventListener("change", () => {
