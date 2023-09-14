@@ -37,7 +37,7 @@ internal sealed class CategoryProcessor
 			var category = new CategoryEntity
 			{
 				Id = Guid.NewGuid(),
-				DisplayName = term.Name,
+				DisplayName = System.Net.WebUtility.HtmlDecode(term.Name),
 				RouteName = term.Slug,
 				//ParentId = termTaxonomy.Parent,
 				Description = termTaxonomy.Description,

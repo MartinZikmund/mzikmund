@@ -37,6 +37,8 @@ internal sealed partial class MainViewModel : ObservableObject
 
 	public string OpenAiApiKey { get; set; } = string.Empty;
 
+	public string ConnectionStringOverride { get; set; } = string.Empty;
+
 	[RelayCommand]
 	public async Task OpenSourceFolderAsync()
 	{
@@ -77,9 +79,7 @@ internal sealed partial class MainViewModel : ObservableObject
 		var postProcessor = new PostProcessor(posts, postMeta, terms, termRelationships, termTaxonomies, tags, categories);
 		var processedPosts = postProcessor.Process();
 
-		var contextOptionsBuilder = new DbContextOptionsBuilder<DatabaseContext>();
-		contextOptionsBuilder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=MZikmundDb;Trusted_Connection=True;");
-		using var databaseContext = new DatabaseContext(contextOptionsBuilder.Options);
+		using var databaseContext = CreateDatabaseContext();
 		//databaseContext.Database.Migrate();
 
 		var existingCategories = new HashSet<string>(await databaseContext.Category.Select(c => c.RouteName).ToListAsync());
@@ -150,6 +150,24 @@ internal sealed partial class MainViewModel : ObservableObject
 		await databaseContext.SaveChangesAsync();
 	}
 
+	private DatabaseContext CreateDatabaseContext()
+	{
+		var contextOptionsBuilder = new DbContextOptionsBuilder<DatabaseContext>();
+		contextOptionsBuilder.UseSqlServer(GetConnectionString());
+		var databaseContext = new DatabaseContext(contextOptionsBuilder.Options);
+		return databaseContext;
+	}
+
+	private string GetConnectionString()
+	{
+		if (string.IsNullOrEmpty(ConnectionStringOverride))
+		{
+			return "Server=(localdb)\\MSSQLLocalDB;Database=MZikmundDb;Trusted_Connection=True;";
+		}
+
+		return ConnectionStringOverride;
+	}
+
 	[RelayCommand]
 	public async Task AddExcerptsAsync()
 	{
@@ -172,6 +190,19 @@ internal sealed partial class MainViewModel : ObservableObject
 		var targetFile = await SourceFolder.CreateFileAsync(EnrichedPostsFileName, CreationCollisionOption.ReplaceExisting);
 		var content = JsonConvert.SerializeObject(posts);
 		await FileIO.WriteTextAsync(targetFile, content);
+	}
+
+	[RelayCommand]
+	public async Task DecodeCategoriesAsync()
+	{
+		using var databaseContext = CreateDatabaseContext();
+		var allCategories = await databaseContext.Category.ToListAsync();
+		foreach (var category in allCategories)
+		{
+			category.DisplayName = System.Net.WebUtility.HtmlDecode(category.DisplayName);
+		}
+
+		await databaseContext.SaveChangesAsync();
 	}
 
 	private async Task<IList<T>> Parse<T>(StorageFile? sourceFile)
