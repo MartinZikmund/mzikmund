@@ -11,7 +11,9 @@
     <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Spacing="8" VerticalAlignment="Center">
 		<Button Command="{x:Bind ViewModel.OpenSourceFolderCommand}">Open source folder</Button>
 		<TextBox PlaceholderText="OpenAI API key" Text="{x:Bind ViewModel.OpenAiApiKey, Mode=TwoWay}" />
+		<TextBox PlaceholderText="Connection string override" Text="{x:Bind ViewModel.ConnectionStringOverride, Mode=TwoWay}" />
 		<Button Command="{x:Bind ViewModel.AddExcerptsCommand}">Add excerpts</Button>
 		<Button Command="{x:Bind ViewModel.TryParseSourcesCommand}">Parse and upload</Button>
+		<Button Command="{x:Bind ViewModel.DecodeCategoriesCommand}">Decode categories</Button>
     </StackPanel>
 </Window>
