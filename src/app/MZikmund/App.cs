@@ -10,8 +10,8 @@ public class App : Application
 		var builder = this.CreateBuilder(args)
 			.Configure(host => host
 #if DEBUG
-			// Switch to Development environment when running in DEBUG
-			.UseEnvironment(Environments.Development)
+				// Switch to Development environment when running in DEBUG
+				.UseEnvironment(Environments.Development)
 #endif
 				.UseConfiguration(configure: configBuilder =>
 					configBuilder
@@ -30,8 +30,8 @@ public class App : Application
 					// DelegatingHandler will be automatically injected into Refit Client
 					.AddTransient<DelegatingHandler, DebugHttpHandler>()
 #endif
-						.AddSingleton<IWeatherCache, WeatherCache>()
-						.AddRefitClient<IApiClient>(context))
+					.AddSingleton<IWeatherCache, WeatherCache>()
+					.AddRefitClient<IApiClient>(context))
 				.UseAuthentication(auth =>
 	auth.AddMsal(name: "MsalAuthentication")
 				)
