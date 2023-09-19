@@ -66,6 +66,19 @@ public partial class LegacyUrlRedirectRule : IRule
 			return;
 		}
 
+		if (request.Path.StartsWithSegments("/feed"))
+		{
+			var feedUrl = UriHelper.BuildAbsolute(
+				request.Scheme,
+				new HostString("mzikmund.dev"),
+				request.PathBase,
+				request.Path,
+				request.QueryString);
+			feedUrl = feedUrl.Replace("/feed", "/rss");
+			SetResponse(context, feedUrl);
+			return;
+		}
+
 		if (LegacyBlogPostRegex().Match(request.Path.Value) is { Success: true } blogPostMatch)
 		{
 			var postRouteName = blogPostMatch.Groups[1].Value;
