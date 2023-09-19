@@ -5,6 +5,7 @@
 		<PackageVersion Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
 		<PackageVersion Include="Betalgo.OpenAI" Version="7.1.5" />
 		<PackageVersion Include="BuildWebCompiler2022" Version="1.14.10" />
+		<PackageVersion Include="Edi.SyndicationFeed.ReaderWriter" Version="2.0.1" />
 		<PackageVersion Include="Humanizer" Version="2.14.1" />
 		<PackageVersion Include="MediatR" Version="12.1.1" />
 		<PackageVersion Include="Markdig" Version="0.32.0" />
@@ -45,7 +46,6 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageVersion>
-
 		<!-- Uno -->
 		<PackageVersion Include="CommunityToolkit.Mvvm" Version="8.2.0" />
 		<PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="7.0.0" />

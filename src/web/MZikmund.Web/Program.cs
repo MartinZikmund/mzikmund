@@ -9,6 +9,7 @@ using MZikmund.Web.Core;
 using MZikmund.Web.Core.Content.Meta;
 using MZikmund.Web.Core.Infrastructure;
 using MZikmund.Web.Core.Services;
+using MZikmund.Web.Core.Syndication;
 using MZikmund.Web.Data;
 using MZikmund.Web.Data.Extensions;
 using MZikmund.Web.Services;
@@ -60,6 +61,8 @@ void ConfigureServices(IServiceCollection services)
 	services.AddSingleton<IConnectionStringProvider, ConnectionStringProvider>();
 	services.AddSingleton<IMarkdownConverter, MarkdownConverter>();
 	services.AddSingleton<IPostContentProcessor, PostContentProcessor>();
+	services.AddSingleton<IFeedGenerator, FeedGenerator>();
+	services.AddScoped<ISyndicationDataSource, SyndicationDataSource>();
 	services.AddHttpContextAccessor();
 	services.AddScoped<MetaTagsInfo>();
 

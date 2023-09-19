@@ -1,11 +1,8 @@
-﻿using System;
-using System.Globalization;
-using Newtonsoft.Json;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using MZikmund.Web.Services;
-using MZikmund.Web.Core.Dtos;
 
 namespace MZikmund.Web.Core.Services;
+
 public class PostContentProcessor : IPostContentProcessor
 {
 	private readonly IMarkdownConverter _markdownConverter;
@@ -16,9 +13,9 @@ public class PostContentProcessor : IPostContentProcessor
 		_markdownConverter = markdownConverter;
 	}
 
-	public Task<string> ProcessAsync(Post post)
+	public Task<string> ProcessAsync(string postContent)
 	{
-		var content = ReplaceGistUrlsWithEmbedScripts(post.Content);
+		var content = ReplaceGistUrlsWithEmbedScripts(postContent);
 		content = _markdownConverter.ToHtml(content);
 		return Task.FromResult(content);
 	}

@@ -5,6 +5,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Edi.SyndicationFeed.ReaderWriter" />
 		<PackageReference Include="Markdig" />
 		<PackageReference Include="Markdown.ColorCode" />
 		<PackageReference Include="AutoMapper" />

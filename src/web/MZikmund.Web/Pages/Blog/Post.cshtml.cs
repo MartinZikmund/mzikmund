@@ -32,7 +32,7 @@ public class PostModel : PageModel
 	public async Task OnGet(string routeName)
 	{
 		BlogPost = await _mediator.Send(new GetPostByRouteNameQuery(routeName));
-		HtmlContent = await _postContentProcessor.ProcessAsync(BlogPost);
+		HtmlContent = await _postContentProcessor.ProcessAsync(BlogPost.Content);
 		MetaKeywords = string.Join(", ", BlogPost.Tags.Select(t => t.DisplayName));
 	}
 }

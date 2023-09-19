@@ -1,9 +1,8 @@
-﻿using MediatR;
+﻿using System.ComponentModel.DataAnnotations;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using MZikmund.Syndication;
 using MZikmund.Web.Core.Blog;
 using MZikmund.Web.Core.Syndication;
-using System.ComponentModel.DataAnnotations;
 
 namespace MZikmund.Web.Controllers;
 
@@ -36,6 +35,30 @@ public class SubscriptionController : ControllerBase
 		};
 
 		var xml = await _mediator.Send(new GetOpmlQuery(opmlConfig));
+		return Content(xml, "text/xml");
+	}
+
+	[HttpGet("rss/{categoryName?}")]
+	public async Task<IActionResult> Rss([MaxLength(64)] string? categoryName = null)
+	{
+		var xml = await _mediator.Send(new GetRssQuery(categoryName));
+		if (string.IsNullOrWhiteSpace(xml))
+		{
+			return NotFound();
+		}
+
+		return Content(xml, "text/xml");
+	}
+
+	[HttpGet("atom/{categoryName?}")]
+	public async Task<IActionResult> Atom([MaxLength(64)] string? categoryName = null)
+	{
+		var xml = await _mediator.Send(new GetAtomQuery(categoryName));
+		if (string.IsNullOrWhiteSpace(xml))
+		{
+			return NotFound();
+		}
+
 		return Content(xml, "text/xml");
 	}
 }

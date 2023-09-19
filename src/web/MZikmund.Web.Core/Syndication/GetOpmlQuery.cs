@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using MZikmund.Syndication;
 
 namespace MZikmund.Web.Core.Syndication;
 
