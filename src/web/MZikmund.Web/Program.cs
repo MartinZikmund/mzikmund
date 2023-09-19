@@ -1,5 +1,7 @@
 using System.Net;
+using System.Text.Json.Serialization;
 using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 using MZikmund.Web.Configuration.Connections;
@@ -12,13 +14,7 @@ using MZikmund.Web.Data.Extensions;
 using MZikmund.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddApplicationInsightsTelemetry();
-// Add services to the container.
-builder.Services.AddRazorPages();
-builder.Services.AddMediatR(config =>
-{
-	config.RegisterServicesFromAssemblyContaining<CoreAssemblyMarker>();
-});
+
 
 ConfigureServices(builder.Services);
 
@@ -50,6 +46,8 @@ app.UseRouting();
 
 app.UseAuthorization();
 
+app.MapHealthChecks("/health");
+app.MapControllers();
 app.MapRazorPages();
 
 app.Run();
@@ -73,6 +71,17 @@ void ConfigureServices(IServiceCollection services)
 	});
 
 	services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+	services.AddControllers(options => options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()))
+			.AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+
+	services.AddApplicationInsightsTelemetry();
+	services.AddHealthChecks();
+	services.AddRazorPages();
+	services.AddMediatR(config =>
+	{
+		config.RegisterServicesFromAssemblyContaining<CoreAssemblyMarker>();
+	});
 
 	services.AddDataContext();
 }
