@@ -4,6 +4,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
+using MZikmund.Web.Configuration;
 using MZikmund.Web.Configuration.Connections;
 using MZikmund.Web.Core;
 using MZikmund.Web.Core.Content.Meta;
@@ -16,8 +17,7 @@ using MZikmund.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-ConfigureServices(builder.Services);
+ConfigureServices(builder.Services, builder.Configuration);
 
 var app = builder.Build();
 
@@ -54,7 +54,7 @@ app.MapRazorPages();
 app.Run();
 
 
-void ConfigureServices(IServiceCollection services)
+void ConfigureServices(IServiceCollection services, IConfiguration configuration)
 {
 	services.AddAutoMapper(typeof(CoreAssemblyMarker).Assembly);
 	services.AddSingleton<ICache, Cache>();
@@ -87,4 +87,6 @@ void ConfigureServices(IServiceCollection services)
 	});
 
 	services.AddDataContext();
+
+	services.AddSingleton<ISiteConfiguration>(new SiteConfiguration(configuration));
 }

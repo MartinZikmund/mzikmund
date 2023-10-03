@@ -3,6 +3,7 @@
 	<PropertyGroup>
 		<TargetFramework>net7.0</TargetFramework>
 		<NoWarn>CA1852</NoWarn>
+		<UserSecretsId>bd1e8e97-122b-43d8-95ca-784bd84a83d9</UserSecretsId>
 	</PropertyGroup>
 
 	<ItemGroup>
