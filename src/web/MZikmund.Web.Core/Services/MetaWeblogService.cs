@@ -1,8 +1,10 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
 using MZikmund.Web.Configuration;
+using MZikmund.Web.Core.Blog;
 using MZikmund.Web.Core.Utilities;
 using WilderMinds.MetaWeblog;
+using WeblogTag = WilderMinds.MetaWeblog.Tag;
 
 namespace MZikmund.Web.Core.Services;
 
@@ -22,7 +24,36 @@ public class MetaWeblogService : IMetaWeblogProvider
 		_mediator = mediator;
 	}
 
-	public Task<int> AddCategoryAsync(string key, string username, string password, NewCategory category) => throw new NotImplementedException();
+	public Task<int> AddCategoryAsync(string key, string username, string password, NewCategory newCategory) => TryExecuteAsync(async () =>
+	{
+		ValidateUser(username, password);
+
+		var category = await _mediator.Send(new CreateCategoryCommand
+		{
+			DisplayName = newCategory.name.Trim(),
+			RouteName = newCategory.slug.ToLowerInvariant(),
+			Description = newCategory.description.Trim()
+		});
+
+		return category.Id.GetHashCode();
+	});
+
+	public Task<WeblogTag[]> GetTagsAsync(string blogid, string username, string password) => TryExecuteAsync(async () =>
+	{
+		ValidateUser(username, password);
+
+		var tags = await _mediator.Send(new GetTagDisplayNamesQuery());
+
+		var weblogTags = tags
+			.Select(tagDisplayName => new WeblogTag()
+			{
+				name = tagDisplayName,
+			})
+			.ToArray();
+
+		return weblogTags;
+	});
+
 	public Task<string> AddPageAsync(string blogid, string username, string password, Page page, bool publish) => throw new NotImplementedException();
 	public Task<string> AddPostAsync(string blogid, string username, string password, Post post, bool publish) => throw new NotImplementedException();
 	public Task<bool> DeletePageAsync(string blogid, string username, string password, string pageid) => throw new NotImplementedException();
@@ -35,7 +66,8 @@ public class MetaWeblogService : IMetaWeblogProvider
 	public Task<Page[]> GetPagesAsync(string blogid, string username, string password, int numPages) => throw new NotImplementedException();
 	public Task<Post> GetPostAsync(string postid, string username, string password) => throw new NotImplementedException();
 	public Task<Post[]> GetRecentPostsAsync(string blogid, string username, string password, int numberOfPosts) => throw new NotImplementedException();
-	public Task<Tag[]> GetTagsAsync(string blogid, string username, string password) => throw new NotImplementedException();
+	public Task<BlogInfo[]> GetUsersBlogsAsync(string key, string username, string password) => throw new NotImplementedException();
+	public Task<MediaObjectInfo> NewMediaObjectAsync(string blogid, string username, string password, MediaObject mediaObject) => throw new NotImplementedException();
 
 	public Task<UserInfo> GetUserInfoAsync(string key, string username, string password) => TryExecute(() =>
 	{
@@ -53,10 +85,6 @@ public class MetaWeblogService : IMetaWeblogProvider
 
 		return Task.FromResult(user);
 	});
-
-	public Task<BlogInfo[]> GetUsersBlogsAsync(string key, string username, string password) => throw new NotImplementedException();
-
-	public Task<MediaObjectInfo> NewMediaObjectAsync(string blogid, string username, string password, MediaObject mediaObject) => throw new NotImplementedException();
 
 	private void ValidateUser(string username, string password)
 	{
@@ -84,6 +112,19 @@ public class MetaWeblogService : IMetaWeblogProvider
 		try
 		{
 			return action();
+		}
+		catch (Exception e)
+		{
+			_logger.LogError(e, e.Message);
+			throw new MetaWeblogException(e.Message);
+		}
+	}
+
+	private async Task<T> TryExecuteAsync<T>(Func<Task<T>> asyncAction)
+	{
+		try
+		{
+			return await asyncAction();
 		}
 		catch (Exception e)
 		{
