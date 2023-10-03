@@ -57,6 +57,7 @@ app.Run();
 void ConfigureServices(IServiceCollection services, IConfiguration configuration)
 {
 	services.AddAutoMapper(typeof(CoreAssemblyMarker).Assembly);
+	services.AddSingleton<ISiteConfiguration>(new SiteConfiguration(configuration));
 	services.AddSingleton<ICache, Cache>();
 	services.AddSingleton<IConnectionStringProvider, ConnectionStringProvider>();
 	services.AddSingleton<IMarkdownConverter, MarkdownConverter>();
@@ -88,5 +89,4 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 
 	services.AddDataContext();
 
-	services.AddSingleton<ISiteConfiguration>(new SiteConfiguration(configuration));
 }

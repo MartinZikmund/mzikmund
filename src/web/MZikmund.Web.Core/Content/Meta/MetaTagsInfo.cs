@@ -1,31 +1,45 @@
-﻿namespace MZikmund.Web.Core.Content.Meta;
+﻿using System.Globalization;
+using MZikmund.Web.Configuration;
+
+namespace MZikmund.Web.Core.Content.Meta;
 
 public class MetaTagsInfo
 {
+	private readonly ISiteConfiguration _siteConfiguration;
+
+	public MetaTagsInfo(ISiteConfiguration siteConfiguration)
+	{
+		_siteConfiguration = siteConfiguration;
+		Description = _siteConfiguration.General.DefaultDescription;
+		Keywords = _siteConfiguration.General.DefaultKeywords;
+	}
+
 	public string HtmlTitle
 	{
 		get
 		{
 			if (string.IsNullOrEmpty(Title))
 			{
-				return "Martin Zikmund — Open-source Developer, Speaker";
+				return _siteConfiguration.General.DefaultTitle;
 			}
 			else
 			{
-				return $"{Title} | Martin Zikmund";
+				return string.Format(
+					CultureInfo.InvariantCulture,
+					_siteConfiguration.General.TitleFormatString,
+					Title);
 			}
 		}
 	}
 
-	public string MetaTitle => string.IsNullOrEmpty(Title) ? "Martin Zikmund — Open-source Developer, Speaker" : Title;
+	public string MetaTitle => string.IsNullOrEmpty(Title) ?
+		_siteConfiguration.General.DefaultTitle : Title;
 
 	public string Title { get; set; } = "";
 
-	public string Description { get; set; } =
-		"Open-source enthusiast and Microsoft MVP. Passionate speaker, avid climber, and Lego aficionado.";
+	public string Description { get; set; }
 
-	public string Keywords { get; set; } =
-		"software, open-source, development, IT, climbing, Lego";
+	public string Keywords { get; set; }
 
 	public string Image { get; set; } = "https://cdn.mzikmund.dev/assets/socialbannermd.jpg";
 
