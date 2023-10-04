@@ -1,4 +1,3 @@
-using System.Net;
 using System.Text.Json.Serialization;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +8,7 @@ using MZikmund.Web.Configuration.Connections;
 using MZikmund.Web.Core;
 using MZikmund.Web.Core.Content.Meta;
 using MZikmund.Web.Core.Infrastructure;
+using MZikmund.Web.Core.Middleware;
 using MZikmund.Web.Core.Services;
 using MZikmund.Web.Core.Syndication;
 using MZikmund.Web.Data;
@@ -43,6 +43,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
+app.UseMiddleware<ReallySimpleDiscoveryMiddleware>();
 app.UseRouting();
 
 app.UseAuthorization();

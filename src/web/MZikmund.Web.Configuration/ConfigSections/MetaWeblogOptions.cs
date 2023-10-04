@@ -8,4 +8,6 @@ public class MetaWeblogOptions
 	public string Username { get; set; } = "";
 
 	public string PasswordHash { get; set; } = "";
+
+	public string Endpoint { get; set; } = "";
 }

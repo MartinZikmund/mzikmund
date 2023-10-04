@@ -2,6 +2,10 @@
 
 public class GeneralOptions
 {
+	public string EngineName { get; set; } = "";
+
+	public Uri EngineRepositoryUrl { get; set; } = null!;
+
 	public string DefaultTitle { get; set; } = "";
 
 	public string DefaultDescription { get; set; } = "";
