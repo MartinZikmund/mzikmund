@@ -8,15 +8,15 @@ using WeblogTag = WilderMinds.MetaWeblog.Tag;
 
 namespace MZikmund.Web.Core.Services;
 
-public class MetaWeblogService : IMetaWeblogProvider
+public class MetaWeblogProvider : IMetaWeblogProvider
 {
 	private readonly ISiteConfiguration _siteConfiguration;
-	private readonly ILogger<MetaWeblogService> _logger;
+	private readonly ILogger<MetaWeblogProvider> _logger;
 	private readonly IMediator _mediator;
 
-	public MetaWeblogService(
+	public MetaWeblogProvider(
 		ISiteConfiguration blogConfig,
-		ILogger<MetaWeblogService> logger,
+		ILogger<MetaWeblogProvider> logger,
 		IMediator mediator)
 	{
 		_siteConfiguration = blogConfig;
@@ -54,6 +54,23 @@ public class MetaWeblogService : IMetaWeblogProvider
 		return weblogTags;
 	});
 
+	public Task<BlogInfo[]> GetUsersBlogsAsync(string key, string username, string password) => TryExecute(() =>
+	{
+		ValidateUser(username, password);
+
+		return TryExecute(() =>
+		{
+			var blog = new BlogInfo
+			{
+				blogid = _siteConfiguration.General.Url.ToString(),
+				blogName = _siteConfiguration.General.DefaultTitle,
+				url = "/"
+			};
+
+			return Task.FromResult(new[] { blog });
+		});
+	});
+
 	public Task<string> AddPageAsync(string blogid, string username, string password, Page page, bool publish) => throw new NotImplementedException();
 	public Task<string> AddPostAsync(string blogid, string username, string password, Post post, bool publish) => throw new NotImplementedException();
 	public Task<bool> DeletePageAsync(string blogid, string username, string password, string pageid) => throw new NotImplementedException();
@@ -66,7 +83,7 @@ public class MetaWeblogService : IMetaWeblogProvider
 	public Task<Page[]> GetPagesAsync(string blogid, string username, string password, int numPages) => throw new NotImplementedException();
 	public Task<Post> GetPostAsync(string postid, string username, string password) => throw new NotImplementedException();
 	public Task<Post[]> GetRecentPostsAsync(string blogid, string username, string password, int numberOfPosts) => throw new NotImplementedException();
-	public Task<BlogInfo[]> GetUsersBlogsAsync(string key, string username, string password) => throw new NotImplementedException();
+
 	public Task<MediaObjectInfo> NewMediaObjectAsync(string blogid, string username, string password, MediaObject mediaObject) => throw new NotImplementedException();
 
 	public Task<UserInfo> GetUserInfoAsync(string key, string username, string password) => TryExecute(() =>
