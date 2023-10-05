@@ -41,7 +41,9 @@ internal sealed class ListPostsHandler : IRequestHandler<ListPostsQuery, IReadOn
 			Title = post.Title,
 			Abstract = post.Abstract,
 			HeroImageAlt = post.HeroImageAlt,
-			HeroImageUrl = post.HeroImageUrl
+			HeroImageUrl = post.HeroImageUrl,
+			Tags = _mapper.Map<Tag[]>(post.Tags),
+			Categories = _mapper.Map<Category[]>(post.Categories),
 		});
 
 		foreach (var post in posts)

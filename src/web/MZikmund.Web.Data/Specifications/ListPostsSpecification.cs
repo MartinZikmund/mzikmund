@@ -19,6 +19,8 @@ public sealed class ListPostsSpecification : BaseSpecification<PostEntity>
 			AddCriteria(p => p.Tags.Any(t => t.Id == tagId));
 		}
 
+		AddInclude(p => p.Include(post => post.Tags));
+		AddInclude(p => p.Include(post => post.Categories));
 		ApplyPaging(startRow, pageSize);
 		ApplyOrderByDescending(p => p.PublishedDate);
 	}

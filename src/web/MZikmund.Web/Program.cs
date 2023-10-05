@@ -1,23 +1,24 @@
-using System.Net;
 using System.Text.Json.Serialization;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
+using MZikmund.Web.Configuration;
 using MZikmund.Web.Configuration.Connections;
 using MZikmund.Web.Core;
 using MZikmund.Web.Core.Content.Meta;
 using MZikmund.Web.Core.Infrastructure;
+using MZikmund.Web.Core.Middleware;
 using MZikmund.Web.Core.Services;
 using MZikmund.Web.Core.Syndication;
 using MZikmund.Web.Data;
 using MZikmund.Web.Data.Extensions;
 using MZikmund.Web.Services;
+using WilderMinds.MetaWeblog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-ConfigureServices(builder.Services);
+ConfigureServices(builder.Services, builder.Configuration);
 
 var app = builder.Build();
 
@@ -43,6 +44,9 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
+app.UseMiddleware<ReallySimpleDiscoveryMiddleware>();
+app.UseMetaWeblog($"/{app.Services.GetRequiredService<ISiteConfiguration>().MetaWeblog.Endpoint}");
+
 app.UseRouting();
 
 app.UseAuthorization();
@@ -54,15 +58,17 @@ app.MapRazorPages();
 app.Run();
 
 
-void ConfigureServices(IServiceCollection services)
+void ConfigureServices(IServiceCollection services, IConfiguration configuration)
 {
 	services.AddAutoMapper(typeof(CoreAssemblyMarker).Assembly);
+	services.AddSingleton<ISiteConfiguration>(new SiteConfiguration(configuration));
 	services.AddSingleton<ICache, Cache>();
 	services.AddSingleton<IConnectionStringProvider, ConnectionStringProvider>();
 	services.AddSingleton<IMarkdownConverter, MarkdownConverter>();
 	services.AddSingleton<IPostContentProcessor, PostContentProcessor>();
 	services.AddSingleton<IFeedGenerator, FeedGenerator>();
 	services.AddScoped<ISyndicationDataSource, SyndicationDataSource>();
+	services.AddMetaWeblog<MetaWeblogProvider>();
 	services.AddHttpContextAccessor();
 	services.AddScoped<MetaTagsInfo>();
 
@@ -87,4 +93,5 @@ void ConfigureServices(IServiceCollection services)
 	});
 
 	services.AddDataContext();
+
 }

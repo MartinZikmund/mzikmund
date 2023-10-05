@@ -3,6 +3,7 @@
 using Microsoft.AspNetCore.Http;
 
 using Microsoft.Extensions.Configuration;
+using MZikmund.Web.Configuration;
 using MZikmund.Web.Core.Services;
 using MZikmund.Web.Data.Entities;
 using MZikmund.Web.Data.Infrastructure;
@@ -16,18 +17,19 @@ public class SyndicationDataSource : ISyndicationDataSource
 	private readonly IRepository<CategoryEntity> _categoriesRepository;
 	private readonly IRepository<PostEntity> _postsRepository;
 	private readonly IPostContentProcessor _postContentProcessor;
+	private readonly ISiteConfiguration _siteConfiguration;
 
 	public SyndicationDataSource(
 		IHttpContextAccessor httpContextAccessor,
 		IRepository<CategoryEntity> categoriesRepository,
 		IRepository<PostEntity> postsRepository,
 		IPostContentProcessor postContentProcessor,
-		IConfiguration configuration)
+		ISiteConfiguration siteConfiguration)
 	{
 		_categoriesRepository = categoriesRepository;
 		_postsRepository = postsRepository;
 		_postContentProcessor = postContentProcessor;
-
+		_siteConfiguration = siteConfiguration;
 		var acc = httpContextAccessor;
 		_baseUrl = $"{acc.HttpContext.Request.Scheme}://{acc.HttpContext.Request.Host}";
 	}
@@ -63,8 +65,8 @@ public class SyndicationDataSource : ISyndicationDataSource
 			PubDate = post.PublishedDate ?? DateTimeOffset.UtcNow,
 			Description = post.Content, // TODO: Do we want full content here?
 			Link = $"{_baseUrl}/blog/{post.RouteName}",
-			Author = "Martin Zikmund", // TODO: Add author email from config
-			AuthorEmail = "martin@todo.com",
+			Author = $"{_siteConfiguration.Author.FirstName} {_siteConfiguration.Author.LastName}",
+			AuthorEmail = _siteConfiguration.Author.Email,
 			Categories = post.Categories.Select(pc => pc.DisplayName).ToArray()
 		});
 
