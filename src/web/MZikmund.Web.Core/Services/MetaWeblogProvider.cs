@@ -76,11 +76,27 @@ public class MetaWeblogProvider : IMetaWeblogProvider
 		});
 	});
 
-	public Task<string> AddPostAsync(string blogid, string username, string password, WeblogPost post, bool publish) => throw new NotImplementedException();
+	public Task<string> AddPostAsync(string blogid, string username, string password, WeblogPost post, bool publish) => Task.FromResult("");
+
 	public Task<bool> DeletePostAsync(string key, string postid, string username, string password, bool publish) => Task.FromResult(false);
+
 	public Task<bool> EditPostAsync(string postid, string username, string password, WeblogPost post, bool publish) => Task.FromResult(false);
 
-	public Task<CategoryInfo[]> GetCategoriesAsync(string blogid, string username, string password) => throw new NotImplementedException();
+	public Task<CategoryInfo[]> GetCategoriesAsync(string blogid, string username, string password) => TryExecuteAsync(async () =>
+	{
+		ValidateUser(username, password);
+
+		var categories = await _mediator.Send(new GetCategoriesQuery());
+		return categories
+			.Select(c => new CategoryInfo()
+			{
+				categoryid = c.Id.ToString(),
+				description = c.Description,
+				title = c.DisplayName,
+				htmlUrl = new Uri(_siteConfiguration.General.Url, "blog/category/" + c.RouteName).ToString()
+			})
+			.ToArray();
+	});
 
 	public Task<Page> GetPageAsync(string blogid, string pageid, string username, string password) => Task.FromResult(new Page());
 
@@ -108,13 +124,13 @@ public class MetaWeblogProvider : IMetaWeblogProvider
 		return posts.Select(p => ToWeblogPost(p)).ToArray();
 	});
 
-	public Task<MediaObjectInfo> NewMediaObjectAsync(string blogid, string username, string password, MediaObject mediaObject) => TryExecuteAsync(async () =>
+	public Task<MediaObjectInfo> NewMediaObjectAsync(string blogid, string username, string password, MediaObject mediaObject) => TryExecute(() =>
 	{
 		ValidateUser(username, password);
 
 		// TODO: Add support for Storage upload.
 
-		return new MediaObjectInfo();
+		return Task.FromResult(new MediaObjectInfo());
 	});
 
 	public Task<Author[]> GetAuthorsAsync(string blogid, string username, string password) => TryExecute(() =>
