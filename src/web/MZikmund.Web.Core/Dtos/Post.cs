@@ -2,6 +2,8 @@
 
 public class Post
 {
+	public Guid Id { get; set; } = Guid.Empty;
+
 	public string RouteName { get; set; } = "";
 
 	public string Title { get; set; } = "";
