@@ -12,6 +12,6 @@ public class MediaBlobPathGenerator : IMediaBlobPathGenerator
 	public string GenerateBlogPath(string fileName)
 	{
 		var date = _dateProvider.UtcNow;
-		return $"{date.Year}/{date.Month}/{date.Day}/{fileName}";
+		return $"{date.Year}/{date.Month:00}/{date.Day:00}/{fileName}";
 	}
 }
