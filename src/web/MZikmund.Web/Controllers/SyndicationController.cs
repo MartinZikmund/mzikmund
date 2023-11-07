@@ -26,7 +26,7 @@ public class SubscriptionController : ControllerBase
 
 		var opmlConfig = new OpmlConfig
 		{
-			SiteTitle = $"Martin Zikmund  — OPML",
+			SiteTitle = $"Martin Zikmund — OPML",
 			ContentInfo = categoryMap,
 			BlogUrl = $"{rootUrl}/blog",
 			RssUrl = $"{rootUrl}/rss",

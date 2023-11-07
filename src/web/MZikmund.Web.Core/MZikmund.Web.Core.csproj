@@ -5,6 +5,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Azure.Storage.Blobs" />
 		<PackageReference Include="Edi.SyndicationFeed.ReaderWriter" />
 		<PackageReference Include="Markdig" />
 		<PackageReference Include="Markdown.ColorCode" />

@@ -3,6 +3,7 @@
 		<!-- Web -->
 		<PackageVersion Include="AutoMapper" Version="12.0.1" />
 		<PackageVersion Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+		<PackageVersion Include="Azure.Storage.Blobs" Version="12.19.0" />
 		<PackageVersion Include="Betalgo.OpenAI" Version="7.1.5" />
 		<PackageVersion Include="BuildWebCompiler2022" Version="1.14.10" />
 		<PackageVersion Include="Edi.SyndicationFeed.ReaderWriter" Version="2.0.1" />
@@ -20,6 +21,7 @@
 		<PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="7.0.4" />
 		<PackageVersion Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
 		<PackageVersion Include="Microsoft.TypeScript.MSBuild" Version="5.1.5" />
+		<PackageVersion Include="Moq" Version="4.20.69" />
 		<PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageVersion Include="ReverseMarkdown" Version="3.25.0" />
 		<PackageVersion Include="System.Text.Json" Version="7.0.3" />
