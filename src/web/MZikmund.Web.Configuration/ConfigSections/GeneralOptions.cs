@@ -15,4 +15,6 @@ public class GeneralOptions
 	public string TitleFormatString { get; set; } = "";
 
 	public Uri Url { get; set; } = null!;
+
+	public Uri CdnUrl { get; set; } = null!;
 }

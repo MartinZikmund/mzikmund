@@ -57,11 +57,11 @@ app.MapRazorPages();
 
 app.Run();
 
-
 void ConfigureServices(IServiceCollection services, IConfiguration configuration)
 {
+	var siteConfiguration = new SiteConfiguration(configuration);
+	services.AddSingleton<ISiteConfiguration>(siteConfiguration);
 	services.AddAutoMapper(typeof(CoreAssemblyMarker).Assembly);
-	services.AddSingleton<ISiteConfiguration>(new SiteConfiguration(configuration));
 	services.AddSingleton<ICache, Cache>();
 	services.AddSingleton<IConnectionStringProvider, ConnectionStringProvider>();
 	services.AddSingleton<IMarkdownConverter, MarkdownConverter>();
@@ -91,6 +91,10 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 	{
 		config.RegisterServicesFromAssemblyContaining<CoreAssemblyMarker>();
 	});
+
+	services.AddSingleton<IDateProvider, DateProvider>();
+	services.AddSingleton<IMediaBlobPathGenerator, MediaBlobPathGenerator>();
+	services.AddSingleton<IBlobStorage, BlobStorage>();
 
 	services.AddDataContext();
 

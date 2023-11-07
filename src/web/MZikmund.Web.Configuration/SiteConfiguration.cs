@@ -13,6 +13,7 @@ public class SiteConfiguration : ISiteConfiguration
 		_configuration.GetRequiredSection(nameof(Author)).Bind(Author);
 		_configuration.GetRequiredSection(nameof(General)).Bind(General);
 		_configuration.GetRequiredSection(nameof(MetaWeblog)).Bind(MetaWeblog);
+		_configuration.GetRequiredSection(nameof(BlobStorage)).Bind(BlobStorage);
 	}
 
 	public GeneralOptions General { get; } = new();
@@ -20,4 +21,6 @@ public class SiteConfiguration : ISiteConfiguration
 	public AuthorOptions Author { get; } = new();
 
 	public MetaWeblogOptions MetaWeblog { get; } = new();
+
+	public BlobStorageOptions BlobStorage { get; } = new();
 }
