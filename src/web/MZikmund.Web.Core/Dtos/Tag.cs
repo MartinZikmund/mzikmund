@@ -13,6 +13,4 @@ public class Tag
 	public string RouteName { get; set; } = "";
 
 	public static bool IsValid(string tagDisplayName) => !string.IsNullOrWhiteSpace(tagDisplayName);
-
-	public static string Normalize(string tagName) => tagName.RemoveDiacritics().Replace(" ", "-").ToLowerInvariant();
 }

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using MZikmund.Web.Configuration;
 using MZikmund.Web.Core.Dtos;
+using MZikmund.Web.Core.Extensions;
 using MZikmund.Web.Core.Services;
 using MZikmund.Web.Data.Entities;
 using MZikmund.Web.Data.Infrastructure;
@@ -89,7 +90,7 @@ public class CreatePostHandler : IRequestHandler<CreatePostCommand, PostEntity>
 		var newTag = new TagEntity
 		{
 			DisplayName = item,
-			RouteName = Tag.Normalize(item)
+			RouteName = item.GenerateRouteName()
 		};
 
 		var tag = await _tagRepo.AddAsync(newTag);

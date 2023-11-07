@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using MZikmund.Web.Configuration;
 using MZikmund.Web.Core.Blog;
 using MZikmund.Web.Core.Dtos;
+using MZikmund.Web.Core.Extensions;
 using MZikmund.Web.Core.Utilities;
 using WilderMinds.MetaWeblog;
 using PostDto = MZikmund.Web.Core.Dtos.Post;
@@ -80,9 +81,68 @@ public class MetaWeblogProvider : IMetaWeblogProvider
 		});
 	});
 
-	public Task<string> AddPostAsync(string blogid, string username, string password, WeblogPost post, bool publish) => Task.FromResult("");
+	public Task<string> AddPostAsync(string blogid, string username, string password, WeblogPost post, bool publish) => TryExecuteAsync(async () =>
+	{
+		ValidateUser(username, password);
 
-	public Task<bool> EditPostAsync(string postid, string username, string password, WeblogPost post, bool publish) => Task.FromResult(false);
+		var categoryIds = await GetCategoryIds(post.categories);
+		if (categoryIds.Length == 0)
+		{
+			throw new ArgumentOutOfRangeException(nameof(post.categories));
+		}
+
+		var req = new PostEditModel
+		{
+			Title = post.title,
+			RouteName = post.wp_slug ?? post.title.GenerateRouteName(),
+			Abstract = post.mt_excerpt,
+			Content = post.description,
+			HeroImageUrl = post.wp_post_thumbnail,
+			Tags = post.mt_keywords,
+			CategoryIds = categoryIds,
+			LanguageCode = "en-us",
+			IsPublished = publish,
+			FeedIncluded = true,
+			PublishedDate = DateTime.UtcNow
+		};
+
+		var p = await _mediator.Send(new CreatePostCommand(req));
+		return p.Id.ToString();
+	});
+
+	public Task<bool> EditPostAsync(string postid, string username, string password, WeblogPost post, bool publish) => TryExecuteAsync(async () =>
+	{
+		ValidateUser(username, password);
+
+		if (!Guid.TryParse(postid.Trim(), out var id))
+		{
+			throw new ArgumentException("Invalid ID", nameof(postid));
+		}
+
+		var categoryIds = await GetCategoryIds(post.categories);
+		if (categoryIds.Length == 0)
+		{
+			throw new ArgumentOutOfRangeException(nameof(post.categories));
+		}
+
+		var req = new PostEditModel
+		{
+			Title = post.title,
+			RouteName = post.wp_slug ?? post.title.GenerateRouteName(),
+			Abstract = post.mt_excerpt,
+			Content = post.description,
+			HeroImageUrl = post.wp_post_thumbnail,
+			Tags = post.mt_keywords,
+			CategoryIds = categoryIds,
+			LanguageCode = "en-us",
+			IsPublished = publish,
+			FeedIncluded = true,
+			PublishedDate = DateTime.UtcNow
+		};
+
+		await _mediator.Send(new UpdatePostCommand(id, req));
+		return true;
+	});
 
 	public Task<bool> DeletePostAsync(string key, string postid, string username, string password, bool publish) => TryExecuteAsync(async () =>
 	{
@@ -277,5 +337,18 @@ public class MetaWeblogProvider : IMetaWeblogProvider
 			_logger.LogError(e, e.Message);
 			throw new MetaWeblogException(e.Message);
 		}
+	}
+
+	private async Task<Guid[]> GetCategoryIds(string[] postCategories)
+	{
+		var allCategories = await _mediator.Send(new GetCategoriesQuery());
+		var categoryIds = (
+			from postCategory in postCategories
+			select allCategories.FirstOrDefault(category => category.DisplayName == postCategory)
+			into category
+			where category is not null
+			select category.Id).ToArray();
+
+		return categoryIds;
 	}
 }
