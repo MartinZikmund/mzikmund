@@ -1,30 +1,34 @@
-﻿using System;
-using MediatR;
+﻿using MediatR;
 using Microsoft.Extensions.Logging;
 using MZikmund.Web.Configuration;
 using MZikmund.Web.Core.Blog;
+using MZikmund.Web.Core.Dtos;
 using MZikmund.Web.Core.Utilities;
 using WilderMinds.MetaWeblog;
-using WeblogTag = WilderMinds.MetaWeblog.Tag;
-using WeblogPost = WilderMinds.MetaWeblog.Post;
 using PostDto = MZikmund.Web.Core.Dtos.Post;
-using CategoryDto = MZikmund.Web.Core.Dtos.Category;
-using MZikmund.Web.Core.Dtos;
+using WeblogPost = WilderMinds.MetaWeblog.Post;
+using WeblogTag = WilderMinds.MetaWeblog.Tag;
 
 namespace MZikmund.Web.Core.Services;
 
 public class MetaWeblogProvider : IMetaWeblogProvider
 {
 	private readonly ISiteConfiguration _siteConfiguration;
+	private readonly IMediaBlobPathGenerator _mediaBlobPathGenerator;
+	private readonly IBlobStorage _blobStorage;
 	private readonly ILogger<MetaWeblogProvider> _logger;
 	private readonly IMediator _mediator;
 
 	public MetaWeblogProvider(
 		ISiteConfiguration blogConfig,
-		ILogger<MetaWeblogProvider> logger,
-		IMediator mediator)
+		IMediaBlobPathGenerator mediaBlobPathGenerator,
+		IBlobStorage blobStorage,
+		IMediator mediator,
+		ILogger<MetaWeblogProvider> logger)
 	{
 		_siteConfiguration = blogConfig;
+		_mediaBlobPathGenerator = mediaBlobPathGenerator;
+		_blobStorage = blobStorage;
 		_logger = logger;
 		_mediator = mediator;
 	}
@@ -78,9 +82,20 @@ public class MetaWeblogProvider : IMetaWeblogProvider
 
 	public Task<string> AddPostAsync(string blogid, string username, string password, WeblogPost post, bool publish) => Task.FromResult("");
 
-	public Task<bool> DeletePostAsync(string key, string postid, string username, string password, bool publish) => Task.FromResult(false);
-
 	public Task<bool> EditPostAsync(string postid, string username, string password, WeblogPost post, bool publish) => Task.FromResult(false);
+
+	public Task<bool> DeletePostAsync(string key, string postid, string username, string password, bool publish) => TryExecuteAsync(async () =>
+	{
+		ValidateUser(username, password);
+
+		if (!Guid.TryParse(postid.Trim(), out var guid))
+		{
+			throw new ArgumentException("Invalid ID", nameof(postid));
+		}
+
+		await _mediator.Send(new DeletePostCommand(guid, softDelete: publish));
+		return true;
+	});
 
 	public Task<CategoryInfo[]> GetCategoriesAsync(string blogid, string username, string password) => TryExecuteAsync(async () =>
 	{
@@ -98,15 +113,6 @@ public class MetaWeblogProvider : IMetaWeblogProvider
 			.ToArray();
 	});
 
-	public Task<Page> GetPageAsync(string blogid, string pageid, string username, string password) => Task.FromResult(new Page());
-
-	public Task<Page[]> GetPagesAsync(string blogid, string username, string password, int numPages) => Task.FromResult(Array.Empty<Page>());
-
-	public Task<string> AddPageAsync(string blogid, string username, string password, Page page, bool publish) => Task.FromResult(string.Empty);
-
-	public Task<bool> EditPageAsync(string blogid, string pageid, string username, string password, Page page, bool publish) => Task.FromResult(false);
-
-	public Task<bool> DeletePageAsync(string blogid, string username, string password, string pageid) => Task.FromResult(false);
 
 	public async Task<WeblogPost> GetPostAsync(string postid, string username, string password)
 	{
@@ -124,13 +130,19 @@ public class MetaWeblogProvider : IMetaWeblogProvider
 		return posts.Select(p => ToWeblogPost(p)).ToArray();
 	});
 
-	public Task<MediaObjectInfo> NewMediaObjectAsync(string blogid, string username, string password, MediaObject mediaObject) => TryExecute(() =>
+	public Task<MediaObjectInfo> NewMediaObjectAsync(string blogid, string username, string password, MediaObject mediaObject) => TryExecuteAsync(async () =>
 	{
 		ValidateUser(username, password);
 
-		// TODO: Add support for Storage upload.
+		var data = Convert.FromBase64String(mediaObject.bits);
 
-		return Task.FromResult(new MediaObjectInfo());
+		var blobPath = _mediaBlobPathGenerator.GenerateBlogPath(mediaObject.name);
+		var filename = await _blobStorage.AddAsync(blobPath, data);
+
+		var imageUrl = new Uri(_siteConfiguration.General.CdnUrl, $"{_siteConfiguration.BlobStorage.MediaContainerName}/{blobPath}");
+
+		var objectInfo = new MediaObjectInfo { url = imageUrl.OriginalString };
+		return objectInfo;
 	});
 
 	public Task<Author[]> GetAuthorsAsync(string blogid, string username, string password) => TryExecute(() =>
@@ -161,6 +173,18 @@ public class MetaWeblogProvider : IMetaWeblogProvider
 
 		return Task.FromResult(user);
 	});
+
+	/* Pages - not used */
+
+	public Task<Page> GetPageAsync(string blogid, string pageid, string username, string password) => Task.FromResult(new Page());
+
+	public Task<Page[]> GetPagesAsync(string blogid, string username, string password, int numPages) => Task.FromResult(Array.Empty<Page>());
+
+	public Task<string> AddPageAsync(string blogid, string username, string password, Page page, bool publish) => Task.FromResult(string.Empty);
+
+	public Task<bool> EditPageAsync(string blogid, string pageid, string username, string password, Page page, bool publish) => Task.FromResult(false);
+
+	public Task<bool> DeletePageAsync(string blogid, string username, string password, string pageid) => Task.FromResult(false);
 
 	private void ValidateUser(string username, string password)
 	{

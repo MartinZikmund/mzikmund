@@ -38,4 +38,6 @@ public class PostEntity
 	public virtual ICollection<CategoryEntity> Categories { get; set; }
 
 	public virtual ICollection<TagEntity> Tags { get; set; }
+
+	// TODO: Add the ability to mark post as outdated with explanation
 }
