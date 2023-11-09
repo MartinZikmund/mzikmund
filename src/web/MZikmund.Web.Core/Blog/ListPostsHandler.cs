@@ -35,6 +35,7 @@ internal sealed class ListPostsHandler : IRequestHandler<ListPostsQuery, IReadOn
 		var specification = new ListPostsSpecification(request.Page, request.PageSize, request.CategoryId, request.TagId);
 		var posts = await _postsRepository.SelectAsync(specification, post => new PostListItem
 		{
+			Id = post.Id,
 			LastModifiedDate = post.LastModifiedDate,
 			PublishedDate = post.PublishedDate,
 			RouteName = post.RouteName,

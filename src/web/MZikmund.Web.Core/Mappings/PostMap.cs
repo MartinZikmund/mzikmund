@@ -9,5 +9,6 @@ public class PostMap : Profile
 	public PostMap()
 	{
 		CreateMap<PostEntity, Post>();
+		CreateMap<PostEntity, PostListItem>();
 	}
 }

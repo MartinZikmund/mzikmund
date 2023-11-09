@@ -112,12 +112,10 @@ public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, PostE
 
 		post.Categories.Clear();
 
-		var categories = await _categoryRepository.ListAsync(ct);
-		var selectedCategories = categories.Where(c => request.UpdatedPost.CategoryIds.Contains(c.Id));
-
-		foreach (var category in selectedCategories)
+		foreach (var categoryId in request.UpdatedPost.CategoryIds)
 		{
-			post.Categories.Add(category);
+			var category = await _categoryRepository.GetAsync(c => c.Id == categoryId);
+			if (category is not null) post.Categories.Add(category);
 		}
 
 		await _postRepository.UpdateAsync(post, ct);

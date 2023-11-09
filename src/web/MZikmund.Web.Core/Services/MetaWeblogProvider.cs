@@ -127,6 +127,7 @@ public class MetaWeblogProvider : IMetaWeblogProvider
 
 		var req = new PostEditModel
 		{
+			Id = new Guid(postid),
 			Title = post.title,
 			RouteName = post.wp_slug ?? post.title.GenerateRouteName(),
 			Abstract = post.mt_excerpt,
@@ -274,10 +275,10 @@ public class MetaWeblogProvider : IMetaWeblogProvider
 
 		var weblogPost = new WeblogPost
 		{
-			postid = post.Id,
+			postid = post.Id.ToString(),
 			categories = post.Categories.Select(p => p.DisplayName).ToArray(),
 			dateCreated = post.LastModifiedDate?.DateTime ?? new DateTime(2000, 1, 1, 0, 0, 0),
-			description = post.Abstract,
+			description = post.Content,
 			link = link,
 			permalink = new Uri(_siteConfiguration.General.Url, link).AbsoluteUri,
 			title = post.Title,
@@ -297,10 +298,10 @@ public class MetaWeblogProvider : IMetaWeblogProvider
 
 		var weblogPost = new WeblogPost
 		{
-			postid = post.Id,
+			postid = post.Id.ToString(),
 			categories = post.Categories.Select(p => p.DisplayName).ToArray(),
 			dateCreated = post.LastModifiedDate?.DateTime ?? new DateTime(2000, 1, 1, 0, 0, 0),
-			description = post.Abstract,
+			description = post.Content,
 			link = link,
 			permalink = new Uri(_siteConfiguration.General.Url, link).AbsoluteUri,
 			title = post.Title,
