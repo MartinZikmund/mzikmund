@@ -33,9 +33,6 @@ public class PostEditModel
 	[Required]
 	public bool IsPublished { get; set; }
 
-	[Display(Name = "Feed Subscription")]
-	public bool FeedIncluded { get; set; }
-
 	[Required]
 	[RegularExpression("^[a-z]{2}-[a-zA-Z]{2,4}$")]
 	public string LanguageCode { get; set; } = null!;

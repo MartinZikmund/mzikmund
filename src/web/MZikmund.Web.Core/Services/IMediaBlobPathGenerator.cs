@@ -2,5 +2,5 @@
 
 public interface IMediaBlobPathGenerator
 {
-	string GenerateBlogPath(string fileName);
+	string GenerateBlobPath(string fileName);
 }
