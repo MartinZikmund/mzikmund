@@ -6,6 +6,12 @@ namespace MZikmund.Web.Core.Extensions;
 
 public static class StringExtensions
 {
+	private static readonly (string source, string replacement)[] _routeNameReplacements = new[]
+	{
+		("#", "sharp"),
+		(".", "dot")
+	};
+
 	public static string RemoveDiacritics(this string text)
 	{
 		var normalizedString = text.Normalize(NormalizationForm.FormD);
@@ -29,8 +35,14 @@ public static class StringExtensions
 	public static string GenerateRouteName(this string text)
 	{
 		string updatedText = text.RemoveDiacritics();
+
+		foreach (var toReplace in _routeNameReplacements)
+		{
+			updatedText = updatedText.Replace(toReplace.source, toReplace.replacement, StringComparison.OrdinalIgnoreCase);
+		}
+
 		// invalid chars           
-		updatedText = Regex.Replace(updatedText, @"[^a-z0-9\s-]", "");
+		updatedText = Regex.Replace(updatedText, @"[^a-zA-Z0-9\s-]", "");
 		// convert multiple spaces into one space   
 		updatedText = Regex.Replace(updatedText, @"\s+", " ").Trim();
 

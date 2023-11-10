@@ -9,7 +9,7 @@ public class MediaBlobPathGenerator : IMediaBlobPathGenerator
 		_dateProvider = dateProvider;
 	}
 
-	public string GenerateBlogPath(string fileName)
+	public string GenerateBlobPath(string fileName)
 	{
 		var date = _dateProvider.UtcNow;
 		return $"{date.Year}/{date.Month:00}/{date.Day:00}/{fileName}";

@@ -2,7 +2,7 @@
 
 public class PostListItem
 {
-	public Guid Id { get; set; } = Guid.Empty;
+	public Guid Id { get; init; } = Guid.Empty;
 
 	public string RouteName { get; set; } = "";
 

@@ -13,7 +13,7 @@ public class MediaBlobNameGeneratorTests
 		dateProviderMock.Setup(d => d.UtcNow).Returns(utcDate);
 		var generator = new MediaBlobPathGenerator(dateProviderMock.Object);
 
-		var name = generator.GenerateBlogPath("test.png");
+		var name = generator.GenerateBlobPath("test.png");
 		Assert.Equal("2003/02/18/test.png", name);
 	}
 }

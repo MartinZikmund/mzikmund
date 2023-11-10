@@ -102,8 +102,6 @@ public class MetaWeblogProvider : IMetaWeblogProvider
 			CategoryIds = categoryIds,
 			LanguageCode = "en-us",
 			IsPublished = publish,
-			FeedIncluded = true,
-			PublishedDate = DateTime.UtcNow
 		};
 
 		var p = await _mediator.Send(new CreatePostCommand(req));
@@ -127,6 +125,7 @@ public class MetaWeblogProvider : IMetaWeblogProvider
 
 		var req = new PostEditModel
 		{
+			Id = new Guid(postid),
 			Title = post.title,
 			RouteName = post.wp_slug ?? post.title.GenerateRouteName(),
 			Abstract = post.mt_excerpt,
@@ -136,8 +135,6 @@ public class MetaWeblogProvider : IMetaWeblogProvider
 			CategoryIds = categoryIds,
 			LanguageCode = "en-us",
 			IsPublished = publish,
-			FeedIncluded = true,
-			PublishedDate = DateTime.UtcNow
 		};
 
 		await _mediator.Send(new UpdatePostCommand(id, req));
@@ -196,7 +193,7 @@ public class MetaWeblogProvider : IMetaWeblogProvider
 
 		var data = Convert.FromBase64String(mediaObject.bits);
 
-		var blobPath = _mediaBlobPathGenerator.GenerateBlogPath(mediaObject.name);
+		var blobPath = _mediaBlobPathGenerator.GenerateBlobPath(Path.GetFileName(mediaObject.name));
 		var filename = await _blobStorage.AddAsync(blobPath, data);
 
 		var imageUrl = new Uri(_siteConfiguration.General.CdnUrl, $"{_siteConfiguration.BlobStorage.MediaContainerName}/{blobPath}");
@@ -272,19 +269,27 @@ public class MetaWeblogProvider : IMetaWeblogProvider
 		var pubDate = post.PublishedDate.GetValueOrDefault();
 		var link = $"blog/{post.RouteName.ToLowerInvariant()}";
 
-		var weblogPost = new WeblogPost
+		var weblogPost = new ExtendedWeblogPost
 		{
-			postid = post.Id,
+			postid = post.Id.ToString(),
 			categories = post.Categories.Select(p => p.DisplayName).ToArray(),
 			dateCreated = post.LastModifiedDate?.DateTime ?? new DateTime(2000, 1, 1, 0, 0, 0),
-			description = post.Abstract,
+			//description = post.Content,
 			link = link,
 			permalink = new Uri(_siteConfiguration.General.Url, link).AbsoluteUri,
 			title = post.Title,
 			wp_slug = post.RouteName,
 			mt_keywords = string.Join(',', post.Tags.Select(p => p.DisplayName)),
 			mt_excerpt = post.Abstract,
-			userid = _siteConfiguration.Author.Username
+			userid = _siteConfiguration.Author.Username,
+			custom_fields =
+			{
+				new CustomField
+				{
+					key = "mt_markdown",
+					value = post.Content
+				}
+			}
 		};
 
 		return weblogPost;
@@ -295,19 +300,27 @@ public class MetaWeblogProvider : IMetaWeblogProvider
 		var pubDate = post.PublishedDate.GetValueOrDefault();
 		var link = $"blog/{post.RouteName.ToLowerInvariant()}";
 
-		var weblogPost = new WeblogPost
+		var weblogPost = new ExtendedWeblogPost
 		{
-			postid = post.Id,
+			postid = post.Id.ToString(),
 			categories = post.Categories.Select(p => p.DisplayName).ToArray(),
 			dateCreated = post.LastModifiedDate?.DateTime ?? new DateTime(2000, 1, 1, 0, 0, 0),
-			description = post.Abstract,
+			//description = post.Content,
 			link = link,
 			permalink = new Uri(_siteConfiguration.General.Url, link).AbsoluteUri,
 			title = post.Title,
 			wp_slug = post.RouteName,
 			mt_keywords = string.Join(',', post.Tags.Select(p => p.DisplayName)),
 			mt_excerpt = post.Abstract,
-			userid = _siteConfiguration.Author.Username
+			userid = _siteConfiguration.Author.Username,
+			custom_fields =
+			{
+				new CustomField
+				{
+					key = "mt_markdown",
+					value = post.Content
+				}
+			}
 		};
 
 		return weblogPost;

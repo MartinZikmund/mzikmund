@@ -38,7 +38,9 @@ public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, PostE
 
 	public async Task<PostEntity> Handle(UpdatePostCommand request, CancellationToken ct)
 	{
-		if (await _postRepository.AnyAsync(p => p.RouteName == request.UpdatedPost.RouteName, ct))
+		if (await _postRepository.AnyAsync(
+			p => p.RouteName == request.UpdatedPost.RouteName &&
+			p.Id != request.UpdatedPost.Id, ct))
 		{
 			throw new InvalidOperationException("Post with same route name already exists.");
 		}
@@ -59,13 +61,11 @@ public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, PostE
 			post.PublishedDate = _dateProvider.UtcNow;
 		}
 
-		// #325: Allow changing publish date for published posts
-		if (postEditModel.PublishedDate is not null && post.PublishedDate.HasValue)
+		// If the post is already published, we shouldn't change its route name
+		if (post.Status != PostStatus.Published)
 		{
-			post.PublishedDate = postEditModel.PublishedDate;
+			post.RouteName = postEditModel.RouteName.Trim();
 		}
-
-		post.RouteName = postEditModel.RouteName.Trim();
 		post.Title = postEditModel.Title.Trim();
 		post.LastModifiedDate = _dateProvider.UtcNow;
 		post.LanguageCode = postEditModel.LanguageCode;
@@ -112,12 +112,10 @@ public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, PostE
 
 		post.Categories.Clear();
 
-		var categories = await _categoryRepository.ListAsync(ct);
-		var selectedCategories = categories.Where(c => request.UpdatedPost.CategoryIds.Contains(c.Id));
-
-		foreach (var category in selectedCategories)
+		foreach (var categoryId in request.UpdatedPost.CategoryIds)
 		{
-			post.Categories.Add(category);
+			var category = await _categoryRepository.GetAsync(c => c.Id == categoryId);
+			if (category is not null) post.Categories.Add(category);
 		}
 
 		await _postRepository.UpdateAsync(post, ct);
