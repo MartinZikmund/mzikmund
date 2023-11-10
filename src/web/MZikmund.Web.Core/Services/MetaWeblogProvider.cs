@@ -274,7 +274,7 @@ public class MetaWeblogProvider : IMetaWeblogProvider
 			postid = post.Id.ToString(),
 			categories = post.Categories.Select(p => p.DisplayName).ToArray(),
 			dateCreated = post.LastModifiedDate?.DateTime ?? new DateTime(2000, 1, 1, 0, 0, 0),
-			description = post.Content,
+			//description = post.Content,
 			link = link,
 			permalink = new Uri(_siteConfiguration.General.Url, link).AbsoluteUri,
 			title = post.Title,
@@ -282,7 +282,14 @@ public class MetaWeblogProvider : IMetaWeblogProvider
 			mt_keywords = string.Join(',', post.Tags.Select(p => p.DisplayName)),
 			mt_excerpt = post.Abstract,
 			userid = _siteConfiguration.Author.Username,
-			mt_markdown = true
+			custom_fields =
+			{
+				new CustomField
+				{
+					key = "mt_markdown",
+					value = post.Content
+				}
+			}
 		};
 
 		return weblogPost;
@@ -298,7 +305,7 @@ public class MetaWeblogProvider : IMetaWeblogProvider
 			postid = post.Id.ToString(),
 			categories = post.Categories.Select(p => p.DisplayName).ToArray(),
 			dateCreated = post.LastModifiedDate?.DateTime ?? new DateTime(2000, 1, 1, 0, 0, 0),
-			description = post.Content,
+			//description = post.Content,
 			link = link,
 			permalink = new Uri(_siteConfiguration.General.Url, link).AbsoluteUri,
 			title = post.Title,
@@ -306,7 +313,14 @@ public class MetaWeblogProvider : IMetaWeblogProvider
 			mt_keywords = string.Join(',', post.Tags.Select(p => p.DisplayName)),
 			mt_excerpt = post.Abstract,
 			userid = _siteConfiguration.Author.Username,
-			mt_markdown = true
+			custom_fields =
+			{
+				new CustomField
+				{
+					key = "mt_markdown",
+					value = post.Content
+				}
+			}
 		};
 
 		return weblogPost;
