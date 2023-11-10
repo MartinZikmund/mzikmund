@@ -4,13 +4,22 @@ using System.Text.RegularExpressions;
 
 namespace MZikmund.Web.Core.Extensions;
 
-public static class StringExtensions
+public static partial class StringExtensions
 {
 	private static readonly (string source, string replacement)[] _routeNameReplacements = new[]
 	{
 		("#", "sharp"),
 		(".", "dot")
 	};
+
+	[GeneratedRegex(@"[^a-zA-Z0-9\s-]")]
+	private static partial Regex InvalidRouteCharsRegex();
+
+	[GeneratedRegex(@"\s+")]
+	private static partial Regex MultipleSpacesTrimRegex();
+
+	[GeneratedRegex(@"\s")]
+	private static partial Regex WhitespaceHyphensRegex();
 
 	public static string RemoveDiacritics(this string text)
 	{
@@ -42,12 +51,12 @@ public static class StringExtensions
 		}
 
 		// invalid chars           
-		updatedText = Regex.Replace(updatedText, @"[^a-zA-Z0-9\s-]", "");
+		updatedText = InvalidRouteCharsRegex().Replace(updatedText, "");
 		// convert multiple spaces into one space   
-		updatedText = Regex.Replace(updatedText, @"\s+", " ").Trim();
+		updatedText = MultipleSpacesTrimRegex().Replace(updatedText, " ").Trim();
 
 		// TODO: Shorten if necessary?
-		updatedText = Regex.Replace(updatedText, @"\s", "-"); // hyphens
+		updatedText = WhitespaceHyphensRegex().Replace(updatedText, "-"); // hyphens
 		return updatedText;
 	}
 }

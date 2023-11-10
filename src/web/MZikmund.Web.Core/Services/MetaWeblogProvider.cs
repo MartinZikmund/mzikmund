@@ -184,7 +184,7 @@ public class MetaWeblogProvider : IMetaWeblogProvider
 		ValidateUser(username, password);
 
 		var posts = await _mediator.Send(new ListPostsQuery(1, numberOfPosts));
-		return posts.Select(p => ToWeblogPost(p)).ToArray();
+		return posts.Select(p => ToWeblogPost(p)).Cast<WeblogPost>().ToArray();
 	});
 
 	public Task<MediaObjectInfo> NewMediaObjectAsync(string blogid, string username, string password, MediaObject mediaObject) => TryExecuteAsync(async () =>
@@ -264,7 +264,7 @@ public class MetaWeblogProvider : IMetaWeblogProvider
 		throw new MetaWeblogException("Authentication failed.");
 	}
 
-	private WeblogPost ToWeblogPost(PostDto post)
+	private ExtendedWeblogPost ToWeblogPost(PostDto post)
 	{
 		var pubDate = post.PublishedDate.GetValueOrDefault();
 		var link = $"blog/{post.RouteName.ToLowerInvariant()}";
@@ -295,7 +295,7 @@ public class MetaWeblogProvider : IMetaWeblogProvider
 		return weblogPost;
 	}
 
-	private WeblogPost ToWeblogPost(PostListItem post)
+	private ExtendedWeblogPost ToWeblogPost(PostListItem post)
 	{
 		var pubDate = post.PublishedDate.GetValueOrDefault();
 		var link = $"blog/{post.RouteName.ToLowerInvariant()}";

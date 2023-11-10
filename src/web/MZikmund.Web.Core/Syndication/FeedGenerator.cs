@@ -101,7 +101,7 @@ public class FeedGenerator : IFeedGenerator
 		return xml;
 	}
 
-	private static IEnumerable<SyndicationItem> GetItemCollection(IEnumerable<FeedEntry> itemCollection)
+	private static List<SyndicationItem> GetItemCollection(IEnumerable<FeedEntry> itemCollection)
 	{
 		var synItemCollection = new List<SyndicationItem>();
 		if (null == itemCollection) return synItemCollection;

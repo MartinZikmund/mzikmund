@@ -13,7 +13,7 @@ public class MarkdownConverter : IMarkdownConverter
 		_pipeline = new MarkdownPipelineBuilder()
 			.UseAdvancedExtensions()
 			.UseBootstrap()
-			.UseColorCodeWithClassStyling()
+			.UseColorCode(HtmlFormatterType.Css)
 			.Build();
 	}
 

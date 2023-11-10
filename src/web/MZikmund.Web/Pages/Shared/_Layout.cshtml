@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using System.Runtime.InteropServices
+<!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
 <head>
     <title>@MetaTags.HtmlTitle</title>
@@ -64,7 +65,7 @@
             <p class="col-5 mb-0 justify-content-start text-muted">© @DateTimeOffset.UtcNow.Year Martin Zikmund</p>
 
             <a href="/" class="col-2 d-flex align-items-center justify-content-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none">
-                <img src="~/img/logo.png" style="opacity: 0.8" width="24" alt="Martin Zikmund" />
+                <img src="~/img/logo.png" style="opacity: 0.9" width="24" alt="Martin Zikmund" />
             </a>
 
             <ul class="nav col-5 justify-content-end">
@@ -74,6 +75,8 @@
                 <li class="nav-item"><a href="https://facebook.com/mzikmunddev/" class="nav-link px-2 text-muted">Facebook</a></li>
                 <li class="nav-item"><a href="https://github.com/MartinZikmund/mzikmund" target="_blank" class="nav-link px-2 text-muted">Contribute</a></li>
             </ul>
+
+            <p class="col-12 text-center text-muted">Proudly running @RuntimeInformation.FrameworkDescription</p>
         </footer>
     </div>
     <partial name="_CookieConsentPartial" />
