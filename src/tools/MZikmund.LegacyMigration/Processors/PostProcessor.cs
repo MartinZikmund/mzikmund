@@ -10,7 +10,7 @@ using OpenAI.ObjectModels.RequestModels;
 
 namespace MZikmund.LegacyMigration.Processors;
 
-internal sealed class PostProcessor
+internal sealed partial class PostProcessor
 {
 	private readonly IList<Post> _posts;
 	private readonly IList<PostMeta> _postMetas;
@@ -42,6 +42,12 @@ internal sealed class PostProcessor
 		_tags = tags;
 		_categories = categories;
 	}
+
+	[GeneratedRegex(@"(<(?:strong|em|b|i)>) ")]
+	private static partial Regex MoveSpacesOutsideOpeningTagsRegex();
+
+	[GeneratedRegex(@" (</(?:strong|em|b|i)>)")]
+	private static partial Regex MoveSpacesOutsideClosingTagsRegex();
 
 	public ProcessedPosts Process()
 	{
@@ -205,10 +211,10 @@ internal sealed class PostProcessor
 	private string AdjustSpacing(string content)
 	{
 		// Move spaces outside for opening tags
-		content = Regex.Replace(content, @"(<(?:strong|em|b|i)>) ", " $1");
+		content = MoveSpacesOutsideOpeningTagsRegex().Replace(content, " $1");
 
 		// Move spaces outside for closing tags
-		content = Regex.Replace(content, @" (</(?:strong|em|b|i)>)", "$1 ");
+		content = MoveSpacesOutsideClosingTagsRegex().Replace(content, "$1 ");
 
 		return content;
 	}

@@ -94,7 +94,7 @@ public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, PostE
 		}
 
 		post.Tags.Clear();
-		if (tags.Any())
+		if (tags.Length != 0)
 		{
 			foreach (var tagName in tags)
 			{
