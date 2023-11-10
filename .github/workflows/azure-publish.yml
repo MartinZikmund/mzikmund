@@ -52,7 +52,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: MZikmund.Web
-          path: "${{env.GITHUB_WORKSPACE}}\myapp"
+          path: "${{env.GITHUB_WORKSPACE}}\\myapp"
           retention-days: 2
 
   deploy:
