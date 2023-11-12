@@ -4,9 +4,9 @@ using WpfApp = System.Windows.Application;
 namespace MZikmund.WPF;
 public partial class App : WpfApp
 {
-    public App()
-    {
-        var host = new WpfHost(Dispatcher, () => new AppHead());
-        host.Run();
-    }
+	public App()
+	{
+		var host = new WpfHost(Dispatcher, () => new AppHead());
+		host.Run();
+	}
 }
