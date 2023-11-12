@@ -80,8 +80,8 @@ public class PreferencesService : IPreferencesService
 #if DEBUG
 				throw new InvalidOperationException("Value stored in the setting does not match expected type.");
 #else
-                    //invalid value, remove
-                    container.Values.Remove(key);
+                //invalid value, remove
+                container.Values.Remove(key);
 #endif
 			}
 		}
@@ -110,8 +110,8 @@ public class PreferencesService : IPreferencesService
 #if DEBUG
 				throw new InvalidOperationException("Value stored in the setting does not match expected type.");
 #else
-                    //invalid value, remove
-                    container.Values.Remove(key);
+                //invalid value, remove
+                container.Values.Remove(key);
 #endif
 			}
 		}
