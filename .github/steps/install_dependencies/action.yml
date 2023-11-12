@@ -1,0 +1,60 @@
+name: Install Dependencies
+description: ""
+
+inputs:
+  target-platform:
+    description: 'The platform to install dependencies for. #See available values at https://platform.uno/docs/articles/external/uno.check/doc/using-uno-check.html'
+    required: false
+    default: 'all'
+  dotnet-version:
+    description: 'Installs and sets the .NET SDK Version'
+    required: false
+    default: '8.0.x'
+  sdkVersion:
+    description: 'The version of the Windows Sdk'
+    required: false
+    default: '19041'
+
+runs:
+  using: "composite"
+  steps:
+    # Install .NET
+    - name: Setup .NET ${{ inputs.dotnet-version }}
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '${{ inputs.dotnet-version }}'
+
+    # Install Windows SDK
+    - name: Install Windows SDK ${{ inputs.sdkVersion }}
+      shell: pwsh
+      if: ${{ runner.os == 'Windows' }}
+      run: .\.github\Install-WindowsSdkISO.ps1 ${{ inputs.sdkVersion }}
+
+    # Run Uno.Check
+    - name: Run Uno.Check
+      shell: pwsh
+      run: |
+        dotnet tool install -g uno.check --version 1.17.0-dev.7      
+        uno-check -v --ci --non-interactive --fix --skip vswin --skip vsmac --skip xcode --skip vswinworkloads --skip androidemulator --skip dotnetnewunotemplates --verbose
+      continue-on-error: true
+    
+    # Install .NET workloads
+    - name: Install workloads
+      shell: pwsh
+      run: dotnet workload install ios maccatalyst android wasm-tools
+
+    # Install Node.js
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v3.8.1
+
+    # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1.3.1
+
+    - name: Set up dependency caching for faster builds
+      uses: actions/cache@v3
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-

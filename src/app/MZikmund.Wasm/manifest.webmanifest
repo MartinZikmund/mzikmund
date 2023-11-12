@@ -1,0 +1,10 @@
+{
+  "background_color": "#ffffff",
+  "description": "MZikmund",
+  "display": "standalone",
+  "name": "MZikmund",
+  "short_name": "MZikmund",
+  "start_url": "/index.html",
+  "theme_color": "#ffffff",
+  "scope": "/"
+}
