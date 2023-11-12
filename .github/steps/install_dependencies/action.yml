@@ -36,7 +36,7 @@ runs:
       run: |
         dotnet tool install -g uno.check --version 1.17.0-dev.7      
         uno-check -v --ci --non-interactive --fix --skip vswin --skip vsmac --skip xcode --skip vswinworkloads --skip androidemulator --skip dotnetnewunotemplates --verbose
-        continue-on-error: true
+      continue-on-error: true
 
     # Install Node.js
     - name: Setup Node.js environment
