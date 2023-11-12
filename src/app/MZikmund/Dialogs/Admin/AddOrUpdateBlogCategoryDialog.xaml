@@ -1,0 +1,31 @@
+﻿<adminDialogs:AddOrUpdateBlogCategoryDialogBase
+    x:Class="MZikmund.Dialogs.Admin.AddOrUpdateBlogCategoryDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:xaml="using:MZikmund.Extensions.Xaml"
+    xmlns:adminDialogs="using:MZikmund.Dialogs.Admin"
+    Style="{ThemeResource DefaultContentDialogStyle}"
+    Title="{xaml:Localize Key=AddBlogCategory}"
+	DefaultButton="Primary"
+    PrimaryButtonText="{xaml:Localize Key=Ok}"
+	SecondaryButtonText="{x:Bind ViewModel.SecondaryButtonText, Mode=OneWay}"
+	CloseButtonText="{xaml:Localize Key=Cancel}">
+
+    <StackPanel Spacing="8">
+		<!--<TextBox Header="Id" Text="{x:Bind ViewModel.BlogCategory.Id, Mode=OneWay}" IsReadOnly="True" IsEnabled="False" />
+		<ComboBox Header="{xaml:Localize Key=Localizations}" ItemsSource="{x:Bind ViewModel.Languages}" SelectedItem="{x:Bind ViewModel.SelectedLanguage, Mode=TwoWay}" HorizontalAlignment="Stretch">
+            <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="localization:LanguageDto">
+                    <TextBlock Text="{x:Bind Name}" />
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+        <ContentControl HorizontalContentAlignment="Stretch" IsEnabled="{x:Bind ViewModel.IsLocalizationSelected}">
+            <StackPanel BorderThickness="8,0,0,0" Padding="8,0,0,0" BorderBrush="{ThemeResource SystemControlHighlightAccentBrush}" Spacing="8">
+                <TextBox Header="{xaml:Localize Key=DisplayName}" Text="{x:Bind ViewModel.SelectedLocalization.DisplayName, Mode=TwoWay}" />
+				<TextBox Header="{xaml:Localize Key=RouteName}" Text="{x:Bind ViewModel.SelectedLocalization.RouteName, Mode=TwoWay}" />
+            </StackPanel>
+        </ContentControl>-->
+    </StackPanel>
+</adminDialogs:AddOrUpdateBlogCategoryDialogBase>

@@ -9,6 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Humanizer" />
+    <PackageReference Include="PropertyChanged.Fody" />
     <PackageReference Include="Uno.WinUI" />
     <PackageReference Include="Uno.Resizetizer" />
     <PackageReference Include="CommunityToolkit.Mvvm" />
@@ -63,6 +65,7 @@
   </Choose>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\shared\MZikmund.Api\MZikmund.Api.csproj" />
     <ProjectReference Include="..\MZikmund.DataContracts\MZikmund.DataContracts.csproj" />
   </ItemGroup>
 
