@@ -4,12 +4,12 @@ using Uno.Disposables;
 
 namespace MZikmund.ViewModels;
 
-public class AppShellViewModel : PageViewModel
+public class WindowShellViewModel : PageViewModel
 {
 	private readonly DispatcherQueue _dispatcher;
 	private RefCountDisposable? _refCountDisposable;
 
-	public AppShellViewModel(DispatcherQueue dispatcher)
+	public WindowShellViewModel(DispatcherQueue dispatcher)
 	{
 		_dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
 	}

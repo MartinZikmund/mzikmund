@@ -2,13 +2,13 @@
 
 public class LoadingIndicator : ILoadingIndicator
 {
-	public IDisposable BeginLoading() => AppShell.GetForCurrentView().ViewModel.BeginLoading();
+	public IDisposable BeginLoading() => WindowShell.GetForCurrentView().ViewModel.BeginLoading();
 
-	public bool IsLoading => AppShell.GetForCurrentView().ViewModel.IsLoading;
+	public bool IsLoading => WindowShell.GetForCurrentView().ViewModel.IsLoading;
 
 	public string StatusMessage
 	{
-		get => AppShell.GetForCurrentView().ViewModel.LoadingStatusMessage;
-		set => AppShell.GetForCurrentView().ViewModel.LoadingStatusMessage = value;
+		get => WindowShell.GetForCurrentView().ViewModel.LoadingStatusMessage;
+		set => WindowShell.GetForCurrentView().ViewModel.LoadingStatusMessage = value;
 	}
 }

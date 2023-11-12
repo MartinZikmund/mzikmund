@@ -2,5 +2,5 @@
 
 public class FrameProvider : IFrameProvider
 {
-	public Frame GetForCurrentView() => AppShell.GetForCurrentView().RootFrame;
+	public Frame GetForCurrentView() => WindowShell.GetForCurrentView().RootFrame;
 }

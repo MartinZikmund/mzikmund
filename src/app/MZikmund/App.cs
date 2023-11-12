@@ -1,3 +1,8 @@
+using MZikmund.ViewModels;
+using MZikmund.Services.Preferences;
+using MZikmund.Services.Navigation;
+using MZikmund.Services.Dialogs;
+
 namespace MZikmund;
 
 public class App : Application
@@ -62,11 +67,7 @@ public class App : Application
 #endif
 					.AddSingleton<IWeatherCache, WeatherCache>()
 					.AddRefitClient<IApiClient>(context))
-				.ConfigureServices((context, services) =>
-				{
-					// TODO: Register your services
-					//services.AddSingleton<IMyService, MyService>();
-				})
+				.ConfigureServices((context, services) => ConfigureServices(services))
 			);
 		MainWindow = builder.Window;
 
@@ -96,5 +97,17 @@ public class App : Application
 		}
 		// Ensure the current window is active
 		MainWindow.Activate();
+	}
+
+	private static void ConfigureServices(IServiceCollection services)
+	{
+		services.AddSingleton<WindowShellViewModel>();
+		services.AddSingleton<SettingsViewModel>();
+
+		services.AddSingleton<IDialogCoordinator, DialogCoordinator>();
+		services.AddSingleton<IPreferencesService, PreferencesService>();
+		services.AddSingleton<INavigationService, NavigationService>();
+
+		services.AddSingleton<IDialogService, DialogService>();
 	}
 }

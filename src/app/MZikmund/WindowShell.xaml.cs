@@ -12,22 +12,22 @@ using MZikmund.Services.Navigation;
 
 namespace MZikmund;
 
-public sealed partial class AppShell : Page
+public sealed partial class WindowShell : Page
 {
 	private readonly UISettings _uiSettings = new UISettings();
-	private static AppShell? _instance;
+	private static WindowShell? _instance;
 
-	private AppShell()
+	private WindowShell()
 	{
 		InitializeComponent();
-		ViewModel = new AppShellViewModel(DispatcherQueue);
+		ViewModel = new WindowShellViewModel(DispatcherQueue);
 		_uiSettings.ColorValuesChanged += ColorValuesChanged;
 		SetupCoreWindow();
 
-		Loaded += AppShell_Loaded;
+		Loaded += WindowShell_Loaded;
 	}
 
-	private void AppShell_Loaded(object sender, RoutedEventArgs e)
+	private void WindowShell_Loaded(object sender, RoutedEventArgs e)
 	{
 		SetTitlebarColors();
 
@@ -36,11 +36,11 @@ public sealed partial class AppShell : Page
 #endif
 	}
 
-	public AppShellViewModel ViewModel { get; }
+	public WindowShellViewModel ViewModel { get; }
 
 	public Frame RootFrame => InnerFrame;
 
-	public static AppShell GetForCurrentView() => _instance ??= new AppShell(); // TODO: Make instance window-specific
+	public static WindowShell GetForCurrentView() => _instance ??= new WindowShell(); // TODO: Make instance window-specific
 
 	private void SetupCoreWindow()
 	{
