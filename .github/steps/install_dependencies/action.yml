@@ -31,12 +31,17 @@ runs:
       run: .\.github\Install-WindowsSdkISO.ps1 ${{ inputs.sdkVersion }}
 
     # Run Uno.Check
-    - name: Install ${{ inputs.target-platform }} Workloads
+    - name: Run Uno.Check
       shell: pwsh
       run: |
         dotnet tool install -g uno.check --version 1.17.0-dev.7      
         uno-check -v --ci --non-interactive --fix --skip vswin --skip vsmac --skip xcode --skip vswinworkloads --skip androidemulator --skip dotnetnewunotemplates --verbose
       continue-on-error: true
+    
+    # Install .NET workloads
+    - name: Install workloads
+      shell: pwsh
+      run: dotnet workload install ios maccatalyst android wasm-tools
 
     # Install Node.js
     - name: Setup Node.js environment
