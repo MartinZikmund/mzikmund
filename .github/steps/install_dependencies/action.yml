@@ -20,7 +20,7 @@ runs:
   steps:
     # Install .NET
     - name: Setup .NET ${{ inputs.dotnet-version }}
-      uses: actions/setup-dotnet@v2
+      uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '${{ inputs.dotnet-version }}'
 
@@ -44,6 +44,10 @@ runs:
     # Install Node.js
     - name: Setup Node.js environment
       uses: actions/setup-node@v3.8.1
+
+    # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1.3.1
 
     - name: Set up dependency caching for faster builds
       uses: actions/cache@v3
