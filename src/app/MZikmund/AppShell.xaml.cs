@@ -15,7 +15,7 @@ namespace MZikmund;
 public sealed partial class AppShell : Page
 {
 	private readonly UISettings _uiSettings = new UISettings();
-	private static AppShell _instance;
+	private static AppShell? _instance;
 
 	private AppShell()
 	{
@@ -40,16 +40,16 @@ public sealed partial class AppShell : Page
 
 	public Frame RootFrame => InnerFrame;
 
-	public static AppShell GetForCurrentView() => _instance = new AppShell(); // TODO: Make instance window-specific
+	public static AppShell GetForCurrentView() => _instance ??= new AppShell(); // TODO: Make instance window-specific
 
 	private void SetupCoreWindow()
 	{
 		// TODO: Adjust extend into titlebar
-//#pragma warning disable CS8618 
-//		var coreTitleBar = CoreApplication.GetCurrentView().TitleBar;
-//		coreTitleBar.ExtendViewIntoTitleBar = true;
-//		coreTitleBar.LayoutMetricsChanged += CoreTitleBar_LayoutMetricsChanged;
-//#pragma warning restore CS8618
+		//#pragma warning disable CS8618 
+		//		var coreTitleBar = CoreApplication.GetCurrentView().TitleBar;
+		//		coreTitleBar.ExtendViewIntoTitleBar = true;
+		//		coreTitleBar.LayoutMetricsChanged += CoreTitleBar_LayoutMetricsChanged;
+		//#pragma warning restore CS8618
 	}
 
 	//private void CoreTitleBar_LayoutMetricsChanged(CoreApplicationViewTitleBar sender, object args)

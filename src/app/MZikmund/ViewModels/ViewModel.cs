@@ -4,7 +4,7 @@ namespace MZikmund.ViewModels.Abstract;
 
 public abstract class ViewModelBase : ObservableRecipient
 {
-	private readonly IDictionary<string, ICommand> _commands = new Dictionary<string, ICommand>();
+	private readonly Dictionary<string, ICommand> _commands = new();
 
 	protected ICommand GetOrCreateCommand(Action action, [CallerMemberName] string commandName = "")
 	{

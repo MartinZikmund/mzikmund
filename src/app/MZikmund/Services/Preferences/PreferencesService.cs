@@ -6,7 +6,7 @@ public class PreferencesService : IPreferencesService
 {
 	private readonly Dictionary<string, object> _preferenceCache = new Dictionary<string, object>();
 
-	public T GetComplex<T>(string key, Func<T>? defaultValueBuilder = null, bool roamed = false)
+	public T? GetComplex<T>(string key, Func<T>? defaultValueBuilder = null, bool roamed = false)
 	{
 		if (!_preferenceCache.TryGetValue(key, out var boxedValue))
 		{

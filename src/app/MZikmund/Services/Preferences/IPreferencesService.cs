@@ -2,7 +2,7 @@
 
 public interface IPreferencesService
 {
-	T GetComplex<T>(string key, Func<T>? defaultValueBuilder = null, bool roamed = false);
+	T? GetComplex<T>(string key, Func<T>? defaultValueBuilder = null, bool roamed = false);
 
 	void SetComplex<T>(string key, T value, bool roamed = false);
 
