@@ -14,12 +14,11 @@ jobs:
         working-directory: ./src
     steps:
     - uses: actions/checkout@v3
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 8.0.x
-    - name: Setup Node.js environment
-      uses: actions/setup-node@v3.8.1    
+        fetch-depth: 0
+    - name: Install Dependencies
+      timeout-minutes: ${{ fromJSON(env.STEP_TIMEOUT_MINUTES) }}
+      uses: "./.github/steps/install_dependencies"
     - name: Restore .NET dependencies
       run: dotnet restore
     - name: Restore Node.js dependencies
