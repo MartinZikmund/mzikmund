@@ -48,6 +48,7 @@ public class NavigationService : INavigationService
 
 	public void RegisterViewsFromAssembly(Assembly sourceAssembly)
 	{
+		// TODO: Avoid reflection
 		var pageType = typeof(Page);
 		var pages = sourceAssembly.GetTypes().Where(t => pageType.IsAssignableFrom(t) && t.Name.EndsWith("View", StringComparison.OrdinalIgnoreCase)).ToArray();
 		foreach (var viewType in pages)

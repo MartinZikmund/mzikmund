@@ -21,7 +21,8 @@
 			PRI257: Ignore default language (en) not being one of the included resources (eg en-us, en-uk)
 		-->
 		<NoWarn>$(NoWarn);NU1507;NETSDK1201;PRI257</NoWarn>
-
+		<WarningsNotAsErrors>Uno0001</WarningsNotAsErrors>
+		
 		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
 		<EnableWindowsTargeting>true</EnableWindowsTargeting>
 		

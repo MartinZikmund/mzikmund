@@ -1,4 +1,4 @@
-﻿using MZikmund.ViewModels.Abstract;
+﻿using MZikmund.ViewModels;
 
 namespace MZikmund.Dialogs;
 

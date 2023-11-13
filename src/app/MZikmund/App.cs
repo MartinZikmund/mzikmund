@@ -1,8 +1,20 @@
+using MZikmund.ViewModels;
+using MZikmund.Services.Preferences;
+using MZikmund.Services.Navigation;
+using MZikmund.Services.Dialogs;
+using MZikmund.Services.Account;
+using MZikmund.ViewModels.Admin;
+using MZikmund.Api.Client;
+using Refit;
+using CommunityToolkit.Mvvm.DependencyInjection;
+using MZikmund.Services.Loading;
+
 namespace MZikmund;
 
 public class App : Application
 {
 	protected Window? MainWindow { get; private set; }
+
 	protected IHost? Host { get; private set; }
 
 	protected override void OnLaunched(LaunchActivatedEventArgs args)
@@ -62,11 +74,7 @@ public class App : Application
 #endif
 					.AddSingleton<IWeatherCache, WeatherCache>()
 					.AddRefitClient<IApiClient>(context))
-				.ConfigureServices((context, services) =>
-				{
-					// TODO: Register your services
-					//services.AddSingleton<IMyService, MyService>();
-				})
+				.ConfigureServices((context, services) => ConfigureServices(services))
 			);
 		MainWindow = builder.Window;
 
@@ -78,23 +86,59 @@ public class App : Application
 
 		// Do not repeat app initialization when the Window already has content,
 		// just ensure that the window is active
-		if (MainWindow.Content is not Frame rootFrame)
+		if (MainWindow.Content is not WindowShell windowShell)
 		{
 			// Create a Frame to act as the navigation context and navigate to the first page
-			rootFrame = new Frame();
+			windowShell = new WindowShell(Host.Services);
 
 			// Place the frame in the current Window
-			MainWindow.Content = rootFrame;
+			MainWindow.Content = windowShell;
 		}
 
-		if (rootFrame.Content == null)
-		{
-			// When the navigation stack isn't restored navigate to the first page,
-			// configuring the new page by passing required information as a navigation
-			// parameter
-			rootFrame.Navigate(typeof(MainPage), args.Arguments);
-		}
+		//if (windowShell.Content == null)
+		//{
+		//	// When the navigation stack isn't restored navigate to the first page,
+		//	// configuring the new page by passing required information as a navigation
+		//	// parameter
+		//	windowShell.Navigate(typeof(MainPage), args.Arguments);
+		//}
 		// Ensure the current window is active
 		MainWindow.Activate();
+	}
+
+	private static void ConfigureServices(IServiceCollection services)
+	{
+		services.AddSingleton<SettingsViewModel>();
+		services.AddScoped<WindowShellViewModel>();
+		services.AddSingleton<BlogTagsManagerViewModel>();
+		services.AddSingleton<BlogCategoriesManagerViewModel>();
+		services.AddSingleton<AddOrUpdateBlogCategoryDialogViewModel>();
+		services.AddSingleton<AddOrUpdateBlogTagDialogViewModel>();
+
+		services.AddSingleton<IPreferencesService, PreferencesService>();
+		services.AddScoped<IDialogCoordinator, DialogCoordinator>();
+		services.AddScoped<IFrameProvider, FrameProvider>();
+		services.AddScoped<INavigationService, NavigationService>();
+		services.AddScoped<ILoadingIndicator, LoadingIndicator>();
+		services.AddScoped<IDialogService, DialogService>();
+		services.AddScoped<IWindowShellProvider, WindowShellProvider>();
+		services.AddSingleton(provider =>
+		{
+			return RestService.For<IMZikmundApi>("https://localhost:5001/api", new RefitSettings()
+			{
+				AuthorizationHeaderValueGetter = GetTokenAsync
+			});
+		});
+
+		async Task<string> GetTokenAsync(HttpRequestMessage message, CancellationToken cancellationToken)
+		{
+			//TODO: Move somewhere more appropriate and integrate refresh token support
+			var userService = Ioc.Default.GetRequiredService<IUserService>();
+			if (!userService.IsLoggedIn)
+			{
+				await userService.AuthenticateAsync();
+			}
+			return userService.AccessToken!;
+		};
 	}
 }

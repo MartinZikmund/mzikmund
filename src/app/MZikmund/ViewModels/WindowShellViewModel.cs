@@ -1,15 +1,15 @@
 ﻿using Microsoft.UI.Dispatching;
-using MZikmund.ViewModels.Abstract;
+using MZikmund.ViewModels;
 using Uno.Disposables;
 
 namespace MZikmund.ViewModels;
 
-public class AppShellViewModel : PageViewModel
+public class WindowShellViewModel : PageViewModel
 {
 	private readonly DispatcherQueue _dispatcher;
 	private RefCountDisposable? _refCountDisposable;
 
-	public AppShellViewModel(DispatcherQueue dispatcher)
+	public WindowShellViewModel(DispatcherQueue dispatcher)
 	{
 		_dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
 	}
@@ -33,7 +33,7 @@ public class AppShellViewModel : PageViewModel
 			() => // TODO: Await TryEneque
 			{
 #if __WASM__
-					IsLoading = false;
+				IsLoading = false;
 				return;
 #else
 				if (_dispatcher.HasThreadAccess)

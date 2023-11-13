@@ -4,7 +4,7 @@ using MZikmund.Extensions;
 using MZikmund.Models.Dialogs;
 using MZikmund.Services.Dialogs;
 using MZikmund.Services.Loading;
-using MZikmund.ViewModels.Abstract;
+using MZikmund.ViewModels;
 using Newtonsoft.Json;
 using Windows.Storage.Pickers;
 using MZikmund.Services.Localization;

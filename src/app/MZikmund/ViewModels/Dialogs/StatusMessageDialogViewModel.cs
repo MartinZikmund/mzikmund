@@ -1,6 +1,6 @@
 ﻿using Microsoft.UI;
 using MZikmund.Models.Dialogs;
-using MZikmund.ViewModels.Abstract;
+using MZikmund.ViewModels;
 
 namespace MZikmund.ViewModels.Dialogs;
 

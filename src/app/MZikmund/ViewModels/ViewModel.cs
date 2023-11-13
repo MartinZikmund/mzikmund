@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace MZikmund.ViewModels.Abstract;
+namespace MZikmund.ViewModels;
 
 public abstract class ViewModelBase : ObservableRecipient
 {

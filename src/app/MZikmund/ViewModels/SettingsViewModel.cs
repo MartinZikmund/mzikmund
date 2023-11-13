@@ -2,7 +2,7 @@
 using MZikmund.Services.Theming;
 using System;
 using System.Linq;
-using MZikmund.ViewModels.Abstract;
+using MZikmund.ViewModels;
 using MZikmund.Services.Localization;
 
 namespace MZikmund.ViewModels;
