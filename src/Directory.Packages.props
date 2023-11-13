@@ -61,6 +61,9 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
 		</PackageVersion>
 
+		<PackageVersion Include="Refit" Version="7.0.0" />
+		<PackageVersion Include="Refit.Newtonsoft.Json" Version="7.0.0" />
+		
 		<!-- Uno -->
 		<PackageVersion Include="CommunityToolkit.Mvvm" Version="8.2.2" />
 		<PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="8.0.0-rc.2.23479.6" />
