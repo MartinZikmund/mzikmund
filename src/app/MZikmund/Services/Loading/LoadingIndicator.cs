@@ -1,14 +1,23 @@
-﻿namespace MZikmund.Services.Loading;
+﻿using MZikmund.Services.Navigation;
+
+namespace MZikmund.Services.Loading;
 
 public class LoadingIndicator : ILoadingIndicator
 {
-	public IDisposable BeginLoading() => WindowShell.GetForCurrentView().ViewModel.BeginLoading();
+	private readonly IWindowShellProvider _windowShellProvider;
 
-	public bool IsLoading => WindowShell.GetForCurrentView().ViewModel.IsLoading;
+	public LoadingIndicator(IWindowShellProvider windowShellProvider)
+	{
+		_windowShellProvider = windowShellProvider;
+	}
+
+	public IDisposable BeginLoading() => _windowShellProvider.ViewModel.BeginLoading();
+
+	public bool IsLoading => _windowShellProvider.ViewModel.IsLoading;
 
 	public string StatusMessage
 	{
-		get => WindowShell.GetForCurrentView().ViewModel.LoadingStatusMessage;
-		set => WindowShell.GetForCurrentView().ViewModel.LoadingStatusMessage = value;
+		get => _windowShellProvider.ViewModel.LoadingStatusMessage;
+		set => _windowShellProvider.ViewModel.LoadingStatusMessage = value;
 	}
 }

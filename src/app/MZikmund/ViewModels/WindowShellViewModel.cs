@@ -1,5 +1,5 @@
 ﻿using Microsoft.UI.Dispatching;
-using MZikmund.ViewModels.Abstract;
+using MZikmund.ViewModels;
 using Uno.Disposables;
 
 namespace MZikmund.ViewModels;
@@ -33,7 +33,7 @@ public class WindowShellViewModel : PageViewModel
 			() => // TODO: Await TryEneque
 			{
 #if __WASM__
-					IsLoading = false;
+				IsLoading = false;
 				return;
 #else
 				if (_dispatcher.HasThreadAccess)

@@ -1,9 +1,10 @@
 ﻿
+using System.Diagnostics.CodeAnalysis;
 using MZikmund.ViewModels;
 
 namespace MZikmund.Services.Navigation;
 
-internal class WindowShellProvider : IWindowShellProvider
+internal sealed class WindowShellProvider : IWindowShellProvider
 {
 	private WindowShell? _shell;
 
@@ -26,7 +27,7 @@ internal class WindowShellProvider : IWindowShellProvider
 		get
 		{
 			EnsureInitialized();
-			return _shell!.ViewModel;
+			return _shell.ViewModel;
 		}
 	}
 
@@ -35,13 +36,32 @@ internal class WindowShellProvider : IWindowShellProvider
 		get
 		{
 			EnsureInitialized();
-			return _shell!.XamlRoot!;
+			return _shell.XamlRoot!;
 		}
 	}
 
+	public WindowShell WindowShell
+	{
+		get
+		{
+			EnsureInitialized();
+			return _shell;
+		}
+	}
+
+	public IServiceProvider ServiceProvider
+	{
+		get
+		{
+			EnsureInitialized();
+			return _shell.ServiceProvider;
+		}
+	}
+
+	[MemberNotNull(nameof(_shell))]
 	private void EnsureInitialized()
 	{
-		if (XamlRoot is null)
+		if (_shell is null)
 		{
 			throw new InvalidOperationException("WindowShellProvider was not initialized.");
 		}

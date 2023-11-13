@@ -2,9 +2,13 @@
 
 namespace MZikmund.Services.Navigation;
 
-internal interface IWindowShellProvider
+public interface IWindowShellProvider
 {
 	WindowShellViewModel ViewModel { get; }
 
+	WindowShell WindowShell { get; }
+
 	XamlRoot XamlRoot { get; }
+
+	IServiceProvider ServiceProvider { get; }
 }

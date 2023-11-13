@@ -52,9 +52,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MZikmund.DataContracts", "a
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{6AD11812-0C83-402E-83D6-6D46B2CB7AF5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MZikmund.Shared", "shared\MZikmund.Shared\MZikmund.Shared.csproj", "{AA373B1D-F17C-4F24-86E5-F6DB8688434A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MZikmund.Shared", "shared\MZikmund.Shared\MZikmund.Shared.csproj", "{AA373B1D-F17C-4F24-86E5-F6DB8688434A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MZikmund.Api", "shared\MZikmund.Api\MZikmund.Api.csproj", "{55640146-2DFC-4B9F-8A6E-F44C4D74950D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MZikmund.Api", "shared\MZikmund.Api\MZikmund.Api.csproj", "{55640146-2DFC-4B9F-8A6E-F44C4D74950D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -902,6 +902,7 @@ Global
 		{6A207857-8DAD-47D3-AAEB-CEF69C468841}.AppStore|x86.Build.0 = Debug|x86
 		{6A207857-8DAD-47D3-AAEB-CEF69C468841}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{6A207857-8DAD-47D3-AAEB-CEF69C468841}.Debug|Any CPU.Build.0 = Debug|x64
+		{6A207857-8DAD-47D3-AAEB-CEF69C468841}.Debug|Any CPU.Deploy.0 = Debug|x64
 		{6A207857-8DAD-47D3-AAEB-CEF69C468841}.Debug|ARM.ActiveCfg = Debug|x64
 		{6A207857-8DAD-47D3-AAEB-CEF69C468841}.Debug|ARM.Build.0 = Debug|x64
 		{6A207857-8DAD-47D3-AAEB-CEF69C468841}.Debug|ARM64.ActiveCfg = Debug|arm64

@@ -2,5 +2,12 @@
 
 public class FrameProvider : IFrameProvider
 {
-	public Frame GetForCurrentView() => WindowShell.GetForCurrentView().RootFrame;
+	private readonly IWindowShellProvider _windowShellProvider;
+
+	public FrameProvider(IWindowShellProvider windowShellProvider)
+	{
+		_windowShellProvider = windowShellProvider;
+	}
+
+	public Frame GetForCurrentView() => _windowShellProvider.WindowShell.RootFrame;
 }

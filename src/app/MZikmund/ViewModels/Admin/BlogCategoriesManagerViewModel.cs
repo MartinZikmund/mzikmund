@@ -6,7 +6,7 @@ using MZikmund.Models.Dialogs;
 using MZikmund.Services.Dialogs;
 using MZikmund.Services.Loading;
 using MZikmund.Services.Localization;
-using MZikmund.ViewModels.Abstract;
+using MZikmund.ViewModels;
 using Newtonsoft.Json;
 using Windows.Storage.Pickers;
 

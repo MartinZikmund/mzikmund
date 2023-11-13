@@ -15,17 +15,25 @@ namespace MZikmund;
 public sealed partial class WindowShell : Page
 {
 	private readonly UISettings _uiSettings = new UISettings();
-	private static WindowShell? _instance;
 
-	private WindowShell()
+	public WindowShell(IServiceProvider serviceProvider)
 	{
 		InitializeComponent();
 		ViewModel = new WindowShellViewModel(DispatcherQueue);
+
+		var windowScope = serviceProvider.CreateScope();
+		ServiceProvider = windowScope.ServiceProvider;
+		var windowShellProvider = (WindowShellProvider)ServiceProvider.GetRequiredService<IWindowShellProvider>();
+		windowShellProvider.SetShell(this);
+		ServiceProvider.GetRequiredService<INavigationService>().RegisterViewsFromAssembly(typeof(App).Assembly);
+
 		_uiSettings.ColorValuesChanged += ColorValuesChanged;
 		SetupCoreWindow();
 
 		Loaded += WindowShell_Loaded;
 	}
+
+	public IServiceProvider ServiceProvider { get; private set; }
 
 	private void WindowShell_Loaded(object sender, RoutedEventArgs e)
 	{
@@ -39,8 +47,6 @@ public sealed partial class WindowShell : Page
 	public WindowShellViewModel ViewModel { get; }
 
 	public Frame RootFrame => InnerFrame;
-
-	public static WindowShell GetForCurrentView() => _instance ??= new WindowShell(); // TODO: Make instance window-specific
 
 	private void SetupCoreWindow()
 	{
@@ -66,38 +72,39 @@ public sealed partial class WindowShell : Page
 
 	private void SetTitlebarColors()
 	{
-#pragma warning disable CS8618
-#pragma warning disable Uno0001
-		var brandColor = ColorResources.BrandColor;
-		var titleBar = ApplicationView.GetForCurrentView().TitleBar;
-		titleBar.BackgroundColor = brandColor;
-		titleBar.ButtonBackgroundColor = Colors.Transparent;
-		titleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-		if (Ioc.Default.GetRequiredService<IThemeManager>().CurrentTheme == AppTheme.Dark)
-		{
-			titleBar.ButtonForegroundColor = Colors.White;
-			titleBar.ButtonInactiveForegroundColor = Colors.Gray;
-			titleBar.ButtonHoverBackgroundColor = Color.FromArgb(100, 100, 100, 100);
-			titleBar.ButtonHoverForegroundColor = Colors.White;
-			titleBar.ButtonPressedBackgroundColor = Color.FromArgb(200, 100, 100, 100);
-			titleBar.ButtonPressedForegroundColor = Colors.White;
-		}
-		else
-		{
-			titleBar.ButtonForegroundColor = Colors.Black;
-			titleBar.ButtonInactiveForegroundColor = Colors.Gray;
-			titleBar.ButtonHoverBackgroundColor = Color.FromArgb(100, 200, 200, 200);
-			titleBar.ButtonHoverForegroundColor = Colors.Black;
-			titleBar.ButtonPressedBackgroundColor = Color.FromArgb(200, 200, 200, 200);
-			titleBar.ButtonPressedForegroundColor = Colors.Black;
-		}
-#pragma warning restore Uno0001
-#pragma warning restore CS8618
+		//TODO:Titlebar colors
+		//#pragma warning disable CS8618
+		//#pragma warning disable Uno0001
+		//		var brandColor = ColorResources.BrandColor;
+		//		var titleBar = ApplicationView.GetForCurrentView().TitleBar;
+		//		titleBar.BackgroundColor = brandColor;
+		//		titleBar.ButtonBackgroundColor = Colors.Transparent;
+		//		titleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+		//		if (Ioc.Default.GetRequiredService<IThemeManager>().CurrentTheme == AppTheme.Dark)
+		//		{
+		//			titleBar.ButtonForegroundColor = Colors.White;
+		//			titleBar.ButtonInactiveForegroundColor = Colors.Gray;
+		//			titleBar.ButtonHoverBackgroundColor = Color.FromArgb(100, 100, 100, 100);
+		//			titleBar.ButtonHoverForegroundColor = Colors.White;
+		//			titleBar.ButtonPressedBackgroundColor = Color.FromArgb(200, 100, 100, 100);
+		//			titleBar.ButtonPressedForegroundColor = Colors.White;
+		//		}
+		//		else
+		//		{
+		//			titleBar.ButtonForegroundColor = Colors.Black;
+		//			titleBar.ButtonInactiveForegroundColor = Colors.Gray;
+		//			titleBar.ButtonHoverBackgroundColor = Color.FromArgb(100, 200, 200, 200);
+		//			titleBar.ButtonHoverForegroundColor = Colors.Black;
+		//			titleBar.ButtonPressedBackgroundColor = Color.FromArgb(200, 200, 200, 200);
+		//			titleBar.ButtonPressedForegroundColor = Colors.Black;
+		//		}
+		//#pragma warning restore Uno0001
+		//#pragma warning restore CS8618
 	}
 
 	private void MenuItemInvoked(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs args)
 	{
-		var navigationService = Ioc.Default.GetRequiredService<INavigationService>();
+		var navigationService = ServiceProvider.GetRequiredService<INavigationService>();
 		if (args.IsSettingsInvoked)
 		{
 			navigationService.Navigate<SettingsViewModel>();

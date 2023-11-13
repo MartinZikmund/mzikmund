@@ -1,6 +1,6 @@
 ﻿using MZikmund.Models.Dialogs;
 using MZikmund.Services.Localization;
-using MZikmund.ViewModels.Abstract;
+using MZikmund.ViewModels;
 
 namespace MZikmund.ViewModels.Admin;
 

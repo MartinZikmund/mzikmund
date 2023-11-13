@@ -1,4 +1,4 @@
-﻿namespace MZikmund.ViewModels.Abstract;
+﻿namespace MZikmund.ViewModels;
 
 public abstract class DialogViewModel : ViewModelBase
 {
