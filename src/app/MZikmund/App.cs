@@ -2,7 +2,12 @@ using MZikmund.ViewModels;
 using MZikmund.Services.Preferences;
 using MZikmund.Services.Navigation;
 using MZikmund.Services.Dialogs;
+using MZikmund.Services.Account;
 using MZikmund.ViewModels.Admin;
+using MZikmund.Api.Client;
+using Refit;
+using CommunityToolkit.Mvvm.DependencyInjection;
+using MZikmund.Services.Loading;
 
 namespace MZikmund;
 
@@ -114,7 +119,26 @@ public class App : Application
 		services.AddScoped<IDialogCoordinator, DialogCoordinator>();
 		services.AddScoped<IFrameProvider, FrameProvider>();
 		services.AddScoped<INavigationService, NavigationService>();
+		services.AddScoped<ILoadingIndicator, LoadingIndicator>();
 		services.AddScoped<IDialogService, DialogService>();
 		services.AddScoped<IWindowShellProvider, WindowShellProvider>();
+		services.AddSingleton(provider =>
+		{
+			return RestService.For<IMZikmundApi>("https://localhost:5001/api", new RefitSettings()
+			{
+				AuthorizationHeaderValueGetter = GetTokenAsync
+			});
+		});
+
+		async Task<string> GetTokenAsync(HttpRequestMessage message, CancellationToken cancellationToken)
+		{
+			//TODO: Move somewhere more appropriate and integrate refresh token support
+			var userService = Ioc.Default.GetRequiredService<IUserService>();
+			if (!userService.IsLoggedIn)
+			{
+				await userService.AuthenticateAsync();
+			}
+			return userService.AccessToken!;
+		};
 	}
 }
