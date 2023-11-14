@@ -1,25 +1,22 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MZikmund.DataContracts.Blog;
-using MZikmund.Logic.Requests.Blog.Categories;
+using MZikmund.Web.Controllers.Admin;
 using MZikmund.Web.Core.Blog;
-using WilderMinds.MetaWeblog;
 
-namespace MZikmund.Web.Controllers.Api.Admin.Blog;
+namespace MZikmund.Web.Controllers;
 
 /// <summary>
 /// Represents admin operations for blog categories.
 /// </summary>
 [ApiController]
-[Authorize]
 [Route("api/v1/categories")]
 public class CategoriesController : Controller
 {
 	private readonly IMediator _mediator;
 
 	/// <summary>
-	/// Initializes a new instance of the <see cref="BlogCategoriesAdminController"/> class.
+	/// Initializes a new instance of the <see cref="CategoriesAdminController"/> class.
 	/// </summary>
 	/// <param name="mediator">Mediator.</param>
 	public CategoriesController(IMediator mediator) =>
@@ -32,7 +29,7 @@ public class CategoriesController : Controller
 	[HttpGet]
 	[Route("")]
 	public async Task<IActionResult> GetAll() =>
-		Ok(await _mediator.Send(new CreateCategoryCommand(newCategory)));
+		Ok(await _mediator.Send(new GetCategoriesQuery()));
 
 	/// <summary>
 	/// Creates a blog category.
@@ -42,5 +39,5 @@ public class CategoriesController : Controller
 	[HttpGet]
 	[Route("{id}")]
 	public async Task<IActionResult> GetById(Guid id) =>
-		Ok(await _mediator.Send(new GetCategoryBy(id)));
+		Ok(await _mediator.Send(new GetCategoryByIdQuery(id)));
 }

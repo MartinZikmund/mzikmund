@@ -1,8 +1,10 @@
 using System.Text.Json.Serialization;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Web;
 using MZikmund.Web.Configuration;
 using MZikmund.Web.Configuration.Connections;
 using MZikmund.Web.Core;
@@ -39,6 +41,11 @@ if (!app.Environment.IsDevelopment())
 	app.UseExceptionHandler("/Error");
 	// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 	app.UseHsts();
+}
+else
+{
+	app.UseSwagger();
+	app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
@@ -79,10 +86,16 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 		option.AppendTrailingSlash = false;
 	});
 
+	//services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+	//	.AddMicrosoftIdentityWebApi(configuration.GetSection("AzureAd"));
+
 	services.AddLocalization(options => options.ResourcesPath = "Resources");
 
 	services.AddControllers(options => options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()))
 			.AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+
+	services.AddEndpointsApiExplorer();
+	services.AddSwaggerGen();
 
 	services.AddApplicationInsightsTelemetry();
 	services.AddHealthChecks();

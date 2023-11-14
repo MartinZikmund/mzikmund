@@ -4,4 +4,4 @@ using MZikmund.DataContracts.Blog;
 
 namespace MZikmund.Web.Core.Blog;
 
-public class CreateCategoryCommand(Category NewCategory) : IRequest<Category>;
+public record CreateCategoryCommand(Category NewCategory) : IRequest<Category>;

@@ -38,12 +38,12 @@ public class MetaWeblogProvider : IMetaWeblogProvider
 	{
 		ValidateUser(username, password);
 
-		var category = await _mediator.Send(new CreateCategoryCommand
+		var category = await _mediator.Send(new CreateCategoryCommand(new Category()
 		{
 			DisplayName = newCategory.name.Trim(),
 			RouteName = newCategory.slug.ToLowerInvariant(),
 			Description = newCategory.description.Trim()
-		});
+		}));
 
 		return category.Id.GetHashCode();
 	});

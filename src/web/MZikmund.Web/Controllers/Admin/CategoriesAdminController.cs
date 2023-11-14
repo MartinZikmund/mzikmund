@@ -5,7 +5,7 @@ using MZikmund.DataContracts.Blog;
 using MZikmund.Logic.Requests.Blog.Categories;
 using MZikmund.Web.Core.Blog;
 
-namespace MZikmund.Web.Controllers.Api.Admin.Blog;
+namespace MZikmund.Web.Controllers.Admin;
 
 /// <summary>
 /// Represents admin operations for blog categories.
@@ -13,15 +13,15 @@ namespace MZikmund.Web.Controllers.Api.Admin.Blog;
 [ApiController]
 [Authorize]
 [Route("api/v1/admin/categories")]
-public class BlogCategoriesAdminController : Controller
+public class CategoriesAdminController : Controller
 {
 	private readonly IMediator _mediator;
 
 	/// <summary>
-	/// Initializes a new instance of the <see cref="BlogCategoriesAdminController"/> class.
+	/// Initializes a new instance of the <see cref="CategoriesAdminController"/> class.
 	/// </summary>
 	/// <param name="mediator">Mediator.</param>
-	public BlogCategoriesAdminController(IMediator mediator) =>
+	public CategoriesAdminController(IMediator mediator) =>
 		_mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
 
 	/// <summary>
