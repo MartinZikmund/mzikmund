@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MZikmund.DataContracts.Blog;
-using MZikmund.Logic.Requests.Blog.Categories;
 using MZikmund.Web.Core.Blog;
 
 namespace MZikmund.Web.Controllers.Admin;

@@ -6,9 +6,10 @@ using MZikmund.DataContracts.Blog;
 using MZikmund.Web.Core.Extensions;
 using MZikmund.Web.Core.Utilities;
 using WilderMinds.MetaWeblog;
-using PostDto = MZikmund.DataContracts.Blog.Post;
+using PostDto = MZikmund.Web.Core.Dtos.Post;
 using WeblogPost = WilderMinds.MetaWeblog.Post;
 using WeblogTag = WilderMinds.MetaWeblog.Tag;
+using MZikmund.Web.Core.Dtos;
 
 namespace MZikmund.Web.Core.Services;
 

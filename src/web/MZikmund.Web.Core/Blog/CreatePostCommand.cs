@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using MZikmund.DataContracts.Blog;
+using MZikmund.Web.Core.Dtos;
 using MZikmund.Web.Data.Entities;
 
 namespace MZikmund.Web.Core.Blog;

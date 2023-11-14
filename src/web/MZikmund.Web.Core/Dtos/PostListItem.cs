@@ -1,4 +1,6 @@
-﻿namespace MZikmund.DataContracts.Blog;
+﻿using MZikmund.DataContracts.Blog;
+
+namespace MZikmund.Web.Core.Dtos;
 
 public class PostListItem
 {

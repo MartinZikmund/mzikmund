@@ -7,15 +7,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using MZikmund.Web.Configuration;
 using MZikmund.Web.Configuration.Connections;
-using MZikmund.Web.Core;
 using MZikmund.Web.Core.Content.Meta;
 using MZikmund.Web.Core.Infrastructure;
 using MZikmund.Web.Core.Middleware;
+using MZikmund.Web.Core.Properties;
 using MZikmund.Web.Core.Services;
 using MZikmund.Web.Core.Syndication;
 using MZikmund.Web.Data;
 using MZikmund.Web.Data.Extensions;
-using MZikmund.Web.Services;
 using WilderMinds.MetaWeblog;
 
 var builder = WebApplication.CreateBuilder(args);

@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
 using MZikmund.DataContracts.Blog;
-using MZikmund.Logic.Requests.Blog.Categories;
 using MZikmund.Web.Data.Entities;
 using MZikmund.Web.Data.Infrastructure;
 

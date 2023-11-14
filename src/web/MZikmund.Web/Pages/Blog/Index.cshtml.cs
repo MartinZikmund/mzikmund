@@ -6,8 +6,8 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MZikmund.Web.Core.Blog;
-using MZikmund.DataContracts.Blog;
 using X.PagedList;
+using MZikmund.Web.Core.Dtos;
 
 namespace MZikmund.Web.Pages.Blog;
 
