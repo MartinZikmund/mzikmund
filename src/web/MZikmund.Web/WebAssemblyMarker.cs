@@ -1,3 +1,3 @@
-﻿namespace MZikmund.Web.Core;
+﻿namespace MZikmund.Web;
 
 public record struct WebAssemblyMarker;

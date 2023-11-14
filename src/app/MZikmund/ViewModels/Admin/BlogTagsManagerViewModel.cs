@@ -4,11 +4,10 @@ using MZikmund.Extensions;
 using MZikmund.Models.Dialogs;
 using MZikmund.Services.Dialogs;
 using MZikmund.Services.Loading;
-using MZikmund.ViewModels;
 using Newtonsoft.Json;
 using Windows.Storage.Pickers;
 using MZikmund.Services.Localization;
-using MZikmund.DataContracts.Blog.Tags;
+using MZikmund.DataContracts.Blog;
 
 namespace MZikmund.ViewModels.Admin;
 
@@ -30,7 +29,7 @@ public class BlogTagsManagerViewModel : PageViewModel
 
 	public override string Title => Localizer.Instance.GetString("BlogTags");
 
-	public ObservableCollection<BlogTagDto> Tags { get; } = new ObservableCollection<BlogTagDto>();
+	public ObservableCollection<Tag> Tags { get; } = new ObservableCollection<Tag>();
 
 	public override async void ViewAppeared()
 	{
@@ -61,7 +60,7 @@ public class BlogTagsManagerViewModel : PageViewModel
 		picker.FileTypeFilter.Add(".json");
 		var jsonFile = await picker.PickSingleFileAsync();
 		var jsonContent = await FileIO.ReadTextAsync(jsonFile);
-		var tags = JsonConvert.DeserializeObject<BlogTagDto[]>(jsonContent);
+		var tags = JsonConvert.DeserializeObject<Tag[]>(jsonContent);
 		if (tags == null)
 		{
 			return;
@@ -71,8 +70,8 @@ public class BlogTagsManagerViewModel : PageViewModel
 		{
 			var tag = tags[i];
 			_loadingIndicator.StatusMessage = $"Adding tag {i + 1} of {tags.Length}";
-			// Ensure tag ID is 0.
-			tag.Id = 0;
+			// Ensure tag ID is empty.
+			tag.Id = Guid.Empty;
 
 			await _api.AddBlogTagAsync(tag);
 		}
@@ -101,7 +100,7 @@ public class BlogTagsManagerViewModel : PageViewModel
 		//});
 	}
 
-	public async Task UpdateBlogTagAsync(BlogTagDto dto)
+	public async Task UpdateBlogTagAsync(Tag dto)
 	{
 		var viewModel = new AddOrUpdateBlogTagDialogViewModel();
 		var result = await _dialogService.ShowAsync(viewModel);

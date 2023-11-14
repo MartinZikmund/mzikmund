@@ -1,4 +1,4 @@
-﻿namespace MZikmund.Web.Services;
+﻿namespace MZikmund.Web.Core.Services;
 
 public interface IMarkdownConverter
 {

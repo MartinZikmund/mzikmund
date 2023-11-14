@@ -6,7 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:xaml="using:MZikmund.Extensions.Xaml"
-    xmlns:dto="using:MZikmund.DataContracts.Blog.Categories"
+    xmlns:dto="using:MZikmund.DataContracts.Blog"
     mc:Ignorable="d"
     d:Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
@@ -38,7 +38,7 @@
 				</TransitionCollection>
 			</GridView.ItemContainerTransitions>
 			<GridView.ItemTemplate>
-				<DataTemplate x:DataType="dto:BlogCategoryDto">
+				<DataTemplate x:DataType="dto:Category">
 					<StackPanel Background="{ThemeResource SystemColorHighlightBrush}" Width="120" Padding="8">
 						<TextBlock FontWeight="Bold" Text="{x:Bind DisplayName}" TextTrimming="CharacterEllipsis" />
 						<TextBlock Opacity="0.8" Text="{x:Bind RouteName}" TextTrimming="CharacterEllipsis" />

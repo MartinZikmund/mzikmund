@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MZikmund.Web.Core.Blog;
-using MZikmund.Web.Core.Dtos;
 using X.PagedList;
+using MZikmund.Web.Core.Dtos;
 
 namespace MZikmund.Web.Pages;
 

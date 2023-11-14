@@ -1,22 +1,22 @@
-﻿using MZikmund.DataContracts.Blog.Categories;
+﻿using MZikmund.DataContracts.Blog;
 using Refit;
 
 namespace MZikmund.Api.Client;
 
 public partial interface IMZikmundApi
 {
-	[Get("/v1/blog/categories")]
-	Task<ApiResponse<BlogCategoryDto[]>> GetBlogCategoriesAsync();
+	[Get("/v1/categories")]
+	Task<ApiResponse<Category[]>> GetBlogCategoriesAsync();
 
-	[Post("/v1/blog/categories")]
+	[Post("/v1/admin/categories")]
 	[Headers("Authorization: Bearer")]
-	Task<ApiResponse<BlogCategoryDto>> AddBlogCategoryAsync(BlogCategoryDto category);
+	Task<ApiResponse<Category>> AddBlogCategoryAsync(Category category); // TODO: Should be EditCategory
 
-	[Put("/v1/blog/categories/{categoryId}")]
+	[Put("/v1/admin/categories/{categoryId}")]
 	[Headers("Authorization: Bearer")]
-	Task<ApiResponse<BlogCategoryDto>> UpdateCategoryAsync(int categoryId, BlogCategoryDto category);
+	Task<ApiResponse<Category>> UpdateCategoryAsync(Guid categoryId, EditCategory category);
 
-	[Delete("/v1/blog/categories/{categoryId}")]
+	[Delete("/v1/admin/categories/{categoryId}")]
 	[Headers("Authorization: Bearer")]
-	Task<ApiResponse<object?>> DeleteBlogCategoryAsync(int categoryId);
+	Task<ApiResponse<object?>> DeleteBlogCategoryAsync(Guid categoryId);
 }

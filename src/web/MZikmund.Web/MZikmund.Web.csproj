@@ -27,9 +27,15 @@
 		</PackageReference>
 		<PackageReference Include="Newtonsoft.Json" />
 		<PackageReference Include="X.PagedList.Mvc.Core" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" />
+		<PackageReference Include="Microsoft.Identity.Web" />
+		<PackageReference Include="Microsoft.Identity.Web.DownstreamApi" />
+		<PackageReference Include="Swashbuckle.AspNetCore" />
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\app\MZikmund.DataContracts\MZikmund.DataContracts.csproj" />
 		<ProjectReference Include="..\MZikmund.Web.Configuration\MZikmund.Web.Configuration.csproj" />
 		<ProjectReference Include="..\MZikmund.Web.Core\MZikmund.Web.Core.csproj" />
 	</ItemGroup>

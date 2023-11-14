@@ -2,7 +2,7 @@
 using Markdig;
 using Markdown.ColorCode;
 
-namespace MZikmund.Web.Services;
+namespace MZikmund.Web.Core.Services;
 
 public class MarkdownConverter : IMarkdownConverter
 {

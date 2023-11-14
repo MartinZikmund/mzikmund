@@ -1,4 +1,6 @@
-﻿namespace MZikmund.Web.Core.Dtos;
+﻿using MZikmund.DataContracts.Blog;
+
+namespace MZikmund.Web.Core.Dtos;
 
 public class Post
 {

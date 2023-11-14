@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using MZikmund.Web.Core.Dtos;
+using MZikmund.DataContracts.Blog;
 using MZikmund.Web.Data.Entities;
 using MZikmund.Web.Data.Infrastructure;
 
@@ -22,9 +22,9 @@ public class GetCategoryByRouteNameHandler : IRequestHandler<GetCategoryByRouteN
 
 	public async Task<Category> Handle(GetCategoryByRouteNameQuery request, CancellationToken cancellationToken)
 	{
-		var post = await _categoriesRepository.AsQueryable()
+		var category = await _categoriesRepository.AsQueryable()
 			.Where(p => p.RouteName.Equals(request.RouteName))
 			.FirstOrDefaultAsync();
-		return _mapper.Map<Category>(post);
+		return _mapper.Map<Category>(category);
 	}
 }
