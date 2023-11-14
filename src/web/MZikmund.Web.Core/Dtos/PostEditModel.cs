@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MZikmund.Web.Core.Dtos;
+namespace MZikmund.DataContracts.Blog;
 
 public class PostEditModel
 {

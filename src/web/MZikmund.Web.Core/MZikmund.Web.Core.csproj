@@ -17,6 +17,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\app\MZikmund.DataContracts\MZikmund.DataContracts.csproj" />
 		<ProjectReference Include="..\MZikmund.Web.Data\MZikmund.Web.Data.csproj" />
 	</ItemGroup>
 

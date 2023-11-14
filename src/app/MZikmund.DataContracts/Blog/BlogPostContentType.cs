@@ -1,4 +1,4 @@
-﻿namespace MZikmund.DataContracts.Enums.Blog;
+﻿namespace MZikmund.DataContracts.Blog;
 
 public enum BlogPostContentType
 {

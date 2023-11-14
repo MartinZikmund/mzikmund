@@ -30,6 +30,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\app\MZikmund.DataContracts\MZikmund.DataContracts.csproj" />
 		<ProjectReference Include="..\MZikmund.Web.Configuration\MZikmund.Web.Configuration.csproj" />
 		<ProjectReference Include="..\MZikmund.Web.Core\MZikmund.Web.Core.csproj" />
 	</ItemGroup>

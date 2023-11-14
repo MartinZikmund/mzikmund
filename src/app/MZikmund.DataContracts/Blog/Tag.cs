@@ -1,6 +1,4 @@
-﻿using MZikmund.Web.Core.Extensions;
-
-namespace MZikmund.Web.Core.Dtos;
+﻿namespace MZikmund.DataContracts.Blog;
 
 public class Tag
 {
