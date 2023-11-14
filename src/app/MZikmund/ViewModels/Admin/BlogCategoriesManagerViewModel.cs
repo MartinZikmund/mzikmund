@@ -1,12 +1,11 @@
 ﻿using System.Collections.ObjectModel;
 using MZikmund.Api.Client;
-using MZikmund.DataContracts.Blog.Categories;
+using MZikmund.DataContracts.Blog;
 using MZikmund.Extensions;
 using MZikmund.Models.Dialogs;
 using MZikmund.Services.Dialogs;
 using MZikmund.Services.Loading;
 using MZikmund.Services.Localization;
-using MZikmund.ViewModels;
 using Newtonsoft.Json;
 using Windows.Storage.Pickers;
 
@@ -30,7 +29,7 @@ public class BlogCategoriesManagerViewModel : PageViewModel
 
 	public override string Title => Localizer.Instance.GetString("BlogCategories");
 
-	public ObservableCollection<BlogCategoryDto> Categories { get; } = new ObservableCollection<BlogCategoryDto>();
+	public ObservableCollection<Category> Categories { get; } = new ObservableCollection<Category>();
 
 	public override async void ViewAppeared()
 	{
@@ -61,7 +60,7 @@ public class BlogCategoriesManagerViewModel : PageViewModel
 		picker.FileTypeFilter.Add(".json");
 		var jsonFile = await picker.PickSingleFileAsync();
 		var jsonContent = await FileIO.ReadTextAsync(jsonFile);
-		var Categories = JsonConvert.DeserializeObject<BlogCategoryDto[]>(jsonContent);
+		var Categories = JsonConvert.DeserializeObject<Category[]>(jsonContent);
 		if (Categories == null)
 		{
 			return;
@@ -71,8 +70,8 @@ public class BlogCategoriesManagerViewModel : PageViewModel
 		{
 			var tag = Categories[i];
 			_loadingIndicator.StatusMessage = $"Adding tag {i + 1} of {Categories.Length}";
-			// Ensure tag ID is 0.
-			tag.Id = 0;
+			// Ensure tag ID is empty.
+			tag.Id = Guid.Empty;
 
 			await _api.AddBlogCategoryAsync(tag);
 		}

@@ -3,7 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:MZikmund.Views.Admin"
-    xmlns:dto="using:MZikmund.DataContracts.Blog.Tags"
+    xmlns:dto="using:MZikmund.DataContracts.Blog"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:xaml="using:MZikmund.Extensions.Xaml"
@@ -38,7 +38,7 @@
 				</TransitionCollection>
 			</GridView.ItemContainerTransitions>
 			<GridView.ItemTemplate>
-				<DataTemplate x:DataType="dto:BlogTagDto">
+				<DataTemplate x:DataType="dto:Tag">
 					<StackPanel Background="{ThemeResource SystemColorHighlightBrush}" Width="120" Padding="8">
 						<TextBlock FontWeight="Bold" Text="{x:Bind DisplayName}" TextTrimming="CharacterEllipsis" />
 						<TextBlock Opacity="0.8" Text="{x:Bind RouteName}" TextTrimming="CharacterEllipsis" />

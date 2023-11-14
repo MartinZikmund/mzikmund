@@ -1,22 +1,22 @@
-﻿using MZikmund.DataContracts.Blog.Tags;
+﻿using MZikmund.DataContracts.Blog;
 using Refit;
 
 namespace MZikmund.Api.Client;
 
 public partial interface IMZikmundApi
 {
-	[Get("/v1/blog/tags")]
-	Task<ApiResponse<BlogTagDto[]>> GetBlogTagsAsync();
+	[Get("/v1/tags")]
+	Task<ApiResponse<Tag[]>> GetBlogTagsAsync();
 
-	[Post("/v1/blog/tags")]
+	[Post("/v1/admin/tags")]
 	[Headers("Authorization: Bearer")]
-	Task<ApiResponse<BlogTagDto>> AddBlogTagAsync([Body] BlogTagDto category);
+	Task<ApiResponse<Tag>> AddBlogTagAsync([Body] Tag tag); // TODO: Should be EditTag
 
-	[Put("/v1/blog/tags/{categoryId}")]
+	[Put("/v1/admin/tags/{categoryId}")]
 	[Headers("Authorization: Bearer")]
-	Task<ApiResponse<BlogTagDto>> UpdateTagAsync(int categoryId, [Body] BlogTagDto category);
+	Task<ApiResponse<Tag>> UpdateTagAsync(int categoryId, [Body] EditTag tag);
 
-	[Delete("/v1/blog/tags/{categoryId}")]
+	[Delete("/v1/admin/tags/{categoryId}")]
 	[Headers("Authorization: Bearer")]
-	Task<ApiResponse<object?>> DeleteBlogTagAsync(int categoryId);
+	Task<ApiResponse<object?>> DeleteBlogTagAsync(int tagId);
 }
