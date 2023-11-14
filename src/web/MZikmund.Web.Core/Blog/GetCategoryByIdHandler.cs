@@ -7,12 +7,12 @@ using MZikmund.Web.Data.Infrastructure;
 
 namespace MZikmund.Web.Core.Blog;
 
-public class GetCategoryByRouteNameHandler : IRequestHandler<GetCategoryByRouteNameQuery, Category>
+public class GetCategoryByIdHandler : IRequestHandler<GetCategoryByIdQuery, Category>
 {
 	private readonly IRepository<CategoryEntity> _categoriesRepository;
 	private readonly IMapper _mapper;
 
-	public GetCategoryByRouteNameHandler(
+	public GetCategoryByIdHandler(
 		IRepository<CategoryEntity> categoriesRepository,
 		IMapper mapper)
 	{
@@ -20,11 +20,9 @@ public class GetCategoryByRouteNameHandler : IRequestHandler<GetCategoryByRouteN
 		_mapper = mapper;
 	}
 
-	public async Task<Category> Handle(GetCategoryByRouteNameQuery request, CancellationToken cancellationToken)
+	public async Task<Category> Handle(GetCategoryByIdQuery request, CancellationToken cancellationToken)
 	{
-		var category = await _categoriesRepository.AsQueryable()
-			.Where(p => p.RouteName.Equals(request.RouteName))
-			.FirstOrDefaultAsync();
+		var category = await _categoriesRepository.GetAsync(request.CategoryId);
 		return _mapper.Map<Category>(category);
 	}
 }

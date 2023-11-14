@@ -3,4 +3,4 @@ using MZikmund.DataContracts.Blog;
 
 namespace MZikmund.Web.Core.Blog;
 
-public record GetPostByRouteNameQuery(string RouteName) : IRequest<Post>;
+public record GetCategoryByIdQuery(Guid CategoryId) : IRequest<Category>;

@@ -1,4 +1,4 @@
-﻿using MZikmund.Web.Core.Dtos;
+﻿using MZikmund.DataContracts.Blog;
 
 namespace MZikmund.Web.Core.Services;
 

@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using MZikmund.Web.Core.Dtos;
+using MZikmund.DataContracts.Blog;
 using MZikmund.Web.Data.Entities;
 using MZikmund.Web.Data.Infrastructure;
 

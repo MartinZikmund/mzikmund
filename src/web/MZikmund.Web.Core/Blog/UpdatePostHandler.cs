@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using MZikmund.Web.Configuration;
-using MZikmund.Web.Core.Dtos;
+using MZikmund.DataContracts.Blog;
 using MZikmund.Web.Core.Extensions;
 using MZikmund.Web.Core.Services;
 using MZikmund.Web.Data.Entities;

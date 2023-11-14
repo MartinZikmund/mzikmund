@@ -2,11 +2,11 @@
 using Microsoft.Extensions.Logging;
 using MZikmund.Web.Configuration;
 using MZikmund.Web.Core.Blog;
-using MZikmund.Web.Core.Dtos;
+using MZikmund.DataContracts.Blog;
 using MZikmund.Web.Core.Extensions;
 using MZikmund.Web.Core.Utilities;
 using WilderMinds.MetaWeblog;
-using PostDto = MZikmund.Web.Core.Dtos.Post;
+using PostDto = MZikmund.DataContracts.Blog.Post;
 using WeblogPost = WilderMinds.MetaWeblog.Post;
 using WeblogTag = WilderMinds.MetaWeblog.Tag;
 
