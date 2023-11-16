@@ -90,6 +90,7 @@ public class App : Application
 #endif
 
 		Host = builder.Build();
+		Ioc.Default.ConfigureServices(Host.Services);
 
 		// Do not repeat app initialization when the Window already has content,
 		// just ensure that the window is active
@@ -116,10 +117,10 @@ public class App : Application
 	private static void ConfigureServices(IServiceCollection services)
 	{
 		services.AddScoped<SettingsViewModel>();
-		services.AddScoped<BlogTagsManagerViewModel>();
-		services.AddScoped<BlogCategoriesManagerViewModel>();
-		services.AddScoped<AddOrUpdateBlogCategoryDialogViewModel>();
-		services.AddScoped<AddOrUpdateBlogTagDialogViewModel>();
+		services.AddScoped<TagsManagerViewModel>();
+		services.AddScoped<CategoriesManagerViewModel>();
+		services.AddScoped<AddOrUpdateCategoryDialogViewModel>();
+		services.AddScoped<AddOrUpdateTagDialogViewModel>();
 
 		services.AddSingleton<IThemeManager, ThemeManager>();
 		services.AddSingleton<IAppPreferences, AppPreferences>();

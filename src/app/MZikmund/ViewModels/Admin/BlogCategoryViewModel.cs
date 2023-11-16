@@ -2,7 +2,7 @@
 
 namespace MZikmund.ViewModels.Admin;
 
-public class BlogCategoryViewModel : ObservableObject
+public class CategoryViewModel : ObservableObject
 {
 	public int Id { get; set; }
 

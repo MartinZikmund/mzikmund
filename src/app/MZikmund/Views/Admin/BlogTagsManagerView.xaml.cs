@@ -2,11 +2,11 @@
 
 namespace MZikmund.Views.Admin;
 
-public sealed partial class BlogTagsManagerView : BlogTagsManagerViewBase
+public sealed partial class TagsManagerView : TagsManagerViewBase
 {
-	public BlogTagsManagerView() => InitializeComponent();
+	public TagsManagerView() => InitializeComponent();
 }
 
-public partial class BlogTagsManagerViewBase : PageBase<BlogTagsManagerViewModel>
+public partial class TagsManagerViewBase : PageBase<TagsManagerViewModel>
 {
 }

@@ -2,11 +2,11 @@
 
 namespace MZikmund.Views.Admin;
 
-public sealed partial class BlogCategoriesManagerView : BlogCategoriesManagerViewBase
+public sealed partial class CategoriesManagerView : CategoriesManagerViewBase
 {
-	public BlogCategoriesManagerView() => InitializeComponent();
+	public CategoriesManagerView() => InitializeComponent();
 }
 
-public partial class BlogCategoriesManagerViewBase : PageBase<BlogCategoriesManagerViewModel>
+public partial class CategoriesManagerViewBase : PageBase<CategoriesManagerViewModel>
 {
 }

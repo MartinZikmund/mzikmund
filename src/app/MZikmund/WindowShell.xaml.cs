@@ -9,6 +9,7 @@ using MZikmund.Services.Theming;
 using MZikmund.ViewModels;
 using MZikmund.ViewModels.Admin;
 using MZikmund.Services.Navigation;
+using MZikmund.Services.Dialogs;
 
 namespace MZikmund;
 
@@ -26,6 +27,7 @@ public sealed partial class WindowShell : Page
 		var windowShellProvider = (WindowShellProvider)ServiceProvider.GetRequiredService<IWindowShellProvider>();
 		windowShellProvider.SetShell(this);
 		ServiceProvider.GetRequiredService<INavigationService>().RegisterViewsFromAssembly(typeof(App).Assembly);
+		ServiceProvider.GetRequiredService<IDialogService>().RegisterDialogsFromAssembly(typeof(App).Assembly);
 
 		_uiSettings.ColorValuesChanged += ColorValuesChanged;
 		SetupCoreWindow();
@@ -124,11 +126,11 @@ public sealed partial class WindowShell : Page
 		}
 		else if (args.InvokedItemContainer == AdminTagsNavigationViewItem)
 		{
-			navigationService.Navigate<BlogTagsManagerViewModel>();
+			navigationService.Navigate<TagsManagerViewModel>();
 		}
 		else if (args.InvokedItemContainer == AdminCategoriesNavigationViewItem)
 		{
-			navigationService.Navigate<BlogCategoriesManagerViewModel>();
+			navigationService.Navigate<CategoriesManagerViewModel>();
 		}
 	}
 }

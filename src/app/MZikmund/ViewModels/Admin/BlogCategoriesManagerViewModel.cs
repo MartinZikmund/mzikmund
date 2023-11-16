@@ -11,13 +11,13 @@ using Windows.Storage.Pickers;
 
 namespace MZikmund.ViewModels.Admin;
 
-public class BlogCategoriesManagerViewModel : PageViewModel
+public class CategoriesManagerViewModel : PageViewModel
 {
 	private readonly IDialogService _dialogService;
 	private readonly ILoadingIndicator _loadingIndicator;
 	private readonly IMZikmundApi _api;
 
-	public BlogCategoriesManagerViewModel(
+	public CategoriesManagerViewModel(
 		IMZikmundApi api,
 		IDialogService dialogService,
 		ILoadingIndicator loadingIndicator)
@@ -27,7 +27,7 @@ public class BlogCategoriesManagerViewModel : PageViewModel
 		_api = api ?? throw new ArgumentNullException(nameof(api));
 	}
 
-	public override string Title => Localizer.Instance.GetString("BlogCategories");
+	public override string Title => Localizer.Instance.GetString("Categories");
 
 	public ObservableCollection<Category> Categories { get; } = new ObservableCollection<Category>();
 
@@ -37,7 +37,7 @@ public class BlogCategoriesManagerViewModel : PageViewModel
 		try
 		{
 			//TODO: Refresh collection based on IDs
-			var categories = await _api.GetBlogCategoriesAsync();
+			var categories = await _api.GetCategoriesAsync();
 			Categories.AddRange(categories.Content!);
 		}
 		catch (Exception ex)
@@ -49,7 +49,7 @@ public class BlogCategoriesManagerViewModel : PageViewModel
 		}
 	}
 
-	public ICommand AddBlogCategoryCommand => GetOrCreateAsyncCommand(AddBlogCategoryAsync);
+	public ICommand AddCategoryCommand => GetOrCreateAsyncCommand(AddCategoryAsync);
 
 	public ICommand ImportJsonCommand => GetOrCreateAsyncCommand(ImportJsonAsync);
 
@@ -73,24 +73,24 @@ public class BlogCategoriesManagerViewModel : PageViewModel
 			// Ensure tag ID is empty.
 			tag.Id = Guid.Empty;
 
-			await _api.AddBlogCategoryAsync(tag);
+			await _api.AddCategoryAsync(tag);
 		}
 	}
 
-	private async Task AddBlogCategoryAsync()
+	private async Task AddCategoryAsync()
 	{
-		var viewModel = new AddOrUpdateBlogCategoryDialogViewModel();
+		var viewModel = new AddOrUpdateCategoryDialogViewModel();
 		var result = await _dialogService.ShowAsync(viewModel);
 		if (result != ContentDialogResult.Primary)
 		{
 			return;
 		}
 
-		//var apiResponse = await _api.AddBlogCategoryAsync(new BlogCategoryDto()
+		//var apiResponse = await _api.AddCategoryAsync(new CategoryDto()
 		//{
 		//	Localizations = new[]
 		//	{
-		//		new BlogCategoryLocalizationDto()
+		//		new CategoryLocalizationDto()
 		//		{
 		//			DisplayName = "test",
 		//			LanguageId = 1,
