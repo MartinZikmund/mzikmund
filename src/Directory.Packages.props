@@ -3,7 +3,7 @@
 		<!-- Web -->
 		<PackageVersion Include="AutoMapper" Version="12.0.1" />
 		<PackageVersion Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
-		<PackageVersion Include="Azure.Storage.Blobs" Version="12.19.0" />
+		<PackageVersion Include="Azure.Storage.Blobs" Version="12.19.1" />
 		<PackageVersion Include="Betalgo.OpenAI" Version="7.3.1" />
 		<PackageVersion Include="BuildWebCompiler2022" Version="1.14.10" />
 		<PackageVersion Include="Edi.SyndicationFeed.ReaderWriter" Version="2.1.0" />
