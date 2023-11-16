@@ -6,9 +6,9 @@ updates:
     interval: weekly
     time: "04:00"
   open-pull-requests-limit: 10
-  target-branch: develop
+  target-branch: main
 - package-ecosystem: npm
-  directory: "/src/web/MZikmund.Web"
+  directory: "/"
   schedule:
     interval: weekly
     time: "04:00"
