@@ -8,7 +8,7 @@ updates:
   open-pull-requests-limit: 10
   target-branch: main
 - package-ecosystem: npm
-  directory: "/src"
+  directory: "/"
   schedule:
     interval: weekly
     time: "04:00"
