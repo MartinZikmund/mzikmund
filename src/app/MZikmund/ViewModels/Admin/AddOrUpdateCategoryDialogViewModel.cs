@@ -4,17 +4,17 @@ using MZikmund.ViewModels;
 
 namespace MZikmund.ViewModels.Admin;
 
-public class AddOrUpdateBlogCategoryDialogViewModel : DialogViewModel
+public class AddOrUpdateCategoryDialogViewModel : DialogViewModel
 {
-	public AddOrUpdateBlogCategoryDialogViewModel(BlogCategoryViewModel blogCategory)
+	public AddOrUpdateCategoryDialogViewModel(CategoryViewModel blogCategory)
 	{
-		BlogCategory = blogCategory ?? throw new ArgumentNullException(nameof(blogCategory));
+		Category = blogCategory ?? throw new ArgumentNullException(nameof(blogCategory));
 
 		Mode = DialogMode.Edit;
 	}
 
-	public AddOrUpdateBlogCategoryDialogViewModel() :
-		this(new BlogCategoryViewModel())
+	public AddOrUpdateCategoryDialogViewModel() :
+		this(new CategoryViewModel())
 	{
 		Mode = DialogMode.Add;
 	}
@@ -23,5 +23,5 @@ public class AddOrUpdateBlogCategoryDialogViewModel : DialogViewModel
 
 	public string SecondaryButtonText => Mode == DialogMode.Edit ? Localizer.Instance.GetString("Delete") : string.Empty;
 
-	public BlogCategoryViewModel BlogCategory { get; set; }
+	public CategoryViewModel Category { get; set; }
 }

@@ -1,10 +1,12 @@
-﻿using Windows.ApplicationModel.Resources;
+﻿using CommunityToolkit.Mvvm.DependencyInjection;
+using Microsoft.Extensions.Localization;
+using Windows.ApplicationModel.Resources;
 
 namespace MZikmund.Services.Localization;
 
 public class Localizer
 {
-	private static ResourceLoader? _resourceLoader;
+	private static readonly Lazy<IStringLocalizer> _stringLocalizer = new(Ioc.Default.GetRequiredService<IStringLocalizer>);
 
 	private Localizer()
 	{
@@ -14,8 +16,7 @@ public class Localizer
 
 	public string GetString(string key)
 	{
-		_resourceLoader ??= ResourceLoader.GetForViewIndependentUse();
-		var result = _resourceLoader.GetString(key);
+		var result = _stringLocalizer.Value.GetString(key);
 		return !string.IsNullOrEmpty(result) ? result : $"???{key}???";
 	}
 

@@ -6,11 +6,11 @@ namespace MZikmund.Api.Client;
 public partial interface IMZikmundApi
 {
 	[Get("/v1/categories")]
-	Task<ApiResponse<Category[]>> GetBlogCategoriesAsync();
+	Task<ApiResponse<Category[]>> GetCategoriesAsync();
 
 	[Post("/v1/admin/categories")]
 	[Headers("Authorization: Bearer")]
-	Task<ApiResponse<Category>> AddBlogCategoryAsync(Category category); // TODO: Should be EditCategory
+	Task<ApiResponse<Category>> AddCategoryAsync(Category category); // TODO: Should be EditCategory
 
 	[Put("/v1/admin/categories/{categoryId}")]
 	[Headers("Authorization: Bearer")]
@@ -18,5 +18,5 @@ public partial interface IMZikmundApi
 
 	[Delete("/v1/admin/categories/{categoryId}")]
 	[Headers("Authorization: Bearer")]
-	Task<ApiResponse<object?>> DeleteBlogCategoryAsync(Guid categoryId);
+	Task<ApiResponse<object?>> DeleteCategoryAsync(Guid categoryId);
 }

@@ -1,5 +1,5 @@
-﻿<local:BlogCategoriesManagerViewBase
-    x:Class="MZikmund.Views.Admin.BlogCategoriesManagerView"
+﻿<local:CategoriesManagerViewBase
+    x:Class="MZikmund.Views.Admin.CategoriesManagerView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:MZikmund.Views.Admin"
@@ -16,9 +16,9 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <TextBlock Text="{xaml:Localize Key=BlogCategories}" Style="{ThemeResource TitleTextBlockStyle}" />
+        <TextBlock Text="{xaml:Localize Key=Categories}" Style="{ThemeResource TitleTextBlockStyle}" />
 		<StackPanel Spacing="8"  Grid.Row="1"  Orientation="Horizontal">
-			<Button Command="{x:Bind ViewModel.AddBlogCategoryCommand}">
+			<Button Command="{x:Bind ViewModel.AddCategoryCommand}">
 				<StackPanel Spacing="4" Orientation="Horizontal">
 					<SymbolIcon Symbol="Add" />
 					<TextBlock Text="{xaml:Localize Key=AddCategory}" />
@@ -39,7 +39,7 @@
 			</GridView.ItemContainerTransitions>
 			<GridView.ItemTemplate>
 				<DataTemplate x:DataType="dto:Category">
-					<StackPanel Background="{ThemeResource SystemColorHighlightBrush}" Width="120" Padding="8">
+					<StackPanel Margin="4" CornerRadius="2" Background="{ThemeResource SystemColorHighlightBrush}" Width="120" Padding="8">
 						<TextBlock FontWeight="Bold" Text="{x:Bind DisplayName}" TextTrimming="CharacterEllipsis" />
 						<TextBlock Opacity="0.8" Text="{x:Bind RouteName}" TextTrimming="CharacterEllipsis" />
 					</StackPanel>
@@ -47,4 +47,4 @@
 			</GridView.ItemTemplate>
 		</GridView>
 	</Grid>
-</local:BlogCategoriesManagerViewBase>
+</local:CategoriesManagerViewBase>

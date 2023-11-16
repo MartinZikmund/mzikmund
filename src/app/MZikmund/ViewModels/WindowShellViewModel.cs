@@ -16,12 +16,6 @@ public class WindowShellViewModel : PageViewModel
 
 	public IDisposable BeginLoading()
 	{
-#if !__WASM__
-		if (!_dispatcher.HasThreadAccess)
-		{
-			throw new InvalidOperationException("Loading must be started on the UI thread");
-		}
-#endif
 		LoadingStatusMessage = "";
 		if (_refCountDisposable != null && !_refCountDisposable.IsDisposed)
 		{

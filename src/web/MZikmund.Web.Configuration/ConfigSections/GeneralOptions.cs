@@ -16,5 +16,7 @@ public class GeneralOptions
 
 	public Uri Url { get; set; } = null!;
 
+	public Uri WasmAppUrl { get; set; } = null!;
+
 	public Uri CdnUrl { get; set; } = null!;
 }

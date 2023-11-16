@@ -1,10 +1,17 @@
-﻿namespace MZikmund.Services.Dialogs;
+﻿using MZikmund.Services.Navigation;
+
+namespace MZikmund.Services.Dialogs;
 
 public class DialogCoordinator : IDialogCoordinator
 {
 	private readonly Queue<QueuedDialog> _dialogQueue = new Queue<QueuedDialog>();
-
+	private readonly IWindowShellProvider _windowShellProvider;
 	private bool _isProcessing;
+
+	public DialogCoordinator(IWindowShellProvider windowShellProvider)
+	{
+		_windowShellProvider = windowShellProvider;
+	}
 
 	public async Task<ContentDialogResult> ShowAsync(ContentDialog dialog)
 	{
@@ -30,6 +37,7 @@ public class DialogCoordinator : IDialogCoordinator
 				while (_dialogQueue.Count > 0)
 				{
 					var queuedDialog = _dialogQueue.Dequeue();
+					queuedDialog.Dialog.XamlRoot = _windowShellProvider.XamlRoot;
 					var result = await queuedDialog.Dialog.ShowAsync();
 					queuedDialog.CompletionSource.SetResult(result);
 				}

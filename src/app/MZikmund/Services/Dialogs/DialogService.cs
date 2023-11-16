@@ -1,11 +1,12 @@
-﻿using MZikmund.Models.Dialogs;
+﻿using System.Reflection;
+using MZikmund.Models.Dialogs;
 using MZikmund.ViewModels.Dialogs;
 
 namespace MZikmund.Services.Dialogs;
 
 public class DialogService : IDialogService
 {
-	private readonly Dictionary<Type, Type> _viewModelToDialogMap = new();
+	private readonly Dictionary<string, Type> _dialogs = new();
 	private readonly IDialogCoordinator _dialogCoordinator;
 
 	public DialogService(IDialogCoordinator dialogCoordinator)
@@ -24,20 +25,35 @@ public class DialogService : IDialogService
 
 	public async Task<ContentDialogResult> ShowAsync<TViewModel>(TViewModel viewModel)
 	{
-		var dialogType = _viewModelToDialogMap[typeof(TViewModel)];
+		var viewModelType = typeof(TViewModel);
+		if (!viewModelType.Name.EndsWith("ViewModel", StringComparison.OrdinalIgnoreCase))
+		{
+			throw new InvalidOperationException("ViewModel name must end with 'ViewModel' by convention.");
+		}
+
+		var viewModelName = viewModelType.Name;
+		var dialogTypeName = viewModelName.Substring(0, viewModelName.Length - "ViewModel".Length);
+		if (!_dialogs.TryGetValue(dialogTypeName, out var dialogType))
+		{
+			throw new InvalidOperationException($"Dialog for {viewModelType} not found");
+		}
 		var dialog = (ContentDialog?)Activator.CreateInstance(dialogType);
 		if (dialog is null)
 		{
-			throw new InvalidOperationException("Could not initialize dialog " + dialogType);
+			throw new InvalidOperationException($"Instance of {dialogType} could not be created");
 		}
 		dialog.DataContext = viewModel;
 		return await _dialogCoordinator.ShowAsync(dialog);
 	}
 
-	public IDialogService Register<TViewModel, TDialog>()
-		where TDialog : ContentDialog
+	public void RegisterDialogsFromAssembly(Assembly sourceAssembly)
 	{
-		_viewModelToDialogMap[typeof(TViewModel)] = typeof(TDialog);
-		return this;
+		// TODO: Avoid reflection
+		var dialogType = typeof(ContentDialog);
+		var pages = sourceAssembly.GetTypes().Where(t => dialogType.IsAssignableFrom(t) && t.Name.EndsWith("Dialog", StringComparison.OrdinalIgnoreCase)).ToArray();
+		foreach (var viewType in pages)
+		{
+			_dialogs.Add(viewType.Name, viewType);
+		}
 	}
 }

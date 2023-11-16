@@ -9,23 +9,25 @@ using MZikmund.Services.Theming;
 using MZikmund.ViewModels;
 using MZikmund.ViewModels.Admin;
 using MZikmund.Services.Navigation;
+using MZikmund.Services.Dialogs;
 
 namespace MZikmund;
 
 public sealed partial class WindowShell : Page
 {
 	private readonly UISettings _uiSettings = new UISettings();
+	private readonly IServiceScope _windowScope;
 
 	public WindowShell(IServiceProvider serviceProvider)
 	{
 		InitializeComponent();
 		ViewModel = new WindowShellViewModel(DispatcherQueue);
 
-		var windowScope = serviceProvider.CreateScope();
-		ServiceProvider = windowScope.ServiceProvider;
+		_windowScope = serviceProvider.CreateScope();
 		var windowShellProvider = (WindowShellProvider)ServiceProvider.GetRequiredService<IWindowShellProvider>();
 		windowShellProvider.SetShell(this);
 		ServiceProvider.GetRequiredService<INavigationService>().RegisterViewsFromAssembly(typeof(App).Assembly);
+		ServiceProvider.GetRequiredService<IDialogService>().RegisterDialogsFromAssembly(typeof(App).Assembly);
 
 		_uiSettings.ColorValuesChanged += ColorValuesChanged;
 		SetupCoreWindow();
@@ -33,7 +35,7 @@ public sealed partial class WindowShell : Page
 		Loaded += WindowShell_Loaded;
 	}
 
-	public IServiceProvider ServiceProvider { get; private set; }
+	public IServiceProvider ServiceProvider => _windowScope.ServiceProvider;
 
 	private void WindowShell_Loaded(object sender, RoutedEventArgs e)
 	{
@@ -124,11 +126,11 @@ public sealed partial class WindowShell : Page
 		}
 		else if (args.InvokedItemContainer == AdminTagsNavigationViewItem)
 		{
-			navigationService.Navigate<BlogTagsManagerViewModel>();
+			navigationService.Navigate<TagsManagerViewModel>();
 		}
 		else if (args.InvokedItemContainer == AdminCategoriesNavigationViewItem)
 		{
-			navigationService.Navigate<BlogCategoriesManagerViewModel>();
+			navigationService.Navigate<CategoriesManagerViewModel>();
 		}
 	}
 }

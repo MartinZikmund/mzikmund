@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
@@ -54,6 +55,7 @@ app.UseMiddleware<ReallySimpleDiscoveryMiddleware>();
 app.UseMetaWeblog($"/{app.Services.GetRequiredService<ISiteConfiguration>().MetaWeblog.Endpoint}");
 
 app.UseRouting();
+app.UseCors();
 
 app.UseAuthorization();
 
@@ -77,7 +79,14 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 	services.AddMetaWeblog<MetaWeblogProvider>();
 	services.AddHttpContextAccessor();
 	services.AddScoped<MetaTagsInfo>();
-
+	services.AddCors(options =>
+	{
+		options.AddDefaultPolicy(
+			policy =>
+			{
+				policy.WithOrigins(siteConfiguration.General.WasmAppUrl.AbsoluteUri).AllowAnyMethod().AllowAnyHeader();
+			});
+	});
 	services.Configure<RouteOptions>(option =>
 	{
 		option.LowercaseUrls = true;

@@ -11,13 +11,13 @@ using MZikmund.DataContracts.Blog;
 
 namespace MZikmund.ViewModels.Admin;
 
-public class BlogTagsManagerViewModel : PageViewModel
+public class TagsManagerViewModel : PageViewModel
 {
 	private readonly IDialogService _dialogService;
 	private readonly ILoadingIndicator _loadingIndicator;
 	private readonly IMZikmundApi _api;
 
-	public BlogTagsManagerViewModel(
+	public TagsManagerViewModel(
 		IMZikmundApi api,
 		IDialogService dialogService,
 		ILoadingIndicator loadingIndicator)
@@ -27,7 +27,7 @@ public class BlogTagsManagerViewModel : PageViewModel
 		_api = api ?? throw new ArgumentNullException(nameof(api));
 	}
 
-	public override string Title => Localizer.Instance.GetString("BlogTags");
+	public override string Title => Localizer.Instance.GetString("Tags");
 
 	public ObservableCollection<Tag> Tags { get; } = new ObservableCollection<Tag>();
 
@@ -37,7 +37,7 @@ public class BlogTagsManagerViewModel : PageViewModel
 		try
 		{
 			//TODO: Refresh collection based on IDs
-			var tags = await _api.GetBlogTagsAsync();
+			var tags = await _api.GetTagsAsync();
 			Tags.AddRange(tags.Content!);
 		}
 		catch (Exception ex)
@@ -49,7 +49,7 @@ public class BlogTagsManagerViewModel : PageViewModel
 		}
 	}
 
-	public ICommand AddBlogTagCommand => GetOrCreateAsyncCommand(AddBlogTagAsync);
+	public ICommand AddTagCommand => GetOrCreateAsyncCommand(AddTagAsync);
 
 	public ICommand ImportJsonCommand => GetOrCreateAsyncCommand(ImportJsonAsync);
 
@@ -73,24 +73,24 @@ public class BlogTagsManagerViewModel : PageViewModel
 			// Ensure tag ID is empty.
 			tag.Id = Guid.Empty;
 
-			await _api.AddBlogTagAsync(tag);
+			await _api.AddTagAsync(tag);
 		}
 	}
 
-	private async Task AddBlogTagAsync()
+	private async Task AddTagAsync()
 	{
-		var viewModel = new AddOrUpdateBlogTagDialogViewModel();
+		var viewModel = new AddOrUpdateTagDialogViewModel();
 		var result = await _dialogService.ShowAsync(viewModel);
 		if (result != ContentDialogResult.Primary)
 		{
 			return;
 		}
 
-		//var apiResponse = await _api.AddBlogTagAsync(new BlogTagDto()
+		//var apiResponse = await _api.AddTagAsync(new TagDto()
 		//{
 		//	Localizations = new[]
 		//	{
-		//		new BlogTagLocalizationDto()
+		//		new TagLocalizationDto()
 		//		{
 		//			DisplayName = "test",
 		//			LanguageId = 1,
@@ -100,9 +100,9 @@ public class BlogTagsManagerViewModel : PageViewModel
 		//});
 	}
 
-	public async Task UpdateBlogTagAsync(Tag dto)
+	public async Task UpdateTagAsync(Tag dto)
 	{
-		var viewModel = new AddOrUpdateBlogTagDialogViewModel();
+		var viewModel = new AddOrUpdateTagDialogViewModel();
 		var result = await _dialogService.ShowAsync(viewModel);
 		if (result != ContentDialogResult.Primary)
 		{
@@ -111,11 +111,11 @@ public class BlogTagsManagerViewModel : PageViewModel
 
 		await Task.CompletedTask;
 
-		//var apiResponse = await _api.AddBlogTagAsync(new BlogTagDto()
+		//var apiResponse = await _api.AddTagAsync(new TagDto()
 		//{
 		//	Localizations = new[]
 		//	{
-		//		new BlogTagLocalizationDto()
+		//		new TagLocalizationDto()
 		//		{
 		//			DisplayName = "test",
 		//			LanguageId = 1,
