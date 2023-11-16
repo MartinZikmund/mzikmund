@@ -12,11 +12,11 @@ public partial interface IMZikmundApi
 	[Headers("Authorization: Bearer")]
 	Task<ApiResponse<Tag>> AddBlogTagAsync([Body] Tag tag); // TODO: Should be EditTag
 
-	[Put("/v1/admin/tags/{categoryId}")]
+	[Put("/v1/admin/tags/{tagId}")]
 	[Headers("Authorization: Bearer")]
-	Task<ApiResponse<Tag>> UpdateTagAsync(int categoryId, [Body] EditTag tag);
+	Task<ApiResponse<Tag>> UpdateTagAsync(int tagId, [Body] EditTag tag);
 
-	[Delete("/v1/admin/tags/{categoryId}")]
+	[Delete("/v1/admin/tags/{tagId}")]
 	[Headers("Authorization: Bearer")]
 	Task<ApiResponse<object?>> DeleteBlogTagAsync(int tagId);
 }

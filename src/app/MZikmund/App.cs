@@ -1,13 +1,15 @@
-using MZikmund.ViewModels;
-using MZikmund.Services.Preferences;
-using MZikmund.Services.Navigation;
-using MZikmund.Services.Dialogs;
-using MZikmund.Services.Account;
-using MZikmund.ViewModels.Admin;
-using MZikmund.Api.Client;
-using Refit;
 using CommunityToolkit.Mvvm.DependencyInjection;
+using Microsoft.Extensions.Options;
+using MZikmund.Api.Client;
+using MZikmund.Services.Account;
+using MZikmund.Services.Dialogs;
 using MZikmund.Services.Loading;
+using MZikmund.Services.Navigation;
+using MZikmund.Services.Preferences;
+using MZikmund.Services.Theming;
+using MZikmund.ViewModels;
+using MZikmund.ViewModels.Admin;
+using Refit;
 
 namespace MZikmund;
 
@@ -74,6 +76,11 @@ public class App : Application
 #endif
 					.AddSingleton<IWeatherCache, WeatherCache>()
 					.AddRefitClient<IApiClient>(context))
+				.UseDefaultServiceProvider((context, options) =>
+				{
+					options.ValidateScopes = true;
+					options.ValidateOnBuild = true;
+				})
 				.ConfigureServices((context, services) => ConfigureServices(services))
 			);
 		MainWindow = builder.Window;
@@ -108,13 +115,14 @@ public class App : Application
 
 	private static void ConfigureServices(IServiceCollection services)
 	{
-		services.AddSingleton<SettingsViewModel>();
-		services.AddScoped<WindowShellViewModel>();
-		services.AddSingleton<BlogTagsManagerViewModel>();
-		services.AddSingleton<BlogCategoriesManagerViewModel>();
-		services.AddSingleton<AddOrUpdateBlogCategoryDialogViewModel>();
-		services.AddSingleton<AddOrUpdateBlogTagDialogViewModel>();
+		services.AddScoped<SettingsViewModel>();
+		services.AddScoped<BlogTagsManagerViewModel>();
+		services.AddScoped<BlogCategoriesManagerViewModel>();
+		services.AddScoped<AddOrUpdateBlogCategoryDialogViewModel>();
+		services.AddScoped<AddOrUpdateBlogTagDialogViewModel>();
 
+		services.AddSingleton<IThemeManager, ThemeManager>();
+		services.AddSingleton<IAppPreferences, AppPreferences>();
 		services.AddSingleton<IPreferencesService, PreferencesService>();
 		services.AddScoped<IDialogCoordinator, DialogCoordinator>();
 		services.AddScoped<IFrameProvider, FrameProvider>();
@@ -124,7 +132,8 @@ public class App : Application
 		services.AddScoped<IWindowShellProvider, WindowShellProvider>();
 		services.AddSingleton(provider =>
 		{
-			return RestService.For<IMZikmundApi>("https://localhost:5001/api", new RefitSettings()
+			var configuration = provider.GetRequiredService<IOptions<AppConfig>>();
+			return RestService.For<IMZikmundApi>(configuration.Value.ApiUrl!, new RefitSettings()
 			{
 				AuthorizationHeaderValueGetter = GetTokenAsync
 			});
