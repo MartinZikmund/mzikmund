@@ -106,7 +106,7 @@
 		<PackageVersion Include="Uno.WinUI.Lottie" Version="5.1.0-dev.517" />
 		<PackageVersion Include="Uno.WinUI.DevServer" Version="5.1.0-dev.517" />
 		<PackageVersion Include="Uno.WinUI.Skia.Gtk" Version="5.1.0-dev.517" />
-		<PackageVersion Include="Uno.WinUI.Skia.Linux.FrameBuffer" Version="5.1.0-dev.517" />
+		<PackageVersion Include="Uno.WinUI.Skia.Linux.FrameBuffer" Version="5.1.0-dev.590" />
 		<PackageVersion Include="Uno.WinUI.Skia.Wpf" Version="5.1.0-dev.517" />
 		<PackageVersion Include="Uno.WinUI.WebAssembly" Version="5.1.0-dev.517" />
 		<PackageVersion Include="Xamarin.Google.Android.Material" Version="1.10.0.1" />
