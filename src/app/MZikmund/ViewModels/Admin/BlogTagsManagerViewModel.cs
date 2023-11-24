@@ -100,9 +100,9 @@ public class TagsManagerViewModel : PageViewModel
 		//});
 	}
 
-	public async Task UpdateTagAsync(Tag dto)
+	public async Task UpdateTagAsync(TagViewModel tag)
 	{
-		var viewModel = new AddOrUpdateTagDialogViewModel();
+		var viewModel = new AddOrUpdateTagDialogViewModel(tag);
 		var result = await _dialogService.ShowAsync(viewModel);
 		if (result != ContentDialogResult.Primary)
 		{
@@ -110,6 +110,8 @@ public class TagsManagerViewModel : PageViewModel
 		}
 
 		await Task.CompletedTask;
+
+		// TODO: Update tag via API
 
 		//var apiResponse = await _api.AddTagAsync(new TagDto()
 		//{

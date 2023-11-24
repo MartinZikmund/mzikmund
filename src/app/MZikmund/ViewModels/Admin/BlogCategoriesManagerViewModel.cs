@@ -51,6 +51,8 @@ public class CategoriesManagerViewModel : PageViewModel
 
 	public ICommand AddCategoryCommand => GetOrCreateAsyncCommand(AddCategoryAsync);
 
+	public ICommand UpdateCategoryCommand => GetOrCreateAsyncCommand<CategoryViewModel>(UpdateCategoryAsync);
+
 	public ICommand ImportJsonCommand => GetOrCreateAsyncCommand(ImportJsonAsync);
 
 	private async Task ImportJsonAsync()
@@ -98,5 +100,22 @@ public class CategoriesManagerViewModel : PageViewModel
 		//		}
 		//	}
 		//});
+	}
+
+	private async Task UpdateCategoryAsync(CategoryViewModel? category)
+	{
+		if (category is null)
+		{
+			return;
+		}
+
+		var viewModel = new AddOrUpdateCategoryDialogViewModel(category);
+		var result = await _dialogService.ShowAsync(viewModel);
+		if (result != ContentDialogResult.Primary)
+		{
+			return;
+		}
+
+		// TODO: Update category via API.
 	}
 }

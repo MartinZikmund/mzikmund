@@ -94,8 +94,8 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 		option.AppendTrailingSlash = false;
 	});
 
-	//services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-	//	.AddMicrosoftIdentityWebApi(configuration.GetSection("AzureAd"));
+	services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+		.AddMicrosoftIdentityWebApi(configuration.GetSection("AzureAd"));
 
 	services.AddLocalization(options => options.ResourcesPath = "Resources");
 
