@@ -81,10 +81,6 @@ public class App : Application
 					options.ValidateScopes = true;
 					options.ValidateOnBuild = true;
 				})
-				.UseAuthentication(builder =>
-				{
-					builder.AddMsal();
-				})
 				.ConfigureServices((context, services) => ConfigureServices(services))
 			);
 		MainWindow = builder.Window;

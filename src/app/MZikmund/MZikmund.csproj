@@ -14,6 +14,7 @@
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
 		<PackageReference Include="Uno.WinUI" />
+		<PackageReference Include="Uno.WinUI.MSAL" />
 		<PackageReference Include="Uno.Resizetizer" />
 		<PackageReference Include="CommunityToolkit.Mvvm" />
 		<PackageReference Include="Uno.Extensions.Configuration" />
