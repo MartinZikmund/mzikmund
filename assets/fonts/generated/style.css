@@ -1,0 +1,154 @@
+@font-face {
+  font-family: 'icomoon';
+  src:  url('fonts/icomoon.eot?n4rvrc');
+  src:  url('fonts/icomoon.eot?n4rvrc#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?n4rvrc') format('truetype'),
+    url('fonts/icomoon.woff?n4rvrc') format('woff'),
+    url('fonts/icomoon.svg?n4rvrc#icomoon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'icomoon' !important;
+  speak: never;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-darktheme:before {
+  content: "\e91f";
+}
+.icon-lighttheme:before {
+  content: "\e920";
+}
+.icon-email:before {
+  content: "\e919";
+}
+.icon-phone:before {
+  content: "\e91a";
+}
+.icon-map:before {
+  content: "\e91b";
+}
+.icon-back:before {
+  content: "\e90a";
+}
+.icon-language:before {
+  content: "\e909";
+}
+.icon-theme:before {
+  content: "\e908";
+}
+.icon-projects:before {
+  content: "\e902";
+}
+.icon-admin:before {
+  content: "\e903";
+}
+.icon-video:before {
+  content: "\e904";
+}
+.icon-podcasts:before {
+  content: "\e905";
+}
+.icon-speaking:before {
+  content: "\e906";
+}
+.icon-contacts:before {
+  content: "\e907";
+}
+.icon-blog:before {
+  content: "\e900";
+}
+.icon-home:before {
+  content: "\e901";
+}
+.icon-twitch .path1:before {
+  content: "\e91c";
+  color: rgb(255, 255, 255);
+}
+.icon-twitch .path2:before {
+  content: "\e91d";
+  margin-left: -1em;
+  color: rgb(142, 36, 170);
+}
+.icon-twitch .path3:before {
+  content: "\e91e";
+  margin-left: -1em;
+  color: rgb(142, 36, 170);
+}
+.icon-github .path1:before {
+  content: "\e90b";
+  color: rgb(255, 255, 255);
+}
+.icon-github .path2:before {
+  content: "\e90c";
+  margin-left: -1em;
+  color: rgb(69, 90, 100);
+}
+.icon-github .path3:before {
+  content: "\e90d";
+  margin-left: -1em;
+  color: rgb(69, 90, 100);
+}
+.icon-github .path4:before {
+  content: "\e90e";
+  margin-left: -1em;
+  color: rgb(69, 90, 100);
+}
+.icon-github .path5:before {
+  content: "\e90f";
+  margin-left: -1em;
+  color: rgb(0, 188, 212);
+}
+.icon-linkedin .path1:before {
+  content: "\e910";
+  color: rgb(2, 136, 209);
+}
+.icon-linkedin .path2:before {
+  content: "\e911";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.icon-youtube .path1:before {
+  content: "\e912";
+  color: rgb(69, 90, 100);
+}
+.icon-youtube .path2:before {
+  content: "\e913";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.icon-youtube .path3:before {
+  content: "\e914";
+  margin-left: -1em;
+  color: rgb(244, 67, 54);
+}
+.icon-youtube .path4:before {
+  content: "\e915";
+  margin-left: -1em;
+  color: rgb(244, 67, 54);
+}
+.icon-facebook .path1:before {
+  content: "\e916";
+  color: rgb(3, 155, 229);
+}
+.icon-facebook .path2:before {
+  content: "\e917";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.icon-twitter:before {
+  content: "\e918";
+  color: #03a9f4;
+}
