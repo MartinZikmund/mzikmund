@@ -1,0 +1,142 @@
+[
+  {
+      "Localizations": [
+          {
+            "LanguageId": 1,
+            "DisplayName": "WinUI",
+            "RouteName": "winui"
+          },
+          {
+            "LanguageId": 2,
+            "DisplayName": "WinUI",
+            "RouteName": "winui"
+          }
+      ]
+  },
+  {
+      "Localizations": [
+          {
+            "LanguageId": 1,
+            "DisplayName": "Uno Platform",
+            "RouteName": "uno-platform"
+          },
+          {
+            "LanguageId": 2,
+            "DisplayName": "Uno Platform",
+            "RouteName": "uno-platform"
+          }
+      ]
+  },
+  {
+    "Localizations": [
+        {
+          "LanguageId": 1,
+          "DisplayName": "Uncategorized",
+          "RouteName": "uncategorized"
+        },
+        {
+          "LanguageId": 2,
+          "DisplayName": "Ostatní",
+          "RouteName": "ostatni"
+        }
+    ]
+  },
+  {
+    "Localizations": [
+        {
+          "LanguageId": 1,
+          "DisplayName": "Microsoft Azure",
+          "RouteName": "microsoft-azure"
+        },
+        {
+          "LanguageId": 2,
+          "DisplayName": "Microsoft Azure",
+          "RouteName": "microsoft-azure"
+        }
+    ]
+  },
+  {
+    "Localizations": [
+        {
+          "LanguageId": 1,
+          "DisplayName": ".NET",
+          "RouteName": "dotnet"
+        },
+        {
+          "LanguageId": 2,
+          "DisplayName": ".NET",
+          "RouteName": "dotnet"
+        }
+    ]
+  },
+  {
+    "Localizations": [
+        {
+          "LanguageId": 1,
+          "DisplayName": "XAML",
+          "RouteName": "xaml"
+        },
+        {
+          "LanguageId": 2,
+          "DisplayName": "XAML",
+          "RouteName": "xaml"
+        }
+    ]
+  },
+  {
+    "Localizations": [
+        {
+          "LanguageId": 1,
+          "DisplayName": "Xamarin",
+          "RouteName": "xamarin"
+        },
+        {
+          "LanguageId": 2,
+          "DisplayName": "Xamarin",
+          "RouteName": "xamarin"
+        }
+    ]
+  },
+  {
+    "Localizations": [
+        {
+          "LanguageId": 1,
+          "DisplayName": "WPF",
+          "RouteName": "wpf"
+        },
+        {
+          "LanguageId": 2,
+          "DisplayName": "WPF",
+          "RouteName": "wpf"
+        }
+    ]
+  },
+  {
+    "Localizations": [
+        {
+          "LanguageId": 1,
+          "DisplayName": "Web",
+          "RouteName": "web"
+        },
+        {
+          "LanguageId": 2,
+          "DisplayName": "Web",
+          "RouteName": "web"
+        }
+    ]
+  },
+  {
+    "Localizations": [
+        {
+          "LanguageId": 1,
+          "DisplayName": "Visual Studio",
+          "RouteName": "visual-studio"
+        },
+        {
+          "LanguageId": 2,
+          "DisplayName": "Visual Studio",
+          "RouteName": "visual-studio"
+        }
+    ]
+  }
+]

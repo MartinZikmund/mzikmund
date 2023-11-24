@@ -79,12 +79,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Remove="Views\SettingsView.xaml" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <UpToDateCheckInput Remove="Dialogs\Admin\AddOrUpdateCategoryDialog.xaml" />
-	  <UpToDateCheckInput Remove="Views\SettingsView.xaml" />
-	  <UpToDateCheckInput Remove="WindowShell.xaml" />
+	  <Content Include="..\..\..\assets\fonts\generated\fonts\icomoon.ttf" Link="Assets\Fonts\icomoon.ttf" />
 	</ItemGroup>
 </Project>

@@ -12,135 +12,135 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     mc:Ignorable="d">
 
-	<Grid toolkit:VisibleBoundsPadding.PaddingMask="All">
-		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="*" />
-		</Grid.RowDefinitions>
-		<Grid x:Name="TitleBarGrid" Visibility="Collapsed" />
-		<mux:NavigationView
+    <Grid toolkit:VisibleBoundsPadding.PaddingMask="All">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid x:Name="TitleBarGrid" Visibility="Collapsed" />
+        <mux:NavigationView
             x:Name="AppNavigation"
             Grid.Row="1"
+            BackRequested="{x:Bind ViewModel.BackRequested}"
             IsBackButtonVisible="Auto"
-			IsBackEnabled="{Binding ElementName=InnerFrame, Path=CanGoBack}"
-			BackRequested="{x:Bind ViewModel.BackRequested}"
+            IsBackEnabled="{Binding ElementName=InnerFrame, Path=CanGoBack}"
             IsSettingsVisible="True"
             IsTitleBarAutoPaddingEnabled="True"
             ItemInvoked="MenuItemInvoked"
             PaneDisplayMode="LeftMinimal"
             PaneTitle="Martin Zikmund">
-			<mux:NavigationView.MenuItems>
-				<mux:NavigationViewItem x:Name="HomeNavigationViewItem" Content="{extensions:Localize Key=Home}">
-					<mux:NavigationViewItem.Icon>
-						<BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///Assets/NavigationViewLogo.png" />
-					</mux:NavigationViewItem.Icon>
-				</mux:NavigationViewItem>
-				<mux:NavigationViewItem x:Name="BlogNavigationViewItem" Content="{extensions:Localize Key=Blog}">
-					<mux:NavigationViewItem.Icon>
-						<BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///Assets/Icons/Navigation/Blog.png" />
-					</mux:NavigationViewItem.Icon>
-				</mux:NavigationViewItem>
-				<mux:NavigationViewItem x:Name="ContactNavigationViewItem" Content="{extensions:Localize Key=Contact}">
-					<mux:NavigationViewItem.Icon>
-						<BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///Assets/Icons/Navigation/Contact.png" />
-					</mux:NavigationViewItem.Icon>
-				</mux:NavigationViewItem>
-				<mux:NavigationViewItem x:Name="AdminNavigationViewItem" Content="{extensions:Localize Key=Admin}">
-					<mux:NavigationViewItem.Icon>
-						<BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///Assets/Icons/Navigation/Admin.png" />
-					</mux:NavigationViewItem.Icon>
-					<mux:NavigationViewItem.MenuItems>
-						<mux:NavigationViewItem x:Name="AdminPostsNavigationViewItem" Content="{extensions:Localize Key=Posts}">
-							<mux:NavigationViewItem.Icon>
-								<BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///Assets/Icons/Navigation/Posts.png" />
-							</mux:NavigationViewItem.Icon>
-						</mux:NavigationViewItem>
-						<mux:NavigationViewItem x:Name="AdminTagsNavigationViewItem" Content="{extensions:Localize Key=Tags}">
-							<mux:NavigationViewItem.Icon>
-								<BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///Assets/Icons/Navigation/Tags.png" />
-							</mux:NavigationViewItem.Icon>
-						</mux:NavigationViewItem>
-						<mux:NavigationViewItem x:Name="AdminCategoriesNavigationViewItem" Content="{extensions:Localize Key=Categories}">
-							<mux:NavigationViewItem.Icon>
-								<BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///Assets/Icons/Navigation/Categories.png" />
-							</mux:NavigationViewItem.Icon>
-						</mux:NavigationViewItem>
-					</mux:NavigationViewItem.MenuItems>
-				</mux:NavigationViewItem>
-			</mux:NavigationView.MenuItems>
-			<mux:NavigationView.Content>
-				<Grid x:Name="ContentWrapper">
-					<Grid.RowDefinitions>
-						<RowDefinition Height="Auto" />
-						<RowDefinition Height="*" />
-					</Grid.RowDefinitions>
-					<Grid
+            <mux:NavigationView.MenuItems>
+                <mux:NavigationViewItem x:Name="HomeNavigationViewItem" Content="{extensions:Localize Key=Home}">
+                    <mux:NavigationViewItem.Icon>
+                        <BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///MZikmund/Assets/NavigationViewLogo.png" />
+                    </mux:NavigationViewItem.Icon>
+                </mux:NavigationViewItem>
+                <mux:NavigationViewItem x:Name="BlogNavigationViewItem" Content="{extensions:Localize Key=Blog}">
+                    <mux:NavigationViewItem.Icon>
+                        <BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///MZikmund/Assets/Icons/Navigation/Blog.png" />
+                    </mux:NavigationViewItem.Icon>
+                </mux:NavigationViewItem>
+                <mux:NavigationViewItem x:Name="ContactNavigationViewItem" Content="{extensions:Localize Key=Contact}">
+                    <mux:NavigationViewItem.Icon>
+                        <BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///MZikmund/Assets/Icons/Navigation/Contact.png" />
+                    </mux:NavigationViewItem.Icon>
+                </mux:NavigationViewItem>
+                <mux:NavigationViewItem x:Name="AdminNavigationViewItem" Content="{extensions:Localize Key=Admin}">
+                    <mux:NavigationViewItem.Icon>
+                        <BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///MZikmund/Assets/Icons/Navigation/Admin.png" />
+                    </mux:NavigationViewItem.Icon>
+                    <mux:NavigationViewItem.MenuItems>
+                        <mux:NavigationViewItem x:Name="AdminPostsNavigationViewItem" Content="{extensions:Localize Key=Posts}">
+                            <mux:NavigationViewItem.Icon>
+                                <BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///MZikmund/Assets/Icons/Navigation/Posts.png" />
+                            </mux:NavigationViewItem.Icon>
+                        </mux:NavigationViewItem>
+                        <mux:NavigationViewItem x:Name="AdminTagsNavigationViewItem" Content="{extensions:Localize Key=Tags}">
+                            <mux:NavigationViewItem.Icon>
+                                <BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///MZikmund/Assets/Icons/Navigation/Tags.png" />
+                            </mux:NavigationViewItem.Icon>
+                        </mux:NavigationViewItem>
+                        <mux:NavigationViewItem x:Name="AdminCategoriesNavigationViewItem" Content="{extensions:Localize Key=Categories}">
+                            <mux:NavigationViewItem.Icon>
+                                <BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///MZikmund/Assets/Icons/Navigation/Categories.png" />
+                            </mux:NavigationViewItem.Icon>
+                        </mux:NavigationViewItem>
+                    </mux:NavigationViewItem.MenuItems>
+                </mux:NavigationViewItem>
+            </mux:NavigationView.MenuItems>
+            <mux:NavigationView.Content>
+                <Grid x:Name="ContentWrapper">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Grid
                         x:Name="ContentHeader"
-						Height="48"
+                        Height="48"
                         BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}"
                         BorderThickness="0,0,0,1">
-						<TextBlock
-							Margin="48,0"
-							HorizontalAlignment="Center"
-							TextAlignment="Center"
-							TextTrimming="CharacterEllipsis"
+                        <TextBlock
+                            Margin="48,0"
+                            HorizontalAlignment="Center"
                             Style="{ThemeResource TitleTextBlockStyle}"
-                            Text="{Binding ElementName=InnerFrame, Path=Content.ViewModel.Title}" />
-					</Grid>
-					<Frame
+                            Text="{Binding ElementName=InnerFrame, Path=Content.ViewModel.Title}"
+                            TextAlignment="Center"
+                            TextTrimming="CharacterEllipsis" />
+                    </Grid>
+                    <Frame
                         x:Name="InnerFrame"
                         Grid.Row="1"
                         Background="{ThemeResource LayerFillColorDefaultBrush}" />
-				</Grid>
-			</mux:NavigationView.Content>
-		</mux:NavigationView>
-		<Grid
-			Grid.RowSpan="2"
+                </Grid>
+            </mux:NavigationView.Content>
+        </mux:NavigationView>
+        <Grid
+            Grid.RowSpan="2"
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
             Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay}">
-			<Grid.RowDefinitions>
-				<RowDefinition Height="Auto" />
-				<RowDefinition Height="Auto" />
-			</Grid.RowDefinitions>
-			<mux:ProgressRing
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <mux:ProgressRing
                 Width="60"
                 Height="60"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
                 IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" />
-			<TextBlock
+            <TextBlock
                 Margin="0,8,0,0"
                 HorizontalAlignment="Center"
                 Text="{x:Bind ViewModel.LoadingStatusMessage, Mode=OneWay}"
                 TextAlignment="Center"
                 TextWrapping="Wrap" />
-		</Grid>
+        </Grid>
 
-		<VisualStateManager.VisualStateGroups>
-			<VisualStateGroup>
-				<VisualState x:Name="Wide">
-					<VisualState.StateTriggers>
-						<AdaptiveTrigger MinWindowWidth="1024" />
-					</VisualState.StateTriggers>
-					<VisualState.Setters>
-						<Setter Target="ContentHeader.Visibility" Value="Collapsed" />
-						<Setter Target="TitleBarGrid.Visibility" Value="Visible" />
-						<Setter Target="AppNavigation.PaneDisplayMode" Value="Top" />
-					</VisualState.Setters>
-				</VisualState>
-				<VisualState x:Name="Mid">
-					<VisualState.StateTriggers>
-						<AdaptiveTrigger MinWindowWidth="768" />
-					</VisualState.StateTriggers>
-					<VisualState.Setters>
-						<Setter Target="ContentHeader.Visibility" Value="Collapsed" />
-						<Setter Target="TitleBarGrid.Visibility" Value="Visible" />
-						<Setter Target="AppNavigation.PaneDisplayMode" Value="LeftCompact" />
-					</VisualState.Setters>
-				</VisualState>
-				<VisualState x:Name="Normal" />
-			</VisualStateGroup>
-		</VisualStateManager.VisualStateGroups>
-	</Grid>
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState x:Name="Wide">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1024" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ContentHeader.Visibility" Value="Collapsed" />
+                        <Setter Target="TitleBarGrid.Visibility" Value="Visible" />
+                        <Setter Target="AppNavigation.PaneDisplayMode" Value="Top" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Mid">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="768" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ContentHeader.Visibility" Value="Collapsed" />
+                        <Setter Target="TitleBarGrid.Visibility" Value="Visible" />
+                        <Setter Target="AppNavigation.PaneDisplayMode" Value="LeftCompact" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Normal" />
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+    </Grid>
 </Page>

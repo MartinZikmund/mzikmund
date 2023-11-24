@@ -1,0 +1,5672 @@
+[
+  {
+    "Id": 219,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": ".NET",
+        "RouteName": "net"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": ".NET",
+        "RouteName": "net"
+      }
+    ]
+  },
+  {
+    "Id": 354,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": ".NET Core",
+        "RouteName": "net-core"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": ".NET Core",
+        "RouteName": "net-core"
+      }
+    ]
+  },
+  {
+    "Id": 218,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": ".NET Framework",
+        "RouteName": "net-framework"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": ".NET Framework",
+        "RouteName": "net-framework"
+      }
+    ]
+  },
+  {
+    "Id": 217,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": ".NET Standard",
+        "RouteName": "net-standard"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": ".NET Standard",
+        "RouteName": "net-standard"
+      }
+    ]
+  },
+  {
+    "Id": 87,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "accent color",
+        "RouteName": "accent-color"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "barva motivu",
+        "RouteName": "barva-motivu"
+      }
+    ]
+  },
+  {
+    "Id": 106,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "adaptivetrigger",
+        "RouteName": "adaptivetrigger"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "adaptivetrigger",
+        "RouteName": "adaptivetrigger"
+      }
+    ]
+  },
+  {
+    "Id": 465,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "AdDuplex",
+        "RouteName": "adduplex"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "AdDuplex",
+        "RouteName": "adduplex"
+      }
+    ]
+  },
+  {
+    "Id": 462,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "AdMob",
+        "RouteName": "admob"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "AdMob",
+        "RouteName": "admob"
+      }
+    ]
+  },
+  {
+    "Id": 429,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "advent",
+        "RouteName": "advent"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "advent",
+        "RouteName": "advent"
+      }
+    ]
+  },
+  {
+    "Id": 460,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "advertising",
+        "RouteName": "advertising"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "reklama",
+        "RouteName": "reklama"
+      }
+    ]
+  },
+  {
+    "Id": 408,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "build agent",
+        "RouteName": "build-agent"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "build agent",
+        "RouteName": "build-agent"
+      }
+    ]
+  },
+  {
+    "Id": 227,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "AI",
+        "RouteName": "ai"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "AI",
+        "RouteName": "ai"
+      }
+    ]
+  },
+  {
+    "Id": 61,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "align",
+        "RouteName": "align"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "zarovnat",
+        "RouteName": "zarovnat"
+      }
+    ]
+  },
+  {
+    "Id": 137,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "alignment",
+        "RouteName": "alignment"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "zarovnání",
+        "RouteName": "zarovnani"
+      }
+    ]
+  },
+  {
+    "Id": 253,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Android",
+        "RouteName": "android"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Android",
+        "RouteName": "android"
+      }
+    ]
+  },
+  {
+    "Id": 182,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "animation",
+        "RouteName": "animation"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "animace",
+        "RouteName": "animace"
+      }
+    ]
+  },
+  {
+    "Id": 66,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "anniversary update",
+        "RouteName": "anniversary-update"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "anniversary update",
+        "RouteName": "anniversary-update"
+      }
+    ]
+  },
+  {
+    "Id": 54,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "announcements",
+        "RouteName": "announcements"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "oznámení",
+        "RouteName": "oznameni"
+      }
+    ]
+  },
+  {
+    "Id": 446,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "api",
+        "RouteName": "api"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "api",
+        "RouteName": "api"
+      }
+    ]
+  },
+  {
+    "Id": 340,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "app",
+        "RouteName": "app"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "aplikace",
+        "RouteName": "aplikace"
+      }
+    ]
+  },
+  {
+    "Id": 226,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "App Center",
+        "RouteName": "app-center"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "App Center",
+        "RouteName": "app-center"
+      }
+    ]
+  },
+  {
+    "Id": 81,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "app development",
+        "RouteName": "app-development"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "vývoj aplikací",
+        "RouteName": "vyvoj-aplikaci"
+      }
+    ]
+  },
+  {
+    "Id": 392,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "app lifecycle",
+        "RouteName": "app-lifecycle"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "životní cyklus aplikace",
+        "RouteName": "zivotni-cyklus-aplikace"
+      }
+    ]
+  },
+  {
+    "Id": 361,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "App Service",
+        "RouteName": "app-service"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "App Service",
+        "RouteName": "app-service"
+      }
+    ]
+  },
+  {
+    "Id": 365,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "App Services",
+        "RouteName": "app-services"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "App Services",
+        "RouteName": "app-services"
+      }
+    ]
+  },
+  {
+    "Id": 208,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "AppBarButton",
+        "RouteName": "appbarbutton"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "AppBarButton",
+        "RouteName": "appbarbutton"
+      }
+    ]
+  },
+  {
+    "Id": 427,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "appsettings",
+        "RouteName": "appsettings"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "appsettings",
+        "RouteName": "appsettings"
+      }
+    ]
+  },
+  {
+    "Id": 404,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "AR",
+        "RouteName": "ar"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "AR",
+        "RouteName": "ar"
+      }
+    ]
+  },
+  {
+    "Id": 355,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "arrays",
+        "RouteName": "arrays"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "pole",
+        "RouteName": "pole"
+      }
+    ]
+  },
+  {
+    "Id": 16,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "assets",
+        "RouteName": "assets"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "assets",
+        "RouteName": "assets"
+      }
+    ]
+  },
+  {
+    "Id": 52,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Azure",
+        "RouteName": "azure"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Azure",
+        "RouteName": "azure"
+      }
+    ]
+  },
+  {
+    "Id": 476,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Azure CDN",
+        "RouteName": "azure-cdn"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Azure CDN",
+        "RouteName": "azure-cdn"
+      }
+    ]
+  },
+  {
+    "Id": 477,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Azure DevOps",
+        "RouteName": "azure-devops"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Azure DevOps",
+        "RouteName": "azure-devops"
+      }
+    ]
+  },
+  {
+    "Id": 475,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Azure Storage",
+        "RouteName": "azure-storage"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Azure Storage",
+        "RouteName": "azure-storage"
+      }
+    ]
+  },
+  {
+    "Id": 145,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "back",
+        "RouteName": "back"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "zpět",
+        "RouteName": "zpet"
+      }
+    ]
+  },
+  {
+    "Id": 445,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "background",
+        "RouteName": "background"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "pozadí",
+        "RouteName": "pozadi"
+      }
+    ]
+  },
+  {
+    "Id": 45,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "background task",
+        "RouteName": "background-task"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "background task",
+        "RouteName": "background-task"
+      }
+    ]
+  },
+  {
+    "Id": 396,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "background tasks",
+        "RouteName": "background-tasks"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "background tasks",
+        "RouteName": "background-tasks"
+      }
+    ]
+  },
+  {
+    "Id": 447,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "BackgroundSizing",
+        "RouteName": "backgroundsizing"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "BackgroundSizing",
+        "RouteName": "backgroundsizing"
+      }
+    ]
+  },
+  {
+    "Id": 251,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Base64",
+        "RouteName": "base64"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Base64",
+        "RouteName": "base64"
+      }
+    ]
+  },
+  {
+    "Id": 102,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "bcdedit",
+        "RouteName": "bcdedit"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "bcdedit",
+        "RouteName": "bcdedit"
+      }
+    ]
+  },
+  {
+    "Id": 112,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "benchmark",
+        "RouteName": "benchmark"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "benchmark",
+        "RouteName": "benchmark"
+      }
+    ]
+  },
+  {
+    "Id": 120,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "binding",
+        "RouteName": "binding"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "binding",
+        "RouteName": "binding"
+      }
+    ]
+  },
+  {
+    "Id": 389,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "blob",
+        "RouteName": "blob"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "blob",
+        "RouteName": "blob"
+      }
+    ]
+  },
+  {
+    "Id": 377,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "blogs",
+        "RouteName": "blogs"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "blogy",
+        "RouteName": "blogy"
+      }
+    ]
+  },
+  {
+    "Id": 448,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "border",
+        "RouteName": "border"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "border",
+        "RouteName": "border"
+      }
+    ]
+  },
+  {
+    "Id": 95,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Boot entry",
+        "RouteName": "boot-entry"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Boot entry",
+        "RouteName": "boot-entry"
+      }
+    ]
+  },
+  {
+    "Id": 121,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "brackets",
+        "RouteName": "brackets"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "hranaté závorky",
+        "RouteName": "hranate-zavorky"
+      }
+    ]
+  },
+  {
+    "Id": 275,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "broad file access",
+        "RouteName": "broad-file-access"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "broad file access",
+        "RouteName": "broad-file-access"
+      }
+    ]
+  },
+  {
+    "Id": 48,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "bug",
+        "RouteName": "bug"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "bug",
+        "RouteName": "bug"
+      }
+    ]
+  },
+  {
+    "Id": 57,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "C#",
+        "RouteName": "csharp"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "C#",
+        "RouteName": "csharp"
+      }
+    ]
+  },
+  {
+    "Id": 60,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "CommandBar",
+        "RouteName": "commandbar"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "CommandBar",
+        "RouteName": "commandbar"
+      }
+    ]
+  },
+  {
+    "Id": 176,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "colors",
+        "RouteName": "colors"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "barvy",
+        "RouteName": "barvy"
+      }
+    ]
+  },
+  {
+    "Id": 379,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "community",
+        "RouteName": "community"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "komunita",
+        "RouteName": "komunita"
+      }
+    ]
+  },
+  {
+    "Id": 338,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "compiled binding",
+        "RouteName": "compiled-binding"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "compiled binding",
+        "RouteName": "compiled-binding"
+      }
+    ]
+  },
+  {
+    "Id": 232,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "conference",
+        "RouteName": "conference"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "konference",
+        "RouteName": "konference"
+      }
+    ]
+  },
+  {
+    "Id": 53,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Connect 2016",
+        "RouteName": "connect-2016"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Connect 2016",
+        "RouteName": "connect-2016"
+      }
+    ]
+  },
+  {
+    "Id": 150,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "cross-platform",
+        "RouteName": "cross-platform"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "multiplatformní",
+        "RouteName": "multiplatformni"
+      }
+    ]
+  },
+  {
+    "Id": 276,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "console apps",
+        "RouteName": "console-apps"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "konzolové aplikace",
+        "RouteName": "konzolove-aplikace"
+      }
+    ]
+  },
+  {
+    "Id": 418,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "csadvent",
+        "RouteName": "csadvent"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "csadvent",
+        "RouteName": "csadvent"
+      }
+    ]
+  },
+  {
+    "Id": 421,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "CultureInfo",
+        "RouteName": "cultureinfo"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "CultureInfo",
+        "RouteName": "cultureinfo"
+      }
+    ]
+  },
+  {
+    "Id": 10,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "developer",
+        "RouteName": "developer"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "vývojář",
+        "RouteName": "vyvojar"
+      }
+    ]
+  },
+  {
+    "Id": 127,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "designer",
+        "RouteName": "designer"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "designér",
+        "RouteName": "designer"
+      }
+    ]
+  },
+  {
+    "Id": 30,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "desktop",
+        "RouteName": "desktop"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "desktop",
+        "RouteName": "desktop"
+      }
+    ]
+  },
+  {
+    "Id": 128,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "design-time",
+        "RouteName": "design-time"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "design-time",
+        "RouteName": "design-time"
+      }
+    ]
+  },
+  {
+    "Id": 215,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "design mode",
+        "RouteName": "design-mode"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "design mode",
+        "RouteName": "design-mode"
+      }
+    ]
+  },
+  {
+    "Id": 125,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "devices",
+        "RouteName": "devices"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "zařízení",
+        "RouteName": "zarizeni"
+      }
+    ]
+  },
+  {
+    "Id": 363,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "diagnostics",
+        "RouteName": "diagnostics"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "diagnostika",
+        "RouteName": "diagnostika"
+      }
+    ]
+  },
+  {
+    "Id": 398,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "DisplayInformation",
+        "RouteName": "displayinformation"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "DisplayInformation",
+        "RouteName": "displayinformation"
+      }
+    ]
+  },
+  {
+    "Id": 23,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "dll",
+        "RouteName": "dll"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "dll",
+        "RouteName": "dll"
+      }
+    ]
+  },
+  {
+    "Id": 231,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "DevOps",
+        "RouteName": "devops"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "DevOps",
+        "RouteName": "devops"
+      }
+    ]
+  },
+  {
+    "Id": 141,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Device Family",
+        "RouteName": "device-family"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Device Family",
+        "RouteName": "device-family"
+      }
+    ]
+  },
+  {
+    "Id": 89,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "design",
+        "RouteName": "design"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "design",
+        "RouteName": "design"
+      }
+    ]
+  },
+  {
+    "Id": 126,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "definitions",
+        "RouteName": "definitions"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "definice",
+        "RouteName": "definice"
+      }
+    ]
+  },
+  {
+    "Id": 437,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Edge",
+        "RouteName": "edge"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Edge",
+        "RouteName": "edge"
+      }
+    ]
+  },
+  {
+    "Id": 77,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "emoji",
+        "RouteName": "emoji"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "emoji",
+        "RouteName": "emoji"
+      }
+    ]
+  },
+  {
+    "Id": 316,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Entity Framework",
+        "RouteName": "entity-framework"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Entity Framework",
+        "RouteName": "entity-framework"
+      }
+    ]
+  },
+  {
+    "Id": 122,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "error",
+        "RouteName": "error"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "chyba",
+        "RouteName": "chyba"
+      }
+    ]
+  },
+  {
+    "Id": 205,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "enum",
+        "RouteName": "enum"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "výčtový typ",
+        "RouteName": "vyctovy-typ"
+      }
+    ]
+  },
+  {
+    "Id": 499,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "equality",
+        "RouteName": "equality"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "rovnost",
+        "RouteName": "rovnost"
+      }
+    ]
+  },
+  {
+    "Id": 33,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "event",
+        "RouteName": "event"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "událost",
+        "RouteName": "udalost"
+      }
+    ]
+  },
+  {
+    "Id": 221,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Fall Creators Update",
+        "RouteName": "fall-creators-update"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Fall Creators Update",
+        "RouteName": "fall-creators-update"
+      }
+    ]
+  },
+  {
+    "Id": 327,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Fast Renderers",
+        "RouteName": "fast-renderers"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Fast Renderers",
+        "RouteName": "fast-renderers"
+      }
+    ]
+  },
+  {
+    "Id": 51,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Feedback Hub",
+        "RouteName": "feedback-hub"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Feedback Hub",
+        "RouteName": "feedback-hub"
+      }
+    ]
+  },
+  {
+    "Id": 198,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "field",
+        "RouteName": "field"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "datové pole",
+        "RouteName": "datove-pole"
+      }
+    ]
+  },
+  {
+    "Id": 277,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "file system",
+        "RouteName": "file-system"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "souborový systém",
+        "RouteName": "souborovy-system"
+      }
+    ]
+  },
+  {
+    "Id": 498,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Fluent Design",
+        "RouteName": "fluent-design"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Fluent Design",
+        "RouteName": "fluent-design"
+      }
+    ]
+  },
+  {
+    "Id": 70,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "fluent API",
+        "RouteName": "fluent-api"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "fluent API",
+        "RouteName": "fluent-api"
+      }
+    ]
+  },
+  {
+    "Id": 304,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Fluent Design System",
+        "RouteName": "fluent-design-system"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Fluent Design System",
+        "RouteName": "fluent-design-system"
+      }
+    ]
+  },
+  {
+    "Id": 55,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "font",
+        "RouteName": "font"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "font",
+        "RouteName": "font"
+      }
+    ]
+  },
+  {
+    "Id": 356,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "fill",
+        "RouteName": "fill"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "výplň",
+        "RouteName": "vypln"
+      }
+    ]
+  },
+  {
+    "Id": 452,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "files",
+        "RouteName": "files"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "soubory",
+        "RouteName": "soubory"
+      }
+    ]
+  },
+  {
+    "Id": 50,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "feedback",
+        "RouteName": "feedback"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "zpětná vazba",
+        "RouteName": "zpetna-vazba"
+      }
+    ]
+  },
+  {
+    "Id": 285,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Git Fork",
+        "RouteName": "git-fork"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Git Fork",
+        "RouteName": "git-fork"
+      }
+    ]
+  },
+  {
+    "Id": 67,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "generics",
+        "RouteName": "generics"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "generics",
+        "RouteName": "generics"
+      }
+    ]
+  },
+  {
+    "Id": 196,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "format",
+        "RouteName": "format"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "formát",
+        "RouteName": "format"
+      }
+    ]
+  },
+  {
+    "Id": 491,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "GTK",
+        "RouteName": "gtk"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "GTK",
+        "RouteName": "gtk"
+      }
+    ]
+  },
+  {
+    "Id": 423,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "culture",
+        "RouteName": "culture"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "kultura",
+        "RouteName": "kultura"
+      }
+    ]
+  },
+  {
+    "Id": 428,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "configuration",
+        "RouteName": "configuration"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "konfigurace",
+        "RouteName": "konfigurace"
+      }
+    ]
+  },
+  {
+    "Id": 364,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "debugging",
+        "RouteName": "debugging"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "ladění",
+        "RouteName": "ladeni"
+      }
+    ]
+  },
+  {
+    "Id": 252,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "decoding",
+        "RouteName": "decoding"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "dekódování",
+        "RouteName": "dekodovani"
+      }
+    ]
+  },
+  {
+    "Id": 324,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "deferral",
+        "RouteName": "deferral"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "deferral",
+        "RouteName": "deferral"
+      }
+    ]
+  },
+  {
+    "Id": 393,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "debugger",
+        "RouteName": "debugger"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "debugger",
+        "RouteName": "debugger"
+      }
+    ]
+  },
+  {
+    "Id": 170,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "build definition",
+        "RouteName": "build-definition"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "definice buildu",
+        "RouteName": "definice-buildu"
+      }
+    ]
+  },
+  {
+    "Id": 290,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Build 2018",
+        "RouteName": "build-2018"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Build 2018",
+        "RouteName": "build-2018"
+      }
+    ]
+  },
+  {
+    "Id": 474,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "blank",
+        "RouteName": "blank"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "prázdný",
+        "RouteName": "prazdny"
+      }
+    ]
+  },
+  {
+    "Id": 457,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "book",
+        "RouteName": "book"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "kniha",
+        "RouteName": "kniha"
+      }
+    ]
+  },
+  {
+    "Id": 111,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "bottleneck",
+        "RouteName": "bottleneck"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "úzké hrdlo",
+        "RouteName": "uzke-hrdlo"
+      }
+    ]
+  },
+  {
+    "Id": 164,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "build",
+        "RouteName": "build"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "build",
+        "RouteName": "build"
+      }
+    ]
+  },
+  {
+    "Id": 75,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "builder",
+        "RouteName": "builder"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "builder",
+        "RouteName": "builder"
+      }
+    ]
+  },
+  {
+    "Id": 307,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "burger",
+        "RouteName": "burger"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "burger",
+        "RouteName": "burger"
+      }
+    ]
+  },
+  {
+    "Id": 250,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "byte array",
+        "RouteName": "byte-array"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "byte array",
+        "RouteName": "byte-array"
+      }
+    ]
+  },
+  {
+    "Id": 438,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Chromium",
+        "RouteName": "chromium"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Chromium",
+        "RouteName": "chromium"
+      }
+    ]
+  },
+  {
+    "Id": 494,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "clipboard",
+        "RouteName": "clipboard"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "schránka",
+        "RouteName": "schranka"
+      }
+    ]
+  },
+  {
+    "Id": 115,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "caching",
+        "RouteName": "caching"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "cachování",
+        "RouteName": "cachovani"
+      }
+    ]
+  },
+  {
+    "Id": 266,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "CalendarView",
+        "RouteName": "calendarview"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "CalendarView",
+        "RouteName": "calendarview"
+      }
+    ]
+  },
+  {
+    "Id": 269,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "CalendarViewDayItem",
+        "RouteName": "calendarviewdayitem"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "CalendarViewDayItem",
+        "RouteName": "calendarviewdayitem"
+      }
+    ]
+  },
+  {
+    "Id": 496,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Canvas",
+        "RouteName": "canvas"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Canvas",
+        "RouteName": "canvas"
+      }
+    ]
+  },
+  {
+    "Id": 274,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "multi-instance",
+        "RouteName": "multi-instance"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "multi-instance",
+        "RouteName": "multi-instance"
+      }
+    ]
+  },
+  {
+    "Id": 402,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "MRDevDays",
+        "RouteName": "mrdevdays"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "MRDevDays",
+        "RouteName": "mrdevdays"
+      }
+    ]
+  },
+  {
+    "Id": 405,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "MR",
+        "RouteName": "mr"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "MR",
+        "RouteName": "mr"
+      }
+    ]
+  },
+  {
+    "Id": 463,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "MoPub",
+        "RouteName": "mopub"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "MoPub",
+        "RouteName": "mopub"
+      }
+    ]
+  },
+  {
+    "Id": 312,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "MoPOP",
+        "RouteName": "mopop"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "MoPOP",
+        "RouteName": "mopop"
+      }
+    ]
+  },
+  {
+    "Id": 146,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "navigation",
+        "RouteName": "navigation"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "navigace",
+        "RouteName": "navigace"
+      }
+    ]
+  },
+  {
+    "Id": 24,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "native",
+        "RouteName": "native"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "nativní",
+        "RouteName": "nativni"
+      }
+    ]
+  },
+  {
+    "Id": 299,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "notes",
+        "RouteName": "notes"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "poznámky",
+        "RouteName": "poznamky"
+      }
+    ]
+  },
+  {
+    "Id": 168,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "NuGet",
+        "RouteName": "nuget"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "NuGet",
+        "RouteName": "nuget"
+      }
+    ]
+  },
+  {
+    "Id": 281,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "null",
+        "RouteName": "null"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "null",
+        "RouteName": "null"
+      }
+    ]
+  },
+  {
+    "Id": 358,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "numeric",
+        "RouteName": "numeric"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "číselný",
+        "RouteName": "ciselny"
+      }
+    ]
+  },
+  {
+    "Id": 242,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "NavigationView",
+        "RouteName": "navigationview"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "NavigationView",
+        "RouteName": "navigationview"
+      }
+    ]
+  },
+  {
+    "Id": 129,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "preview",
+        "RouteName": "preview"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "náhled",
+        "RouteName": "nahled"
+      }
+    ]
+  },
+  {
+    "Id": 96,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "PowerShell",
+        "RouteName": "powershell"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "PowerShell",
+        "RouteName": "powershell"
+      }
+    ]
+  },
+  {
+    "Id": 213,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Xamarin.Forms",
+        "RouteName": "xamarin-forms"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Xamarin.Forms",
+        "RouteName": "xamarin-forms"
+      }
+    ]
+  },
+  {
+    "Id": 214,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Xamarin",
+        "RouteName": "xamarin"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Xamarin",
+        "RouteName": "xamarin"
+      }
+    ]
+  },
+  {
+    "Id": 280,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "x:Name",
+        "RouteName": "xname"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "x:Name",
+        "RouteName": "xname"
+      }
+    ]
+  },
+  {
+    "Id": 471,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "x:Bind",
+        "RouteName": "xbind"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "x:Bind",
+        "RouteName": "xbind"
+      }
+    ]
+  },
+  {
+    "Id": 200,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "x:FieldModifier",
+        "RouteName": "xfieldmodifier"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "x:FieldModifier",
+        "RouteName": "xfieldmodifier"
+      }
+    ]
+  },
+  {
+    "Id": 26,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "WPF",
+        "RouteName": "wpf"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "WPF",
+        "RouteName": "wpf"
+      }
+    ]
+  },
+  {
+    "Id": 184,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "workaround",
+        "RouteName": "workaround"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "workaround",
+        "RouteName": "workaround"
+      }
+    ]
+  },
+  {
+    "Id": 500,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "women in tech",
+        "RouteName": "women-in-tech"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "ženy v IT",
+        "RouteName": "zeny-v-it"
+      }
+    ]
+  },
+  {
+    "Id": 473,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "WinUI",
+        "RouteName": "winui"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "WinUI",
+        "RouteName": "winui"
+      }
+    ]
+  },
+  {
+    "Id": 14,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "WinRT",
+        "RouteName": "winrt"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "WinRT",
+        "RouteName": "winrt"
+      }
+    ]
+  },
+  {
+    "Id": 492,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Windows Community Toolkit",
+        "RouteName": "windows-community-toolkit"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Windows Community Toolkit",
+        "RouteName": "windows-community-toolkit"
+      }
+    ]
+  },
+  {
+    "Id": 32,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "XAML",
+        "RouteName": "xaml"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "XAML",
+        "RouteName": "xaml"
+      }
+    ]
+  },
+  {
+    "Id": 124,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "XML",
+        "RouteName": "xml"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "XML",
+        "RouteName": "xml"
+      }
+    ]
+  },
+  {
+    "Id": 470,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Windows 10X",
+        "RouteName": "windows-10x"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Windows 10X",
+        "RouteName": "windows-10x"
+      }
+    ]
+  },
+  {
+    "Id": 9,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Windows 10",
+        "RouteName": "windows-10"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Windows 10",
+        "RouteName": "windows-10"
+      }
+    ]
+  },
+  {
+    "Id": 410,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "WASM",
+        "RouteName": "wasm"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "WASM",
+        "RouteName": "wasm"
+      }
+    ]
+  },
+  {
+    "Id": 415,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "WebAssembly",
+        "RouteName": "webassembly"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "WebAssembly",
+        "RouteName": "webassembly"
+      }
+    ]
+  },
+  {
+    "Id": 94,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Windows",
+        "RouteName": "windows"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Windows",
+        "RouteName": "windows"
+      }
+    ]
+  },
+  {
+    "Id": 461,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Vungle",
+        "RouteName": "vungle"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Vungle",
+        "RouteName": "vungle"
+      }
+    ]
+  },
+  {
+    "Id": 173,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "VSTS",
+        "RouteName": "vsts"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "VSTS",
+        "RouteName": "vsts"
+      }
+    ]
+  },
+  {
+    "Id": 403,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "VR",
+        "RouteName": "vr"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "VR",
+        "RouteName": "vr"
+      }
+    ]
+  },
+  {
+    "Id": 407,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "VM",
+        "RouteName": "vm"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "VM",
+        "RouteName": "vm"
+      }
+    ]
+  },
+  {
+    "Id": 105,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "VisualStateManager",
+        "RouteName": "visualstatemanager"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "VisualStateManager",
+        "RouteName": "visualstatemanager"
+      }
+    ]
+  },
+  {
+    "Id": 21,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Visual Studio",
+        "RouteName": "visual-studio"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Visual Studio",
+        "RouteName": "visual-studio"
+      }
+    ]
+  },
+  {
+    "Id": 270,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "VisualTreeHelper",
+        "RouteName": "visualtreehelper"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "VisualTreeHelper",
+        "RouteName": "visualtreehelper"
+      }
+    ]
+  },
+  {
+    "Id": 197,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "visibility",
+        "RouteName": "visibility"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "viditelnost",
+        "RouteName": "viditelnost"
+      }
+    ]
+  },
+  {
+    "Id": 99,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "VirtualBox",
+        "RouteName": "virtualbox"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "VirtualBox",
+        "RouteName": "virtualbox"
+      }
+    ]
+  },
+  {
+    "Id": 11,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "UWP",
+        "RouteName": "uwp"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "UWP",
+        "RouteName": "uwp"
+      }
+    ]
+  },
+  {
+    "Id": 397,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Uno Platform",
+        "RouteName": "uno-platform"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Uno Platform",
+        "RouteName": "uno-platform"
+      }
+    ]
+  },
+  {
+    "Id": 373,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Uno",
+        "RouteName": "uno"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Uno",
+        "RouteName": "uno"
+      }
+    ]
+  },
+  {
+    "Id": 487,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "UnoConf",
+        "RouteName": "unoconf"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "UnoConf",
+        "RouteName": "unoconf"
+      }
+    ]
+  },
+  {
+    "Id": 228,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "artificial intelligence",
+        "RouteName": "artificial-intelligence"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "umělá inteligence",
+        "RouteName": "umela-inteligence"
+      }
+    ]
+  },
+  {
+    "Id": 90,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "UI",
+        "RouteName": "ui"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "UI",
+        "RouteName": "ui"
+      }
+    ]
+  },
+  {
+    "Id": 374,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "toolkit",
+        "RouteName": "toolkit"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "toolkit",
+        "RouteName": "toolkit"
+      }
+    ]
+  },
+  {
+    "Id": 72,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "tip",
+        "RouteName": "tip"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "tip",
+        "RouteName": "tip"
+      }
+    ]
+  },
+  {
+    "Id": 46,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "timer",
+        "RouteName": "timer"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "časovač",
+        "RouteName": "casovac"
+      }
+    ]
+  },
+  {
+    "Id": 289,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Thumb",
+        "RouteName": "thumb"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Thumb",
+        "RouteName": "thumb"
+      }
+    ]
+  },
+  {
+    "Id": 360,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "TextBox",
+        "RouteName": "textbox"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "TextBox",
+        "RouteName": "textbox"
+      }
+    ]
+  },
+  {
+    "Id": 349,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Unity",
+        "RouteName": "unity"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Unity",
+        "RouteName": "unity"
+      }
+    ]
+  },
+  {
+    "Id": 80,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Unicode",
+        "RouteName": "unicode"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Unicode",
+        "RouteName": "unicode"
+      }
+    ]
+  },
+  {
+    "Id": 83,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "universal",
+        "RouteName": "universal"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "univerzální",
+        "RouteName": "univerzalni"
+      }
+    ]
+  },
+  {
+    "Id": 390,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Universal Windows Platform",
+        "RouteName": "universal-windows-platform"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Univerzální Platforma Windows",
+        "RouteName": "univerzalni-platforma-windows"
+      }
+    ]
+  },
+  {
+    "Id": 222,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "splash screen",
+        "RouteName": "splash-screen"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "splash screen",
+        "RouteName": "splash-screen"
+      }
+    ]
+  },
+  {
+    "Id": 319,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "SerializationException",
+        "RouteName": "serializationexception"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "SerializationException",
+        "RouteName": "serializationexception"
+      }
+    ]
+  },
+  {
+    "Id": 321,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Resources",
+        "RouteName": "resources"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Resources",
+        "RouteName": "resources"
+      }
+    ]
+  },
+  {
+    "Id": 236,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "capabilities",
+        "RouteName": "capabilities"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "capabilities",
+        "RouteName": "capabilities"
+      }
+    ]
+  },
+  {
+    "Id": 339,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Chinese",
+        "RouteName": "chinese"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "čínština",
+        "RouteName": "cinstina"
+      }
+    ]
+  },
+  {
+    "Id": 68,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Builder design pattern",
+        "RouteName": "builder-design-pattern"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "návrhový vzor Builder",
+        "RouteName": "navrhovy-vzor-builder"
+      }
+    ]
+  },
+  {
+    "Id": 229,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "cloud",
+        "RouteName": "cloud"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "cloud",
+        "RouteName": "cloud"
+      }
+    ]
+  },
+  {
+    "Id": 97,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "CMD",
+        "RouteName": "cmd"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "CMD",
+        "RouteName": "cmd"
+      }
+    ]
+  },
+  {
+    "Id": 199,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "code generation",
+        "RouteName": "code-generation"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "generování kódu",
+        "RouteName": "generovani-kodu"
+      }
+    ]
+  },
+  {
+    "Id": 179,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "ColorAnimation",
+        "RouteName": "coloranimation"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "ColorAnimation",
+        "RouteName": "coloranimation"
+      }
+    ]
+  },
+  {
+    "Id": 426,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "configuration",
+        "RouteName": "configuration"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "konfigurace",
+        "RouteName": "konfigurace"
+      }
+    ]
+  },
+  {
+    "Id": 369,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "consent",
+        "RouteName": "consent"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "consent",
+        "RouteName": "consent"
+      }
+    ]
+  },
+  {
+    "Id": 243,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "control",
+        "RouteName": "control"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "control",
+        "RouteName": "control"
+      }
+    ]
+  },
+  {
+    "Id": 224,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "connection",
+        "RouteName": "connection"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "připojení",
+        "RouteName": "pripojeni"
+      }
+    ]
+  },
+  {
+    "Id": 69,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "curiously recurring template pattern",
+        "RouteName": "curiously-recurring-template-pattern"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "curiously recurring template pattern",
+        "RouteName": "curiously-recurring-template-pattern"
+      }
+    ]
+  },
+  {
+    "Id": 56,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "custom",
+        "RouteName": "custom"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "vlastní",
+        "RouteName": "vlastni"
+      }
+    ]
+  },
+  {
+    "Id": 268,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "customization",
+        "RouteName": "customization"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "přizpůsobení",
+        "RouteName": "prizbusobeni"
+      }
+    ]
+  },
+  {
+    "Id": 330,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "data binding",
+        "RouteName": "data-binding"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "data binding",
+        "RouteName": "data-binding"
+      }
+    ]
+  },
+  {
+    "Id": 185,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "DataTemplate",
+        "RouteName": "datatemplate"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "DataTemplate",
+        "RouteName": "datatemplate"
+      }
+    ]
+  },
+  {
+    "Id": 322,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "custom renderer",
+        "RouteName": "custom-renderer"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "custom renderer",
+        "RouteName": "custom-renderer"
+      }
+    ]
+  },
+  {
+    "Id": 325,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "close",
+        "RouteName": "close"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "zavřít",
+        "RouteName": "zavrit"
+      }
+    ]
+  },
+  {
+    "Id": 454,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "dual-screen",
+        "RouteName": "dual-screen"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "dual-screen",
+        "RouteName": "dual-screen"
+      }
+    ]
+  },
+  {
+    "Id": 100,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "dual boot",
+        "RouteName": "dual-boot"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "dual boot",
+        "RouteName": "dual-boot"
+      }
+    ]
+  },
+  {
+    "Id": 64,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "dynamic overflow",
+        "RouteName": "dynamic-overflow"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "dynamic overflow",
+        "RouteName": "dynamic-overflow"
+      }
+    ]
+  },
+  {
+    "Id": 313,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "debug",
+        "RouteName": "debug"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "debug",
+        "RouteName": "debug"
+      }
+    ]
+  },
+  {
+    "Id": 472,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "data",
+        "RouteName": "data"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "data",
+        "RouteName": "data"
+      }
+    ]
+  },
+  {
+    "Id": 282,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Git",
+        "RouteName": "git"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Git",
+        "RouteName": "git"
+      }
+    ]
+  },
+  {
+    "Id": 284,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "GitHub",
+        "RouteName": "github"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "GitHub",
+        "RouteName": "github"
+      }
+    ]
+  },
+  {
+    "Id": 47,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "gotcha",
+        "RouteName": "gotcha"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "gotcha",
+        "RouteName": "gotcha"
+      }
+    ]
+  },
+  {
+    "Id": 387,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Grid",
+        "RouteName": "grid"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Grid",
+        "RouteName": "grid"
+      }
+    ]
+  },
+  {
+    "Id": 244,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "hamburger menu",
+        "RouteName": "hamburger-menu"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "hamburger menu",
+        "RouteName": "hamburger-menu"
+      }
+    ]
+  },
+  {
+    "Id": 486,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "highlight",
+        "RouteName": "highlight"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "zvýraznění",
+        "RouteName": "zvyrazneni"
+      }
+    ]
+  },
+  {
+    "Id": 495,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "history",
+        "RouteName": "history"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "historie",
+        "RouteName": "historie"
+      }
+    ]
+  },
+  {
+    "Id": 310,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "HoloLens",
+        "RouteName": "hololens"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "HoloLens",
+        "RouteName": "hololens"
+      }
+    ]
+  },
+  {
+    "Id": 98,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Hyper-V",
+        "RouteName": "hyper-v"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Hyper-V",
+        "RouteName": "hyper-v"
+      }
+    ]
+  },
+  {
+    "Id": 308,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "ice cream",
+        "RouteName": "ice-cream"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "zmrzlina",
+        "RouteName": "zmrzlina"
+      }
+    ]
+  },
+  {
+    "Id": 333,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "iconography",
+        "RouteName": "iconography"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "ikonografie",
+        "RouteName": "ikonografie"
+      }
+    ]
+  },
+  {
+    "Id": 15,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "icons",
+        "RouteName": "icons"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "ikony",
+        "RouteName": "ikony"
+      }
+    ]
+  },
+  {
+    "Id": 249,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "image",
+        "RouteName": "image"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "obrázek",
+        "RouteName": "obrazek"
+      }
+    ]
+  },
+  {
+    "Id": 412,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "GeoJSON",
+        "RouteName": "geojson"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "GeoJSON",
+        "RouteName": "geojson"
+      }
+    ]
+  },
+  {
+    "Id": 294,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Geocaching",
+        "RouteName": "geocaching"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Geocaching",
+        "RouteName": "geocaching"
+      }
+    ]
+  },
+  {
+    "Id": 233,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "intelligent",
+        "RouteName": "intelligent"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "inteligentní",
+        "RouteName": "inteligentni"
+      }
+    ]
+  },
+  {
+    "Id": 485,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "IntelliSense",
+        "RouteName": "intellisense"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "IntelliSense",
+        "RouteName": "intellisense"
+      }
+    ]
+  },
+  {
+    "Id": 311,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Marvel",
+        "RouteName": "marvel"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Marvel",
+        "RouteName": "marvel"
+      }
+    ]
+  },
+  {
+    "Id": 13,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Microsoft",
+        "RouteName": "microsoft"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Microsoft",
+        "RouteName": "microsoft"
+      }
+    ]
+  },
+  {
+    "Id": 383,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "markup extension",
+        "RouteName": "markup-extension"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "markup extension",
+        "RouteName": "markup-extension"
+      }
+    ]
+  },
+  {
+    "Id": 302,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Microsoft 365",
+        "RouteName": "microsoft-365"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Microsoft 365",
+        "RouteName": "microsoft-365"
+      }
+    ]
+  },
+  {
+    "Id": 401,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "mixed reality",
+        "RouteName": "mixed-reality"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "mixed reality",
+        "RouteName": "mixed-reality"
+      }
+    ]
+  },
+  {
+    "Id": 490,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "macOS",
+        "RouteName": "macos"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "macOS",
+        "RouteName": "macos"
+      }
+    ]
+  },
+  {
+    "Id": 149,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "mobile",
+        "RouteName": "mobile"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "mobilní",
+        "RouteName": "mobilni"
+      }
+    ]
+  },
+  {
+    "Id": 386,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "mobile app",
+        "RouteName": "mobile-app"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "mobilní aplikace",
+        "RouteName": "mobilni-aplikace"
+      }
+    ]
+  },
+  {
+    "Id": 79,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "modification",
+        "RouteName": "modification"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "modifikace",
+        "RouteName": "modifikace"
+      }
+    ]
+  },
+  {
+    "Id": 42,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "MVA",
+        "RouteName": "mva"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "MVA",
+        "RouteName": "mva"
+      }
+    ]
+  },
+  {
+    "Id": 459,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "MVP",
+        "RouteName": "mvp"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "MVP",
+        "RouteName": "mvp"
+      }
+    ]
+  },
+  {
+    "Id": 329,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "MVVM",
+        "RouteName": "mvvm"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "MVVM",
+        "RouteName": "mvvm"
+      }
+    ]
+  },
+  {
+    "Id": 144,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "MvvmCross",
+        "RouteName": "mvvmcross"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "MvvmCross",
+        "RouteName": "mvvmcross"
+      }
+    ]
+  },
+  {
+    "Id": 241,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "mouse",
+        "RouteName": "mouse"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "myš",
+        "RouteName": "mys"
+      }
+    ]
+  },
+  {
+    "Id": 483,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "mystery",
+        "RouteName": "mystery"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "záhada",
+        "RouteName": "zahada"
+      }
+    ]
+  },
+  {
+    "Id": 159,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "MissingManifestResourceException",
+        "RouteName": "missingmanifestresourceexception"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "MissingManifestResourceException",
+        "RouteName": "missingmanifestresourceexception"
+      }
+    ]
+  },
+  {
+    "Id": 303,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Office",
+        "RouteName": "office"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Office",
+        "RouteName": "office"
+      }
+    ]
+  },
+  {
+    "Id": 385,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "markup",
+        "RouteName": "markup"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "markup",
+        "RouteName": "markup"
+      }
+    ]
+  },
+  {
+    "Id": 413,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "map",
+        "RouteName": "map"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "mapa",
+        "RouteName": "mapa"
+      }
+    ]
+  },
+  {
+    "Id": 380,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "open-source",
+        "RouteName": "open-source"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "open-source",
+        "RouteName": "open-source"
+      }
+    ]
+  },
+  {
+    "Id": 441,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "manifest",
+        "RouteName": "manifest"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "manifest",
+        "RouteName": "manifest"
+      }
+    ]
+  },
+  {
+    "Id": 156,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "localization",
+        "RouteName": "localization"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "lokalizace",
+        "RouteName": "lokalizace"
+      }
+    ]
+  },
+  {
+    "Id": 345,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "operator",
+        "RouteName": "operator"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "operátor",
+        "RouteName": "operator"
+      }
+    ]
+  },
+  {
+    "Id": 362,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "logging",
+        "RouteName": "logging"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "logování",
+        "RouteName": "logovani"
+      }
+    ]
+  },
+  {
+    "Id": 344,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "parentheses",
+        "RouteName": "parentheses"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "závorky",
+        "RouteName": "zavorky"
+      }
+    ]
+  },
+  {
+    "Id": 351,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "pattern",
+        "RouteName": "pattern"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "vzor",
+        "RouteName": "vzor"
+      }
+    ]
+  },
+  {
+    "Id": 110,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "performance",
+        "RouteName": "performance"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "výkon",
+        "RouteName": "vykon"
+      }
+    ]
+  },
+  {
+    "Id": 368,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "permissions",
+        "RouteName": "permissions"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "oprávnění",
+        "RouteName": "opravneni"
+      }
+    ]
+  },
+  {
+    "Id": 376,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "podcast",
+        "RouteName": "podcast"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "podcast",
+        "RouteName": "podcast"
+      }
+    ]
+  },
+  {
+    "Id": 148,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "presentation hint",
+        "RouteName": "presentation-hint"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "presentation hint",
+        "RouteName": "presentation-hint"
+      }
+    ]
+  },
+  {
+    "Id": 343,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "precedence",
+        "RouteName": "precedence"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "precedence",
+        "RouteName": "precedence"
+      }
+    ]
+  },
+  {
+    "Id": 216,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "previewer",
+        "RouteName": "previewer"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "previewer",
+        "RouteName": "previewer"
+      }
+    ]
+  },
+  {
+    "Id": 346,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "priority",
+        "RouteName": "priority"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "priorita",
+        "RouteName": "priorita"
+      }
+    ]
+  },
+  {
+    "Id": 37,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "productivity",
+        "RouteName": "productivity"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "produktivita",
+        "RouteName": "produktivita"
+      }
+    ]
+  },
+  {
+    "Id": 167,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "project",
+        "RouteName": "project"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "projekt",
+        "RouteName": "projekt"
+      }
+    ]
+  },
+  {
+    "Id": 193,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "projects",
+        "RouteName": "projects"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "projekty",
+        "RouteName": "projekty"
+      }
+    ]
+  },
+  {
+    "Id": 464,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Pubfinity",
+        "RouteName": "pubfinity"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Pubfinity",
+        "RouteName": "pubfinity"
+      }
+    ]
+  },
+  {
+    "Id": 442,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "publishing",
+        "RouteName": "publishing"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "publikace",
+        "RouteName": "publikace"
+      }
+    ]
+  },
+  {
+    "Id": 417,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "puzzle",
+        "RouteName": "puzzle"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "hádanka",
+        "RouteName": "hadanka"
+      }
+    ]
+  },
+  {
+    "Id": 123,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "quick fix",
+        "RouteName": "quick-fix"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "quick fix",
+        "RouteName": "quick-fix"
+      }
+    ]
+  },
+  {
+    "Id": 220,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "referencing",
+        "RouteName": "referencing"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "referencing",
+        "RouteName": "referencing"
+      }
+    ]
+  },
+  {
+    "Id": 479,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Reactive",
+        "RouteName": "reactive"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Reactive",
+        "RouteName": "reactive"
+      }
+    ]
+  },
+  {
+    "Id": 293,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "registration",
+        "RouteName": "registration"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "registrace",
+        "RouteName": "registrace"
+      }
+    ]
+  },
+  {
+    "Id": 259,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "reinstall",
+        "RouteName": "reinstall"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "reinstalace",
+        "RouteName": "reinstalace"
+      }
+    ]
+  },
+  {
+    "Id": 36,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "ReSharper",
+        "RouteName": "resharper"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "ReSharper",
+        "RouteName": "resharper"
+      }
+    ]
+  },
+  {
+    "Id": 191,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "packages",
+        "RouteName": "packages"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "balíčky",
+        "RouteName": "balicky"
+      }
+    ]
+  },
+  {
+    "Id": 192,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "PackageReference",
+        "RouteName": "packagereference"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "PackageReference",
+        "RouteName": "packagereference"
+      }
+    ]
+  },
+  {
+    "Id": 262,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "package manager",
+        "RouteName": "package-manager"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "správce balíčků",
+        "RouteName": "spravce-balicku"
+      }
+    ]
+  },
+  {
+    "Id": 223,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "optional",
+        "RouteName": "optional"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "volitelný",
+        "RouteName": "volitelny"
+      }
+    ]
+  },
+  {
+    "Id": 82,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "portable",
+        "RouteName": "portable"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "portable",
+        "RouteName": "portable"
+      }
+    ]
+  },
+  {
+    "Id": 160,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "PCL",
+        "RouteName": "pcl"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "PCL",
+        "RouteName": "pcl"
+      }
+    ]
+  },
+  {
+    "Id": 162,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "resouces",
+        "RouteName": "resouces"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "resouces",
+        "RouteName": "resouces"
+      }
+    ]
+  },
+  {
+    "Id": 189,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "resource",
+        "RouteName": "resource"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "resource",
+        "RouteName": "resource"
+      }
+    ]
+  },
+  {
+    "Id": 395,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "resume",
+        "RouteName": "resume"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "resume",
+        "RouteName": "resume"
+      }
+    ]
+  },
+  {
+    "Id": 157,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "RESX",
+        "RouteName": "resx"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "RESX",
+        "RouteName": "resx"
+      }
+    ]
+  },
+  {
+    "Id": 416,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "riddle",
+        "RouteName": "riddle"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "hádanka",
+        "RouteName": "hadanka"
+      }
+    ]
+  },
+  {
+    "Id": 493,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Prism",
+        "RouteName": "prism"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Prism",
+        "RouteName": "prism"
+      }
+    ]
+  },
+  {
+    "Id": 267,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "controls",
+        "RouteName": "controls"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "ovládací prvky",
+        "RouteName": "ovladaci-prvky"
+      }
+    ]
+  },
+  {
+    "Id": 382,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "extension",
+        "RouteName": "extension"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "rozšíření",
+        "RouteName": "rozsireni"
+      }
+    ]
+  },
+  {
+    "Id": 17,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "images",
+        "RouteName": "images"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "obrázky",
+        "RouteName": "obrazky"
+      }
+    ]
+  },
+  {
+    "Id": 210,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "inconsistency",
+        "RouteName": "inconsistency"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "nekonzistence",
+        "RouteName": "nekonzistence"
+      }
+    ]
+  },
+  {
+    "Id": 71,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "inheritance",
+        "RouteName": "inheritance"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "dědičnost",
+        "RouteName": "dedicnost"
+      }
+    ]
+  },
+  {
+    "Id": 29,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "input",
+        "RouteName": "input"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "vstup",
+        "RouteName": "vstup"
+      }
+    ]
+  },
+  {
+    "Id": 234,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "injection",
+        "RouteName": "injection"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "injection",
+        "RouteName": "injection"
+      }
+    ]
+  },
+  {
+    "Id": 502,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "inclusive",
+        "RouteName": "inclusive"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "inkluzivní",
+        "RouteName": "inkluzivni"
+      }
+    ]
+  },
+  {
+    "Id": 109,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "invalid",
+        "RouteName": "invalid"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "invalid",
+        "RouteName": "invalid"
+      }
+    ]
+  },
+  {
+    "Id": 254,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "iOS",
+        "RouteName": "ios"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "iOS",
+        "RouteName": "ios"
+      }
+    ]
+  },
+  {
+    "Id": 190,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "item template",
+        "RouteName": "item-template"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "item template",
+        "RouteName": "item-template"
+      }
+    ]
+  },
+  {
+    "Id": 481,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "ImageAsset",
+        "RouteName": "imageasset"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "ImageAsset",
+        "RouteName": "imageasset"
+      }
+    ]
+  },
+  {
+    "Id": 422,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "invariant",
+        "RouteName": "invariant"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "invariant",
+        "RouteName": "invariant"
+      }
+    ]
+  },
+  {
+    "Id": 440,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "JavaScript",
+        "RouteName": "javascript"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "JavaScript",
+        "RouteName": "javascript"
+      }
+    ]
+  },
+  {
+    "Id": 411,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "JSON",
+        "RouteName": "json"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "JSON",
+        "RouteName": "json"
+      }
+    ]
+  },
+  {
+    "Id": 28,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "keyboard",
+        "RouteName": "keyboard"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "klávesnice",
+        "RouteName": "klavesnice"
+      }
+    ]
+  },
+  {
+    "Id": 300,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "keynote",
+        "RouteName": "keynote"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "keynote",
+        "RouteName": "keynote"
+      }
+    ]
+  },
+  {
+    "Id": 204,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "KeyState",
+        "RouteName": "keystate"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "KeyState",
+        "RouteName": "keystate"
+      }
+    ]
+  },
+  {
+    "Id": 35,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "keyboard shortcut",
+        "RouteName": "keyboard-shortcut"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "klávesová zkratka",
+        "RouteName": "klavesova-zkratka"
+      }
+    ]
+  },
+  {
+    "Id": 113,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "settings",
+        "RouteName": "settings"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "nastavení",
+        "RouteName": "nastaveni"
+      }
+    ]
+  },
+  {
+    "Id": 350,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "singleton",
+        "RouteName": "singleton"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "singleton",
+        "RouteName": "singleton"
+      }
+    ]
+  },
+  {
+    "Id": 78,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "skin tone",
+        "RouteName": "skin-tone"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "barva pleti",
+        "RouteName": "barva-pleti"
+      }
+    ]
+  },
+  {
+    "Id": 489,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "SkiaSharp",
+        "RouteName": "skiasharp"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "SkiaSharp",
+        "RouteName": "skiasharp"
+      }
+    ]
+  },
+  {
+    "Id": 140,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "State Triggers",
+        "RouteName": "state-triggers"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "State Triggers",
+        "RouteName": "state-triggers"
+      }
+    ]
+  },
+  {
+    "Id": 22,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "SQLite",
+        "RouteName": "sqlite"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "SQLite",
+        "RouteName": "sqlite"
+      }
+    ]
+  },
+  {
+    "Id": 143,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "state trigger",
+        "RouteName": "state-trigger"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "state trigger",
+        "RouteName": "state-trigger"
+      }
+    ]
+  },
+  {
+    "Id": 450,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "StorageFile",
+        "RouteName": "storagefile"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "StorageFile",
+        "RouteName": "storagefile"
+      }
+    ]
+  },
+  {
+    "Id": 451,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "stream",
+        "RouteName": "stream"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "stream",
+        "RouteName": "stream"
+      }
+    ]
+  },
+  {
+    "Id": 183,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Storyboard",
+        "RouteName": "storyboard"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Storyboard",
+        "RouteName": "storyboard"
+      }
+    ]
+  },
+  {
+    "Id": 136,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "stretch",
+        "RouteName": "stretch"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "stretch",
+        "RouteName": "stretch"
+      }
+    ]
+  },
+  {
+    "Id": 328,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "string interpolation",
+        "RouteName": "string-interpolation"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "string interpolation",
+        "RouteName": "string-interpolation"
+      }
+    ]
+  },
+  {
+    "Id": 456,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Surface Duo",
+        "RouteName": "surface-duo"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Surface Duo",
+        "RouteName": "surface-duo"
+      }
+    ]
+  },
+  {
+    "Id": 468,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Surface Neo",
+        "RouteName": "surface-neo"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Surface Neo",
+        "RouteName": "surface-neo"
+      }
+    ]
+  },
+  {
+    "Id": 394,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "suspension",
+        "RouteName": "suspension"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "suspension",
+        "RouteName": "suspension"
+      }
+    ]
+  },
+  {
+    "Id": 286,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Team Explorer",
+        "RouteName": "team-explorer"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Team Explorer",
+        "RouteName": "team-explorer"
+      }
+    ]
+  },
+  {
+    "Id": 165,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Team Services",
+        "RouteName": "team-services"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Team Services",
+        "RouteName": "team-services"
+      }
+    ]
+  },
+  {
+    "Id": 501,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "tech for everyone",
+        "RouteName": "tech-for-everyone"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "IT pro všechny",
+        "RouteName": "it-pro-vsechny"
+      }
+    ]
+  },
+  {
+    "Id": 175,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "team project",
+        "RouteName": "team-project"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "týmový projekt",
+        "RouteName": "tymovy-projekt"
+      }
+    ]
+  },
+  {
+    "Id": 166,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "team",
+        "RouteName": "team"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "tým",
+        "RouteName": "tym"
+      }
+    ]
+  },
+  {
+    "Id": 41,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "technology",
+        "RouteName": "technology"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "technologie",
+        "RouteName": "technologie"
+      }
+    ]
+  },
+  {
+    "Id": 245,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "template",
+        "RouteName": "template"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "šablona",
+        "RouteName": "sablona"
+      }
+    ]
+  },
+  {
+    "Id": 432,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "terminal",
+        "RouteName": "terminal"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "terminál",
+        "RouteName": "terminal"
+      }
+    ]
+  },
+  {
+    "Id": 88,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "theme",
+        "RouteName": "theme"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "motiv",
+        "RouteName": "motiv"
+      }
+    ]
+  },
+  {
+    "Id": 18,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "tile",
+        "RouteName": "tile"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "dlaždice",
+        "RouteName": "dlazdice"
+      }
+    ]
+  },
+  {
+    "Id": 178,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "transparency",
+        "RouteName": "transparency"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "průhlednost",
+        "RouteName": "pruhlednost"
+      }
+    ]
+  },
+  {
+    "Id": 27,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "touch",
+        "RouteName": "touch"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "dotyk",
+        "RouteName": "dotyk"
+      }
+    ]
+  },
+  {
+    "Id": 292,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "travels",
+        "RouteName": "travels"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "cestování",
+        "RouteName": "cestovani"
+      }
+    ]
+  },
+  {
+    "Id": 76,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "trik",
+        "RouteName": "trik"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "trick",
+        "RouteName": "trick"
+      }
+    ]
+  },
+  {
+    "Id": 261,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "update",
+        "RouteName": "update"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "aktualizace",
+        "RouteName": "aktualizace"
+      }
+    ]
+  },
+  {
+    "Id": 283,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "upstream",
+        "RouteName": "upstream"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "upstream",
+        "RouteName": "upstream"
+      }
+    ]
+  },
+  {
+    "Id": 435,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "usability",
+        "RouteName": "usability"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "použitelnost",
+        "RouteName": "pouzitelnost"
+      }
+    ]
+  },
+  {
+    "Id": 378,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "videos",
+        "RouteName": "videos"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "videa",
+        "RouteName": "videa"
+      }
+    ]
+  },
+  {
+    "Id": 147,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "view presenter",
+        "RouteName": "view-presenter"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "view presenter",
+        "RouteName": "view-presenter"
+      }
+    ]
+  },
+  {
+    "Id": 107,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "visual state",
+        "RouteName": "visual-state"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "visual state",
+        "RouteName": "visual-state"
+      }
+    ]
+  },
+  {
+    "Id": 63,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "visual states",
+        "RouteName": "visual-states"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "visual states",
+        "RouteName": "visual-states"
+      }
+    ]
+  },
+  {
+    "Id": 467,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Surface",
+        "RouteName": "surface"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Surface",
+        "RouteName": "surface"
+      }
+    ]
+  },
+  {
+    "Id": 388,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "storage",
+        "RouteName": "storage"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "storage",
+        "RouteName": "storage"
+      }
+    ]
+  },
+  {
+    "Id": 443,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "store",
+        "RouteName": "store"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "store",
+        "RouteName": "store"
+      }
+    ]
+  },
+  {
+    "Id": 246,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "style",
+        "RouteName": "style"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "style",
+        "RouteName": "style"
+      }
+    ]
+  },
+  {
+    "Id": 287,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "styles",
+        "RouteName": "styles"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "styly",
+        "RouteName": "styly"
+      }
+    ]
+  },
+  {
+    "Id": 419,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "string",
+        "RouteName": "string"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "řetězec",
+        "RouteName": "retezec"
+      }
+    ]
+  },
+  {
+    "Id": 62,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "templates",
+        "RouteName": "templates"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "šablony",
+        "RouteName": "sablony"
+      }
+    ]
+  },
+  {
+    "Id": 334,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "taskbar",
+        "RouteName": "taskbar"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "taskbar",
+        "RouteName": "taskbar"
+      }
+    ]
+  },
+  {
+    "Id": 433,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "wt",
+        "RouteName": "wt"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "wt",
+        "RouteName": "wt"
+      }
+    ]
+  },
+  {
+    "Id": 406,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "XR",
+        "RouteName": "xr"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "XR",
+        "RouteName": "xr"
+      }
+    ]
+  },
+  {
+    "Id": 158,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "issue",
+        "RouteName": "issue"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "issue",
+        "RouteName": "issue"
+      }
+    ]
+  },
+  {
+    "Id": 482,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "icon",
+        "RouteName": "icon"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "ikona",
+        "RouteName": "ikona"
+      }
+    ]
+  },
+  {
+    "Id": 298,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "diary",
+        "RouteName": "diary"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "diář",
+        "RouteName": "diar"
+      }
+    ]
+  },
+  {
+    "Id": 420,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "culture",
+        "RouteName": "culture"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "kultura",
+        "RouteName": "kultura"
+      }
+    ]
+  },
+  {
+    "Id": 323,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "confirmation",
+        "RouteName": "confirmation"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "potvrzení",
+        "RouteName": "potvrzeni"
+      }
+    ]
+  },
+  {
+    "Id": 209,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "label",
+        "RouteName": "label"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "popisek",
+        "RouteName": "popisek"
+      }
+    ]
+  },
+  {
+    "Id": 375,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "libraries",
+        "RouteName": "libraries"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "knihovny",
+        "RouteName": "knihovny"
+      }
+    ]
+  },
+  {
+    "Id": 40,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "learning",
+        "RouteName": "learning"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "učení",
+        "RouteName": "uceni"
+      }
+    ]
+  },
+  {
+    "Id": 309,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "lightning talk",
+        "RouteName": "lightning-talk"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "lightning talk",
+        "RouteName": "lightning-talk"
+      }
+    ]
+  },
+  {
+    "Id": 332,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "light",
+        "RouteName": "light"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "světlo",
+        "RouteName": "svetlo"
+      }
+    ]
+  },
+  {
+    "Id": 488,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Linux",
+        "RouteName": "linux"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Linux",
+        "RouteName": "linux"
+      }
+    ]
+  },
+  {
+    "Id": 135,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "lists",
+        "RouteName": "lists"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "seznamy",
+        "RouteName": "seznamy"
+      }
+    ]
+  },
+  {
+    "Id": 320,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "ListView",
+        "RouteName": "listview"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "ListView",
+        "RouteName": "listview"
+      }
+    ]
+  },
+  {
+    "Id": 480,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "live coding",
+        "RouteName": "live-coding"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "live coding",
+        "RouteName": "live-coding"
+      }
+    ]
+  },
+  {
+    "Id": 114,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "optimization",
+        "RouteName": "optimization"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "optimalizace",
+        "RouteName": "optimalizace"
+      }
+    ]
+  },
+  {
+    "Id": 370,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "grant",
+        "RouteName": "grant"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "povolit",
+        "RouteName": "povolit"
+      }
+    ]
+  },
+  {
+    "Id": 326,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "speed",
+        "RouteName": "speed"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "rychlost",
+        "RouteName": "rychlost"
+      }
+    ]
+  },
+  {
+    "Id": 301,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "talks",
+        "RouteName": "talks"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "přednášky",
+        "RouteName": "prednasky"
+      }
+    ]
+  },
+  {
+    "Id": 305,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "timeline",
+        "RouteName": "timeline"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "časová osa",
+        "RouteName": "casova-osa"
+      }
+    ]
+  },
+  {
+    "Id": 399,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "UWP Everywhere",
+        "RouteName": "uwp-everywhere"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "UWP Everywhere",
+        "RouteName": "uwp-everywhere"
+      }
+    ]
+  },
+  {
+    "Id": 381,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Xamarin Month",
+        "RouteName": "xamarin-month"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Xamarin Month",
+        "RouteName": "xamarin-month"
+      }
+    ]
+  },
+  {
+    "Id": 497,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "ZIndex",
+        "RouteName": "zindex"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "ZIndex",
+        "RouteName": "zindex"
+      }
+    ]
+  },
+  {
+    "Id": 484,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "snippet",
+        "RouteName": "snippet"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "snippet",
+        "RouteName": "snippet"
+      }
+    ]
+  },
+  {
+    "Id": 239,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "simulation",
+        "RouteName": "simulation"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "simulace",
+        "RouteName": "simulace"
+      }
+    ]
+  },
+  {
+    "Id": 342,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "shift",
+        "RouteName": "shift"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "shift",
+        "RouteName": "shift"
+      }
+    ]
+  },
+  {
+    "Id": 434,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "shortcut",
+        "RouteName": "shortcut"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "zkratka",
+        "RouteName": "zkratka"
+      }
+    ]
+  },
+  {
+    "Id": 288,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Slider",
+        "RouteName": "slider"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Slider",
+        "RouteName": "slider"
+      }
+    ]
+  },
+  {
+    "Id": 235,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "simulated",
+        "RouteName": "simulated"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "simulovaný",
+        "RouteName": "simulovany"
+      }
+    ]
+  },
+  {
+    "Id": 108,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "setter",
+        "RouteName": "setter"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "setter",
+        "RouteName": "setter"
+      }
+    ]
+  },
+  {
+    "Id": 291,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "Seattle",
+        "RouteName": "seattle"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "Seattle",
+        "RouteName": "seattle"
+      }
+    ]
+  },
+  {
+    "Id": 455,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "SDK",
+        "RouteName": "sdk"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "SDK",
+        "RouteName": "sdk"
+      }
+    ]
+  },
+  {
+    "Id": 384,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "organization",
+        "RouteName": "organization"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "organizace",
+        "RouteName": "organizace"
+      }
+    ]
+  },
+  {
+    "Id": 317,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "solution",
+        "RouteName": "solution"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "řešení",
+        "RouteName": "reseni"
+      }
+    ]
+  },
+  {
+    "Id": 101,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "script",
+        "RouteName": "script"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "skript",
+        "RouteName": "skript"
+      }
+    ]
+  },
+  {
+    "Id": 306,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "sets",
+        "RouteName": "sets"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "sety",
+        "RouteName": "sety"
+      }
+    ]
+  },
+  {
+    "Id": 260,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "force",
+        "RouteName": "force"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "force",
+        "RouteName": "force"
+      }
+    ]
+  },
+  {
+    "Id": 237,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "assistive",
+        "RouteName": "assistive"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "assistive",
+        "RouteName": "assistive"
+      }
+    ]
+  },
+  {
+    "Id": 318,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "binding redirect",
+        "RouteName": "binding-redirect"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "binding redirect",
+        "RouteName": "binding-redirect"
+      }
+    ]
+  },
+  {
+    "Id": 169,
+    "Localizations": [
+      {
+        "LanguageId": 1,
+        "DisplayName": "executable",
+        "RouteName": "executable"
+      },
+      {
+        "LanguageId": 2,
+        "DisplayName": "spustitelný",
+        "RouteName": "spustitelny"
+      }
+    ]
+  }
+]
