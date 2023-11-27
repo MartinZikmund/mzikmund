@@ -25,7 +25,7 @@
 		<PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageVersion Include="ReverseMarkdown" Version="3.25.0" />
 		<PackageVersion Include="System.Text.Json" Version="8.0.0-rc.2.23479.6" />
-		<PackageVersion Include="Microsoft.Extensions.Logging" Version="8.0.0-rc.2.23479.6" />
+		<PackageVersion Include="Microsoft.Extensions.Logging" Version="8.0.0" />
 		<PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
 		<PackageVersion Include="WilderMinds.MetaWeblog" Version="5.1.1" />
 		<PackageVersion Include="X.PagedList.Mvc.Core" Version="8.4.7" />
