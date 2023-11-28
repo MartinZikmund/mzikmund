@@ -55,7 +55,7 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
 		</PackageVersion>
-		<PackageVersion Include="Microsoft.CodeAnalysis.CSharp.CodeStyle" Version="4.8.0-3.final">
+		<PackageVersion Include="Microsoft.CodeAnalysis.CSharp.CodeStyle" Version="4.8.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
 		</PackageVersion>
