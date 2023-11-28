@@ -44,6 +44,7 @@ if (!app.Environment.IsDevelopment())
 }
 else
 {
+	app.UseDeveloperExceptionPage();
 	app.UseSwagger();
 	app.UseSwaggerUI();
 }
@@ -100,7 +101,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 
 	services.AddLocalization(options => options.ResourcesPath = "Resources");
 
-	services.AddControllers(options => options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()))
+	services.AddControllers()
 			.AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
 	services.AddEndpointsApiExplorer();
