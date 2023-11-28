@@ -79,7 +79,7 @@
 		<PackageVersion Include="Uno.Core.Extensions.Logging.Singleton" Version="4.0.1" />
 		<PackageVersion Include="Uno.Extensions.Authentication" Version="3.0.11" />
 		<PackageVersion Include="Uno.Extensions.Authentication.WinUI" Version="3.0.11" />
-		<PackageVersion Include="Microsoft.Identity.Client" Version="4.55.0" />
+		<PackageVersion Include="Microsoft.Identity.Client" Version="4.57.0" />
 		<PackageVersion Include="Uno.Extensions.Authentication.MSAL.WinUI" Version="3.0.11" />
 		<PackageVersion Include="Uno.Extensions.Configuration" Version="3.0.11" />
 		<PackageVersion Include="Uno.Extensions.Hosting" Version="3.0.11" />
