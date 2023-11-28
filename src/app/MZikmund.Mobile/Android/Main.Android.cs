@@ -12,6 +12,7 @@ using Com.Nostra13.Universalimageloader.Core;
 using Microsoft.UI.Xaml.Media;
 
 namespace MZikmund.Droid;
+
 [global::Android.App.ApplicationAttribute(
 	Label = "@string/ApplicationName",
 	Icon = "@mipmap/icon",

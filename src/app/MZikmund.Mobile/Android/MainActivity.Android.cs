@@ -3,8 +3,10 @@ using Android.Content.PM;
 using Android.OS;
 using Android.Views;
 using Android.Widget;
+using Microsoft.Identity.Client;
 
 namespace MZikmund.Droid;
+
 [Activity(
 	MainLauncher = true,
 	ConfigurationChanges = global::Uno.UI.ActivityHelper.AllConfigChanges,
@@ -12,4 +14,9 @@ namespace MZikmund.Droid;
 )]
 public class MainActivity : Microsoft.UI.Xaml.ApplicationActivity
 {
+	protected override void OnActivityResult(int requestCode, Result resultCode, Android.Content.Intent data)
+	{
+		base.OnActivityResult(requestCode, resultCode, data);
+		AuthenticationContinuationHelper.SetAuthenticationContinuationEventArgs(requestCode, resultCode, data);
+	}
 }
