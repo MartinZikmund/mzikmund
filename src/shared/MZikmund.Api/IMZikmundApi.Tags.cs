@@ -14,9 +14,9 @@ public partial interface IMZikmundApi
 
 	[Put("/v1/admin/tags/{tagId}")]
 	[Headers("Authorization: Bearer")]
-	Task<ApiResponse<Tag>> UpdateTagAsync(int tagId, [Body] EditTag tag);
+	Task<ApiResponse<Tag>> UpdateTagAsync(Guid tagId, [Body] EditTag tag);
 
 	[Delete("/v1/admin/tags/{tagId}")]
 	[Headers("Authorization: Bearer")]
-	Task<ApiResponse<object?>> DeleteTagAsync(int tagId);
+	Task<ApiResponse<object?>> DeleteTagAsync(Guid tagId);
 }

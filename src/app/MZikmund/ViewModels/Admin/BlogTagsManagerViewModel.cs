@@ -1,19 +1,13 @@
 ﻿using System.Collections.ObjectModel;
 using MZikmund.Api.Client;
+using MZikmund.DataContracts.Blog;
 using MZikmund.Extensions;
 using MZikmund.Models.Dialogs;
 using MZikmund.Services.Dialogs;
 using MZikmund.Services.Loading;
+using MZikmund.Services.Localization;
 using Newtonsoft.Json;
 using Windows.Storage.Pickers;
-using MZikmund.Services.Localization;
-using MZikmund.DataContracts.Blog;
-using Microsoft.Identity.Client;
-using Microsoft.VisualBasic;
-using System.Diagnostics;
-using System.Net.Http.Headers;
-using Microsoft.Identity.Client.Extensions.Msal;
-using MZikmund.Services.Account;
 
 namespace MZikmund.ViewModels.Admin;
 
@@ -21,18 +15,15 @@ public class TagsManagerViewModel : PageViewModel
 {
 	private readonly IDialogService _dialogService;
 	private readonly ILoadingIndicator _loadingIndicator;
-	private readonly IUserService _userService;
 	private readonly IMZikmundApi _api;
 
 	public TagsManagerViewModel(
 		IMZikmundApi api,
 		IDialogService dialogService,
-		ILoadingIndicator loadingIndicator,
-		IUserService userService)
+		ILoadingIndicator loadingIndicator)
 	{
 		_dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
 		_loadingIndicator = loadingIndicator ?? throw new ArgumentNullException(nameof(loadingIndicator));
-		_userService = userService;
 		_api = api ?? throw new ArgumentNullException(nameof(api));
 	}
 
@@ -42,18 +33,18 @@ public class TagsManagerViewModel : PageViewModel
 
 	public override async void ViewAppeared()
 	{
+		await RefreshListAsync();
+	}
+
+	private async Task RefreshListAsync()
+	{
 		using var loadingScope = _loadingIndicator.BeginLoading();
 		try
 		{
 			//TODO: Refresh collection based on IDs
 			var tags = await _api.GetTagsAsync();
+			Tags.Clear();
 			Tags.AddRange(tags.Content!);
-
-			await _userService.AuthenticateAsync();
-
-			var client = new HttpClient();
-			client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _userService.AccessToken);
-			var result = await client.GetStringAsync("https://localhost:7007/api/v1/test");
 		}
 		catch (Exception ex)
 		{
@@ -66,31 +57,7 @@ public class TagsManagerViewModel : PageViewModel
 
 	public ICommand AddTagCommand => GetOrCreateAsyncCommand(AddTagAsync);
 
-	public ICommand ImportJsonCommand => GetOrCreateAsyncCommand(ImportJsonAsync);
-
-	private async Task ImportJsonAsync()
-	{
-		using var loadingScope = _loadingIndicator.BeginLoading();
-		var picker = new FileOpenPicker();
-		picker.FileTypeFilter.Add(".json");
-		var jsonFile = await picker.PickSingleFileAsync();
-		var jsonContent = await FileIO.ReadTextAsync(jsonFile);
-		var tags = JsonConvert.DeserializeObject<Tag[]>(jsonContent);
-		if (tags == null)
-		{
-			return;
-		}
-
-		for (int i = 0; i < tags.Length; i++)
-		{
-			var tag = tags[i];
-			_loadingIndicator.StatusMessage = $"Adding tag {i + 1} of {tags.Length}";
-			// Ensure tag ID is empty.
-			tag.Id = Guid.Empty;
-
-			await _api.AddTagAsync(tag);
-		}
-	}
+	public ICommand UpdateTagCommand => GetOrCreateAsyncCommand<Tag>(UpdateTagAsync);
 
 	private async Task AddTagAsync()
 	{
@@ -101,44 +68,42 @@ public class TagsManagerViewModel : PageViewModel
 			return;
 		}
 
-		//var apiResponse = await _api.AddTagAsync(new TagDto()
-		//{
-		//	Localizations = new[]
-		//	{
-		//		new TagLocalizationDto()
-		//		{
-		//			DisplayName = "test",
-		//			LanguageId = 1,
-		//			RouteName = "test"
-		//		}
-		//	}
-		//});
+		var apiResponse = await _api.AddTagAsync(new Tag()
+		{
+			DisplayName = viewModel.Tag.DisplayName,
+			RouteName = viewModel.Tag.RouteName,
+		});
+
+		await RefreshListAsync();
 	}
 
-	public async Task UpdateTagAsync(TagViewModel tag)
+	private async Task UpdateTagAsync(Tag? tag)
 	{
-		var viewModel = new AddOrUpdateTagDialogViewModel(tag);
-		var result = await _dialogService.ShowAsync(viewModel);
-		if (result != ContentDialogResult.Primary)
+		if (tag is null)
 		{
 			return;
 		}
 
-		await Task.CompletedTask;
+		var viewModel = new AddOrUpdateTagDialogViewModel(new TagViewModel()
+		{
+			Id = tag.Id,
+			DisplayName = tag.DisplayName,
+			RouteName = tag.RouteName
+		});
+		var result = await _dialogService.ShowAsync(viewModel);
+		if (result == ContentDialogResult.Primary)
+		{
+			var apiResponse = await _api.UpdateTagAsync(tag.Id, new EditTag()
+			{
+				DisplayName = viewModel.Tag.DisplayName,
+				RouteName = viewModel.Tag.RouteName,
+			});
+		}
+		else if (result == ContentDialogResult.Secondary)
+		{
+			var apiResponse = await _api.DeleteTagAsync(tag.Id);
+		}
 
-		// TODO: Update tag via API
-
-		//var apiResponse = await _api.AddTagAsync(new TagDto()
-		//{
-		//	Localizations = new[]
-		//	{
-		//		new TagLocalizationDto()
-		//		{
-		//			DisplayName = "test",
-		//			LanguageId = 1,
-		//			RouteName = "test"
-		//		}
-		//	}
-		//});
+		await RefreshListAsync();
 	}
 }
