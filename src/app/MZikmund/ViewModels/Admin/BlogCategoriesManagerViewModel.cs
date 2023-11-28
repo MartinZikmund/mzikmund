@@ -44,7 +44,7 @@ public class CategoriesManagerViewModel : PageViewModel
 			//TODO: Refresh collection based on IDs
 			var categories = await _api.GetCategoriesAsync();
 			Categories.Clear();
-			Categories.AddRange(categories.Content!);
+			Categories.AddRange(categories.Content!.OrderBy(t => t.DisplayName));
 		}
 		catch (Exception ex)
 		{
@@ -68,6 +68,7 @@ public class CategoriesManagerViewModel : PageViewModel
 			return;
 		}
 
+		using var loadingScope = _loadingIndicator.BeginLoading();
 		var apiResponse = await _api.AddCategoryAsync(new Category()
 		{
 			DisplayName = viewModel.Category.DisplayName,
@@ -91,6 +92,8 @@ public class CategoriesManagerViewModel : PageViewModel
 			RouteName = category.RouteName
 		});
 		var result = await _dialogService.ShowAsync(viewModel);
+
+		using var loadingScope = _loadingIndicator.BeginLoading();
 		if (result == ContentDialogResult.Primary)
 		{
 			var apiResponse = await _api.UpdateCategoryAsync(category.Id, new EditCategory()

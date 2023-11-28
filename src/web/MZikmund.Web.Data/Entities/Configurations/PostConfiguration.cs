@@ -22,7 +22,7 @@ internal sealed class PostConfiguration : IEntityTypeConfiguration<PostEntity>
 				j => j
 					.HasOne(pt => pt.Category)
 					.WithMany()
-					.HasForeignKey(pt => pt.CategoryId),
+					.HasForeignKey(pt => pt.CategoryId), // TODO: Restrict delete
 				j => j
 					.HasOne(pt => pt.Post)
 					.WithMany()
@@ -35,7 +35,7 @@ internal sealed class PostConfiguration : IEntityTypeConfiguration<PostEntity>
 				j => j
 					.HasOne(pt => pt.Tag)
 					.WithMany()
-					.HasForeignKey(pt => pt.TagId),
+					.HasForeignKey(pt => pt.TagId), // TODO: Restrict delete
 				j => j
 					.HasOne(pt => pt.Post)
 					.WithMany()
