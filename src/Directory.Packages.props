@@ -20,6 +20,7 @@
 		<PackageVersion Include="Microsoft.Extensions.Configuration" Version="8.0.0-rc.2.23479.6" />
 		<PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.0" />
 		<PackageVersion Include="Microsoft.Extensions.Hosting" Version="8.0.0-rc.2.23479.6" />
+		<PackageVersion Include="Microsoft.Identity.Client.Extensions.Msal" Version="2.31.0" />
 		<PackageVersion Include="Microsoft.TypeScript.MSBuild" Version="5.2.2" />
 		<PackageVersion Include="Moq" Version="4.20.69" />
 		<PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
@@ -50,7 +51,6 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageVersion>
-
 		<PackageVersion Include="Microsoft.Net.Compilers.Toolset" Version="4.8.0-3.final">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
@@ -59,15 +59,13 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
 		</PackageVersion>
-
 		<PackageVersion Include="Refit" Version="7.0.0" />
 		<PackageVersion Include="Refit.Newtonsoft.Json" Version="7.0.0" />
 		<PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
 		<PackageVersion Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.0" />
-		<PackageVersion Include="Microsoft.Identity.Web" Version="2.15.5"/>
-		<PackageVersion Include="Microsoft.Identity.Web.DownstreamApi" Version="2.13.0"/>
+		<PackageVersion Include="Microsoft.Identity.Web" Version="2.15.5" />
+		<PackageVersion Include="Microsoft.Identity.Web.DownstreamApi" Version="2.13.0" />
 		<PackageVersion Include="Swashbuckle.AspNetCore" Version="6.4.0" />
-		
 		<!-- Uno -->
 		<PackageVersion Include="CommunityToolkit.Mvvm" Version="8.2.2" />
 		<PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="8.0.0-rc.2.23479.6" />

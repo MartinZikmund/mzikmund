@@ -56,10 +56,11 @@ app.UseMetaWeblog($"/{app.Services.GetRequiredService<ISiteConfiguration>().Meta
 
 app.UseRouting();
 app.UseCors();
+app.MapHealthChecks("/health");
 
+app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapHealthChecks("/health");
 app.MapControllers();
 app.MapRazorPages();
 

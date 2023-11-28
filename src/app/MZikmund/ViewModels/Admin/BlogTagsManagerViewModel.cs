@@ -8,6 +8,12 @@ using Newtonsoft.Json;
 using Windows.Storage.Pickers;
 using MZikmund.Services.Localization;
 using MZikmund.DataContracts.Blog;
+using Microsoft.Identity.Client;
+using Microsoft.VisualBasic;
+using System.Diagnostics;
+using System.Net.Http.Headers;
+using Microsoft.Identity.Client.Extensions.Msal;
+using MZikmund.Services.Account;
 
 namespace MZikmund.ViewModels.Admin;
 
@@ -15,15 +21,18 @@ public class TagsManagerViewModel : PageViewModel
 {
 	private readonly IDialogService _dialogService;
 	private readonly ILoadingIndicator _loadingIndicator;
+	private readonly IUserService _userService;
 	private readonly IMZikmundApi _api;
 
 	public TagsManagerViewModel(
 		IMZikmundApi api,
 		IDialogService dialogService,
-		ILoadingIndicator loadingIndicator)
+		ILoadingIndicator loadingIndicator,
+		IUserService userService)
 	{
 		_dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
 		_loadingIndicator = loadingIndicator ?? throw new ArgumentNullException(nameof(loadingIndicator));
+		_userService = userService;
 		_api = api ?? throw new ArgumentNullException(nameof(api));
 	}
 
@@ -39,6 +48,12 @@ public class TagsManagerViewModel : PageViewModel
 			//TODO: Refresh collection based on IDs
 			var tags = await _api.GetTagsAsync();
 			Tags.AddRange(tags.Content!);
+
+			await _userService.AuthenticateAsync();
+
+			var client = new HttpClient();
+			client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _userService.AccessToken);
+			var result = await client.GetStringAsync("https://localhost:7007/api/v1/test");
 		}
 		catch (Exception ex)
 		{
