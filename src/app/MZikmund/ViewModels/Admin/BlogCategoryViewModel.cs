@@ -4,7 +4,7 @@ namespace MZikmund.ViewModels.Admin;
 
 public class CategoryViewModel : ObservableObject
 {
-	public int Id { get; set; }
+	public Guid Id { get; set; }
 
 	public string DisplayName { get; set; } = "";
 
