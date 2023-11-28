@@ -44,7 +44,7 @@ public class TagsManagerViewModel : PageViewModel
 			//TODO: Refresh collection based on IDs
 			var tags = await _api.GetTagsAsync();
 			Tags.Clear();
-			Tags.AddRange(tags.Content!);
+			Tags.AddRange(tags.Content!.OrderBy(t => t.DisplayName));
 		}
 		catch (Exception ex)
 		{
@@ -68,6 +68,7 @@ public class TagsManagerViewModel : PageViewModel
 			return;
 		}
 
+		using var loadingScope = _loadingIndicator.BeginLoading();
 		var apiResponse = await _api.AddTagAsync(new Tag()
 		{
 			DisplayName = viewModel.Tag.DisplayName,
@@ -91,6 +92,8 @@ public class TagsManagerViewModel : PageViewModel
 			RouteName = tag.RouteName
 		});
 		var result = await _dialogService.ShowAsync(viewModel);
+
+		using var loadingScope = _loadingIndicator.BeginLoading();
 		if (result == ContentDialogResult.Primary)
 		{
 			var apiResponse = await _api.UpdateTagAsync(tag.Id, new EditTag()
