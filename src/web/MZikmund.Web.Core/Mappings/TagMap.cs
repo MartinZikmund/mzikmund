@@ -9,5 +9,6 @@ public class TagMap : Profile
 	public TagMap()
 	{
 		CreateMap<TagEntity, Tag>();
+		CreateMap<Tag, TagEntity>();
 	}
 }

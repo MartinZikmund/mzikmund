@@ -44,6 +44,7 @@ if (!app.Environment.IsDevelopment())
 }
 else
 {
+	app.UseDeveloperExceptionPage();
 	app.UseSwagger();
 	app.UseSwaggerUI();
 }
@@ -56,10 +57,11 @@ app.UseMetaWeblog($"/{app.Services.GetRequiredService<ISiteConfiguration>().Meta
 
 app.UseRouting();
 app.UseCors();
+app.MapHealthChecks("/health");
 
+app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapHealthChecks("/health");
 app.MapControllers();
 app.MapRazorPages();
 
@@ -99,7 +101,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 
 	services.AddLocalization(options => options.ResourcesPath = "Resources");
 
-	services.AddControllers(options => options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()))
+	services.AddControllers()
 			.AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
 	services.AddEndpointsApiExplorer();

@@ -9,5 +9,6 @@ public class CatgegoryMap : Profile
 	public CatgegoryMap()
 	{
 		CreateMap<CategoryEntity, Category>();
+		CreateMap<Category, CategoryEntity>();
 	}
 }

@@ -33,11 +33,17 @@ public class CategoriesManagerViewModel : PageViewModel
 
 	public override async void ViewAppeared()
 	{
+		await RefreshListAsync();
+	}
+
+	private async Task RefreshListAsync()
+	{
 		using var loadingScope = _loadingIndicator.BeginLoading();
 		try
 		{
 			//TODO: Refresh collection based on IDs
 			var categories = await _api.GetCategoriesAsync();
+			Categories.Clear();
 			Categories.AddRange(categories.Content!);
 		}
 		catch (Exception ex)
@@ -51,33 +57,7 @@ public class CategoriesManagerViewModel : PageViewModel
 
 	public ICommand AddCategoryCommand => GetOrCreateAsyncCommand(AddCategoryAsync);
 
-	public ICommand UpdateCategoryCommand => GetOrCreateAsyncCommand<CategoryViewModel>(UpdateCategoryAsync);
-
-	public ICommand ImportJsonCommand => GetOrCreateAsyncCommand(ImportJsonAsync);
-
-	private async Task ImportJsonAsync()
-	{
-		using var loadingScope = _loadingIndicator.BeginLoading();
-		var picker = new FileOpenPicker();
-		picker.FileTypeFilter.Add(".json");
-		var jsonFile = await picker.PickSingleFileAsync();
-		var jsonContent = await FileIO.ReadTextAsync(jsonFile);
-		var Categories = JsonConvert.DeserializeObject<Category[]>(jsonContent);
-		if (Categories == null)
-		{
-			return;
-		}
-
-		for (int i = 0; i < Categories.Length; i++)
-		{
-			var tag = Categories[i];
-			_loadingIndicator.StatusMessage = $"Adding tag {i + 1} of {Categories.Length}";
-			// Ensure tag ID is empty.
-			tag.Id = Guid.Empty;
-
-			await _api.AddCategoryAsync(tag);
-		}
-	}
+	public ICommand UpdateCategoryCommand => GetOrCreateAsyncCommand<Category>(UpdateCategoryAsync);
 
 	private async Task AddCategoryAsync()
 	{
@@ -88,34 +68,42 @@ public class CategoriesManagerViewModel : PageViewModel
 			return;
 		}
 
-		//var apiResponse = await _api.AddCategoryAsync(new CategoryDto()
-		//{
-		//	Localizations = new[]
-		//	{
-		//		new CategoryLocalizationDto()
-		//		{
-		//			DisplayName = "test",
-		//			LanguageId = 1,
-		//			RouteName = "test"
-		//		}
-		//	}
-		//});
+		var apiResponse = await _api.AddCategoryAsync(new Category()
+		{
+			DisplayName = viewModel.Category.DisplayName,
+			RouteName = viewModel.Category.RouteName,
+		});
+
+		await RefreshListAsync();
 	}
 
-	private async Task UpdateCategoryAsync(CategoryViewModel? category)
+	private async Task UpdateCategoryAsync(Category? category)
 	{
 		if (category is null)
 		{
 			return;
 		}
 
-		var viewModel = new AddOrUpdateCategoryDialogViewModel(category);
-		var result = await _dialogService.ShowAsync(viewModel);
-		if (result != ContentDialogResult.Primary)
+		var viewModel = new AddOrUpdateCategoryDialogViewModel(new CategoryViewModel()
 		{
-			return;
+			Id = category.Id,
+			DisplayName = category.DisplayName,
+			RouteName = category.RouteName
+		});
+		var result = await _dialogService.ShowAsync(viewModel);
+		if (result == ContentDialogResult.Primary)
+		{
+			var apiResponse = await _api.UpdateCategoryAsync(category.Id, new EditCategory()
+			{
+				DisplayName = viewModel.Category.DisplayName,
+				RouteName = viewModel.Category.RouteName,
+			});
+		}
+		else if (result == ContentDialogResult.Secondary)
+		{
+			var apiResponse = await _api.DeleteCategoryAsync(category.Id);
 		}
 
-		// TODO: Update category via API.
+		await RefreshListAsync();
 	}
 }

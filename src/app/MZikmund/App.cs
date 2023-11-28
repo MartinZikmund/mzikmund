@@ -131,6 +131,7 @@ public class App : Application
 		services.AddScoped<ILoadingIndicator, LoadingIndicator>();
 		services.AddScoped<IDialogService, DialogService>();
 		services.AddScoped<IWindowShellProvider, WindowShellProvider>();
+		services.AddSingleton<IUserService, UserService>();
 		services.AddSingleton(provider =>
 		{
 			var configuration = provider.GetRequiredService<IOptions<AppConfig>>();
@@ -144,7 +145,7 @@ public class App : Application
 		{
 			//TODO: Move somewhere more appropriate and integrate refresh token support
 			var userService = Ioc.Default.GetRequiredService<IUserService>();
-			if (!userService.IsLoggedIn)
+			if (!userService.IsLoggedIn || userService.NeedsRefresh)
 			{
 				await userService.AuthenticateAsync();
 			}
