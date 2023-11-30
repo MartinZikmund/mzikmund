@@ -96,7 +96,7 @@ public class TagsManagerViewModel : PageViewModel
 		using var loadingScope = _loadingIndicator.BeginLoading();
 		if (result == ContentDialogResult.Primary)
 		{
-			var apiResponse = await _api.UpdateTagAsync(tag.Id, new EditTag()
+			var apiResponse = await _api.UpdateTagAsync(tag.Id, new Tag()
 			{
 				DisplayName = viewModel.Tag.DisplayName,
 				RouteName = viewModel.Tag.RouteName,

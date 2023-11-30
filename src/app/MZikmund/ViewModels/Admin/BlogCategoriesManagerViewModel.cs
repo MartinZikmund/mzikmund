@@ -96,7 +96,7 @@ public class CategoriesManagerViewModel : PageViewModel
 		using var loadingScope = _loadingIndicator.BeginLoading();
 		if (result == ContentDialogResult.Primary)
 		{
-			var apiResponse = await _api.UpdateCategoryAsync(category.Id, new EditCategory()
+			var apiResponse = await _api.UpdateCategoryAsync(category.Id, new Category()
 			{
 				DisplayName = viewModel.Category.DisplayName,
 				RouteName = viewModel.Category.RouteName,

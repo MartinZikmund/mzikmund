@@ -72,23 +72,21 @@ public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, PostE
 		post.HeroImageUrl = string.IsNullOrWhiteSpace(postEditModel.HeroImageUrl) ? null : postEditModel.HeroImageUrl;
 
 		// 1. Add new tags to tag lib
-		var tags = string.IsNullOrWhiteSpace(postEditModel.Tags) ?
-			Array.Empty<string>() :
-			postEditModel.Tags.Split(',').ToArray();
+		var tags = postEditModel.Tags.ToArray();
 
-		foreach (var tag in tags)
+		foreach (var tag in tags.Where(t => t.Id != Guid.Empty)
 		{
-			if (!Tag.IsValid(tag))
+			if (!Tag.IsValid(tag.DisplayName))
 			{
 				continue;
 			}
 
-			if (!await _tagRepository.AnyAsync(p => p.DisplayName == tag, ct))
+			if (!await _tagRepository.AnyAsync(p => p.DisplayName == tag.DisplayName, ct))
 			{
 				await _tagRepository.AddAsync(new()
 				{
-					DisplayName = tag,
-					RouteName = tag.GenerateRouteName()
+					DisplayName = tag.DisplayName,
+					RouteName = string.IsNullOrEmpty(tag.RouteName) ? tag.DisplayName.GenerateRouteName() : tag.RouteName,
 				}, ct);
 			}
 		}

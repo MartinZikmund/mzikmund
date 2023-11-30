@@ -23,4 +23,8 @@ public class Post
 	public Category[] Categories { get; set; } = Array.Empty<Category>();
 
 	public Tag[] Tags { get; set; } = Array.Empty<Tag>();
+
+	public required string LanguageCode { get; set; }
+
+	public bool IsPublished { get; set; }
 }
