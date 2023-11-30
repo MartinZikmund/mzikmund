@@ -1,10 +1,8 @@
-﻿using MZikmund.DataContracts.Blog;
+﻿namespace MZikmund.DataContracts.Blog;
 
-namespace MZikmund.Web.Core.Dtos;
-
-public class PostListItem
+public class Post
 {
-	public Guid Id { get; init; } = Guid.Empty;
+	public Guid Id { get; set; } = Guid.Empty;
 
 	public string RouteName { get; set; } = "";
 
@@ -14,13 +12,13 @@ public class PostListItem
 
 	public string Abstract { get; set; } = "";
 
-	public DateTimeOffset? PublishedDate { get; set; }
-
-	public DateTimeOffset? LastModifiedDate { get; set; }
-
 	public string? HeroImageUrl { get; set; }
 
 	public string? HeroImageAlt { get; set; }
+
+	public DateTimeOffset? PublishedDate { get; set; }
+
+	public DateTimeOffset? LastModifiedDate { get; set; }
 
 	public Category[] Categories { get; set; } = Array.Empty<Category>();
 

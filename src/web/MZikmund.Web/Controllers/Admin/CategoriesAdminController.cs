@@ -41,7 +41,7 @@ public class CategoriesAdminController : Controller
 	/// <returns>Updated category.</returns>
 	[HttpPut]
 	[Route("{categoryId}")]
-	public async Task<IActionResult> Update(Guid categoryId, [FromBody] EditCategory updatedCategory)
+	public async Task<IActionResult> Update(Guid categoryId, [FromBody] Category updatedCategory)
 	{
 		return Ok(await _mediator.Send(new UpdateCategoryCommand(categoryId, updatedCategory)));
 	}

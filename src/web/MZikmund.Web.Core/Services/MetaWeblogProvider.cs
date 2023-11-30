@@ -6,10 +6,9 @@ using MZikmund.DataContracts.Blog;
 using MZikmund.Web.Core.Extensions;
 using MZikmund.Web.Core.Utilities;
 using WilderMinds.MetaWeblog;
-using PostDto = MZikmund.Web.Core.Dtos.Post;
+using PostDto = MZikmund.DataContracts.Blog.Post;
 using WeblogPost = WilderMinds.MetaWeblog.Post;
 using WeblogTag = WilderMinds.MetaWeblog.Tag;
-using MZikmund.Web.Core.Dtos;
 
 namespace MZikmund.Web.Core.Services;
 
@@ -92,7 +91,7 @@ public class MetaWeblogProvider : IMetaWeblogProvider
 			throw new ArgumentOutOfRangeException(nameof(post.categories));
 		}
 
-		var req = new PostEditModel
+		var req = new PostDto
 		{
 			Title = post.title,
 			RouteName = post.wp_slug ?? post.title.GenerateRouteName(),
@@ -124,7 +123,7 @@ public class MetaWeblogProvider : IMetaWeblogProvider
 			throw new ArgumentOutOfRangeException(nameof(post.categories));
 		}
 
-		var req = new PostEditModel
+		var req = new Post
 		{
 			Id = new Guid(postid),
 			Title = post.title,

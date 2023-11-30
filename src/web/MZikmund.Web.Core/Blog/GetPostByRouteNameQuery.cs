@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using MZikmund.DataContracts.Blog;
 using MZikmund.Web.Core.Dtos;
 
 namespace MZikmund.Web.Core.Blog;
