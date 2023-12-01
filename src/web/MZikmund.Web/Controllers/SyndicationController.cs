@@ -30,7 +30,7 @@ public class SubscriptionController : ControllerBase
 			ContentInfo = categoryMap,
 			BlogUrl = $"{rootUrl}/blog",
 			RssUrl = $"{rootUrl}/rss",
-			RssCategoryTemplate = $"{rootUrl}/rss/[catTitle]",
+			RssCategoryTemplate = $"{rootUrl}/rss/category/[catTitle]",
 			BlogCategoryTemplate = $"{rootUrl}/blog/categories/[catTitle]"
 		};
 
@@ -38,17 +38,16 @@ public class SubscriptionController : ControllerBase
 		return Content(xml, "text/xml");
 	}
 
-	[HttpGet("rss/{categoryName?}")]
-	public async Task<IActionResult> Rss([MaxLength(64)] string? categoryName = null)
-	{
-		var xml = await _mediator.Send(new GetRssQuery(categoryName));
-		if (string.IsNullOrWhiteSpace(xml))
-		{
-			return NotFound();
-		}
+	[HttpGet("rss")]
+	public async Task<IActionResult> Rss() => await GenerateRssResponseAsync(new GetRssQuery(null, null));
 
-		return Content(xml, "text/xml");
-	}
+	[HttpGet("rss/category/{categoryName}")]
+	public async Task<IActionResult> RssByCategory([MaxLength(64)] string categoryName) =>
+		await GenerateRssResponseAsync(new GetRssQuery(categoryName, null));
+
+	[HttpGet("rss/tag/{tagName}")]
+	public async Task<IActionResult> RssByTag([MaxLength(64)] string tagName) =>
+		 await GenerateRssResponseAsync(new GetRssQuery(null, tagName));
 
 	[HttpGet("atom/{categoryName?}")]
 	public async Task<IActionResult> Atom([MaxLength(64)] string? categoryName = null)
@@ -60,5 +59,16 @@ public class SubscriptionController : ControllerBase
 		}
 
 		return Content(xml, "text/xml");
+	}
+
+	private async Task<IActionResult> GenerateRssResponseAsync(GetRssQuery query)
+	{
+		var xml = await _mediator.Send(query);
+		if (string.IsNullOrWhiteSpace(xml))
+		{
+			return NotFound();
+		}
+
+		return Content(xml, "application/rss+xml; charset=utf-8");
 	}
 }
