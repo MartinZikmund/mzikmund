@@ -4,5 +4,5 @@ namespace MZikmund.Web.Core.Syndication;
 
 public interface ISyndicationDataSource
 {
-	Task<IReadOnlyList<FeedEntry>?> GetFeedDataAsync(string? categoryRouteName = null);
+	Task<IReadOnlyList<FeedEntry>?> GetFeedDataAsync(string? categoryRouteName = null, string? tagRouteName = null);
 }

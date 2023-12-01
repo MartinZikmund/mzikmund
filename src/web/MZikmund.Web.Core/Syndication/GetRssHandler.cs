@@ -19,12 +19,12 @@ public class GetRssHandler : IRequestHandler<GetRssQuery, string?>
 
 	public async Task<string?> Handle(GetRssQuery request, CancellationToken ct)
 	{
-		var data = await _syndicationDataSource.GetFeedDataAsync(request.CategoryName);
+		var data = await _syndicationDataSource.GetFeedDataAsync(request.CategoryName, request.TagName);
 		if (data is null)
 		{
 			return null;
 		}
 
-		return await _feedGenerator.GetRssAsync(data);
+		return await _feedGenerator.GetRssAsync(data, request.CategoryName ?? "Default");
 	}
 }

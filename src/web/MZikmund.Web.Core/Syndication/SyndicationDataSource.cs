@@ -1,8 +1,6 @@
 ﻿// Based on https://github.com/EdiWang/Moonglade/blob/cf5571b0db09c7722b310ca9922cdcd542e93a51/src/Moonglade.Syndication/SyndicationDataSource.cs
 
 using Microsoft.AspNetCore.Http;
-
-using Microsoft.Extensions.Configuration;
 using MZikmund.Web.Configuration;
 using MZikmund.Web.Core.Services;
 using MZikmund.Web.Data.Entities;
@@ -15,6 +13,7 @@ public class SyndicationDataSource : ISyndicationDataSource
 {
 	private readonly string _baseUrl;
 	private readonly IRepository<CategoryEntity> _categoriesRepository;
+	private readonly IRepository<TagEntity> _tagsRepository;
 	private readonly IRepository<PostEntity> _postsRepository;
 	private readonly IPostContentProcessor _postContentProcessor;
 	private readonly ISiteConfiguration _siteConfiguration;
@@ -22,11 +21,13 @@ public class SyndicationDataSource : ISyndicationDataSource
 	public SyndicationDataSource(
 		IHttpContextAccessor httpContextAccessor,
 		IRepository<CategoryEntity> categoriesRepository,
+		IRepository<TagEntity> tagsRepository,
 		IRepository<PostEntity> postsRepository,
 		IPostContentProcessor postContentProcessor,
 		ISiteConfiguration siteConfiguration)
 	{
 		_categoriesRepository = categoriesRepository;
+		_tagsRepository = tagsRepository;
 		_postsRepository = postsRepository;
 		_postContentProcessor = postContentProcessor;
 		_siteConfiguration = siteConfiguration;
@@ -34,18 +35,28 @@ public class SyndicationDataSource : ISyndicationDataSource
 		_baseUrl = $"{acc.HttpContext.Request.Scheme}://{acc.HttpContext.Request.Host}";
 	}
 
-	public async Task<IReadOnlyList<FeedEntry>?> GetFeedDataAsync(string? categoryRouteName = null)
+	public async Task<IReadOnlyList<FeedEntry>?> GetFeedDataAsync(string? categoryRouteName = null, string? tagRouteName = null)
 	{
 		IReadOnlyList<FeedEntry> itemCollection;
 		if (!string.IsNullOrWhiteSpace(categoryRouteName))
 		{
-			var cat = await _categoriesRepository.GetAsync(c => c.RouteName == categoryRouteName);
-			if (cat is null)
+			var category = await _categoriesRepository.GetAsync(c => c.RouteName == categoryRouteName);
+			if (category is null)
 			{
 				return null;
 			}
 
-			itemCollection = await GetFeedEntriesAsync(cat.Id);
+			itemCollection = await GetFeedEntriesAsync(category.Id);
+		}
+		else if (!string.IsNullOrWhiteSpace(tagRouteName))
+		{
+			var tag = await _tagsRepository.GetAsync(c => c.RouteName == tagRouteName);
+			if (tag is null)
+			{
+				return null;
+			}
+
+			itemCollection = await GetFeedEntriesAsync(null, tag.Id);
 		}
 		else
 		{
@@ -55,15 +66,16 @@ public class SyndicationDataSource : ISyndicationDataSource
 		return itemCollection;
 	}
 
-	private async Task<IReadOnlyList<FeedEntry>> GetFeedEntriesAsync(Guid? categoryId = null)
+	private async Task<IReadOnlyList<FeedEntry>> GetFeedEntriesAsync(Guid? categoryId = null, Guid? tagId = null)
 	{
-		var specification = new ListPostsSpecification(1, 15, categoryId, null);
+		var specification = new ListPostsSpecification(1, 15, categoryId, tagId);
 		var posts = await _postsRepository.SelectAsync(specification, post => new FeedEntry
 		{
 			Id = post.Id.ToString(),
 			Title = post.Title,
-			PubDate = post.PublishedDate ?? DateTimeOffset.UtcNow,
-			Description = post.Content, // TODO: Do we want full content here?
+			PublishedDate = post.PublishedDate ?? DateTimeOffset.UtcNow,
+			UpdatedDate = post.LastModifiedDate ?? DateTimeOffset.UtcNow,
+			Description = post.Content,
 			Link = $"{_baseUrl}/blog/{post.RouteName}",
 			Author = $"{_siteConfiguration.Author.FirstName} {_siteConfiguration.Author.LastName}",
 			AuthorEmail = _siteConfiguration.Author.Email,
