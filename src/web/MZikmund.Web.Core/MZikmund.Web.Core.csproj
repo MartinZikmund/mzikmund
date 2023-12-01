@@ -13,6 +13,7 @@
 		<PackageReference Include="Microsoft.AspNetCore.Rewrite" />
 		<PackageReference Include="Newtonsoft.Json" />
 		<PackageReference Include="MediatR" />
+		<PackageReference Include="System.ServiceModel.Syndication" />
 		<PackageReference Include="WilderMinds.MetaWeblog" />
 	</ItemGroup>
 

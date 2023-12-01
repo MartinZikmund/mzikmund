@@ -4,7 +4,9 @@ public record FeedEntry
 {
 	public string Id { get; set; } = "";
 
-	public DateTimeOffset PubDate { get; set; }
+	public DateTimeOffset PublishedDate { get; set; }
+
+	public DateTimeOffset UpdatedDate { get; set; }
 
 	public string Title { get; set; } = "";
 

@@ -2,7 +2,7 @@
 
 public interface IFeedGenerator
 {
-	Task<string> GetRssAsync(IEnumerable<FeedEntry> feedEntries);
+	Task<string> GetRssAsync(IEnumerable<FeedEntry> feedEntries, string id);
 
 	Task<string> GetAtomAsync(IEnumerable<FeedEntry> feedEntries);
 }

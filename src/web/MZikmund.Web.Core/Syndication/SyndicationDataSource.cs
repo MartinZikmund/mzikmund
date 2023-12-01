@@ -62,7 +62,8 @@ public class SyndicationDataSource : ISyndicationDataSource
 		{
 			Id = post.Id.ToString(),
 			Title = post.Title,
-			PubDate = post.PublishedDate ?? DateTimeOffset.UtcNow,
+			PublishedDate = post.PublishedDate ?? DateTimeOffset.UtcNow,
+			UpdatedDate = post.LastModifiedDate ?? DateTimeOffset.UtcNow,
 			Description = post.Content, // TODO: Do we want full content here?
 			Link = $"{_baseUrl}/blog/{post.RouteName}",
 			Author = $"{_siteConfiguration.Author.FirstName} {_siteConfiguration.Author.LastName}",

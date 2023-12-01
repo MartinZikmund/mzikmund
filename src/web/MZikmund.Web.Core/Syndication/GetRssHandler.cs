@@ -25,6 +25,6 @@ public class GetRssHandler : IRequestHandler<GetRssQuery, string?>
 			return null;
 		}
 
-		return await _feedGenerator.GetRssAsync(data);
+		return await _feedGenerator.GetRssAsync(data, request.CategoryName ?? "Default");
 	}
 }

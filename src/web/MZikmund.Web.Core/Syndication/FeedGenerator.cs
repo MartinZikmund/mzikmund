@@ -1,11 +1,15 @@
 ﻿// Based on https://github.com/EdiWang/Moonglade/blob/cf5571b0db09c7722b310ca9922cdcd542e93a51/src/Moonglade.Syndication/FeedGenerator.cs
 
-using Edi.SyndicationFeed.ReaderWriter;
 using Edi.SyndicationFeed.ReaderWriter.Atom;
-using Edi.SyndicationFeed.ReaderWriter.Rss;
 using Microsoft.AspNetCore.Http;
+using System.ServiceModel.Syndication;
+using System;
 using System.Text;
 using System.Xml;
+using EwSyndicationItem = Edi.SyndicationFeed.ReaderWriter.SyndicationItem;
+using EwSyndicationLink = Edi.SyndicationFeed.ReaderWriter.SyndicationLink;
+using EwSyndicationCategory = Edi.SyndicationFeed.ReaderWriter.SyndicationCategory;
+using EwSyndicationPerson = Edi.SyndicationFeed.ReaderWriter.SyndicationPerson;
 
 namespace MZikmund.Web.Core.Syndication;
 
@@ -18,7 +22,7 @@ public class FeedGenerator : IFeedGenerator
 		HostUrl = baseUrl!;
 		HeadTitle = "Martin Zikmund";
 		HeadDescription = "Open-source enthusiast and Microsoft MVP. Passionate speaker, avid climber, and Lego aficionado.";
-		Copyright = "©2023 Martin Zikmund";
+		Copyright = $"©{DateTimeOffset.UtcNow.Year} Martin Zikmund";
 		Generator = "MZikmund";
 		GeneratorVersion = "0.1";
 		TrackBackUrl = baseUrl!;
@@ -42,28 +46,29 @@ public class FeedGenerator : IFeedGenerator
 
 	public string Language { get; set; }
 
-	public async Task<string> GetRssAsync(IEnumerable<FeedEntry> feedEntries)
+	public async Task<string> GetRssAsync(IEnumerable<FeedEntry> feedEntries, string id)
 	{
+		var feed = new SyndicationFeed(HeadTitle, HeadDescription, new Uri("https://mzikmund.dev/rss"), id, DateTimeOffset.UtcNow);
+		feed.Copyright = new TextSyndicationContent(Copyright);
+
+		var items = GetItemCollection(feedEntries);
+		feed.Items = items;
 		// TODO: Generate additional properties (image, etc.)
-		var feed = GetItemCollection(feedEntries);
 
 		var sw = new StringWriterWithEncoding(Encoding.UTF8);
+
+		var settings = new XmlWriterSettings
+		{
+			Encoding = Encoding.UTF8,
+			NewLineHandling = NewLineHandling.Entitize,
+			NewLineOnAttributes = true,
+			Indent = true
+		};
+
 		await using (var xmlWriter = XmlWriter.Create(sw, new() { Async = true }))
 		{
-			var writer = new RssFeedWriter(xmlWriter);
-
-			await writer.WriteTitle(HeadTitle);
-			await writer.WriteDescription(HeadDescription);
-			await writer.Write(new SyndicationLink(new(TrackBackUrl)));
-			await writer.WritePubDate(DateTimeOffset.UtcNow);
-			await writer.WriteCopyright(Copyright);
-			await writer.WriteGenerator(Generator);
-			await writer.WriteLanguage(new(Language));
-
-			foreach (var item in feed)
-			{
-				await writer.Write(item);
-			}
+			var rssFormatter = new Rss20FeedFormatter(feed, false);
+			rssFormatter.WriteTo(xmlWriter);
 
 			await xmlWriter.FlushAsync();
 			xmlWriter.Close();
@@ -75,7 +80,7 @@ public class FeedGenerator : IFeedGenerator
 
 	public async Task<string> GetAtomAsync(IEnumerable<FeedEntry> feedEntries)
 	{
-		var feed = GetItemCollection(feedEntries);
+		var feed = GetEwItemCollection(feedEntries);
 
 		var sw = new StringWriterWithEncoding(Encoding.UTF8);
 		await using (var xmlWriter = XmlWriter.Create(sw, new() { Async = true }))
@@ -101,29 +106,29 @@ public class FeedGenerator : IFeedGenerator
 		return xml;
 	}
 
-	private static List<SyndicationItem> GetItemCollection(IEnumerable<FeedEntry> itemCollection)
+	private static List<EwSyndicationItem> GetEwItemCollection(IEnumerable<FeedEntry> itemCollection)
 	{
-		var synItemCollection = new List<SyndicationItem>();
+		var synItemCollection = new List<EwSyndicationItem>();
 		if (null == itemCollection) return synItemCollection;
 
 		foreach (var item in itemCollection)
 		{
 			// create rss item
-			var sItem = new SyndicationItem
+			var sItem = new EwSyndicationItem
 			{
 				Id = item.Id,
 				Title = item.Title,
 				Description = item.Description,
-				LastUpdated = item.PubDate.ToUniversalTime(),
-				Published = item.PubDate.ToUniversalTime()
+				LastUpdated = item.UpdatedDate.ToUniversalTime(),
+				Published = item.PublishedDate.ToUniversalTime()
 			};
 
-			sItem.AddLink(new SyndicationLink(new(item.Link)));
+			sItem.AddLink(new EwSyndicationLink(new(item.Link)));
 
 			// add author
 			if (!string.IsNullOrWhiteSpace(item.Author) && !string.IsNullOrWhiteSpace(item.AuthorEmail))
 			{
-				sItem.AddContributor(new SyndicationPerson(item.Author, item.AuthorEmail));
+				sItem.AddContributor(new EwSyndicationPerson(item.Author, item.AuthorEmail));
 			}
 
 			// add categories
@@ -131,12 +136,40 @@ public class FeedGenerator : IFeedGenerator
 			{
 				foreach (var itemCategory in item.Categories)
 				{
-					sItem.AddCategory(new SyndicationCategory(itemCategory));
+					sItem.AddCategory(new EwSyndicationCategory(itemCategory));
 				}
 			}
 			synItemCollection.Add(sItem);
 		}
 		return synItemCollection;
+	}
+
+	private List<SyndicationItem> GetItemCollection(IEnumerable<FeedEntry> itemCollection)
+	{
+		var syndicationItems = new List<SyndicationItem>();
+		if (null == itemCollection)
+		{
+			return syndicationItems;
+		}
+
+		foreach (var item in itemCollection)
+		{
+			// create rss item
+			var syndicationItem = new SyndicationItem(item.Title, item.Description, new Uri(item.Link), item.Id, item.UpdatedDate);
+			syndicationItem.Authors.Add(new SyndicationPerson(item.AuthorEmail, item.Author, HostUrl));
+
+			// add categories
+			if (item.Categories is { Length: > 0 })
+			{
+				foreach (var itemCategory in item.Categories)
+				{
+					syndicationItem.Categories.Add(new SyndicationCategory(itemCategory));
+				}
+			}
+
+			syndicationItems.Add(syndicationItem);
+		}
+		return syndicationItems;
 	}
 }
 
