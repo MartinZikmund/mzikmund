@@ -4,6 +4,10 @@ public abstract class DialogViewModel : ViewModelBase
 {
 	public virtual string Title { get; } = "";
 
+	public virtual void OnOpened(ContentDialog contentDialog)
+	{
+	}
+
 	public virtual void OnPrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
 	{
 	}

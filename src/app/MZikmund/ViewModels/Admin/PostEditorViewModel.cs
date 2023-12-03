@@ -1,5 +1,6 @@
 ﻿using MZikmund.Api.Client;
 using MZikmund.DataContracts.Blog;
+using MZikmund.Services.Dialogs;
 using MZikmund.Services.Loading;
 
 namespace MZikmund.ViewModels.Admin;
@@ -7,11 +8,13 @@ namespace MZikmund.ViewModels.Admin;
 public class PostEditorViewModel : PageViewModel
 {
 	private readonly IMZikmundApi _api;
+	private readonly IDialogService _dialogService;
 	private readonly ILoadingIndicator _loadingIndicator;
 
-	public PostEditorViewModel(IMZikmundApi api, ILoadingIndicator loadingIndicator)
+	public PostEditorViewModel(IMZikmundApi api, IDialogService dialogService, ILoadingIndicator loadingIndicator)
 	{
 		_api = api;
+		_dialogService = dialogService;
 		_loadingIndicator = loadingIndicator;
 	}
 
@@ -26,6 +29,18 @@ public class PostEditorViewModel : PageViewModel
 	public Post? Post { get; set; }
 
 	public ICommand SaveCommand => GetOrCreateAsyncCommand(SaveAsync);
+
+	public ICommand PickCategoriesCommand => GetOrCreateCommand(PickCategories);
+
+	private async void PickCategories()
+	{
+		var categoyPickerDialogViewModel = new CategoryPickerDialogViewModel(Categories.Select(c => c.Id).ToArray(), _api);
+		var result = await _dialogService.ShowAsync(categoyPickerDialogViewModel);
+		if (result == ContentDialogResult.Primary)
+		{
+			Categories = categoyPickerDialogViewModel.SelectedCategories.ToArray();
+		}
+	}
 
 	private async Task SaveAsync()
 	{
