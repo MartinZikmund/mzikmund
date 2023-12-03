@@ -25,14 +25,16 @@ public class NavigationService : INavigationService
 		return false;
 	}
 
-	public void Navigate<TViewModel>()
+	public void Navigate<TViewModel>() => Navigate<TViewModel>(null);
+
+	public void Navigate<TViewModel>(object? parameter)
 	{
 		if (!TryFindViewForViewModel(typeof(TViewModel), out var viewType))
 		{
 			throw new InvalidOperationException($"ViewModel type {typeof(TViewModel).Name} is not registered for navigation.");
 		}
 
-		Frame.Navigate(viewType);
+		Frame.Navigate(viewType, parameter);
 	}
 
 	private bool TryFindViewForViewModel(Type viewModelType, out Type? viewType)
