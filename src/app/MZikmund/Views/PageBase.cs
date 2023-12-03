@@ -2,12 +2,15 @@
 using MZikmund.ViewModels;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.UI.Xaml.Navigation;
+using System.Runtime.InteropServices.ObjectiveC;
 
 namespace MZikmund.Views;
 
 public abstract partial class PageBase<TViewModel> : Page
 	where TViewModel : PageViewModel
 {
+	private object? _pendingParameter;
+
 	protected PageBase()
 	{
 		Loading += PageLoading;
@@ -19,10 +22,14 @@ public abstract partial class PageBase<TViewModel> : Page
 
 	private void PageLoading(object sender, object args)
 	{
-		if (XamlRoot?.Content is WindowShell windowShell)
+		EnsureViewModel();
+
+		if (_pendingParameter is not null)
 		{
-			ViewModel = windowShell.ServiceProvider.GetRequiredService<TViewModel>();
+			ViewModel?.ViewNavigatedTo(_pendingParameter);
+			_pendingParameter = null;
 		}
+
 		ViewModel?.ViewAppearing();
 	}
 
@@ -33,11 +40,33 @@ public abstract partial class PageBase<TViewModel> : Page
 
 	protected override void OnNavigatedTo(NavigationEventArgs e)
 	{
-		ViewModel?.ViewNavigatedTo(e.Parameter);
+		EnsureViewModel();
+
+		if (ViewModel is not null)
+		{
+			ViewModel.ViewNavigatedTo(_pendingParameter ?? e.Parameter);
+		}
+		else
+		{
+			_pendingParameter = e.Parameter;
+		}
 	}
 
 	private void PageUnloaded(object sender, RoutedEventArgs e)
 	{
 		ViewModel?.ViewDestroy();
+	}
+
+	private void EnsureViewModel()
+	{
+		if (ViewModel is not null)
+		{
+			return;
+		}
+
+		if (XamlRoot?.Content is WindowShell windowShell)
+		{
+			ViewModel = windowShell.ServiceProvider.GetRequiredService<TViewModel>();
+		}
 	}
 }

@@ -24,7 +24,7 @@ public class Post
 
 	public Tag[] Tags { get; set; } = Array.Empty<Tag>();
 
-	public required string LanguageCode { get; set; }
+	public string LanguageCode { get; set; } = "en";
 
 	public bool IsPublished { get; set; }
 }

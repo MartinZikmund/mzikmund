@@ -8,11 +8,15 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-	<Grid RowDefinitions="Auto, 100, *, Auto" RowSpacing="8" ColumnSpacing="8" Padding="20">
-		<TextBox Header="Title" Text="{x:Bind ViewModel.Post.Title, Mode=TwoWay}" />
-		<TextBox Header="Abstract" AcceptsReturn="True" Text="{x:Bind ViewModel.Post.Abstract, Mode=TwoWay}" />
-		<TextBox Header="Content" AcceptsReturn="True" Grid.Row="1" Text="{x:Bind ViewModel.Post.Content, Mode=TwoWay}" />
-		<Button Grid.Row="2">
+	<Grid RowDefinitions="Auto, 100, *, Auto" ColumnDefinitions="*, *" RowSpacing="8" ColumnSpacing="8" Padding="20">
+		<TextBox Header="Title" FontSize="20" Grid.ColumnSpan="2" Text="{x:Bind ViewModel.Post.Title, Mode=TwoWay}" />
+		<StackPanel Orientation="Vertical" Grid.Row="1" Grid.Column="1">
+			<Button Content="{x:Bind ViewModel.CategoriesText, Mode=OneWay}" HorizontalAlignment="Stretch" />
+			<TextBox Header="Tags" Grid.Row="1" Text="{x:Bind ViewModel.Tags, Mode=TwoWay}" />
+		</StackPanel>
+		<TextBox Grid.Row="1" FontFamily="{StaticResource CodeFont}" Header="Abstract" AcceptsReturn="True" TextWrapping="Wrap" Text="{x:Bind ViewModel.Post.Abstract, Mode=TwoWay}" />
+		<TextBox Grid.Row="2" FontFamily="{StaticResource CodeFont}" Header="Content" AcceptsReturn="True" TextWrapping="Wrap" Text="{x:Bind ViewModel.Post.Content, Mode=TwoWay}" />
+		<Button Grid.Row="3">
 			<StackPanel Spacing="8" Orientation="Horizontal">
 				<SymbolIcon Symbol="Save" />
 				<TextBlock Text="Save" />
