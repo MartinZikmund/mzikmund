@@ -1,7 +1,6 @@
 ﻿using MediatR;
-using MZikmund.Web.Core.Dtos;
-using MZikmund.Web.Data.Entities;
+using MZikmund.DataContracts.Blog;
 
 namespace MZikmund.Web.Core.Blog;
 
-public record CreatePostCommand(PostEditModel NewPost) : IRequest<PostEntity>;
+public record CreatePostCommand(Post NewPost) : IRequest<Post>;

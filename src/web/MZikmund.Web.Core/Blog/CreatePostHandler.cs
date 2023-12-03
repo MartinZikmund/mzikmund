@@ -6,17 +6,18 @@ using MZikmund.Web.Core.Extensions;
 using MZikmund.Web.Core.Services;
 using MZikmund.Web.Data.Entities;
 using MZikmund.Web.Data.Infrastructure;
+using AutoMapper;
 
 namespace MZikmund.Web.Core.Blog;
 
-public class CreatePostHandler : IRequestHandler<CreatePostCommand, PostEntity>
+public class CreatePostHandler : IRequestHandler<CreatePostCommand, Post>
 {
 	private readonly IRepository<PostEntity> _postRepository;
 	private readonly IRepository<CategoryEntity> _categoryRepository;
 	private readonly ILogger<CreatePostHandler> _logger;
 	private readonly IDateProvider _dateProvider;
+	private readonly IMapper _mapper;
 	private readonly IRepository<TagEntity> _tagRepo;
-	private readonly ISiteConfiguration _siteConfiguration;
 
 	public CreatePostHandler(
 		IRepository<PostEntity> postRepository,
@@ -24,17 +25,18 @@ public class CreatePostHandler : IRequestHandler<CreatePostCommand, PostEntity>
 		IRepository<TagEntity> tagRepository,
 		ISiteConfiguration siteConfiguration,
 		IDateProvider dateProvider,
+		IMapper mapper,
 		ILogger<CreatePostHandler> logger)
 	{
 		_postRepository = postRepository;
 		_categoryRepository = categoryRepository;
 		_tagRepo = tagRepository;
-		_siteConfiguration = siteConfiguration;
 		_dateProvider = dateProvider;
+		_mapper = mapper;
 		_logger = logger;
 	}
 
-	public async Task<PostEntity> Handle(CreatePostCommand request, CancellationToken ct)
+	public async Task<Post> Handle(CreatePostCommand request, CancellationToken ct)
 	{
 		if (await _postRepository.AnyAsync(p => p.RouteName == request.NewPost.RouteName, ct))
 		{
@@ -57,7 +59,7 @@ public class CreatePostHandler : IRequestHandler<CreatePostCommand, PostEntity>
 		};
 
 		var categories = await _categoryRepository.ListAsync(ct);
-		var selectedCategories = categories.Where(c => request.NewPost.CategoryIds.Contains(c.Id));
+		var selectedCategories = categories.Where(c => request.NewPost.Categories.Any(cat => cat.Id == c.Id));
 
 		foreach (var category in selectedCategories)
 		{
@@ -65,32 +67,30 @@ public class CreatePostHandler : IRequestHandler<CreatePostCommand, PostEntity>
 		}
 
 		// add tags
-		var tags = string.IsNullOrWhiteSpace(request.NewPost.Tags) ?
-			Array.Empty<string>() :
-			request.NewPost.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToArray();
+		var tags = request.NewPost.Tags.ToArray();
 
-		foreach (var tag in tags)
+		foreach (var tag in tags.Where(t => t.Id != Guid.Empty))
 		{
-			if (!Tag.IsValid(tag))
+			if (!Tag.IsValid(tag.DisplayName))
 			{
 				continue;
 			}
 
-			var tagEntity = await _tagRepo.GetAsync(q => q.DisplayName == tag) ?? await CreateTag(tag); // TODO: Add post tags more efficiently
+			var tagEntity = await _tagRepo.GetAsync(q => q.DisplayName == tag.DisplayName) ?? await CreateTag(tag); // TODO: Add post tags more efficiently
 			post.Tags.Add(tagEntity);
 		}
 
 		await _postRepository.AddAsync(post, ct);
 
-		return post;
+		return _mapper.Map<Post>(post);
 	}
 
-	private async Task<TagEntity> CreateTag(string item)
+	private async Task<TagEntity> CreateTag(Tag item)
 	{
 		var newTag = new TagEntity
 		{
-			DisplayName = item,
-			RouteName = item.GenerateRouteName()
+			DisplayName = item.DisplayName,
+			RouteName = string.IsNullOrEmpty(item.RouteName) ? item.DisplayName.GenerateRouteName() : item.RouteName,
 		};
 
 		var tag = await _tagRepo.AddAsync(newTag);

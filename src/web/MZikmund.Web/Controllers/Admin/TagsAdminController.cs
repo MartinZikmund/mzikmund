@@ -41,7 +41,7 @@ public class TagsAdminController : Controller
 	/// <returns>Updated tag.</returns>
 	[HttpPut]
 	[Route("{tagId}")]
-	public async Task<IActionResult> Update(Guid tagId, [FromBody] EditTag updatedTag)
+	public async Task<IActionResult> Update(Guid tagId, [FromBody] Tag updatedTag)
 	{
 		return Ok(await _mediator.Send(new UpdateTagCommand(tagId, updatedTag)));
 	}

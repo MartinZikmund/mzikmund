@@ -3,11 +3,10 @@
 // </copyright>
 
 using MediatR;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using MZikmund.DataContracts.Blog;
 using MZikmund.Web.Core.Blog;
 using X.PagedList;
-using MZikmund.Web.Core.Dtos;
 
 namespace MZikmund.Web.Pages.Blog;
 
@@ -28,9 +27,8 @@ public class IndexModel : PageModel
 		var pageSize = 12; // TODO: Include in configuration
 						   //var pagesize = _blogConfig.ContentSettings.PostListPageSize;
 		var posts = await _mediator.Send(new ListPostsQuery(pageNumber, pageSize));
-		var totalPostsCount = await _mediator.Send(new CountPostsQuery());
 
-		var list = new StaticPagedList<PostListItem>(posts, pageNumber, pageSize, totalPostsCount);
+		var list = new StaticPagedList<PostListItem>(posts.Data, pageNumber, pageSize, posts.TotalCount);
 
 		BlogPosts = list;
 	}

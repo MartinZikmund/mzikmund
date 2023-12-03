@@ -1,8 +1,8 @@
 using MediatR;
-using MZikmund.Web.Core.Dtos;
+using MZikmund.DataContracts.Blog;
 using MZikmund.Web.Data.Entities;
 
 namespace MZikmund.Web.Core.Blog;
 
-public record UpdatePostCommand(Guid Id, PostEditModel UpdatedPost) : IRequest<PostEntity>;
+public record UpdatePostCommand(Guid Id, Post UpdatedPost) : IRequest<PostEntity>;
 

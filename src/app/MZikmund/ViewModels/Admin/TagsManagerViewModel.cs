@@ -11,13 +11,13 @@ using Windows.Storage.Pickers;
 
 namespace MZikmund.ViewModels.Admin;
 
-public class CategoriesManagerViewModel : PageViewModel
+public class TagsManagerViewModel : PageViewModel
 {
 	private readonly IDialogService _dialogService;
 	private readonly ILoadingIndicator _loadingIndicator;
 	private readonly IMZikmundApi _api;
 
-	public CategoriesManagerViewModel(
+	public TagsManagerViewModel(
 		IMZikmundApi api,
 		IDialogService dialogService,
 		ILoadingIndicator loadingIndicator)
@@ -27,9 +27,9 @@ public class CategoriesManagerViewModel : PageViewModel
 		_api = api ?? throw new ArgumentNullException(nameof(api));
 	}
 
-	public override string Title => Localizer.Instance.GetString("Categories");
+	public override string Title => Localizer.Instance.GetString("Tags");
 
-	public ObservableCollection<Category> Categories { get; } = new ObservableCollection<Category>();
+	public ObservableCollection<Tag> Tags { get; } = new ObservableCollection<Tag>();
 
 	public override async void ViewAppeared()
 	{
@@ -42,9 +42,9 @@ public class CategoriesManagerViewModel : PageViewModel
 		try
 		{
 			//TODO: Refresh collection based on IDs
-			var categories = await _api.GetCategoriesAsync();
-			Categories.Clear();
-			Categories.AddRange(categories.Content!.OrderBy(t => t.DisplayName));
+			var tags = await _api.GetTagsAsync();
+			Tags.Clear();
+			Tags.AddRange(tags.Content!.OrderBy(t => t.DisplayName));
 		}
 		catch (Exception ex)
 		{
@@ -55,13 +55,13 @@ public class CategoriesManagerViewModel : PageViewModel
 		}
 	}
 
-	public ICommand AddCategoryCommand => GetOrCreateAsyncCommand(AddCategoryAsync);
+	public ICommand AddTagCommand => GetOrCreateAsyncCommand(AddTagAsync);
 
-	public ICommand UpdateCategoryCommand => GetOrCreateAsyncCommand<Category>(UpdateCategoryAsync);
+	public ICommand UpdateTagCommand => GetOrCreateAsyncCommand<Tag>(UpdateTagAsync);
 
-	private async Task AddCategoryAsync()
+	private async Task AddTagAsync()
 	{
-		var viewModel = new AddOrUpdateCategoryDialogViewModel();
+		var viewModel = new AddOrUpdateTagDialogViewModel();
 		var result = await _dialogService.ShowAsync(viewModel);
 		if (result != ContentDialogResult.Primary)
 		{
@@ -69,42 +69,42 @@ public class CategoriesManagerViewModel : PageViewModel
 		}
 
 		using var loadingScope = _loadingIndicator.BeginLoading();
-		var apiResponse = await _api.AddCategoryAsync(new Category()
+		var apiResponse = await _api.AddTagAsync(new Tag()
 		{
-			DisplayName = viewModel.Category.DisplayName,
-			RouteName = viewModel.Category.RouteName,
+			DisplayName = viewModel.Tag.DisplayName,
+			RouteName = viewModel.Tag.RouteName,
 		});
 
 		await RefreshListAsync();
 	}
 
-	private async Task UpdateCategoryAsync(Category? category)
+	private async Task UpdateTagAsync(Tag? tag)
 	{
-		if (category is null)
+		if (tag is null)
 		{
 			return;
 		}
 
-		var viewModel = new AddOrUpdateCategoryDialogViewModel(new CategoryViewModel()
+		var viewModel = new AddOrUpdateTagDialogViewModel(new TagViewModel()
 		{
-			Id = category.Id,
-			DisplayName = category.DisplayName,
-			RouteName = category.RouteName
+			Id = tag.Id,
+			DisplayName = tag.DisplayName,
+			RouteName = tag.RouteName
 		});
 		var result = await _dialogService.ShowAsync(viewModel);
 
 		using var loadingScope = _loadingIndicator.BeginLoading();
 		if (result == ContentDialogResult.Primary)
 		{
-			var apiResponse = await _api.UpdateCategoryAsync(category.Id, new EditCategory()
+			var apiResponse = await _api.UpdateTagAsync(tag.Id, new Tag()
 			{
-				DisplayName = viewModel.Category.DisplayName,
-				RouteName = viewModel.Category.RouteName,
+				DisplayName = viewModel.Tag.DisplayName,
+				RouteName = viewModel.Tag.RouteName,
 			});
 		}
 		else if (result == ContentDialogResult.Secondary)
 		{
-			var apiResponse = await _api.DeleteCategoryAsync(category.Id);
+			var apiResponse = await _api.DeleteTagAsync(tag.Id);
 		}
 
 		await RefreshListAsync();

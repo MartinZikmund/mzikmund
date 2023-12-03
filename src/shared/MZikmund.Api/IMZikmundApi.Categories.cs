@@ -14,7 +14,7 @@ public partial interface IMZikmundApi
 
 	[Put("/v1/admin/categories/{categoryId}")]
 	[Headers("Authorization: Bearer")]
-	Task<ApiResponse<Category>> UpdateCategoryAsync(Guid categoryId, EditCategory category);
+	Task<ApiResponse<Category>> UpdateCategoryAsync(Guid categoryId, Category category);
 
 	[Delete("/v1/admin/categories/{categoryId}")]
 	[Headers("Authorization: Bearer")]

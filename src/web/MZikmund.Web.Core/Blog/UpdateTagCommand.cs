@@ -6,4 +6,4 @@ namespace MZikmund.Web.Core.Blog;
 /// <summary>
 /// Represents a request to update a category.
 /// </summary>
-public record UpdateTagCommand(Guid TagId, EditTag UpdatedTag) : IRequest<Tag>;
+public record UpdateTagCommand(Guid TagId, Tag UpdatedTag) : IRequest<Tag>;

@@ -1,19 +1,9 @@
-﻿namespace MZikmund.ViewModels;
+﻿
+namespace MZikmund.ViewModels;
 
 public abstract class PageViewModel : ViewModelBase
 {
-	//private INavigationService? _navigationService = null!;
-
 	public virtual string Title { get; } = "";
-
-	//protected INavigationService NavigationService
-	//{
-	//	get
-	//	{
-	//		_navigationService ??= Ioc.Default.GetRequiredService<INavigationService>();
-	//		return _navigationService;
-	//	}
-	//}
 
 	public virtual void ViewCreated() { }
 
@@ -26,4 +16,6 @@ public abstract class PageViewModel : ViewModelBase
 	public virtual void ViewDisappearing() { }
 
 	public virtual void ViewDestroy() { }
+
+	public virtual void ViewNavigatedTo(object parameter) { }
 }

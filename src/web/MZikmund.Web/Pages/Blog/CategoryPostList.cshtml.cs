@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MZikmund.DataContracts.Blog;
 using MZikmund.Web.Core.Blog;
-using MZikmund.Web.Core.Dtos;
 using X.PagedList;
 
 namespace MZikmund.Web.Pages.Blog;
@@ -38,9 +37,8 @@ public class CategoryPostListModel : PageModel
 		var pageSize = 12; // TODO: Include in configuration
 						   //var pagesize = _blogConfig.ContentSettings.PostListPageSize;
 		var posts = await _mediator.Send(new ListPostsQuery(pageNumber, pageSize, category.Id));
-		var totalPostsCount = await _mediator.Send(new CountPostsQuery(CategoryId: category.Id));
 
-		var list = new StaticPagedList<PostListItem>(posts, pageNumber, pageSize, totalPostsCount);
+		var list = new StaticPagedList<PostListItem>(posts.Data, pageNumber, pageSize, posts.TotalCount);
 
 		BlogPosts = list;
 

@@ -6,6 +6,8 @@ public interface INavigationService
 {
 	void Navigate<TViewModel>();
 
+	void Navigate<TViewModel>(object parameter);
+
 	bool GoBack();
 
 	void Initialize();

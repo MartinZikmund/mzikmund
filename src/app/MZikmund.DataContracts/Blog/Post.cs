@@ -1,6 +1,4 @@
-﻿using MZikmund.DataContracts.Blog;
-
-namespace MZikmund.Web.Core.Dtos;
+﻿namespace MZikmund.DataContracts.Blog;
 
 public class Post
 {
@@ -25,4 +23,8 @@ public class Post
 	public Category[] Categories { get; set; } = Array.Empty<Category>();
 
 	public Tag[] Tags { get; set; } = Array.Empty<Tag>();
+
+	public string LanguageCode { get; set; } = "en";
+
+	public bool IsPublished { get; set; }
 }

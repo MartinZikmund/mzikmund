@@ -6,18 +6,16 @@ using MZikmund.Models.Dialogs;
 using MZikmund.Services.Dialogs;
 using MZikmund.Services.Loading;
 using MZikmund.Services.Localization;
-using Newtonsoft.Json;
-using Windows.Storage.Pickers;
 
 namespace MZikmund.ViewModels.Admin;
 
-public class TagsManagerViewModel : PageViewModel
+public class CategoriesManagerViewModel : PageViewModel
 {
 	private readonly IDialogService _dialogService;
 	private readonly ILoadingIndicator _loadingIndicator;
 	private readonly IMZikmundApi _api;
 
-	public TagsManagerViewModel(
+	public CategoriesManagerViewModel(
 		IMZikmundApi api,
 		IDialogService dialogService,
 		ILoadingIndicator loadingIndicator)
@@ -27,9 +25,9 @@ public class TagsManagerViewModel : PageViewModel
 		_api = api ?? throw new ArgumentNullException(nameof(api));
 	}
 
-	public override string Title => Localizer.Instance.GetString("Tags");
+	public override string Title => Localizer.Instance.GetString("Categories");
 
-	public ObservableCollection<Tag> Tags { get; } = new ObservableCollection<Tag>();
+	public ObservableCollection<Category> Categories { get; } = new ObservableCollection<Category>();
 
 	public override async void ViewAppeared()
 	{
@@ -42,9 +40,9 @@ public class TagsManagerViewModel : PageViewModel
 		try
 		{
 			//TODO: Refresh collection based on IDs
-			var tags = await _api.GetTagsAsync();
-			Tags.Clear();
-			Tags.AddRange(tags.Content!.OrderBy(t => t.DisplayName));
+			var categories = await _api.GetCategoriesAsync();
+			Categories.Clear();
+			Categories.AddRange(categories.Content!.OrderBy(t => t.DisplayName));
 		}
 		catch (Exception ex)
 		{
@@ -55,13 +53,13 @@ public class TagsManagerViewModel : PageViewModel
 		}
 	}
 
-	public ICommand AddTagCommand => GetOrCreateAsyncCommand(AddTagAsync);
+	public ICommand AddCategoryCommand => GetOrCreateAsyncCommand(AddCategoryAsync);
 
-	public ICommand UpdateTagCommand => GetOrCreateAsyncCommand<Tag>(UpdateTagAsync);
+	public ICommand UpdateCategoryCommand => GetOrCreateAsyncCommand<Category>(UpdateCategoryAsync);
 
-	private async Task AddTagAsync()
+	private async Task AddCategoryAsync()
 	{
-		var viewModel = new AddOrUpdateTagDialogViewModel();
+		var viewModel = new AddOrUpdateCategoryDialogViewModel();
 		var result = await _dialogService.ShowAsync(viewModel);
 		if (result != ContentDialogResult.Primary)
 		{
@@ -69,42 +67,42 @@ public class TagsManagerViewModel : PageViewModel
 		}
 
 		using var loadingScope = _loadingIndicator.BeginLoading();
-		var apiResponse = await _api.AddTagAsync(new Tag()
+		var apiResponse = await _api.AddCategoryAsync(new Category()
 		{
-			DisplayName = viewModel.Tag.DisplayName,
-			RouteName = viewModel.Tag.RouteName,
+			DisplayName = viewModel.Category.DisplayName,
+			RouteName = viewModel.Category.RouteName,
 		});
 
 		await RefreshListAsync();
 	}
 
-	private async Task UpdateTagAsync(Tag? tag)
+	private async Task UpdateCategoryAsync(Category? category)
 	{
-		if (tag is null)
+		if (category is null)
 		{
 			return;
 		}
 
-		var viewModel = new AddOrUpdateTagDialogViewModel(new TagViewModel()
+		var viewModel = new AddOrUpdateCategoryDialogViewModel(new CategoryViewModel()
 		{
-			Id = tag.Id,
-			DisplayName = tag.DisplayName,
-			RouteName = tag.RouteName
+			Id = category.Id,
+			DisplayName = category.DisplayName,
+			RouteName = category.RouteName
 		});
 		var result = await _dialogService.ShowAsync(viewModel);
 
 		using var loadingScope = _loadingIndicator.BeginLoading();
 		if (result == ContentDialogResult.Primary)
 		{
-			var apiResponse = await _api.UpdateTagAsync(tag.Id, new EditTag()
+			var apiResponse = await _api.UpdateCategoryAsync(category.Id, new Category()
 			{
-				DisplayName = viewModel.Tag.DisplayName,
-				RouteName = viewModel.Tag.RouteName,
+				DisplayName = viewModel.Category.DisplayName,
+				RouteName = viewModel.Category.RouteName,
 			});
 		}
 		else if (result == ContentDialogResult.Secondary)
 		{
-			var apiResponse = await _api.DeleteTagAsync(tag.Id);
+			var apiResponse = await _api.DeleteCategoryAsync(category.Id);
 		}
 
 		await RefreshListAsync();

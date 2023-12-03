@@ -72,23 +72,21 @@ public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, PostE
 		post.HeroImageUrl = string.IsNullOrWhiteSpace(postEditModel.HeroImageUrl) ? null : postEditModel.HeroImageUrl;
 
 		// 1. Add new tags to tag lib
-		var tags = string.IsNullOrWhiteSpace(postEditModel.Tags) ?
-			Array.Empty<string>() :
-			postEditModel.Tags.Split(',').ToArray();
+		var tags = postEditModel.Tags.ToArray();
 
-		foreach (var tag in tags)
+		foreach (var tag in tags.Where(t => t.Id != Guid.Empty))
 		{
-			if (!Tag.IsValid(tag))
+			if (!Tag.IsValid(tag.DisplayName))
 			{
 				continue;
 			}
 
-			if (!await _tagRepository.AnyAsync(p => p.DisplayName == tag, ct))
+			if (!await _tagRepository.AnyAsync(p => p.DisplayName == tag.DisplayName, ct))
 			{
 				await _tagRepository.AddAsync(new()
 				{
-					DisplayName = tag,
-					RouteName = tag.GenerateRouteName()
+					DisplayName = tag.DisplayName,
+					RouteName = string.IsNullOrEmpty(tag.RouteName) ? tag.DisplayName.GenerateRouteName() : tag.RouteName,
 				}, ct);
 			}
 		}
@@ -96,15 +94,10 @@ public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, PostE
 		post.Tags.Clear();
 		if (tags.Length != 0)
 		{
-			foreach (var tagName in tags)
+			foreach (var tag in tags)
 			{
-				if (!Tag.IsValid(tagName))
-				{
-					continue;
-				}
-
-				var tag = await _tagRepository.GetAsync(t => t.DisplayName == tagName);
-				if (tag is not null) post.Tags.Add(tag);
+				var tagEntity = await _tagRepository.GetAsync(t => t.DisplayName == tag.DisplayName);
+				if (tagEntity is not null) post.Tags.Add(tagEntity);
 			}
 		}
 
@@ -112,10 +105,10 @@ public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, PostE
 
 		post.Categories.Clear();
 
-		foreach (var categoryId in request.UpdatedPost.CategoryIds)
+		foreach (var category in request.UpdatedPost.Categories)
 		{
-			var category = await _categoryRepository.GetAsync(c => c.Id == categoryId);
-			if (category is not null) post.Categories.Add(category);
+			var categoryEntity = await _categoryRepository.GetAsync(c => c.Id == category.Id);
+			if (categoryEntity is not null) post.Categories.Add(categoryEntity);
 		}
 
 		await _postRepository.UpdateAsync(post, ct);
