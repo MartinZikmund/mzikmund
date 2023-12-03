@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MZikmund.DataContracts.Blog;
 using MZikmund.Web.Core.Blog;
-using MZikmund.Web.Core.Dtos;
 
 namespace MZikmund.Web.Controllers.Admin;
 
