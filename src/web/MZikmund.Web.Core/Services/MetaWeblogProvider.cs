@@ -187,7 +187,7 @@ public class MetaWeblogProvider : IMetaWeblogProvider
 		ValidateUser(username, password);
 
 		var posts = await _mediator.Send(new ListPostsQuery(1, numberOfPosts));
-		return posts.Select(p => ToWeblogPost(p)).Cast<WeblogPost>().ToArray();
+		return posts.Data.Select(p => ToWeblogPost(p)).Cast<WeblogPost>().ToArray();
 	});
 
 	public Task<MediaObjectInfo> NewMediaObjectAsync(string blogid, string username, string password, MediaObject mediaObject) => TryExecuteAsync(async () =>

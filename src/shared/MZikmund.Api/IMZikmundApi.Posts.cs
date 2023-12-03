@@ -1,4 +1,5 @@
-﻿using MZikmund.DataContracts.Blog;
+﻿using MZikmund.DataContracts;
+using MZikmund.DataContracts.Blog;
 using Refit;
 
 namespace MZikmund.Api.Client;
@@ -6,7 +7,10 @@ namespace MZikmund.Api.Client;
 public partial interface IMZikmundApi
 {
 	[Get("/v1/posts")]
-	Task<ApiResponse<Post[]>> GetPostsAsync();
+	Task<ApiResponse<PagedResponse<PostListItem>>> GetPostsAsync();
+
+	[Get("/v1/posts/{postId}")]
+	Task<ApiResponse<Post>> GetPostAsync(Guid postId);
 
 	[Post("/v1/admin/posts")]
 	[Headers("Authorization: Bearer")]

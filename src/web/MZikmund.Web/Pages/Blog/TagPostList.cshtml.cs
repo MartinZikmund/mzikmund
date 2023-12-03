@@ -37,9 +37,8 @@ public class TagPostListModel : PageModel
 		var pageSize = 12; // TODO: Include in configuration
 						   //var pagesize = _blogConfig.ContentSettings.PostListPageSize;
 		var posts = await _mediator.Send(new ListPostsQuery(pageNumber, pageSize, TagId: tag.Id));
-		var totalPostsCount = await _mediator.Send(new CountPostsQuery(TagId: tag.Id));
 
-		var list = new StaticPagedList<PostListItem>(posts, pageNumber, pageSize, totalPostsCount);
+		var list = new StaticPagedList<PostListItem>(posts.Data, pageNumber, pageSize, posts.TotalCount);
 
 		BlogPosts = list;
 

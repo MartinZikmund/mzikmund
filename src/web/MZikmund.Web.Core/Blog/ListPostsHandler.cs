@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
+using MZikmund.DataContracts;
 using MZikmund.DataContracts.Blog;
 using MZikmund.Web.Core.Services;
 using MZikmund.Web.Data.Entities;
@@ -8,12 +9,13 @@ using MZikmund.Web.Data.Specifications;
 
 namespace MZikmund.Web.Core.Blog;
 
-internal sealed class ListPostsHandler : IRequestHandler<ListPostsQuery, IReadOnlyList<PostListItem>>
+internal sealed class ListPostsHandler : IRequestHandler<ListPostsQuery, PagedResponse<PostListItem>>
 {
 	private readonly IRepository<PostEntity> _postsRepository;
 	private readonly IRepository<CategoryEntity> _categoriesRepository;
 	private readonly IRepository<TagEntity> _tagsRepository;
 	private readonly IMarkdownConverter _markdownConverter;
+	private readonly IMediator _mediator;
 	private readonly IMapper _mapper;
 
 	public ListPostsHandler(
@@ -21,18 +23,22 @@ internal sealed class ListPostsHandler : IRequestHandler<ListPostsQuery, IReadOn
 		IRepository<CategoryEntity> categoriesRepository,
 		IRepository<TagEntity> tagsRepository,
 		IMarkdownConverter markdownConverter,
+		IMediator mediator,
 		IMapper mapper)
 	{
 		_postsRepository = postsRepository;
 		_categoriesRepository = categoriesRepository;
 		_tagsRepository = tagsRepository;
 		_markdownConverter = markdownConverter;
+		_mediator = mediator;
 		_mapper = mapper;
 	}
 
-	public async Task<IReadOnlyList<PostListItem>> Handle(ListPostsQuery request, CancellationToken cancellationToken)
+	public async Task<PagedResponse<PostListItem>> Handle(ListPostsQuery request, CancellationToken cancellationToken)
 	{
 		var specification = new ListPostsSpecification(request.Page, request.PageSize, request.CategoryId, request.TagId);
+		var postCount = await _mediator.Send(new CountPostsQuery(request.CategoryId, request.TagId), cancellationToken);
+
 		var posts = await _postsRepository.SelectAsync(specification, post => new PostListItem
 		{
 			Id = post.Id,
@@ -52,6 +58,6 @@ internal sealed class ListPostsHandler : IRequestHandler<ListPostsQuery, IReadOn
 			post.Abstract = _markdownConverter.ToHtml(post.Abstract);
 		}
 
-		return posts;
+		return new(posts, request.Page, request.PageSize, postCount);
 	}
 }
