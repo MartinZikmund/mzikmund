@@ -82,6 +82,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <UpToDateCheckInput Remove="Views\Admin\CategoriesManagerView.xaml" />
+	  <UpToDateCheckInput Remove="Views\Admin\PostEditorView.xaml" />
+	  <UpToDateCheckInput Remove="Views\Admin\PostsManagerView.xaml" />
+	  <UpToDateCheckInput Remove="Views\Admin\TagsManagerView.xaml" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <Content Include="..\..\..\assets\fonts\generated\fonts\icomoon.ttf" Link="Assets\Fonts\icomoon.ttf" />
 	</ItemGroup>
 </Project>

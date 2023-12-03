@@ -1,0 +1,22 @@
+﻿<local:PostEditorViewBase
+    x:Class="MZikmund.Views.Admin.PostEditorView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:MZikmund.Views.Admin"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+	<Grid RowDefinitions="Auto, 100, *, Auto" RowSpacing="8" ColumnSpacing="8" Padding="20">
+		<TextBox Header="Title" Text="{x:Bind ViewModel.Post.Title, Mode=TwoWay}" />
+		<TextBox Header="Abstract" AcceptsReturn="True" Text="{x:Bind ViewModel.Post.Abstract, Mode=TwoWay}" />
+		<TextBox Header="Content" AcceptsReturn="True" Grid.Row="1" Text="{x:Bind ViewModel.Post.Content, Mode=TwoWay}" />
+		<Button Grid.Row="2">
+			<StackPanel Spacing="8" Orientation="Horizontal">
+				<SymbolIcon Symbol="Save" />
+				<TextBlock Text="Save" />
+			</StackPanel>
+		</Button>
+	</Grid>
+</local:PostEditorViewBase>

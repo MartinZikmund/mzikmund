@@ -1,6 +1,7 @@
 ﻿using Windows.ApplicationModel;
 using MZikmund.ViewModels;
 using CommunityToolkit.Mvvm.DependencyInjection;
+using Microsoft.UI.Xaml.Navigation;
 
 namespace MZikmund.Views;
 
@@ -28,6 +29,11 @@ public abstract partial class PageBase<TViewModel> : Page
 	private void PageLoaded(object sender, RoutedEventArgs e)
 	{
 		ViewModel?.ViewAppeared();
+	}
+
+	protected override void OnNavigatedTo(NavigationEventArgs e)
+	{
+		ViewModel?.ViewNavigatedTo(e.Parameter);
 	}
 
 	private void PageUnloaded(object sender, RoutedEventArgs e)
