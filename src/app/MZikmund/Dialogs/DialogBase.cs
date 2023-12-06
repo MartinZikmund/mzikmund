@@ -11,9 +11,13 @@ public abstract partial class DialogBase<TDialogViewModel> : ContentDialog
 		PrimaryButtonClick += OnPrimaryButtonClick;
 		SecondaryButtonClick += OnSecondaryButtonClick;
 		CloseButtonClick += OnCloseButtonClick;
+		Opened += OnOpened;
 	}
 
 	public TDialogViewModel? ViewModel { get; private set; }
+
+	private void OnOpened(ContentDialog sender, ContentDialogOpenedEventArgs args) =>
+		ViewModel?.OnOpened(this);
 
 	private void OnPrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args) =>
 		ViewModel?.OnPrimaryButtonClick(sender, args);

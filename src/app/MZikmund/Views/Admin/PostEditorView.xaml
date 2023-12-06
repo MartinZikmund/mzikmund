@@ -11,12 +11,14 @@
 	<Grid RowDefinitions="Auto, 100, *, Auto" ColumnDefinitions="*, *" RowSpacing="8" ColumnSpacing="8" Padding="20">
 		<TextBox Header="Title" FontSize="20" Grid.ColumnSpan="2" Text="{x:Bind ViewModel.Post.Title, Mode=TwoWay}" />
 		<StackPanel Orientation="Vertical" Grid.Row="1" Grid.Column="1">
-			<Button Content="{x:Bind ViewModel.CategoriesText, Mode=OneWay}" HorizontalAlignment="Stretch" />
-			<TextBox Header="Tags" Grid.Row="1" Text="{x:Bind ViewModel.Tags, Mode=TwoWay}" />
+			<TextBlock Text="Categories" />
+			<Button Command="{x:Bind ViewModel.PickCategoriesCommand}" Content="{x:Bind ViewModel.CategoriesText, Mode=OneWay}" HorizontalAlignment="Stretch" Margin="0,0,0,4" />
+			<TextBlock Text="Tags" />
+			<TextBox Grid.Row="1" Text="{x:Bind ViewModel.Tags, Mode=TwoWay}" />
 		</StackPanel>
 		<TextBox Grid.Row="1" FontFamily="{StaticResource CodeFont}" Header="Abstract" AcceptsReturn="True" TextWrapping="Wrap" Text="{x:Bind ViewModel.Post.Abstract, Mode=TwoWay}" />
 		<TextBox Grid.Row="2" FontFamily="{StaticResource CodeFont}" Header="Content" AcceptsReturn="True" TextWrapping="Wrap" Text="{x:Bind ViewModel.Post.Content, Mode=TwoWay}" />
-		<Button Grid.Row="3">
+		<Button Grid.Row="3" Command="{x:Bind ViewModel.SaveCommand}">
 			<StackPanel Spacing="8" Orientation="Horizontal">
 				<SymbolIcon Symbol="Save" />
 				<TextBlock Text="Save" />

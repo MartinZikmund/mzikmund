@@ -1,0 +1,23 @@
+﻿<local:CategoryPickerDialogBase
+    x:Class="MZikmund.Dialogs.Admin.CategoryPickerDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:MZikmund.Dialogs.Admin"
+    xmlns:xaml="using:MZikmund.Extensions.Xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:blog="using:MZikmund.DataContracts.Blog"
+	Style="{ThemeResource DefaultContentDialogStyle}"
+    Title="{xaml:Localize Key=PickCategories}"
+    CloseButtonText="{xaml:Localize Key=Cancel}"
+    DefaultButton="Primary"
+    PrimaryButtonText="{xaml:Localize Key=Save}">
+	<Grid>
+		<ListView x:Name="CategoriesListView" Height="240" SelectionMode="Multiple" SelectionChanged="ListView_SelectionChanged" ItemsSource="{x:Bind ViewModel.AllCategories, Mode=OneWay}">
+			<ListView.ItemTemplate>
+				<DataTemplate x:DataType="blog:Category">
+					<TextBlock Text="{x:Bind DisplayName}" />
+				</DataTemplate>
+			</ListView.ItemTemplate>
+		</ListView>
+	</Grid>
+</local:CategoryPickerDialogBase>

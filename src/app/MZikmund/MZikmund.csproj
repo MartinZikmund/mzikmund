@@ -82,6 +82,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Remove="Dialogs\Admin\CategoryPickerDialog.xaml" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<UpToDateCheckInput Remove="Dialogs\Admin\CategoryPickerDialog.xaml" />
 		<UpToDateCheckInput Remove="Views\Admin\CategoriesManagerView.xaml" />
 		<UpToDateCheckInput Remove="Views\Admin\PostEditorView.xaml" />
 		<UpToDateCheckInput Remove="Views\Admin\PostsManagerView.xaml" />
