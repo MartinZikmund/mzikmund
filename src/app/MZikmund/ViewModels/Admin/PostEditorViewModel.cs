@@ -2,6 +2,7 @@
 using MZikmund.DataContracts.Blog;
 using MZikmund.Services.Dialogs;
 using MZikmund.Services.Loading;
+using MZikmund.Shared.Extensions;
 
 namespace MZikmund.ViewModels.Admin;
 
@@ -10,6 +11,7 @@ public class PostEditorViewModel : PageViewModel
 	private readonly IMZikmundApi _api;
 	private readonly IDialogService _dialogService;
 	private readonly ILoadingIndicator _loadingIndicator;
+	private string _postTitle = "";
 
 	public PostEditorViewModel(IMZikmundApi api, IDialogService dialogService, ILoadingIndicator loadingIndicator)
 	{
@@ -19,6 +21,18 @@ public class PostEditorViewModel : PageViewModel
 	}
 
 	public override string Title => Post?.Title ?? "";
+
+	public string PostTitle
+	{
+		get => _postTitle;
+		set
+		{
+			_postTitle = value;
+			PostRouteName = _postTitle.GenerateRouteName();
+		}
+	}
+
+	public string PostRouteName { get; set; } = "";
 
 	public string Tags { get; set; } = "";
 
@@ -53,8 +67,12 @@ public class PostEditorViewModel : PageViewModel
 			.Select(t => new Tag { DisplayName = t.Trim() })
 			.ToArray();
 
+		Post.Title = PostTitle;
+		Post.RouteName = PostRouteName;
 		Post.Tags = tags;
 		Post.Categories = Categories;
+		Post.IsPublished = true;
+		Post.PublishedDate = DateTimeOffset.UtcNow; // TODO: Don't always publish!
 
 		if (Post.Id == Guid.Empty)
 		{
@@ -93,5 +111,7 @@ public class PostEditorViewModel : PageViewModel
 
 		Tags = string.Join(", ", post.Tags.Select(t => t.DisplayName));
 		Categories = post.Categories.ToArray();
+		PostTitle = post.Title;
+		PostRouteName = post.RouteName;
 	}
 }

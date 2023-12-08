@@ -2,11 +2,11 @@
 using Microsoft.Extensions.Logging;
 using MZikmund.Web.Configuration;
 using MZikmund.DataContracts.Blog;
-using MZikmund.Web.Core.Extensions;
 using MZikmund.Web.Core.Services;
 using MZikmund.Web.Data.Entities;
 using MZikmund.Web.Data.Infrastructure;
 using AutoMapper;
+using MZikmund.Shared.Extensions;
 
 namespace MZikmund.Web.Core.Blog;
 
@@ -58,18 +58,17 @@ public class CreatePostHandler : IRequestHandler<CreatePostCommand, Post>
 			HeroImageUrl = string.IsNullOrWhiteSpace(request.NewPost.HeroImageUrl) ? null : request.NewPost.HeroImageUrl, // TODO: Generate hero image from content via Dall-E
 		};
 
-		var categories = await _categoryRepository.ListAsync(ct);
-		var selectedCategories = categories.Where(c => request.NewPost.Categories.Any(cat => cat.Id == c.Id));
-
-		foreach (var category in selectedCategories)
+		foreach (var category in request.NewPost.Categories)
 		{
-			post.Categories.Add(category);
+			var existingCategory = await _categoryRepository.GetAsync(c => c.Id == category.Id);
+
+			post.Categories.Add(existingCategory!);
 		}
 
 		// add tags
 		var tags = request.NewPost.Tags.ToArray();
 
-		foreach (var tag in tags.Where(t => t.Id != Guid.Empty))
+		foreach (var tag in tags)
 		{
 			if (!Tag.IsValid(tag.DisplayName))
 			{
@@ -89,6 +88,7 @@ public class CreatePostHandler : IRequestHandler<CreatePostCommand, Post>
 	{
 		var newTag = new TagEntity
 		{
+			Id = Guid.NewGuid(),
 			DisplayName = item.DisplayName,
 			RouteName = string.IsNullOrEmpty(item.RouteName) ? item.DisplayName.GenerateRouteName() : item.RouteName,
 		};
