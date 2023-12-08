@@ -1,20 +1,22 @@
 ﻿using MediatR;
 using MZikmund.Web.Configuration;
 using MZikmund.DataContracts.Blog;
-using MZikmund.Web.Core.Extensions;
 using MZikmund.Web.Core.Services;
 using MZikmund.Web.Data.Entities;
 using MZikmund.Web.Data.Infrastructure;
+using MZikmund.Shared.Extensions;
+using AutoMapper;
 
 namespace MZikmund.Web.Core.Blog;
 
-public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, PostEntity>
+public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, Post>
 {
 	private readonly IRepository<PostCategoryEntity> _postCategoryRepository;
 	private readonly IRepository<PostTagEntity> _postTagRepository;
 	private readonly IRepository<TagEntity> _tagRepository;
 	private readonly IRepository<CategoryEntity> _categoryRepository;
 	private readonly IRepository<PostEntity> _postRepository;
+	private readonly IMapper _mapper;
 	private readonly IDateProvider _dateProvider;
 	private readonly ISiteConfiguration _siteConfiguration;
 
@@ -24,6 +26,7 @@ public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, PostE
 		IRepository<TagEntity> tagRepository,
 		IRepository<CategoryEntity> categoryRepository,
 		IRepository<PostEntity> postRepository,
+		IMapper mapper,
 		IDateProvider dateProvider,
 		ISiteConfiguration siteConfiguration)
 	{
@@ -32,11 +35,12 @@ public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, PostE
 		_tagRepository = tagRepository;
 		_categoryRepository = categoryRepository;
 		_postRepository = postRepository;
+		_mapper = mapper;
 		_dateProvider = dateProvider;
 		_siteConfiguration = siteConfiguration;
 	}
 
-	public async Task<PostEntity> Handle(UpdatePostCommand request, CancellationToken ct)
+	public async Task<Post> Handle(UpdatePostCommand request, CancellationToken ct)
 	{
 		if (await _postRepository.AnyAsync(
 			p => p.RouteName == request.UpdatedPost.RouteName &&
@@ -96,7 +100,7 @@ public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, PostE
 		{
 			foreach (var tag in tags)
 			{
-				var tagEntity = await _tagRepository.GetAsync(t => t.DisplayName == tag.DisplayName);
+				var tagEntity = await _tagRepository.GetAsync(t => t.DisplayName == tag.DisplayName) ?? await CreateTag(tag);
 				if (tagEntity is not null) post.Tags.Add(tagEntity);
 			}
 		}
@@ -113,6 +117,19 @@ public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, PostE
 
 		await _postRepository.UpdateAsync(post, ct);
 
-		return post;
+		return _mapper.Map<Post>(post);
+	}
+
+	private async Task<TagEntity> CreateTag(Tag item)
+	{
+		var newTag = new TagEntity
+		{
+			Id = Guid.NewGuid(),
+			DisplayName = item.DisplayName,
+			RouteName = string.IsNullOrEmpty(item.RouteName) ? item.DisplayName.GenerateRouteName() : item.RouteName,
+		};
+
+		var tag = await _tagRepository.AddAsync(newTag);
+		return tag;
 	}
 }
