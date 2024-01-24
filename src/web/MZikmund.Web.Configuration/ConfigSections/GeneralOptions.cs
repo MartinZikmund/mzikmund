@@ -14,6 +14,8 @@ public class GeneralOptions
 
 	public string TitleFormatString { get; set; } = "";
 
+	public string DefaultCulture { get; set; } = "";
+
 	public Uri Url { get; set; } = null!;
 
 	public Uri WasmAppUrl { get; set; } = null!;
