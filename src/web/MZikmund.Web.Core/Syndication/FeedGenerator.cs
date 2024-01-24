@@ -10,41 +10,46 @@ using EwSyndicationItem = Edi.SyndicationFeed.ReaderWriter.SyndicationItem;
 using EwSyndicationLink = Edi.SyndicationFeed.ReaderWriter.SyndicationLink;
 using EwSyndicationCategory = Edi.SyndicationFeed.ReaderWriter.SyndicationCategory;
 using EwSyndicationPerson = Edi.SyndicationFeed.ReaderWriter.SyndicationPerson;
+using Microsoft.Extensions.Options;
+using MZikmund.Web.Configuration.ConfigSections;
+using MZikmund.Web.Configuration;
+using System.Reflection;
 
 namespace MZikmund.Web.Core.Syndication;
 
 public class FeedGenerator : IFeedGenerator
 {
-	public FeedGenerator(IHttpContextAccessor httpContextAccessor)
+	public FeedGenerator(
+		IHttpContextAccessor httpContextAccessor,
+		ISiteConfiguration siteConfiguration)
 	{
-		//TODO: Move all values into configuration
 		var baseUrl = httpContextAccessor.HttpContext.Request.GetBaseUrl();
 		HostUrl = baseUrl!;
-		HeadTitle = "Martin Zikmund";
-		HeadDescription = "Open-source enthusiast and Microsoft MVP. Passionate speaker, avid climber, and Lego aficionado.";
-		Copyright = $"©{DateTimeOffset.UtcNow.Year} Martin Zikmund";
-		Generator = "MZikmund";
-		GeneratorVersion = "0.1";
+		HeadTitle = siteConfiguration.General.DefaultTitle;
+		HeadDescription = siteConfiguration.General.DefaultDescription;
+		Copyright = $"©{DateTimeOffset.UtcNow.Year} {siteConfiguration.Author.FullName}";
+		Generator = siteConfiguration.General.EngineName;
+		GeneratorVersion = Assembly.GetEntryAssembly()?.GetName()?.Version?.ToString() ?? "0.1";
 		TrackBackUrl = baseUrl!;
-		Language = "en-US";
+		Language = siteConfiguration.General.DefaultCulture;
 	}
 
 	//TODO: Hide properties, use a private feed configuration class instead
-	public string HostUrl { get; set; }
+	public string HostUrl { get; }
 
-	public string HeadTitle { get; set; }
+	public string HeadTitle { get; }
 
-	public string HeadDescription { get; set; }
+	public string HeadDescription { get; }
 
-	public string Copyright { get; set; }
+	public string Copyright { get; }
 
-	public string Generator { get; set; }
+	public string Generator { get; }
 
-	public string TrackBackUrl { get; set; }
+	public string TrackBackUrl { get; }
 
-	public string GeneratorVersion { get; set; }
+	public string GeneratorVersion { get; }
 
-	public string Language { get; set; }
+	public string Language { get; }
 
 	public async Task<string> GetRssAsync(IEnumerable<FeedEntry> feedEntries, string id)
 	{
