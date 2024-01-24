@@ -1,0 +1,121 @@
+﻿@page
+@model ContactModel
+@{
+    ViewData[ViewDataProperties.Title] = "Contacts";
+}
+
+<h1 class="mb-3">@ViewData[ViewDataProperties.Title]</h1>
+
+<section>
+    <div class="row text-center">
+        <div class="col-md-2 col-6">
+            <h2 class="text-decoration-none"><img src="~/svg/mapmarker.svg" /></h2>
+            <p>Prague, Czech Republic</p>
+        </div>
+
+        <div class="col-md-2 col-6">
+            <h2 class="text-decoration-none"><img src="~/svg/phone.svg" /></h2>
+            <a href="tel:+420728926887">+420 728 926 887</a>
+        </div>
+
+        <div class="col-md-2 col-6">
+            <h2 class="text-decoration-none"><img src="~/svg/mail.svg" /></h2>
+            <a href="mailto:martin@zikmund.dev">martin@zikmund.dev</a>
+        </div>
+
+        <div class="col-md-2 col-6">
+            <h2 class="text-decoration-none"><img src="~/svg/twitter.svg" /></h2>
+            <a href="https://twitter.com/mzikmunddev">Twitter</a>
+        </div>
+
+        <div class="col-md-2 col-6">
+            <h2 class="text-decoration-none"><img src="~/svg/github.svg" /></h2>
+            <a href="https://github.com/martinzikmund">GitHub</a>
+        </div>
+
+        <div class="col-md-2 col-6">
+            <h2 class="text-decoration-none"><img src="~/svg/youtube.svg" /></h2>
+            <a href="https://www.youtube.com/channel/UCB6Td35bzTvcJN_HG6TLtwA">YouTube</a>
+        </div>
+
+        <div class="col-md-2 col-6">
+            <h2 class="text-decoration-none"><img src="~/svg/youtube.svg" /></h2>
+            <a href="https://www.facebook.com/mzikmunddev">Facebook</a>
+        </div>
+
+        <div class="col-md-2 col-6">
+            <h2 class="text-decoration-none"><img src="~/svg/linkedin.svg" /></h2>
+            <a href="https://www.linkedin.com/in/mzikmund/">LinkedIn</a>
+        </div>
+
+        <div class="col-md-2 col-6">
+            <h2 class="text-decoration-none"><img src="~/svg/twitch.svg" /></h2>
+            <a href="https://www.twitch.tv/MartinZikmund/">Twitch</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <h2>Contact me</h2>
+            @if (Model.ShowEmailSent)
+            {
+                <aside class="alert alert-success">
+                    Thank you for contacting me, I will get to you soon!
+                </aside>
+            }
+            <form class="form" method="post">
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <div class="md-form mb-2">
+                            <label for="name">Your name</label>
+                            <input asp-for="Contact.Name" type="text" id="name" name="name" placeholder="Enter name" class="form-control">
+                        </div>
+                    </div>
+                    <!--Grid column-->
+                    <!--Grid column-->
+                    <div class="col-md-6 form-group">
+                        <div class="md-form mb-2">
+                            <label for="email">Your e-mail</label>
+                            <input asp-for="Contact.Email" type="text" id="email" name="email" placeholder="Enter email" class="form-control">
+                        </div>
+                    </div>
+                    <!--Grid column-->
+
+                </div>
+                <!--Grid row-->
+                <!--Grid row-->
+                <div class="row">
+                    <div class="col-md-12 form-group">
+                        <div class="md-form mb-2">
+                            <label for="subject" class="">Subject</label>
+                            <input asp-for="Contact.Subject" type="text" id="subject" name="subject" placeholder="Enter subject" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <!--Grid row-->
+                <!--Grid row-->
+                <div class="row">
+
+                    <!--Grid column-->
+                    <div class="col-md-12 form-group">
+
+                        <div class="md-form mb-2">
+                            <label for="message">Message</label>
+                            <textarea asp-for="Contact.Message" type="text" id="message" name="message" rows="3" class="form-control"></textarea>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="alert alert-danger validation-summary" asp-validation-summary="All"></div>
+                <!--Grid row-->
+                <div class="row justify-content-center">
+                    <div class="col text-center">
+                        <button type="submit" class="btn btn-primary btn-lg" onclick="document.getElementById('contact-form').submit();">Send</button>
+                    </div>
+                </div>
+            </form>
+
+
+        </div>
+    </div>
+
+</section>
