@@ -101,12 +101,12 @@
     <PackageVersion Include="Uno.Wasm.Bootstrap" Version="8.0.3" />
     <PackageVersion Include="Uno.Wasm.Bootstrap.DevServer" Version="8.0.3" />
     <PackageVersion Include="Uno.Wasm.Bootstrap.Server" Version="8.0.4" />
-    <PackageVersion Include="Uno.WinUI" Version="5.1.0-dev.732" />
+    <PackageVersion Include="Uno.WinUI" Version="5.1.56" />
     <PackageVersion Include="Uno.WinUI.MSAL" Version="5.1.0-dev.732" />
     <PackageVersion Include="Uno.WinUI.Lottie" Version="5.1.0-dev.732" />
     <PackageVersion Include="Uno.WinUI.DevServer" Version="5.1.0-dev.732" />
     <PackageVersion Include="Uno.WinUI.Skia.Gtk" Version="5.1.0-dev.732" />
-    <PackageVersion Include="Uno.WinUI.Skia.Linux.FrameBuffer" Version="5.1.0-dev.732" />
+    <PackageVersion Include="Uno.WinUI.Skia.Linux.FrameBuffer" Version="5.1.56" />
     <PackageVersion Include="Uno.WinUI.Skia.Wpf" Version="5.1.0-dev.732" />
     <PackageVersion Include="Uno.WinUI.WebAssembly" Version="5.1.0-dev.732" />
     <PackageVersion Include="Xamarin.Google.Android.Material" Version="1.10.0.1" />
