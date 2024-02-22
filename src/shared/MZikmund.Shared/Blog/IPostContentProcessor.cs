@@ -1,6 +1,4 @@
-﻿using MZikmund.DataContracts.Blog;
-
-namespace MZikmund.Web.Core.Services;
+﻿namespace MZikmund.Web.Core.Services;
 
 public interface IPostContentProcessor
 {

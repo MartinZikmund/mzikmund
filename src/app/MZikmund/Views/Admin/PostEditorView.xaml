@@ -52,7 +52,10 @@
             Header="Content"
             Text="{x:Bind ViewModel.Post.Content, Mode=TwoWay}"
             TextWrapping="Wrap" />
-        <Button Grid.Row="3" Command="{x:Bind ViewModel.SaveCommand}">
+
+		<WebView2 x:Name="PreviewWebView" Grid.Row="2" Grid.Column="1" />
+		
+		<Button Grid.Row="3" Command="{x:Bind ViewModel.SaveCommand}">
             <StackPanel Orientation="Horizontal" Spacing="8">
                 <SymbolIcon Symbol="Save" />
                 <TextBlock Text="Save" />

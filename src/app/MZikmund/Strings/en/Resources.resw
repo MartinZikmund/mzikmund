@@ -120,6 +120,9 @@
   <data name="AddCategory" xml:space="preserve">
     <value>Add category</value>
   </data>
+  <data name="AddPost" xml:space="preserve">
+    <value>Add post</value>
+  </data>
   <data name="AddTag" xml:space="preserve">
     <value>Add tag</value>
   </data>
@@ -141,11 +144,23 @@
   <data name="Contact" xml:space="preserve">
     <value>Contact</value>
   </data>
+  <data name="DisplayName" xml:space="preserve">
+    <value>Display name</value>
+  </data>
+  <data name="EditCategory" xml:space="preserve">
+    <value>Edit category</value>
+  </data>
+  <data name="EditTag" xml:space="preserve">
+    <value>Edit tag</value>
+  </data>
   <data name="Home" xml:space="preserve">
     <value>Home</value>
   </data>
   <data name="Localizations" xml:space="preserve">
     <value>Localizations</value>
+  </data>
+  <data name="NoCategoriesSelected" xml:space="preserve">
+    <value>No categories selected</value>
   </data>
   <data name="Ok" xml:space="preserve">
     <value>OK</value>

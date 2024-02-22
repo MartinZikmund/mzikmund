@@ -2,7 +2,9 @@
 using MZikmund.DataContracts.Blog;
 using MZikmund.Services.Dialogs;
 using MZikmund.Services.Loading;
+using MZikmund.Services.Localization;
 using MZikmund.Shared.Extensions;
+using MZikmund.Web.Core.Services;
 
 namespace MZikmund.ViewModels.Admin;
 
@@ -11,13 +13,15 @@ public class PostEditorViewModel : PageViewModel
 	private readonly IMZikmundApi _api;
 	private readonly IDialogService _dialogService;
 	private readonly ILoadingIndicator _loadingIndicator;
+	private readonly IPostContentProcessor _postContentProcessor;
 	private string _postTitle = "";
 
-	public PostEditorViewModel(IMZikmundApi api, IDialogService dialogService, ILoadingIndicator loadingIndicator)
+	public PostEditorViewModel(IMZikmundApi api, IDialogService dialogService, ILoadingIndicator loadingIndicator, IPostContentProcessor postContentProcessor)
 	{
 		_api = api;
 		_dialogService = dialogService;
 		_loadingIndicator = loadingIndicator;
+		_postContentProcessor = postContentProcessor;
 	}
 
 	public override string Title => Post?.Title ?? "";
@@ -38,7 +42,13 @@ public class PostEditorViewModel : PageViewModel
 
 	public Category[] Categories { get; set; } = Array.Empty<Category>();
 
-	public string CategoriesText => Categories is null ? "" : string.Join(", ", Categories.Select(c => c.DisplayName));
+	public string PostContent { get; set; } = "";
+
+	public string PostContentPreview => _postContentProcessor.ProcessAsync(PostContent);
+
+	public string CategoriesText => Categories is null or { Length: 0 } ?
+		Localizer.Instance.GetString("NoCategoriesSelected") :
+		string.Join(", ", Categories.Select(c => c.DisplayName));
 
 	public Post? Post { get; set; }
 
@@ -113,5 +123,6 @@ public class PostEditorViewModel : PageViewModel
 		Categories = post.Categories.ToArray();
 		PostTitle = post.Title;
 		PostRouteName = post.RouteName;
+		PostContent = post.Content;
 	}
 }
