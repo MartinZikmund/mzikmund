@@ -5,11 +5,11 @@
     xmlns:adminDialogs="using:MZikmund.Dialogs.Admin"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:xaml="using:MZikmund.Extensions.Xaml"
-    Title="{xaml:Localize Key=AddCategory}"
-    CloseButtonText="{xaml:Localize Key=Cancel}"
+    Title="{x:Bind ViewModel.Title}"
     DefaultButton="Primary"
     PrimaryButtonText="{xaml:Localize Key=Ok}"
     SecondaryButtonText="{x:Bind ViewModel.SecondaryButtonText, Mode=OneWay}"
+    CloseButtonText="{xaml:Localize Key=Cancel}"
     Style="{ThemeResource DefaultContentDialogStyle}">
 
     <StackPanel Spacing="8">
@@ -17,6 +17,7 @@
             Header="Id"
             IsEnabled="False"
             IsReadOnly="True"
+			Visibility="{x:Bind ViewModel.IsEditing}"
             Text="{x:Bind ViewModel.Category.Id, Mode=OneWay}" />
         <TextBox Header="{xaml:Localize Key=DisplayName}" Text="{x:Bind ViewModel.Category.DisplayName, Mode=TwoWay}" />
         <TextBox Header="{xaml:Localize Key=RouteName}" Text="{x:Bind ViewModel.Category.RouteName, Mode=TwoWay}" />

@@ -9,13 +9,15 @@ using MZikmund.Services.Preferences;
 using MZikmund.Services.Theming;
 using MZikmund.ViewModels;
 using MZikmund.ViewModels.Admin;
+using MZikmund.Web.Core.Services;
+using MZikmund.Services.Timers;
 using Refit;
 
 namespace MZikmund;
 
 public class App : Application
 {
-	protected Window? MainWindow { get; private set; }
+	public Window? MainWindow { get; private set; }
 
 	protected IHost? Host { get; private set; }
 
@@ -133,7 +135,10 @@ public class App : Application
 		services.AddScoped<ILoadingIndicator, LoadingIndicator>();
 		services.AddScoped<IDialogService, DialogService>();
 		services.AddScoped<IWindowShellProvider, WindowShellProvider>();
+		services.AddScoped<ITimerFactory, TimerFactory>();
 		services.AddSingleton<IUserService, UserService>();
+		services.AddSingleton<IMarkdownConverter, MarkdownConverter>();
+		services.AddSingleton<IPostContentProcessor, PostContentProcessor>();
 		services.AddSingleton(provider =>
 		{
 			var configuration = provider.GetRequiredService<IOptions<AppConfig>>();

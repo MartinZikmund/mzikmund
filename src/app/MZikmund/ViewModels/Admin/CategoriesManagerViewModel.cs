@@ -29,7 +29,7 @@ public class CategoriesManagerViewModel : PageViewModel
 
 	public ObservableCollection<Category> Categories { get; } = new ObservableCollection<Category>();
 
-	public override async void ViewAppeared()
+	public override async void ViewLoaded()
 	{
 		await RefreshListAsync();
 	}

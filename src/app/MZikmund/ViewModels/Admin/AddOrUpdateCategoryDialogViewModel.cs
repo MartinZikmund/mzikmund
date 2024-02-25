@@ -19,7 +19,11 @@ public class AddOrUpdateCategoryDialogViewModel : DialogViewModel
 		Mode = DialogMode.Add;
 	}
 
+	public override string Title => Localizer.Instance.GetString($"{Mode}Tag");
+
 	public DialogMode Mode { get; set; } = DialogMode.Add;
+
+	public bool IsEditing => Mode == DialogMode.Edit;
 
 	public string SecondaryButtonText => Mode == DialogMode.Edit ? Localizer.Instance.GetString("Delete") : string.Empty;
 

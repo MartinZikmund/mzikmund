@@ -7,15 +7,11 @@ public abstract class PageViewModel : ViewModelBase
 
 	public virtual void ViewCreated() { }
 
-	public virtual void ViewAppearing() { }
+	public virtual void ViewLoading() { }
 
-	public virtual void ViewAppeared() { }
+	public virtual void ViewLoaded() { }
 
-	public virtual void ViewDisappeared() { }
-
-	public virtual void ViewDisappearing() { }
-
-	public virtual void ViewDestroy() { }
+	public virtual void ViewUnloaded() { }
 
 	public virtual void ViewNavigatedTo(object parameter) { }
 }

@@ -52,11 +52,11 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageVersion>
-    <PackageVersion Include="Microsoft.Net.Compilers.Toolset" Version="4.8.0-3.final">
+    <PackageVersion Include="Microsoft.Net.Compilers.Toolset" Version="4.9.0-3.final">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageVersion>
-    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.CodeStyle" Version="4.8.0">
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.CodeStyle" Version="4.9.0-3.final">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageVersion>
@@ -101,14 +101,14 @@
     <PackageVersion Include="Uno.Wasm.Bootstrap" Version="8.0.3" />
     <PackageVersion Include="Uno.Wasm.Bootstrap.DevServer" Version="8.0.3" />
     <PackageVersion Include="Uno.Wasm.Bootstrap.Server" Version="8.0.4" />
-    <PackageVersion Include="Uno.WinUI" Version="5.1.0-dev.732" />
-    <PackageVersion Include="Uno.WinUI.MSAL" Version="5.1.0-dev.732" />
-    <PackageVersion Include="Uno.WinUI.Lottie" Version="5.1.0-dev.732" />
-    <PackageVersion Include="Uno.WinUI.DevServer" Version="5.1.0-dev.732" />
-    <PackageVersion Include="Uno.WinUI.Skia.Gtk" Version="5.1.0-dev.732" />
-    <PackageVersion Include="Uno.WinUI.Skia.Linux.FrameBuffer" Version="5.1.0-dev.732" />
-    <PackageVersion Include="Uno.WinUI.Skia.Wpf" Version="5.1.0-dev.732" />
-    <PackageVersion Include="Uno.WinUI.WebAssembly" Version="5.1.0-dev.732" />
+    <PackageVersion Include="Uno.WinUI" Version="5.2.0-dev.768" />
+    <PackageVersion Include="Uno.WinUI.MSAL" Version="5.2.0-dev.768" />
+    <PackageVersion Include="Uno.WinUI.Lottie" Version="5.2.0-dev.768" />
+    <PackageVersion Include="Uno.WinUI.DevServer" Version="5.2.0-dev.768" />
+    <PackageVersion Include="Uno.WinUI.Skia.Gtk" Version="5.2.0-dev.768" />
+    <PackageVersion Include="Uno.WinUI.Skia.Linux.FrameBuffer" Version="5.2.0-dev.768" />
+    <PackageVersion Include="Uno.WinUI.Skia.Wpf" Version="5.2.0-dev.768" />
+    <PackageVersion Include="Uno.WinUI.WebAssembly" Version="5.2.0-dev.768" />
     <PackageVersion Include="Xamarin.Google.Android.Material" Version="1.10.0.1" />
   </ItemGroup>
 </Project>

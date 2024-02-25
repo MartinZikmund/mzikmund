@@ -31,7 +31,7 @@ public class TagsManagerViewModel : PageViewModel
 
 	public ObservableCollection<Tag> Tags { get; } = new ObservableCollection<Tag>();
 
-	public override async void ViewAppeared()
+	public override async void ViewLoaded()
 	{
 		await RefreshListAsync();
 	}

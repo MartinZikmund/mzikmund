@@ -23,7 +23,7 @@ public class ThemeManager : IThemeManager
 
 	private FrameworkElement GetRootElement()
 	{
-		var rootElement = Microsoft.UI.Xaml.Window.Current.Content as FrameworkElement;
+		var rootElement = ((App)Application.Current).MainWindow?.Content as FrameworkElement;
 		if (rootElement == null)
 		{
 			throw new InvalidOperationException("Root element of the window is not a FrameworkElement");

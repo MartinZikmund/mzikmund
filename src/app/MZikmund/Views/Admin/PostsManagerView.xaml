@@ -16,7 +16,7 @@
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
-		<TextBlock Style="{ThemeResource TitleTextBlockStyle}" Text="{xaml:Localize Key=Tags}" />
+		<TextBlock Style="{ThemeResource TitleTextBlockStyle}" Text="{xaml:Localize Key=Posts}" />
 		<StackPanel
             Grid.Row="1"
             Orientation="Horizontal"
@@ -24,7 +24,7 @@
 			<Button Command="{x:Bind ViewModel.AddPostCommand}">
 				<StackPanel Orientation="Horizontal" Spacing="4">
 					<SymbolIcon Symbol="Add" />
-					<TextBlock Text="{xaml:Localize Key=AddTag}" />
+					<TextBlock Text="{xaml:Localize Key=AddPost}" />
 				</StackPanel>
 			</Button>
 		</StackPanel>

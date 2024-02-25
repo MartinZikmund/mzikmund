@@ -1,0 +1,16 @@
+[
+  {
+    "Name": "API \u002B Windows App",
+    "Projects": [
+      {
+        "Name": "web\\MZikmund.Web\\MZikmund.Web.csproj",
+        "Action": "Start"
+      },
+      {
+        "Name": "app\\MZikmund.Windows\\MZikmund.Windows.csproj",
+        "Action": "Start",
+        "DebugTarget": ""
+      }
+    ]
+  }
+]

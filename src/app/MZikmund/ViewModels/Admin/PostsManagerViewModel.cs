@@ -35,7 +35,7 @@ public class PostsManagerViewModel : PageViewModel
 
 	public ObservableCollection<PostListItem> Posts { get; } = new ObservableCollection<PostListItem>();
 
-	public override async void ViewAppeared()
+	public override async void ViewLoaded()
 	{
 		await RefreshListAsync();
 	}
