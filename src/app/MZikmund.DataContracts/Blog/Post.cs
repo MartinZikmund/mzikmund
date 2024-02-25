@@ -2,14 +2,19 @@
 
 public class Post
 {
+	private string _content = "";
+
 	public Guid Id { get; set; } = Guid.Empty;
 
 	public string RouteName { get; set; } = "";
 
 	public string Title { get; set; } = "";
 
-	public string Content { get; set; } = "";
-
+	public string Content
+	{
+		get => _content.ReplaceLineEndings("\r\n");
+		set => _content = value;
+	}
 	public string Abstract { get; set; } = "";
 
 	public string? HeroImageUrl { get; set; }
