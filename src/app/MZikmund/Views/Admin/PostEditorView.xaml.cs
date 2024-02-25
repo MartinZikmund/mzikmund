@@ -1,12 +1,21 @@
-﻿using MZikmund.ViewModels.Admin;
+﻿using System.Globalization;
+using MZikmund.ViewModels.Admin;
+using Windows.Foundation;
 
 namespace MZikmund.Views.Admin;
 
 public sealed partial class PostEditorView : PostEditorViewBase
 {
+	private readonly WebView2 _previewWebView;
+
+	private string _postPreviewTemplate;
+
 	public PostEditorView()
 	{
 		InitializeComponent();
+		// Read the template from the embedded resource
+		_postPreviewTemplate = typeof(PostEditorView).GetAssembly().GetManifestResourceStream("MZikmund.Assets.PostPreviewTemplate.html")?.ReadToEnd()!;
+		PreviewWebViewContainer.Content = _previewWebView = new WebView2();
 		this.Loaded += PostEditorView_Loaded;
 		this.Unloaded += PostEditorView_Unloaded;
 	}
@@ -20,7 +29,8 @@ public sealed partial class PostEditorView : PostEditorViewBase
 	{
 		try
 		{
-			await PreviewWebView.EnsureCoreWebView2Async();
+			_previewWebView.CoreWebView2Initialized += OnWebViewInitialized;
+			await _previewWebView.EnsureCoreWebView2Async();
 			ViewModel!.PropertyChanged += ViewModel_PropertyChanged;
 		}
 		catch (Exception)
@@ -29,12 +39,19 @@ public sealed partial class PostEditorView : PostEditorViewBase
 		}
 	}
 
+	private void OnWebViewInitialized(WebView2 sender, CoreWebView2InitializedEventArgs args) => UpdatePreview();
+
 	private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
 	{
-		if (e.PropertyName == nameof(ViewModel.Post))
+		if (e.PropertyName == nameof(ViewModel.HtmlPreview))
 		{
-			PostEditorWebView.NavigateToString(ViewModel.Post?.Content ?? "");
+			UpdatePreview();
 		}
+	}
+
+	private void UpdatePreview()
+	{
+		_previewWebView.NavigateToString(string.Format(CultureInfo.InvariantCulture, _postPreviewTemplate, ViewModel!.HtmlPreview ?? ""));
 	}
 }
 

@@ -30,12 +30,12 @@ public abstract partial class PageBase<TViewModel> : Page
 			_pendingParameter = null;
 		}
 
-		ViewModel?.ViewAppearing();
+		ViewModel?.ViewLoading();
 	}
 
 	private void PageLoaded(object sender, RoutedEventArgs e)
 	{
-		ViewModel?.ViewAppeared();
+		ViewModel?.ViewLoaded();
 	}
 
 	protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -54,7 +54,7 @@ public abstract partial class PageBase<TViewModel> : Page
 
 	private void PageUnloaded(object sender, RoutedEventArgs e)
 	{
-		ViewModel?.ViewDestroy();
+		ViewModel?.ViewUnloaded();
 	}
 
 	private void EnsureViewModel()

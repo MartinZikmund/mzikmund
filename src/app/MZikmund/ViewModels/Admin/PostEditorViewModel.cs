@@ -1,8 +1,10 @@
-﻿using MZikmund.Api.Client;
+﻿using Microsoft.UI.Dispatching;
+using MZikmund.Api.Client;
 using MZikmund.DataContracts.Blog;
 using MZikmund.Services.Dialogs;
 using MZikmund.Services.Loading;
 using MZikmund.Services.Localization;
+using MZikmund.Services.Timers;
 using MZikmund.Shared.Extensions;
 using MZikmund.Web.Core.Services;
 
@@ -14,14 +16,19 @@ public class PostEditorViewModel : PageViewModel
 	private readonly IDialogService _dialogService;
 	private readonly ILoadingIndicator _loadingIndicator;
 	private readonly IPostContentProcessor _postContentProcessor;
+	private readonly ITimerFactory _timerFactory;
 	private string _postTitle = "";
+	private DispatcherQueueTimer? _previewTimer;
+	private bool _isPreviewDirty = true;
+	private string _postContent = "";
 
-	public PostEditorViewModel(IMZikmundApi api, IDialogService dialogService, ILoadingIndicator loadingIndicator, IPostContentProcessor postContentProcessor)
+	public PostEditorViewModel(IMZikmundApi api, IDialogService dialogService, ILoadingIndicator loadingIndicator, IPostContentProcessor postContentProcessor, ITimerFactory timerFactory)
 	{
 		_api = api;
 		_dialogService = dialogService;
 		_loadingIndicator = loadingIndicator;
 		_postContentProcessor = postContentProcessor;
+		_timerFactory = timerFactory;
 	}
 
 	public override string Title => Post?.Title ?? "";
@@ -42,9 +49,19 @@ public class PostEditorViewModel : PageViewModel
 
 	public Category[] Categories { get; set; } = Array.Empty<Category>();
 
-	public string PostContent { get; set; } = "";
+	public string PostContent
+	{
+		get => _postContent;
+		set
+		{
+			if (SetProperty(ref _postContent, value))
+			{
+				_isPreviewDirty = true;
+			}
+		}
+	}
 
-	public string PostContentPreview => _postContentProcessor.ProcessAsync(PostContent);
+	public string HtmlPreview { get; set; } = "";
 
 	public string CategoriesText => Categories is null or { Length: 0 } ?
 		Localizer.Instance.GetString("NoCategoriesSelected") :
@@ -94,7 +111,31 @@ public class PostEditorViewModel : PageViewModel
 		}
 	}
 
-	public override void ViewAppeared() => base.ViewAppeared();
+	public override void ViewLoaded()
+	{
+		base.ViewLoaded();
+		_previewTimer ??= _timerFactory.CreateTimer();
+		_previewTimer.Interval = TimeSpan.FromMilliseconds(500);
+		_previewTimer.Tick += PreviewTimerOnTick;
+		_previewTimer.Start();
+	}
+
+	private async void PreviewTimerOnTick(DispatcherQueueTimer sender, object args)
+	{
+		if (_isPreviewDirty)
+		{
+			_previewTimer!.Stop();
+			try
+			{
+				_isPreviewDirty = false;
+				HtmlPreview = await _postContentProcessor.ProcessAsync(PostContent);
+			}
+			finally
+			{
+				_previewTimer.Start();
+			}
+		}
+	}
 
 	public override async void ViewNavigatedTo(object parameter)
 	{
@@ -110,6 +151,12 @@ public class PostEditorViewModel : PageViewModel
 		}
 
 		PopulateInfo(Post!);
+	}
+
+	public override void ViewUnloaded()
+	{
+		base.ViewUnloaded();
+		_previewTimer?.Stop();
 	}
 
 	private void PopulateInfo(Post post)

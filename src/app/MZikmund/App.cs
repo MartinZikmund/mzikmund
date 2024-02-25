@@ -10,6 +10,7 @@ using MZikmund.Services.Theming;
 using MZikmund.ViewModels;
 using MZikmund.ViewModels.Admin;
 using MZikmund.Web.Core.Services;
+using MZikmund.Services.Timers;
 using Refit;
 
 namespace MZikmund;
@@ -134,6 +135,7 @@ public class App : Application
 		services.AddScoped<ILoadingIndicator, LoadingIndicator>();
 		services.AddScoped<IDialogService, DialogService>();
 		services.AddScoped<IWindowShellProvider, WindowShellProvider>();
+		services.AddScoped<ITimerFactory, TimerFactory>();
 		services.AddSingleton<IUserService, UserService>();
 		services.AddSingleton<IMarkdownConverter, MarkdownConverter>();
 		services.AddSingleton<IPostContentProcessor, PostContentProcessor>();
