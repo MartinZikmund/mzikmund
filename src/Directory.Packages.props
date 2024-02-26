@@ -22,7 +22,7 @@
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="8.0.0-rc.2.23479.6" />
     <PackageVersion Include="Microsoft.Identity.Client.Extensions.Msal" Version="2.31.0" />
     <PackageVersion Include="Microsoft.TypeScript.MSBuild" Version="5.2.2" />
-    <PackageVersion Include="Moq" Version="4.20.69" />
+    <PackageVersion Include="Moq" Version="4.20.70" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageVersion Include="ReverseMarkdown" Version="3.25.0" />
     <PackageVersion Include="System.ServiceModel.Syndication" Version="8.0.0" />
