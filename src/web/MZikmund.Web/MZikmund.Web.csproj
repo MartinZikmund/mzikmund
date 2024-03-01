@@ -19,7 +19,6 @@
 		<PackageReference Include="Humanizer" />
 		<PackageReference Include="MediatR" />
 		<PackageReference Include="AutoMapper" />
-		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" />
 		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" />
 		<PackageReference Include="Microsoft.TypeScript.MSBuild">
 		  <PrivateAssets>all</PrivateAssets>
