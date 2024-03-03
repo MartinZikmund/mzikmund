@@ -10,6 +10,7 @@ using MZikmund.ViewModels;
 using MZikmund.ViewModels.Admin;
 using MZikmund.Services.Navigation;
 using MZikmund.Services.Dialogs;
+using Windows.Foundation.Metadata;
 
 namespace MZikmund;
 
@@ -17,8 +18,9 @@ public sealed partial class WindowShell : Page
 {
 	private readonly UISettings _uiSettings = new UISettings();
 	private readonly IServiceScope _windowScope;
+	private readonly Window _associatedWindow;
 
-	public WindowShell(IServiceProvider serviceProvider)
+	public WindowShell(IServiceProvider serviceProvider, Window associatedWindow)
 	{
 		InitializeComponent();
 		ViewModel = new WindowShellViewModel(DispatcherQueue);
@@ -30,7 +32,8 @@ public sealed partial class WindowShell : Page
 		ServiceProvider.GetRequiredService<IDialogService>().RegisterDialogsFromAssembly(typeof(App).Assembly);
 
 		_uiSettings.ColorValuesChanged += ColorValuesChanged;
-		SetupCoreWindow();
+		_associatedWindow = associatedWindow;
+		CustomizeWindow();
 
 		Loaded += WindowShell_Loaded;
 	}
@@ -50,20 +53,21 @@ public sealed partial class WindowShell : Page
 
 	public Frame RootFrame => InnerFrame;
 
-	private void SetupCoreWindow()
-	{
-		// TODO: Adjust extend into titlebar
-		//#pragma warning disable CS8618 
-		//		var coreTitleBar = CoreApplication.GetCurrentView().TitleBar;
-		//		coreTitleBar.ExtendViewIntoTitleBar = true;
-		//		coreTitleBar.LayoutMetricsChanged += CoreTitleBar_LayoutMetricsChanged;
-		//#pragma warning restore CS8618
-	}
+	public bool HasCustomTitleBar { get; private set; }
 
-	//private void CoreTitleBar_LayoutMetricsChanged(CoreApplicationViewTitleBar sender, object args)
-	//{
-	//	TitleBarGrid.Height = sender.Height;
-	//}
+	private void CustomizeWindow()
+	{
+		if (ApiInformation.IsPropertyPresent("Microsoft.UI.Xaml.Window", "ExtendsContentIntoTitleBar"))
+		{
+			_associatedWindow.ExtendsContentIntoTitleBar = true;
+			_associatedWindow.SetTitleBar(TitleBarGrid);
+			HasCustomTitleBar = true;
+		}
+		_associatedWindow.AppWindow.Title = "Martin Zikmund";
+#if !HAS_UNO_WINUI
+		_associatedWindow.SystemBackdrop = new MicaBackdrop();
+#endif
+	}
 
 	private async void ColorValuesChanged(UISettings sender, object args)
 	{
@@ -74,6 +78,7 @@ public sealed partial class WindowShell : Page
 
 	private void SetTitlebarColors()
 	{
+
 		//TODO:Titlebar colors
 		//#pragma warning disable CS8618
 		//#pragma warning disable Uno0001

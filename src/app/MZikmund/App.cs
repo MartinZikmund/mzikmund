@@ -99,7 +99,7 @@ public class App : Application
 		if (MainWindow.Content is not WindowShell windowShell)
 		{
 			// Create a Frame to act as the navigation context and navigate to the first page
-			windowShell = new WindowShell(Host.Services);
+			windowShell = new WindowShell(Host.Services, MainWindow);
 
 			// Place the frame in the current Window
 			MainWindow.Content = windowShell;
