@@ -9,7 +9,6 @@
     xmlns:mux="using:Microsoft.UI.Xaml.Controls"
     xmlns:toolkit="using:Uno.UI.Toolkit"
     d:RequestedTheme="Light"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     mc:Ignorable="d">
 
     <Grid toolkit:VisibleBoundsPadding.PaddingMask="All">
@@ -17,7 +16,15 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Grid x:Name="TitleBarGrid" Visibility="Collapsed" />
+		<Grid x:Name="TitleBarGrid" Padding="16,0" ColumnSpacing="16" Visibility="{x:Bind HasCustomTitleBar}" Height="48">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto" />
+				<ColumnDefinition Width="Auto" />
+				<ColumnDefinition Width="*" />
+			</Grid.ColumnDefinitions>
+			<BitmapIcon ShowAsMonochrome="False" Width="16" UriSource="ms-appx:///MZikmund/Assets/NavigationViewLogo.png" />
+			<TextBlock Grid.Column="1" VerticalAlignment="Center" Text="Martin Zikmund" Style="{ThemeResource CaptionTextBlockStyle}" />
+		</Grid>
         <mux:NavigationView
             x:Name="AppNavigation"
             Grid.Row="1"
@@ -32,8 +39,8 @@
             <mux:NavigationView.MenuItems>
                 <mux:NavigationViewItem x:Name="HomeNavigationViewItem" Content="{extensions:Localize Key=Home}">
                     <mux:NavigationViewItem.Icon>
-                        <BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///MZikmund/Assets/NavigationViewLogo.png" />
-                    </mux:NavigationViewItem.Icon>
+						<BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///MZikmund/Assets/NavigationViewLogo.png" />
+					</mux:NavigationViewItem.Icon>
                 </mux:NavigationViewItem>
                 <mux:NavigationViewItem x:Name="BlogNavigationViewItem" Content="{extensions:Localize Key=Blog}">
                     <mux:NavigationViewItem.Icon>
