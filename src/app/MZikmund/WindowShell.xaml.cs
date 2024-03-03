@@ -123,7 +123,7 @@ public sealed partial class WindowShell : Page
 		}
 		else if (args.InvokedItemContainer == BlogNavigationViewItem)
 		{
-
+			navigationService.Navigate<BlogViewModel>();
 		}
 		else if (args.InvokedItemContainer == ContactNavigationViewItem)
 		{

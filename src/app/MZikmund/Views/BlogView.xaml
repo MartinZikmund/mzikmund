@@ -10,6 +10,6 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
-		
-    </Grid>
+		<ListView ItemsSource="{x:Bind ViewModel.Posts}" />
+	</Grid>
 </local:BlogViewBase>

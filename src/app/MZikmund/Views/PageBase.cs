@@ -10,6 +10,7 @@ public abstract partial class PageBase<TViewModel> : Page
 	where TViewModel : PageViewModel
 {
 	private object? _pendingParameter;
+	private bool _isNavigationDelayed;
 
 	protected PageBase()
 	{
@@ -24,7 +25,7 @@ public abstract partial class PageBase<TViewModel> : Page
 	{
 		EnsureViewModel();
 
-		if (_pendingParameter is not null)
+		if (_isNavigationDelayed)
 		{
 			ViewModel?.ViewNavigatedTo(_pendingParameter);
 			_pendingParameter = null;
@@ -48,6 +49,7 @@ public abstract partial class PageBase<TViewModel> : Page
 		}
 		else
 		{
+			_isNavigationDelayed = true;
 			_pendingParameter = e.Parameter;
 		}
 	}

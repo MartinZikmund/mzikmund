@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MZikmund.ViewModels;
+﻿namespace MZikmund.ViewModels;
 
 public class PostViewModel : PageViewModel
 {
@@ -13,5 +7,5 @@ public class PostViewModel : PageViewModel
 
 	}
 
-	public string HtmlPreview { get; private set; }
+	public string HtmlPreview { get; private set; } = "";
 }
