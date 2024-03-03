@@ -23,7 +23,7 @@
 				<ColumnDefinition Width="*" />
 			</Grid.ColumnDefinitions>
 			<BitmapIcon ShowAsMonochrome="False" Width="16" UriSource="ms-appx:///MZikmund/Assets/NavigationViewLogo.png" />
-			<TextBlock Grid.Column="1" VerticalAlignment="Center" Text="Martin Zikmund" Style="{ThemeResource CaptionTextBlockStyle}" />
+			<TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{x:Bind ViewModel.Title}" Style="{ThemeResource CaptionTextBlockStyle}" />
 		</Grid>
         <mux:NavigationView
             x:Name="AppNavigation"
