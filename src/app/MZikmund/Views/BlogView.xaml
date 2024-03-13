@@ -6,10 +6,24 @@
     xmlns:local="using:MZikmund.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:models="using:MZikmund.DataContracts.Blog"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
-		<ListView ItemsSource="{x:Bind ViewModel.Posts}" />
+	<Grid>
+		<ListView ItemsSource="{x:Bind ViewModel.Posts}">
+			<ListView.ItemTemplate>
+				<DataTemplate x:DataType="models:PostListItem">
+					<Grid>
+						<Grid.RowDefinitions>
+							<RowDefinition Height="Auto" />
+							<RowDefinition Height="Auto" />
+						</Grid.RowDefinitions>
+						<TextBlock Text="{x:Bind Title}" />
+						<TextBlock Text="{x:Bind Abstract}" Grid.Row="1" TextWrapping="Wrap" />
+					</Grid>
+				</DataTemplate>
+			</ListView.ItemTemplate>
+		</ListView>
 	</Grid>
 </local:BlogViewBase>
