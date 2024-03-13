@@ -18,12 +18,14 @@ public class MetaWeblogProvider : IMetaWeblogProvider
 	private readonly IBlobStorage _blobStorage;
 	private readonly ILogger<MetaWeblogProvider> _logger;
 	private readonly IMediator _mediator;
+	private readonly IPostContentProcessor _postContentProcessor;
 
 	public MetaWeblogProvider(
 		ISiteConfiguration blogConfig,
 		IMediaBlobPathGenerator mediaBlobPathGenerator,
 		IBlobStorage blobStorage,
 		IMediator mediator,
+		IPostContentProcessor postContentProcessor,
 		ILogger<MetaWeblogProvider> logger)
 	{
 		_siteConfiguration = blogConfig;
@@ -31,6 +33,7 @@ public class MetaWeblogProvider : IMetaWeblogProvider
 		_blobStorage = blobStorage;
 		_logger = logger;
 		_mediator = mediator;
+		_postContentProcessor = postContentProcessor;
 	}
 
 	public Task<int> AddCategoryAsync(string key, string username, string password, NewCategory newCategory) => TryExecuteAsync(async () =>
@@ -186,6 +189,10 @@ public class MetaWeblogProvider : IMetaWeblogProvider
 		ValidateUser(username, password);
 
 		var posts = await _mediator.Send(new ListPostsQuery(1, numberOfPosts));
+		foreach (var post in posts.Data)
+		{
+			post.Abstract = await _postContentProcessor.ProcessAsync(post.Abstract);
+		}
 		return posts.Data.Select(p => ToWeblogPost(p)).Cast<WeblogPost>().ToArray();
 	});
 
