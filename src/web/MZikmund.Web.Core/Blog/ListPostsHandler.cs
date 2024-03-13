@@ -53,11 +53,6 @@ internal sealed class ListPostsHandler : IRequestHandler<ListPostsQuery, PagedRe
 			Categories = _mapper.Map<Category[]>(post.Categories),
 		});
 
-		foreach (var post in posts)
-		{
-			post.Abstract = _markdownConverter.ToHtml(post.Abstract);
-		}
-
 		return new(posts, request.Page, request.PageSize, postCount);
 	}
 }

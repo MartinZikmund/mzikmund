@@ -4,7 +4,7 @@ using Uno.Disposables;
 
 namespace MZikmund.ViewModels;
 
-public class WindowShellViewModel : PageViewModel
+public class WindowShellViewModel : ViewModelBase
 {
 	private readonly DispatcherQueue _dispatcher;
 	private RefCountDisposable? _refCountDisposable;
@@ -13,6 +13,8 @@ public class WindowShellViewModel : PageViewModel
 	{
 		_dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
 	}
+
+	public string Title { get; set; } = "Martin Zikmund";
 
 	public IDisposable BeginLoading()
 	{

@@ -13,5 +13,5 @@ public abstract class PageViewModel : ViewModelBase
 
 	public virtual void ViewUnloaded() { }
 
-	public virtual void ViewNavigatedTo(object parameter) { }
+	public virtual void ViewNavigatedTo(object? parameter) { }
 }

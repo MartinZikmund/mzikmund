@@ -137,10 +137,10 @@ public class PostEditorViewModel : PageViewModel
 		}
 	}
 
-	public override async void ViewNavigatedTo(object parameter)
+	public override async void ViewNavigatedTo(object? parameter)
 	{
 		using var _ = _loadingIndicator.BeginLoading();
-		var postId = (Guid)parameter;
+		var postId = (Guid)parameter!;
 		if (postId == Guid.Empty)
 		{
 			Post = new Post();

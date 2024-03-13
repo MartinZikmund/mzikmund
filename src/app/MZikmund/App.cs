@@ -87,7 +87,7 @@ public class App : Application
 			);
 		MainWindow = builder.Window;
 
-#if DEBUG
+#if DEBUG && HAS_UNO
 		MainWindow.EnableHotReload();
 #endif
 
@@ -118,6 +118,7 @@ public class App : Application
 
 	private static void ConfigureServices(IServiceCollection services)
 	{
+		services.AddScoped<BlogViewModel>();
 		services.AddScoped<SettingsViewModel>();
 		services.AddScoped<TagsManagerViewModel>();
 		services.AddScoped<CategoriesManagerViewModel>();
