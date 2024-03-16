@@ -7,20 +7,27 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:models="using:MZikmund.DataContracts.Blog"
+	xmlns:vmitems="using:MZikmund.ViewModels.Items"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
 	<Grid>
-		<ListView ItemsSource="{x:Bind ViewModel.Posts}">
+		<ListView ItemsSource="{x:Bind ViewModel.Posts}" ItemClick="{x:Bind ViewModel.ItemClicked}" IsItemClickEnabled="True" SelectionMode="None">
+			<ListView.ItemContainerStyle>
+				<Style TargetType="ListViewItem">
+					<Setter Property="Margin" Value="8" />
+					<Setter Property="HorizontalAlignment" Value="Stretch" />
+				</Style>
+			</ListView.ItemContainerStyle>
 			<ListView.ItemTemplate>
-				<DataTemplate x:DataType="models:PostListItem">
-					<Grid>
+				<DataTemplate x:DataType="vmitems:PostListItemViewModel">
+					<Grid Padding="8" RowSpacing="8" CornerRadius="{ThemeResource ControlCornerRadius}" BorderBrush="{ThemeResource ControlElevationBorderBrush}" BorderThickness="{ThemeResource ButtonBorderThemeThickness}">
 						<Grid.RowDefinitions>
 							<RowDefinition Height="Auto" />
 							<RowDefinition Height="Auto" />
 						</Grid.RowDefinitions>
-						<TextBlock Text="{x:Bind Title}" />
-						<TextBlock Text="{x:Bind Abstract}" Grid.Row="1" TextWrapping="Wrap" />
+						<TextBlock Style="{ThemeResource SubheaderTextBlockStyle}" Text="{x:Bind Item.Title}" />
+						<TextBlock Text="{x:Bind AbstractPlain}" Grid.Row="1" TextWrapping="Wrap" />
 					</Grid>
 				</DataTemplate>
 			</ListView.ItemTemplate>
