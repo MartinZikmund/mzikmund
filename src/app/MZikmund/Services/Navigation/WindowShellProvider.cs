@@ -1,5 +1,6 @@
 ﻿
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.UI.Dispatching;
 using MZikmund.ViewModels;
 
 namespace MZikmund.Services.Navigation;
@@ -7,6 +8,7 @@ namespace MZikmund.Services.Navigation;
 internal sealed class WindowShellProvider : IWindowShellProvider
 {
 	private WindowShell? _shell;
+	private DispatcherQueue? _dispatcherQueue;
 
 	public WindowShellProvider()
 	{
@@ -20,6 +22,7 @@ internal sealed class WindowShellProvider : IWindowShellProvider
 		}
 
 		_shell = shell;
+		_dispatcherQueue = shell.DispatcherQueue;
 	}
 
 	public WindowShellViewModel ViewModel
@@ -58,10 +61,20 @@ internal sealed class WindowShellProvider : IWindowShellProvider
 		}
 	}
 
+	public DispatcherQueue DispatcherQueue
+	{
+		get
+		{
+			EnsureInitialized();
+			return _dispatcherQueue;
+		}
+	}
+
 	[MemberNotNull(nameof(_shell))]
+	[MemberNotNull(nameof(_dispatcherQueue))]
 	private void EnsureInitialized()
 	{
-		if (_shell is null)
+		if (_shell is null || _dispatcherQueue is null)
 		{
 			throw new InvalidOperationException("WindowShellProvider was not initialized.");
 		}
