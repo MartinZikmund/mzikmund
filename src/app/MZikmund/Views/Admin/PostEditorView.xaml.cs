@@ -53,7 +53,7 @@ public sealed partial class PostEditorView : PostEditorViewBase
 	{
 		var preview = _postPreviewTemplate
 			.Replace("{POSTCONTENT}", ViewModel!.HtmlPreview)
-			.Replace("{ACTUALTHEME}", ActualTheme == ElementTheme.Light ? "Light" : "Dark");
+			.Replace("{ACTUALTHEME}", ActualTheme == ElementTheme.Light ? "light" : "dark");
 		_previewWebView.NavigateToString(preview);
 	}
 }
