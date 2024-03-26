@@ -51,7 +51,10 @@ public sealed partial class PostEditorView : PostEditorViewBase
 
 	private void UpdatePreview()
 	{
-		_previewWebView.NavigateToString(string.Format(CultureInfo.InvariantCulture, _postPreviewTemplate, ViewModel!.HtmlPreview ?? ""));
+		var preview = _postPreviewTemplate
+			.Replace("{POSTCONTENT}", ViewModel!.HtmlPreview)
+			.Replace("{ACTUALTHEME}", ActualTheme == ElementTheme.Light ? "light" : "dark");
+		_previewWebView.NavigateToString(preview);
 	}
 }
 

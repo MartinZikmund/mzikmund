@@ -1,4 +1,5 @@
 ﻿using Microsoft.UI.Dispatching;
+using MZikmund.Services.Navigation;
 using MZikmund.ViewModels;
 using Uno.Disposables;
 
@@ -6,12 +7,14 @@ namespace MZikmund.ViewModels;
 
 public class WindowShellViewModel : ViewModelBase
 {
-	private readonly DispatcherQueue _dispatcher;
+	private readonly IWindowShellProvider _provider;
+	private readonly INavigationService _navigationService;
 	private RefCountDisposable? _refCountDisposable;
 
-	public WindowShellViewModel(DispatcherQueue dispatcher)
+	public WindowShellViewModel(IWindowShellProvider provider, INavigationService navigationService)
 	{
-		_dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
+		_provider = provider ?? throw new ArgumentNullException(nameof(provider));
+		_navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
 	}
 
 	public string Title { get; set; } = "Martin Zikmund";
@@ -26,19 +29,19 @@ public class WindowShellViewModel : ViewModelBase
 
 		IsLoading = true;
 		_refCountDisposable = new RefCountDisposable(Disposable.Create(
-			() => // TODO: Await TryEneque
+			() => // TODO: Await TryEnequeAsync
 			{
 #if __WASM__
 				IsLoading = false;
 				return;
 #else
-				if (_dispatcher.HasThreadAccess)
+				if (_provider.DispatcherQueue.HasThreadAccess)
 				{
 					IsLoading = false;
 				}
 				else
 				{
-					_dispatcher.TryEnqueue(DispatcherQueuePriority.Normal, () =>
+					_provider.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Normal, () =>
 					{
 						if (_refCountDisposable == null || _refCountDisposable.IsDisposed)
 						{
@@ -55,8 +58,5 @@ public class WindowShellViewModel : ViewModelBase
 
 	public string LoadingStatusMessage { get; set; } = "";
 
-	public void BackRequested()
-	{
-		//NavigationService.GoBack();
-	}
+	public void BackRequested() => _navigationService.GoBack();
 }

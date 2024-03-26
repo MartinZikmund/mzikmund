@@ -4,12 +4,13 @@
     "Projects": [
       {
         "Name": "web\\MZikmund.Web\\MZikmund.Web.csproj",
-        "Action": "Start"
+        "Action": "Start",
+        "DebugTarget": "https"
       },
       {
         "Name": "app\\MZikmund.Windows\\MZikmund.Windows.csproj",
         "Action": "Start",
-        "DebugTarget": ""
+        "DebugTarget": "Packaged"
       }
     ]
   }

@@ -4,6 +4,8 @@ namespace MZikmund.Services.Navigation;
 
 public interface INavigationService
 {
+	void ClearBackStack();
+
 	void Navigate<TViewModel>();
 
 	void Navigate<TViewModel>(object parameter);
