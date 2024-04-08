@@ -100,10 +100,10 @@
     <PackageVersion Include="Uno.Wasm.Bootstrap" Version="8.0.9" />
     <PackageVersion Include="Uno.Wasm.Bootstrap.DevServer" Version="8.0.9" />
     <PackageVersion Include="Uno.Wasm.Bootstrap.Server" Version="8.0.4" />
-    <PackageVersion Include="Uno.WinUI" Version="5.2.0-dev.1159" />
+    <PackageVersion Include="Uno.WinUI" Version="5.2.0-dev.2298" />
     <PackageVersion Include="Uno.WinUI.MSAL" Version="5.2.0-dev.1159" />
     <PackageVersion Include="Uno.WinUI.Lottie" Version="5.2.0-dev.1159" />
-    <PackageVersion Include="Uno.WinUI.DevServer" Version="5.2.0-dev.1159" />
+    <PackageVersion Include="Uno.WinUI.DevServer" Version="5.2.0-dev.2298" />
     <PackageVersion Include="Uno.WinUI.Skia.Gtk" Version="5.2.0-dev.1159" />
     <PackageVersion Include="Uno.WinUI.Skia.Linux.FrameBuffer" Version="5.2.0-dev.1159" />
     <PackageVersion Include="Uno.WinUI.Skia.Wpf" Version="5.2.0-dev.1159" />
