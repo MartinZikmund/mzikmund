@@ -23,7 +23,7 @@ public class ThemeManager : IThemeManager
 
 	private FrameworkElement GetRootElement()
 	{
-		var rootElement = ((App)Application.Current).MainWindow?.Content as FrameworkElement;
+		var rootElement = ((MZikmundApp)Application.Current).MainWindow?.Content as FrameworkElement;
 		if (rootElement == null)
 		{
 			throw new InvalidOperationException("Root element of the window is not a FrameworkElement");

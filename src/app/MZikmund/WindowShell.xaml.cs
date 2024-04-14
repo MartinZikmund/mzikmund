@@ -27,8 +27,8 @@ public sealed partial class WindowShell : Page
 		_windowScope = serviceProvider.CreateScope();
 		var windowShellProvider = (WindowShellProvider)ServiceProvider.GetRequiredService<IWindowShellProvider>();
 		windowShellProvider.SetShell(this);
-		ServiceProvider.GetRequiredService<INavigationService>().RegisterViewsFromAssembly(typeof(App).Assembly);
-		ServiceProvider.GetRequiredService<IDialogService>().RegisterDialogsFromAssembly(typeof(App).Assembly);
+		ServiceProvider.GetRequiredService<INavigationService>().RegisterViewsFromAssembly(typeof(MZikmundApp).Assembly);
+		ServiceProvider.GetRequiredService<IDialogService>().RegisterDialogsFromAssembly(typeof(MZikmundApp).Assembly);
 
 		ViewModel = ServiceProvider.GetRequiredService<WindowShellViewModel>();
 

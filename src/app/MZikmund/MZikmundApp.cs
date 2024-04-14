@@ -15,7 +15,7 @@ using Refit;
 
 namespace MZikmund;
 
-public class App : Application
+public class MZikmundApp : Application
 {
 	public Window? MainWindow { get; private set; }
 
@@ -61,7 +61,7 @@ public class App : Application
 				}, enableUnoLogging: true)
 				.UseConfiguration(configure: configBuilder =>
 					configBuilder
-						.EmbeddedSource<App>()
+						.EmbeddedSource<MZikmundApp>()
 						.Section<AppConfig>()
 				)
 				// Enable localization (see appsettings.json for supported languages)
