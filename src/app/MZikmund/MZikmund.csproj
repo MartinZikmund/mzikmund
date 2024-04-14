@@ -11,9 +11,6 @@
 	<ItemGroup>
 		<PackageReference Include="Humanizer" />
 		<PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" />
-		<PackageReference Include="PropertyChanged.Fody">
-			<PrivateAssets>all</PrivateAssets>
-		</PackageReference>
 		<PackageReference Include="Uno.WinUI" />
 		<PackageReference Include="Uno.WinUI.MSAL" />
 		<PackageReference Include="Uno.Resizetizer" />

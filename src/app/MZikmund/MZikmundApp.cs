@@ -12,10 +12,12 @@ using MZikmund.ViewModels.Admin;
 using MZikmund.Web.Core.Services;
 using MZikmund.Services.Timers;
 using Refit;
+using MZikmund.App.Core.Infrastructure;
+using MZikmund.Infrastructure;
 
 namespace MZikmund;
 
-public class MZikmundApp : Application
+public class MZikmundApp : Application, IApplication
 {
 	public Window? MainWindow { get; private set; }
 
@@ -116,7 +118,7 @@ public class MZikmundApp : Application
 		MainWindow.Activate();
 	}
 
-	private static void ConfigureServices(IServiceCollection services)
+	private void ConfigureServices(IServiceCollection services)
 	{
 		services.AddScoped<BlogViewModel>();
 		services.AddScoped<SettingsViewModel>();
@@ -129,6 +131,7 @@ public class MZikmundApp : Application
 		services.AddScoped<PostViewModel>();
 		services.AddScoped<WindowShellViewModel>();
 
+		services.AddSingleton<IApplication>(this);
 		services.AddSingleton<IThemeManager, ThemeManager>();
 		services.AddSingleton<IAppPreferences, AppPreferences>();
 		services.AddSingleton<IPreferencesService, PreferencesService>();

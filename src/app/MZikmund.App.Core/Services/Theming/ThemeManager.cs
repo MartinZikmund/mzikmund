@@ -1,7 +1,16 @@
-﻿namespace MZikmund.Services.Theming;
+﻿using MZikmund.App.Core.Infrastructure;
+
+namespace MZikmund.Services.Theming;
 
 public class ThemeManager : IThemeManager
 {
+	private readonly IApplication _application;
+
+	public ThemeManager(IApplication application)
+	{
+		_application = application;
+	}
+
 	public void SetTheme(AppTheme theme) =>
 		GetRootElement().RequestedTheme = theme switch
 		{
@@ -23,7 +32,7 @@ public class ThemeManager : IThemeManager
 
 	private FrameworkElement GetRootElement()
 	{
-		var rootElement = ((MZikmundApp)Application.Current).MainWindow?.Content as FrameworkElement;
+		var rootElement = _application.MainWindow?.Content as FrameworkElement;
 		if (rootElement == null)
 		{
 			throw new InvalidOperationException("Root element of the window is not a FrameworkElement");

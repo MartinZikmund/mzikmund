@@ -1,17 +1,8 @@
-﻿using Microsoft.UI.Dispatching;
-using MZikmund.ViewModels;
+﻿using MZikmund.App.Core.Infrastructure;
 
 namespace MZikmund.Services.Navigation;
 
-public interface IWindowShellProvider
+public interface IWindowShellProvider : IWindowShell
 {
-	WindowShellViewModel ViewModel { get; }
-
-	WindowShell WindowShell { get; }
-
-	XamlRoot XamlRoot { get; }
-
-	IServiceProvider ServiceProvider { get; }
-
-	DispatcherQueue DispatcherQueue { get; }
+	Window Window { get; }
 }

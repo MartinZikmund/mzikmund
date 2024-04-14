@@ -11,10 +11,11 @@ using MZikmund.ViewModels.Admin;
 using MZikmund.Services.Navigation;
 using MZikmund.Services.Dialogs;
 using Windows.Foundation.Metadata;
+using MZikmund.App.Core.Infrastructure;
 
 namespace MZikmund;
 
-public sealed partial class WindowShell : Page
+public sealed partial class WindowShell : Page, IWindowShell
 {
 	private readonly UISettings _uiSettings = new UISettings();
 	private readonly IServiceScope _windowScope;
@@ -26,7 +27,7 @@ public sealed partial class WindowShell : Page
 
 		_windowScope = serviceProvider.CreateScope();
 		var windowShellProvider = (WindowShellProvider)ServiceProvider.GetRequiredService<IWindowShellProvider>();
-		windowShellProvider.SetShell(this);
+		windowShellProvider.SetShell(this, associatedWindow);
 		ServiceProvider.GetRequiredService<INavigationService>().RegisterViewsFromAssembly(typeof(MZikmundApp).Assembly);
 		ServiceProvider.GetRequiredService<IDialogService>().RegisterDialogsFromAssembly(typeof(MZikmundApp).Assembly);
 
