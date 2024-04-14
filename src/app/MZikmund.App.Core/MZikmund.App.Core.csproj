@@ -11,6 +11,11 @@
   <ItemGroup>
     <PackageReference Include="Uno.WinUI" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\shared\MZikmund.Api\MZikmund.Api.csproj" />
+    <ProjectReference Include="..\..\shared\MZikmund.Shared\MZikmund.Shared.csproj" />
+    <ProjectReference Include="..\MZikmund.DataContracts\MZikmund.DataContracts.csproj" />
+  </ItemGroup>
   <Choose>
     <When Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
       <ItemGroup>

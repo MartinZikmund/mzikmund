@@ -72,6 +72,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\shared\MZikmund.Api\MZikmund.Api.csproj" />
 		<ProjectReference Include="..\..\shared\MZikmund.Shared\MZikmund.Shared.csproj" />
+		<ProjectReference Include="..\MZikmund.App.Core\MZikmund.App.Core.csproj" />
 		<ProjectReference Include="..\MZikmund.DataContracts\MZikmund.DataContracts.csproj" />
 	</ItemGroup>
 
