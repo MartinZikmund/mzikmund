@@ -5,7 +5,7 @@
 @import "./GistTheming.scss";
 
 :root {
-/*    --bs-primary: red;
+    /*    --bs-primary: red;
     --bs-primary-rgb: 255,0,0;
     --bs-link-color: red;
     --bs-link-color-rgb: 255,0,0;*/
@@ -13,7 +13,6 @@
 
 html {
     font-size: 14px;
-    
 }
 
 @media (min-width: 768px) {
@@ -61,4 +60,9 @@ a.article-card {
         text-decoration: none;
         box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
     }
+}
+
+article .youtube {
+    aspect-ratio: 16 / 9;
+    width: 100%;
 }

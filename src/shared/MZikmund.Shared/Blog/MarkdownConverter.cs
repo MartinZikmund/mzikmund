@@ -1,5 +1,6 @@
 ﻿using ColorCode.Styling;
 using Markdig;
+using Markdig.Extensions.MediaLinks;
 using Markdown.ColorCode;
 
 namespace MZikmund.Web.Core.Services;
@@ -11,7 +12,24 @@ public class MarkdownConverter : IMarkdownConverter
 	public MarkdownConverter()
 	{
 		_pipeline = new MarkdownPipelineBuilder()
-			.UseAdvancedExtensions()
+			.UseAbbreviations()
+			.UseAutoIdentifiers()
+			.UseCitations()
+			.UseCustomContainers()
+			.UseDefinitionLists()
+			.UseEmphasisExtras()
+			.UseFigures()
+			.UseFooters()
+			.UseFootnotes()
+			.UseGridTables()
+			.UseMathematics()
+			.UseMediaLinks()
+			.UsePipeTables()
+			.UseListExtras()
+			.UseTaskLists()
+			.UseDiagrams()
+			.UseAutoLinks()
+			.UseGenericAttributes()
 			.UseBootstrap()
 			.UseColorCode(HtmlFormatterType.Css)
 			.Build();
