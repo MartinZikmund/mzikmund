@@ -3,12 +3,12 @@
     "Name": "API \u002B Windows App",
     "Projects": [
       {
-        "Name": "web\\MZikmund.Web\\MZikmund.Web.csproj",
-        "Action": "Start",
+        "Path": "web\\MZikmund.Web\\MZikmund.Web.csproj",
+        "Action": "StartWithoutDebugging",
         "DebugTarget": "https"
       },
       {
-        "Name": "app\\MZikmund.Windows\\MZikmund.Windows.csproj",
+        "Path": "app\\MZikmund.Windows\\MZikmund.Windows.csproj",
         "Action": "Start",
         "DebugTarget": "Packaged"
       }

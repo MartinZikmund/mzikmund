@@ -62,7 +62,16 @@ a.article-card {
     }
 }
 
-article .youtube {
-    aspect-ratio: 16 / 9;
-    width: 100%;
+article {
+    .youtube, .youtubeshort {
+        aspect-ratio: 16 / 9;
+        width: 100%;
+        margin: 0 auto;
+        display: block;
+    }
+
+    .youtubeshort {
+        aspect-ratio: 9 / 16;
+        width: 75%;
+    }
 }
