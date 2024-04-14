@@ -23,13 +23,14 @@ public sealed partial class WindowShell : Page
 	public WindowShell(IServiceProvider serviceProvider, Window associatedWindow)
 	{
 		InitializeComponent();
-		ViewModel = new WindowShellViewModel(DispatcherQueue);
 
 		_windowScope = serviceProvider.CreateScope();
 		var windowShellProvider = (WindowShellProvider)ServiceProvider.GetRequiredService<IWindowShellProvider>();
 		windowShellProvider.SetShell(this);
 		ServiceProvider.GetRequiredService<INavigationService>().RegisterViewsFromAssembly(typeof(App).Assembly);
 		ServiceProvider.GetRequiredService<IDialogService>().RegisterDialogsFromAssembly(typeof(App).Assembly);
+
+		ViewModel = ServiceProvider.GetRequiredService<WindowShellViewModel>();
 
 		_uiSettings.ColorValuesChanged += ColorValuesChanged;
 		_associatedWindow = associatedWindow;
@@ -112,6 +113,7 @@ public sealed partial class WindowShell : Page
 	private void MenuItemInvoked(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs args)
 	{
 		var navigationService = ServiceProvider.GetRequiredService<INavigationService>();
+
 		if (args.IsSettingsInvoked)
 		{
 			navigationService.Navigate<SettingsViewModel>();
@@ -141,5 +143,7 @@ public sealed partial class WindowShell : Page
 		{
 			navigationService.Navigate<CategoriesManagerViewModel>();
 		}
+
+		navigationService.ClearBackStack();
 	}
 }

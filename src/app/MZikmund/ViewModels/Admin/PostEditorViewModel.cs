@@ -100,6 +100,7 @@ public class PostEditorViewModel : PageViewModel
 		Post.Categories = Categories;
 		Post.IsPublished = true;
 		Post.PublishedDate = DateTimeOffset.UtcNow; // TODO: Don't always publish!
+		Post.Content = PostContent;
 
 		if (Post.Id == Guid.Empty)
 		{

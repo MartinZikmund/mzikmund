@@ -126,6 +126,8 @@ public class App : Application
 		services.AddScoped<AddOrUpdateTagDialogViewModel>();
 		services.AddScoped<PostsManagerViewModel>();
 		services.AddScoped<PostEditorViewModel>();
+		services.AddScoped<PostViewModel>();
+		services.AddScoped<WindowShellViewModel>();
 
 		services.AddSingleton<IThemeManager, ThemeManager>();
 		services.AddSingleton<IAppPreferences, AppPreferences>();
