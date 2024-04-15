@@ -45,10 +45,6 @@ public sealed partial class WindowShell : Page, IWindowShell
 	private void WindowShell_Loaded(object sender, RoutedEventArgs e)
 	{
 		SetTitlebarColors();
-
-#if WINDOWS_UWP
-		BackdropMaterial.SetApplyToRootOrPageBackground(this, true);
-#endif
 	}
 
 	public WindowShellViewModel ViewModel { get; }
@@ -66,9 +62,11 @@ public sealed partial class WindowShell : Page, IWindowShell
 			HasCustomTitleBar = true;
 		}
 		_associatedWindow.AppWindow.Title = "Martin Zikmund";
-#if !HAS_UNO_WINUI
-		_associatedWindow.SystemBackdrop = new MicaBackdrop();
-#endif
+
+		if (ApiInformation.IsPropertyPresent("Microsoft.UI.Xaml.Window", "SystemBackdrop"))
+		{
+			_associatedWindow.SystemBackdrop = new MicaBackdrop();
+		}
 	}
 
 	private async void ColorValuesChanged(UISettings sender, object args)

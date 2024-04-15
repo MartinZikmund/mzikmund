@@ -89,7 +89,7 @@ public class MZikmundApp : Application, IApplication
 			);
 		MainWindow = builder.Window;
 
-#if DEBUG && HAS_UNO
+#if DEBUG
 		MainWindow.EnableHotReload();
 #endif
 

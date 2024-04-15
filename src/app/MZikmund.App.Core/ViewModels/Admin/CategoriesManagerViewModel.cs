@@ -9,7 +9,7 @@ using MZikmund.Services.Localization;
 
 namespace MZikmund.ViewModels.Admin;
 
-public class CategoriesManagerViewModel : PageViewModel
+public partial class CategoriesManagerViewModel : PageViewModel
 {
 	private readonly IDialogService _dialogService;
 	private readonly ILoadingIndicator _loadingIndicator;
@@ -53,10 +53,7 @@ public class CategoriesManagerViewModel : PageViewModel
 		}
 	}
 
-	public ICommand AddCategoryCommand => GetOrCreateAsyncCommand(AddCategoryAsync);
-
-	public ICommand UpdateCategoryCommand => GetOrCreateAsyncCommand<Category>(UpdateCategoryAsync);
-
+	[RelayCommand]
 	private async Task AddCategoryAsync()
 	{
 		var viewModel = new AddOrUpdateCategoryDialogViewModel();
@@ -76,6 +73,7 @@ public class CategoriesManagerViewModel : PageViewModel
 		await RefreshListAsync();
 	}
 
+	[RelayCommand]
 	private async Task UpdateCategoryAsync(Category? category)
 	{
 		if (category is null)

@@ -11,7 +11,7 @@ using Windows.Storage.Pickers;
 
 namespace MZikmund.ViewModels.Admin;
 
-public class TagsManagerViewModel : PageViewModel
+public partial class TagsManagerViewModel : PageViewModel
 {
 	private readonly IDialogService _dialogService;
 	private readonly ILoadingIndicator _loadingIndicator;
@@ -55,10 +55,7 @@ public class TagsManagerViewModel : PageViewModel
 		}
 	}
 
-	public ICommand AddTagCommand => GetOrCreateAsyncCommand(AddTagAsync);
-
-	public ICommand UpdateTagCommand => GetOrCreateAsyncCommand<Tag>(UpdateTagAsync);
-
+	[RelayCommand]
 	private async Task AddTagAsync()
 	{
 		var viewModel = new AddOrUpdateTagDialogViewModel();
@@ -78,6 +75,7 @@ public class TagsManagerViewModel : PageViewModel
 		await RefreshListAsync();
 	}
 
+	[RelayCommand]
 	private async Task UpdateTagAsync(Tag? tag)
 	{
 		if (tag is null)
