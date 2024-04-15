@@ -2,19 +2,21 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.UI.Dispatching;
 using MZikmund.ViewModels;
+using MZikmund.App.Core.Infrastructure;
 
 namespace MZikmund.Services.Navigation;
 
-internal sealed class WindowShellProvider : IWindowShellProvider
+public sealed class WindowShellProvider : IWindowShellProvider
 {
-	private WindowShell? _shell;
+	private IWindowShell? _shell;
+	private Window? _window;
 	private DispatcherQueue? _dispatcherQueue;
 
 	public WindowShellProvider()
 	{
 	}
 
-	public void SetShell(WindowShell shell)
+	public void SetShell(IWindowShell shell, Window window)
 	{
 		if (shell is null)
 		{
@@ -22,7 +24,17 @@ internal sealed class WindowShellProvider : IWindowShellProvider
 		}
 
 		_shell = shell;
+		_window = window;
 		_dispatcherQueue = shell.DispatcherQueue;
+	}
+
+	public Window Window
+	{
+		get
+		{
+			EnsureInitialized();
+			return _window;
+		}
 	}
 
 	public WindowShellViewModel ViewModel
@@ -43,7 +55,7 @@ internal sealed class WindowShellProvider : IWindowShellProvider
 		}
 	}
 
-	public WindowShell WindowShell
+	public IWindowShell WindowShell
 	{
 		get
 		{
@@ -70,11 +82,21 @@ internal sealed class WindowShellProvider : IWindowShellProvider
 		}
 	}
 
+	public Frame RootFrame
+	{
+		get
+		{
+			EnsureInitialized();
+			return _shell.RootFrame;
+		}
+	}
+
 	[MemberNotNull(nameof(_shell))]
+	[MemberNotNull(nameof(_window))]
 	[MemberNotNull(nameof(_dispatcherQueue))]
 	private void EnsureInitialized()
 	{
-		if (_shell is null || _dispatcherQueue is null)
+		if (_shell is null || _dispatcherQueue is null || _window is null)
 		{
 			throw new InvalidOperationException("WindowShellProvider was not initialized.");
 		}

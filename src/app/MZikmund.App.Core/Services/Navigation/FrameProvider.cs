@@ -9,5 +9,5 @@ public class FrameProvider : IFrameProvider
 		_windowShellProvider = windowShellProvider;
 	}
 
-	public Frame GetForCurrentView() => _windowShellProvider.WindowShell.RootFrame;
+	public Frame GetForCurrentView() => _windowShellProvider.RootFrame;
 }

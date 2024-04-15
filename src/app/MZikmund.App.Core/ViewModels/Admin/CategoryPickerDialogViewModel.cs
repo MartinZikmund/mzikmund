@@ -1,6 +1,6 @@
 ﻿using MZikmund.Api.Client;
+using MZikmund.App.Core.ViewModels.Admin;
 using MZikmund.DataContracts.Blog;
-using MZikmund.Dialogs.Admin;
 
 namespace MZikmund.ViewModels.Admin;
 
@@ -19,7 +19,7 @@ public class CategoryPickerDialogViewModel : DialogViewModel
 	{
 		try
 		{
-			var dialog = (CategoryPickerDialog)contentDialog;
+			var dialog = (ICategoryPickerDialog)contentDialog;
 			AllCategories = (await _api.GetCategoriesAsync()).Content!;
 			dialog.SetSelectedItems(AllCategories.Where(c => _initialSelection.Contains(c.Id)));
 		}

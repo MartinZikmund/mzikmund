@@ -11,9 +11,6 @@
 	<ItemGroup>
 		<PackageReference Include="Humanizer" />
 		<PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" />
-		<PackageReference Include="PropertyChanged.Fody">
-			<PrivateAssets>all</PrivateAssets>
-		</PackageReference>
 		<PackageReference Include="Uno.WinUI" />
 		<PackageReference Include="Uno.WinUI.MSAL" />
 		<PackageReference Include="Uno.Resizetizer" />
@@ -72,6 +69,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\shared\MZikmund.Api\MZikmund.Api.csproj" />
 		<ProjectReference Include="..\..\shared\MZikmund.Shared\MZikmund.Shared.csproj" />
+		<ProjectReference Include="..\MZikmund.App.Core\MZikmund.App.Core.csproj" />
 		<ProjectReference Include="..\MZikmund.DataContracts\MZikmund.DataContracts.csproj" />
 	</ItemGroup>
 

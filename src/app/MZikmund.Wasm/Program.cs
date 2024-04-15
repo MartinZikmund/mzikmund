@@ -2,7 +2,7 @@ namespace MZikmund.Wasm;
 
 public class Program
 {
-	private static App? _app;
+	private static MZikmundApp? _app;
 
 	public static int Main(string[] args)
 	{

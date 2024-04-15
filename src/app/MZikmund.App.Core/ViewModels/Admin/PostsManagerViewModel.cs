@@ -12,7 +12,7 @@ using Windows.Storage.Pickers;
 
 namespace MZikmund.ViewModels.Admin;
 
-public class PostsManagerViewModel : PageViewModel
+public partial class PostsManagerViewModel : PageViewModel
 {
 	private readonly IDialogService _dialogService;
 	private readonly ILoadingIndicator _loadingIndicator;
@@ -59,15 +59,13 @@ public class PostsManagerViewModel : PageViewModel
 		}
 	}
 
-	public ICommand AddPostCommand => GetOrCreateCommand(AddPost);
-
-	public ICommand UpdatePostCommand => GetOrCreateCommand<PostListItem>(UpdatePost);
-
+	[RelayCommand]
 	private void AddPost()
 	{
 		_navigationService.Navigate<PostEditorViewModel>(Guid.Empty);
 	}
 
+	[RelayCommand]
 	private void UpdatePost(PostListItem? post)
 	{
 		if (post is null)

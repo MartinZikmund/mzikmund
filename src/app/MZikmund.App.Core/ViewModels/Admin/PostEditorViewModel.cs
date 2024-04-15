@@ -10,7 +10,7 @@ using MZikmund.Web.Core.Services;
 
 namespace MZikmund.ViewModels.Admin;
 
-public class PostEditorViewModel : PageViewModel
+public partial class PostEditorViewModel : PageViewModel
 {
 	private readonly IMZikmundApi _api;
 	private readonly IDialogService _dialogService;
@@ -69,11 +69,8 @@ public class PostEditorViewModel : PageViewModel
 
 	public Post? Post { get; set; }
 
-	public ICommand SaveCommand => GetOrCreateAsyncCommand(SaveAsync);
-
-	public ICommand PickCategoriesCommand => GetOrCreateCommand(PickCategories);
-
-	private async void PickCategories()
+	[RelayCommand]
+	private async Task PickCategoriesAsync()
 	{
 		var categoyPickerDialogViewModel = new CategoryPickerDialogViewModel(Categories.Select(c => c.Id).ToArray(), _api);
 		var result = await _dialogService.ShowAsync(categoyPickerDialogViewModel);
@@ -83,6 +80,7 @@ public class PostEditorViewModel : PageViewModel
 		}
 	}
 
+	[RelayCommand]
 	private async Task SaveAsync()
 	{
 		if (Post is null)

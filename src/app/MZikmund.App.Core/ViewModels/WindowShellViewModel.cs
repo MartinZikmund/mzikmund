@@ -1,15 +1,19 @@
-﻿using Microsoft.UI.Dispatching;
-using MZikmund.Services.Navigation;
-using MZikmund.ViewModels;
+﻿using MZikmund.Services.Navigation;
 using Uno.Disposables;
 
 namespace MZikmund.ViewModels;
 
-public class WindowShellViewModel : ViewModelBase
+public partial class WindowShellViewModel : ViewModelBase
 {
 	private readonly IWindowShellProvider _provider;
 	private readonly INavigationService _navigationService;
 	private RefCountDisposable? _refCountDisposable;
+
+	[ObservableProperty]
+	private bool _isLoading;
+
+	[ObservableProperty]
+	private string _loadingStatusMessage = "";
 
 	public WindowShellViewModel(IWindowShellProvider provider, INavigationService navigationService)
 	{
@@ -54,9 +58,6 @@ public class WindowShellViewModel : ViewModelBase
 		return _refCountDisposable;
 	}
 
-	public bool IsLoading { get; private set; }
-
-	public string LoadingStatusMessage { get; set; } = "";
 
 	public void BackRequested() => _navigationService.GoBack();
 }

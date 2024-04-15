@@ -11,10 +11,11 @@ using MZikmund.ViewModels.Admin;
 using MZikmund.Services.Navigation;
 using MZikmund.Services.Dialogs;
 using Windows.Foundation.Metadata;
+using MZikmund.App.Core.Infrastructure;
 
 namespace MZikmund;
 
-public sealed partial class WindowShell : Page
+public sealed partial class WindowShell : Page, IWindowShell
 {
 	private readonly UISettings _uiSettings = new UISettings();
 	private readonly IServiceScope _windowScope;
@@ -26,9 +27,9 @@ public sealed partial class WindowShell : Page
 
 		_windowScope = serviceProvider.CreateScope();
 		var windowShellProvider = (WindowShellProvider)ServiceProvider.GetRequiredService<IWindowShellProvider>();
-		windowShellProvider.SetShell(this);
-		ServiceProvider.GetRequiredService<INavigationService>().RegisterViewsFromAssembly(typeof(App).Assembly);
-		ServiceProvider.GetRequiredService<IDialogService>().RegisterDialogsFromAssembly(typeof(App).Assembly);
+		windowShellProvider.SetShell(this, associatedWindow);
+		ServiceProvider.GetRequiredService<INavigationService>().RegisterViewsFromAssembly(typeof(MZikmundApp).Assembly);
+		ServiceProvider.GetRequiredService<IDialogService>().RegisterDialogsFromAssembly(typeof(MZikmundApp).Assembly);
 
 		ViewModel = ServiceProvider.GetRequiredService<WindowShellViewModel>();
 
@@ -44,10 +45,6 @@ public sealed partial class WindowShell : Page
 	private void WindowShell_Loaded(object sender, RoutedEventArgs e)
 	{
 		SetTitlebarColors();
-
-#if WINDOWS_UWP
-		BackdropMaterial.SetApplyToRootOrPageBackground(this, true);
-#endif
 	}
 
 	public WindowShellViewModel ViewModel { get; }
@@ -65,9 +62,11 @@ public sealed partial class WindowShell : Page
 			HasCustomTitleBar = true;
 		}
 		_associatedWindow.AppWindow.Title = "Martin Zikmund";
-#if !HAS_UNO_WINUI
-		_associatedWindow.SystemBackdrop = new MicaBackdrop();
-#endif
+
+		if (ApiInformation.IsPropertyPresent("Microsoft.UI.Xaml.Window", "SystemBackdrop"))
+		{
+			_associatedWindow.SystemBackdrop = new MicaBackdrop();
+		}
 	}
 
 	private async void ColorValuesChanged(UISettings sender, object args)
