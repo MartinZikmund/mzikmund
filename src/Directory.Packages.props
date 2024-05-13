@@ -80,7 +80,7 @@
     <PackageVersion Include="Microsoft.Identity.Client" Version="4.59.0" />
     <PackageVersion Include="Uno.Extensions.Authentication.MSAL.WinUI" Version="3.0.11" />
     <PackageVersion Include="Uno.Extensions.Configuration" Version="4.0.0" />
-    <PackageVersion Include="Uno.Extensions.Hosting" Version="3.0.11" />
+    <PackageVersion Include="Uno.Extensions.Hosting" Version="4.1.21" />
     <PackageVersion Include="Uno.Extensions.Hosting.WinUI" Version="4.0.0" />
     <PackageVersion Include="Uno.Extensions.Http" Version="4.0.0" />
     <PackageVersion Include="Uno.Extensions.Http.WinUI" Version="4.0.0" />
@@ -89,7 +89,7 @@
     <PackageVersion Include="Uno.Extensions.Localization.WinUI" Version="4.0.0" />
     <PackageVersion Include="Uno.Extensions.Logging.OSLog" Version="1.7.0" />
     <PackageVersion Include="Uno.Extensions.Core.WinUI" Version="4.0.0" />
-    <PackageVersion Include="Uno.Extensions.Logging.WinUI" Version="4.0.0" />
+    <PackageVersion Include="Uno.Extensions.Logging.WinUI" Version="4.1.21" />
     <PackageVersion Include="Uno.Extensions.Logging.WebAssembly.Console" Version="1.7.0" />
     <PackageVersion Include="Uno.Extensions.Serialization" Version="3.0.11" />
     <PackageVersion Include="Uno.Extensions.Serialization.Http" Version="4.0.0" />
