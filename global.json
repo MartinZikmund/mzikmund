@@ -1,9 +1,9 @@
 {
-  "sdk": {
-    "version": "8.0.0",
+	"sdk": {
+		"version": "8.0.303",
     "allowPrerelease": false,
     "rollForward": "latestMinor"
-  },
+	},
   "msbuild-sdks": {
     "Uno.Sdk": "5.2.0-dev.1159",
     "Microsoft.Build.NoTargets": "3.7.56"
