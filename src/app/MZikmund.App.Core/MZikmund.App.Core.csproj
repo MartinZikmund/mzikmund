@@ -1,33 +1,50 @@
 ﻿<Project Sdk="Uno.Sdk">
 	<PropertyGroup>
-		<DotNetVersion Condition=" $(DotNetVersion) == '' ">net8.0</DotNetVersion>
-		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows')) or '$(EnableWindowsTargeting)' == 'true'">$(TargetFrameworks);$(DotNetVersion)-windows10.0.19041</TargetFrameworks>
-		<TargetFrameworks>$(TargetFrameworks);$(DotNetVersion);$(DotNetVersion)-ios;$(DotNetVersion)-maccatalyst;$(DotNetVersion)-android</TargetFrameworks>
+		<TargetFrameworks>net8.0;net8.0-ios;net8.0-maccatalyst;net8.0-android;net8.0-windows10.0.19041;net8.0-browserwasm;net8.0-desktop</TargetFrameworks>
+		<UnoSingleProject>true</UnoSingleProject>
+		<OutputType>Library</OutputType>
 		<!-- Ensures the .xr.xml files are generated in a proper layout folder -->
 		<GenerateLibraryLayout>true</GenerateLibraryLayout>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+
+		<!--
+      UnoFeatures let's you quickly add and manage implicit package references based on the features you want to use.
+      https://aka.platform.uno/singleproject-features
+    -->
+		<UnoFeatures>
+			Hosting;
+			Http;
+			Configuration;
+			Serialization;
+			Mvvm;
+			AuthenticationMsal;
+			Localization;
+			ThemeService;
+		</UnoFeatures>
 	</PropertyGroup>
+	<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
+		<!--
+  If you encounter this error message:
+
+    error NETSDK1148: A referenced assembly was compiled using a newer version of Microsoft.Windows.SDK.NET.dll.
+    Please update to a newer .NET SDK in order to reference this assembly.
+
+  This means that the two packages below must be aligned with the "build" version number of
+  the "Microsoft.Windows.SDK.BuildTools" package above, and the "revision" version number
+  must be the highest found in https://www.nuget.org/packages/Microsoft.Windows.SDK.NET.Ref.
+  -->
+		<!-- <FrameworkReference Update="Microsoft.Windows.SDK.NET.Ref" RuntimeFrameworkVersion="10.0.22621.28" />
+  <FrameworkReference Update="Microsoft.Windows.SDK.NET.Ref" TargetingPackVersion="10.0.22621.28" /> -->
+	</ItemGroup>
+
 	<ItemGroup>
-		<Compile Include="..\MZikmund\GlobalUsings.cs" Link="GlobalUsings.cs" />
+		<Compile Include="..\MZikmund.App\GlobalUsings.cs" Link="GlobalUsings.cs" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Humanizer" />
 		<PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" />
-		<PackageReference Include="Uno.WinUI" />
-		<PackageReference Include="Uno.WinUI.MSAL" />
-		<PackageReference Include="Uno.Resizetizer" />
 		<PackageReference Include="CommunityToolkit.Mvvm" />
-		<PackageReference Include="Uno.Extensions.Configuration" />
-		<PackageReference Include="Uno.Extensions.Http" />
-		<PackageReference Include="Uno.Extensions.Http.Refit" />
-		<PackageReference Include="Uno.Extensions.Logging.WinUI" />
-		<PackageReference Include="Uno.Extensions.Serialization.Http" />
-		<PackageReference Include="Uno.Extensions.Http.WinUI" />
-		<PackageReference Include="Uno.Extensions.Serialization.Refit" />
-		<PackageReference Include="Uno.Extensions.Core.WinUI" />
-		<PackageReference Include="Uno.Extensions.Hosting.WinUI" />
-		<PackageReference Include="Uno.Extensions.Localization.WinUI" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Console" />
 		<PackageReference Include="Microsoft.Identity.Client" />
 	</ItemGroup>
@@ -36,25 +53,4 @@
 		<ProjectReference Include="..\..\shared\MZikmund.Shared\MZikmund.Shared.csproj" />
 		<ProjectReference Include="..\MZikmund.DataContracts\MZikmund.DataContracts.csproj" />
 	</ItemGroup>
-	<Choose>
-		<When Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
-			<ItemGroup>
-				<PackageReference Include="Microsoft.WindowsAppSDK" />
-				<PackageReference Include="Microsoft.Windows.SDK.BuildTools" />
-
-				<!--
-        If you encounter this error message:
-
-          error NETSDK1148: A referenced assembly was compiled using a newer version of Microsoft.Windows.SDK.NET.dll.
-          Please update to a newer .NET SDK in order to reference this assembly.
-
-        This means that the two packages below must be aligned with the "build" version number of
-        the "Microsoft.Windows.SDK.BuildTools" package above, and the "revision" version number
-        must be the highest found in https://www.nuget.org/packages/Microsoft.Windows.SDK.NET.Ref.
-        -->
-				<!-- <FrameworkReference Update="Microsoft.Windows.SDK.NET.Ref" RuntimeFrameworkVersion="10.0.22621.28" />
-        <FrameworkReference Update="Microsoft.Windows.SDK.NET.Ref" TargetingPackVersion="10.0.22621.28" /> -->
-			</ItemGroup>
-		</When>
-	</Choose>
 </Project>

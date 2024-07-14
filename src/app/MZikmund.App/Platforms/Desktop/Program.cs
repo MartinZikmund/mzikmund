@@ -1,15 +1,16 @@
 using Uno.UI.Runtime.Skia;
 
 namespace MZikmund.App;
+
 public class Program
 {
 	[STAThread]
 	public static void Main(string[] args)
 	{
-		App.InitializeLogging();
+		MZikmundApp.InitializeLogging();
 
 		var host = SkiaHostBuilder.Create()
-			.App(() => new App())
+			.App(() => new MZikmundApp())
 			.UseX11()
 			.UseLinuxFrameBuffer()
 			.UseMacOS()

@@ -1,4 +1,5 @@
-﻿using MZikmund.ViewModels;
+﻿using Microsoft.UI.Dispatching;
+using MZikmund.ViewModels;
 
 namespace MZikmund.App.Core.Infrastructure;
 

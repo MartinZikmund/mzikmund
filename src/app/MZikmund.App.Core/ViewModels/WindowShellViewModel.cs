@@ -1,4 +1,5 @@
-﻿using MZikmund.Services.Navigation;
+﻿using Microsoft.UI.Dispatching;
+using MZikmund.Services.Navigation;
 using Uno.Disposables;
 
 namespace MZikmund.ViewModels;

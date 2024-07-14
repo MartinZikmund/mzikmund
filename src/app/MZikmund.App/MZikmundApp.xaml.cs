@@ -1,12 +1,30 @@
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using MZikmund.Api.Client;
+using MZikmund.App.Core.Infrastructure;
+using MZikmund.Business.Models;
+using MZikmund.DataContracts.Serialization;
+using MZikmund.Infrastructure;
+using MZikmund.Services.Account;
+using MZikmund.Services.Caching;
+using MZikmund.Services.Dialogs;
+using MZikmund.Services.Endpoints;
+using MZikmund.Services.Loading;
+using MZikmund.Services.Navigation;
+using MZikmund.Services.Preferences;
+using MZikmund.Services.Theming;
+using MZikmund.Services.Timers;
+using MZikmund.ViewModels;
+using MZikmund.ViewModels.Admin;
+using MZikmund.Web.Core.Services;
+using Refit;
 using Uno.Extensions.Configuration;
 using Uno.Resizetizer;
 
 namespace MZikmund.App;
 
-public partial class MZikmundApp : Application
+public partial class MZikmundApp : Application, IApplication
 {
 	/// <summary>
 	/// Initializes the singleton application object. This is the first line of authored code
@@ -16,7 +34,8 @@ public partial class MZikmundApp : Application
 	{
 		this.InitializeComponent();
 	}
-	protected Window? MainWindow { get; private set; }
+	public Window? MainWindow { get; private set; }
+
 	internal static IHost? Host { get; private set; }
 
 	protected override async void OnLaunched(LaunchActivatedEventArgs args)

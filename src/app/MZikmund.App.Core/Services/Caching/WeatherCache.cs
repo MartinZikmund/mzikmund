@@ -1,3 +1,5 @@
+using MZikmund.Services.Endpoints;
+
 namespace MZikmund.Services.Caching;
 
 public sealed class WeatherCache : IWeatherCache
