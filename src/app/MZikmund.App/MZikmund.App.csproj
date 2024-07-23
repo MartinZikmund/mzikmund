@@ -45,6 +45,9 @@
 			Configuration;
 			Serialization;
 			Mvvm;
+			Lottie;
+			Navigation;
+			AuthenticationMsal;
 			Localization;
 			ThemeService;
 		</UnoFeatures>

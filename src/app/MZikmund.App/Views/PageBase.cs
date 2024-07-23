@@ -3,6 +3,7 @@ using MZikmund.ViewModels;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.UI.Xaml.Navigation;
 using System.Runtime.InteropServices.ObjectiveC;
+using MZikmund.App;
 
 namespace MZikmund.Views;
 

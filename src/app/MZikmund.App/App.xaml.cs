@@ -38,7 +38,7 @@ public partial class MZikmundApp : Application, IApplication
 
 	internal static IHost? Host { get; private set; }
 
-	protected override async void OnLaunched(LaunchActivatedEventArgs args)
+	protected override void OnLaunched(LaunchActivatedEventArgs args)
 	{
 		var builder = this.CreateBuilder(args)
 			.Configure(host => host

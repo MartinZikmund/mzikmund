@@ -6,3 +6,5 @@ global using Microsoft.Extensions.Hosting;
 global using Microsoft.Extensions.Logging;
 global using ApplicationExecutionState = Windows.ApplicationModel.Activation.ApplicationExecutionState;
 global using MZikmund.DataContracts;
+global using Microsoft.UI.Xaml.Markup;
+global using MZikmund.App;

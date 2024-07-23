@@ -13,7 +13,7 @@ using MZikmund.Services.Dialogs;
 using Windows.Foundation.Metadata;
 using MZikmund.App.Core.Infrastructure;
 
-namespace MZikmund;
+namespace MZikmund.App;
 
 public sealed partial class WindowShell : Page, IWindowShell
 {

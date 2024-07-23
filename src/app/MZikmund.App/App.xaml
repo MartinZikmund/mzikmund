@@ -8,9 +8,9 @@
 				<!-- Load WinUI resources -->
 				<XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
 
-				<ResourceDictionary Source="ms-appx:///MZikmund/Resources/Colors.xaml" />
-				<ResourceDictionary Source="ms-appx:///MZikmund/Resources/Converters.xaml" />
-				<ResourceDictionary Source="ms-appx:///MZikmund/Resources/Fonts.xaml" />
+				<ResourceDictionary Source="ms-appx:///Resources/Colors.xaml" />
+				<ResourceDictionary Source="ms-appx:///Resources/Converters.xaml" />
+				<ResourceDictionary Source="ms-appx:///Resources/Fonts.xaml" />
 			</ResourceDictionary.MergedDictionaries>
 		</ResourceDictionary>
 	</Application.Resources>

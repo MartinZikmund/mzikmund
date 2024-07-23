@@ -19,7 +19,6 @@
     <PackageVersion Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.2" />
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
-    <PackageVersion Include="Microsoft.Identity.Client.Extensions.Msal" Version="4.61.3" />
     <PackageVersion Include="Microsoft.TypeScript.MSBuild" Version="5.5.3" />
     <PackageVersion Include="Moq" Version="4.20.70" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
@@ -60,14 +59,12 @@
     <PackageVersion Include="Microsoft.Identity.Web.DownstreamApi" Version="2.20.0" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.6.2" />
     <!-- Uno -->
-    <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.2.2" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Windows.Compatibility" Version="8.0.2" />
     <PackageVersion Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1" />
     <PackageVersion Include="Microsoft.WindowsAppSDK" Version="1.5.240627000" />
     <PackageVersion Include="SkiaSharp.Skottie" Version="2.88.7" />
     <PackageVersion Include="SkiaSharp.Views.Uno.WinUI" Version="2.88.7" />
-    <PackageVersion Include="Microsoft.Identity.Client" Version="4.61.3" />
     <PackageVersion Include="Xamarin.Google.Android.Material" Version="1.10.0.3" />
   </ItemGroup>
 </Project>
