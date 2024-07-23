@@ -22,7 +22,7 @@
 				<ColumnDefinition Width="Auto" />
 				<ColumnDefinition Width="*" />
 			</Grid.ColumnDefinitions>
-			<BitmapIcon ShowAsMonochrome="False" Width="16" UriSource="ms-appx:///MZikmund/Assets/NavigationViewLogo.png" />
+			<BitmapIcon ShowAsMonochrome="False" Width="16" UriSource="ms-appx:///Assets/NavigationViewLogo.png" />
 			<TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{x:Bind ViewModel.Title}" Style="{ThemeResource CaptionTextBlockStyle}" />
 		</Grid>
         <mux:NavigationView
@@ -39,37 +39,37 @@
             <mux:NavigationView.MenuItems>
                 <mux:NavigationViewItem x:Name="HomeNavigationViewItem" Content="{extensions:Localize Key=Home}">
                     <mux:NavigationViewItem.Icon>
-						<BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///MZikmund/Assets/NavigationViewLogo.png" />
+						<BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///Assets/NavigationViewLogo.png" />
 					</mux:NavigationViewItem.Icon>
                 </mux:NavigationViewItem>
                 <mux:NavigationViewItem x:Name="BlogNavigationViewItem" Content="{extensions:Localize Key=Blog}">
                     <mux:NavigationViewItem.Icon>
-                        <BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///MZikmund/Assets/Icons/Navigation/Blog.png" />
+                        <BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///Assets/Icons/Navigation/Blog.png" />
                     </mux:NavigationViewItem.Icon>
                 </mux:NavigationViewItem>
                 <mux:NavigationViewItem x:Name="ContactNavigationViewItem" Content="{extensions:Localize Key=Contact}">
                     <mux:NavigationViewItem.Icon>
-                        <BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///MZikmund/Assets/Icons/Navigation/Contact.png" />
+                        <BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///Assets/Icons/Navigation/Contact.png" />
                     </mux:NavigationViewItem.Icon>
                 </mux:NavigationViewItem>
                 <mux:NavigationViewItem x:Name="AdminNavigationViewItem" Content="{extensions:Localize Key=Admin}">
                     <mux:NavigationViewItem.Icon>
-                        <BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///MZikmund/Assets/Icons/Navigation/Admin.png" />
+                        <BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///Assets/Icons/Navigation/Admin.png" />
                     </mux:NavigationViewItem.Icon>
                     <mux:NavigationViewItem.MenuItems>
                         <mux:NavigationViewItem x:Name="AdminPostsNavigationViewItem" Content="{extensions:Localize Key=Posts}">
                             <mux:NavigationViewItem.Icon>
-                                <BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///MZikmund/Assets/Icons/Navigation/Posts.png" />
+                                <BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///Assets/Icons/Navigation/Posts.png" />
                             </mux:NavigationViewItem.Icon>
                         </mux:NavigationViewItem>
                         <mux:NavigationViewItem x:Name="AdminTagsNavigationViewItem" Content="{extensions:Localize Key=Tags}">
                             <mux:NavigationViewItem.Icon>
-                                <BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///MZikmund/Assets/Icons/Navigation/Tags.png" />
+                                <BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///Assets/Icons/Navigation/Tags.png" />
                             </mux:NavigationViewItem.Icon>
                         </mux:NavigationViewItem>
                         <mux:NavigationViewItem x:Name="AdminCategoriesNavigationViewItem" Content="{extensions:Localize Key=Categories}">
                             <mux:NavigationViewItem.Icon>
-                                <BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///MZikmund/Assets/Icons/Navigation/Categories.png" />
+                                <BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///Assets/Icons/Navigation/Categories.png" />
                             </mux:NavigationViewItem.Icon>
                         </mux:NavigationViewItem>
                     </mux:NavigationViewItem.MenuItems>
