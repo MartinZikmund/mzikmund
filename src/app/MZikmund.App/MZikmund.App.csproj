@@ -1,13 +1,12 @@
 ﻿<Project Sdk="Uno.Sdk">
 	<PropertyGroup>
 		<TargetFrameworks>
-			net8.0-windows10.0.22621;
 			net8.0-android;
 			net8.0-ios;
-			net8.0-maccatalyst;
-			net8.0-desktop;
 			net8.0-browserwasm;
+			net8.0-windows10.0.22621;
 		</TargetFrameworks>
+		<!--net8.0-maccatalyst; net8.0-desktop;-->
 
 		<OutputType>Exe</OutputType>
 		<UnoSingleProject>true</UnoSingleProject>
