@@ -2,11 +2,11 @@
 	"compileOnSave": true,
 	"compilerOptions": {
 		"noImplicitAny": false,
-		"noEmitOnError": true,
+		"noEmitOnError": false,
 		"removeComments": false,
-		"target": "es6",
+		"target": "ES2015",
 		"outFile": "wwwroot/js/site.js",
-		"module": "system",
+		"module": "System",
 		"strict": true,
 	},
 	"include": [

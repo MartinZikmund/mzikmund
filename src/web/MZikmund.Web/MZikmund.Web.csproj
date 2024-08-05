@@ -25,12 +25,12 @@
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Newtonsoft.Json" />
-		<PackageReference Include="X.PagedList.Mvc.Core" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" />
 		<PackageReference Include="Microsoft.Identity.Web" />
 		<PackageReference Include="Microsoft.Identity.Web.DownstreamApi" />
 		<PackageReference Include="Swashbuckle.AspNetCore" />
+		<PackageReference Include="X.Web.PagedList" />
 	</ItemGroup>
 
 	<ItemGroup>

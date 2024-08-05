@@ -6,7 +6,7 @@
 		"bootstrap": "5.3.3"
 	},
 	"devDependencies": {
-		"@types/jquery": "3.5.30",
+		"@types/node": "20.0.0",
 		"eslint": "9.8.0",
 		"ts-loader": "9.5.1",
 		"sass": "1.77.8",
