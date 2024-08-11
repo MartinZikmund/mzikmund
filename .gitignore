@@ -350,3 +350,8 @@ MigrationBackup/
 .ionide/
 src/web/MZikmund.Web/wwwroot/css
 src/web/MZikmund.Web/wwwroot/js
+
+# Single Target Config
+solution-config.props
+# Publish Profiles
+!**/Properties/PublishProfiles/*.pubxml
