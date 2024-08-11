@@ -1,2 +1,4 @@
 <Project>
+	<Target Name="ResolveWebView2CoreDuplicates1" BeforeTargets="_ComputeResolvedFilesToPublishTypes" AfterTargets="ComputeFilesToPublish" />
+	<Target Name="ResolveWebView2CoreDuplicates2" BeforeTargets="_ComputeResolvedFilesToPublishTypes" AfterTargets="ComputeFilesToPublish" />
 </Project>
