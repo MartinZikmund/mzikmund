@@ -13,7 +13,7 @@ inputs:
   sdkVersion:
     description: 'The version of the Windows Sdk'
     required: false
-    default: '19041'
+    default: '22621'
 
 runs:
   using: "composite"
@@ -31,30 +31,15 @@ runs:
       run: .\.github\Install-WindowsSdkISO.ps1 ${{ inputs.sdkVersion }}
 
     # Run Uno.Check
-    - name: Run Uno.Check
+    - name: Install ${{ inputs.target-platform }} Workloads
       shell: pwsh
       run: |
-        dotnet tool install -g uno.check --version 1.17.0-dev.7      
-        uno-check -v --ci --non-interactive --fix --skip vswin --skip vsmac --skip xcode --skip vswinworkloads --skip androidemulator --skip dotnetnewunotemplates --verbose
-      continue-on-error: true
-    
-    # Install .NET workloads
-    - name: Install workloads
-      shell: pwsh
-      run: dotnet workload install ios maccatalyst android wasm-tools
-
-    # Install Node.js
-    - name: Setup Node.js environment
-      uses: actions/setup-node@v3.8.1
-
-    # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
-    - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v1.3.1
-
-    - name: Set up dependency caching for faster builds
-      uses: actions/cache@v3
-      with:
-        path: ~/.nuget/packages
-        key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-nuget-
+        dotnet tool install -g uno.check
+        ("${{ inputs.target-platform }} ".Split(' ') | ForEach-Object {
+          $target = $_.Replace("_win", "").Replace("_macos", "")
+          if (![string]::IsNullOrEmpty($target)) {
+            echo "target: $target"
+            uno-check -v --ci --non-interactive --fix --target $target --skip vswin --skip vsmac --skip xcode --skip vswinworkloads --skip androidemulator --skip dotnetnewunotemplates
+            echo "uno-check finished for target: $target "
+          }
+        })
