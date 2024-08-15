@@ -22,6 +22,7 @@
 		<ApplicationPublisher>Martin Zikmund</ApplicationPublisher>
 		<!-- Package Description -->
 		<Description>MZikmund.App powered by Uno Platform.</Description>
+		<GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
 		<!--
       If you encounter this error message:
 
