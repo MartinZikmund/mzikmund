@@ -14,7 +14,7 @@
 		<GenerateLibraryLayout>true</GenerateLibraryLayout>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-
+		<WindowsSdkPackageVersion>10.0.22621.38</WindowsSdkPackageVersion>
 		<!--
       UnoFeatures let's you quickly add and manage implicit package references based on the features you want to use.
       https://aka.platform.uno/singleproject-features
