@@ -1,5 +1,5 @@
-<Project>
-	<!-- Workaround for https://github.com/unoplatform/uno/issues/17910 -->
+<!--<Project>
+	--><!-- Workaround for https://github.com/unoplatform/uno/issues/17910 --><!--
 	<Target Name="ResolveWebView2CoreDuplicates1" BeforeTargets="_ComputeResolvedFilesToPublishTypes" AfterTargets="ComputeFilesToPublish" />
 	<Target Name="ResolveWebView2CoreDuplicates2" BeforeTargets="_ComputeResolvedFilesToPublishTypes" AfterTargets="ComputeFilesToPublish" />
-</Project>
+</Project>-->
