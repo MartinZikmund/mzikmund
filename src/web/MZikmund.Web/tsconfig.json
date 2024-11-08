@@ -8,6 +8,7 @@
 		"outFile": "wwwroot/js/site.js",
 		"module": "System",
 		"strict": true,
+		"moduleResolution": "node"
 	},
 	"include": [
 		"Scripts/**/*"
