@@ -3,7 +3,7 @@ name: Deploy to Azure
 env:
   AZURE_WEBAPP_NAME: app-mzikmund    # set this to the name of your Azure Web App
   AZURE_WEBAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
-  DOTNET_VERSION: '8.0.x'                 # set this to the .NET Core version to use
+  DOTNET_VERSION: '9.0.x'                 # set this to the .NET Core version to use
 
 on:
   push:
@@ -24,7 +24,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install Dependencies
-        timeout-minutes: ${{ fromJSON(env.STEP_TIMEOUT_MINUTES) }}
+        timeout-minutes: 15
         uses: "./.github/steps/install_dependencies"
 
       - name: Restore .NET dependencies
