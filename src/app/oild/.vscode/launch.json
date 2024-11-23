@@ -39,7 +39,7 @@
       "request": "launch",
       "preLaunchTask": "build-skia-gtk",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/MZikmund.Skia.Gtk/bin/Debug/net8.0/MZikmund.Skia.Gtk.dll",
+      "program": "${workspaceFolder}/MZikmund.Skia.Gtk/bin/Debug/net9.0/MZikmund.Skia.Gtk.dll",
       "args": [],
       "env": {
         "DOTNET_MODIFIABLE_ASSEMBLIES": "debug"
