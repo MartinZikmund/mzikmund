@@ -1,14 +1,16 @@
 version: 2
 updates:
 - package-ecosystem: nuget
-  directory: "/"
+  directories:
+  - "*"
   schedule:
     interval: weekly
     time: "04:00"
   open-pull-requests-limit: 10
   target-branch: main
 - package-ecosystem: npm
-  directory: "/"
+  directories:
+  - "*"
   schedule:
     interval: weekly
     time: "04:00"
