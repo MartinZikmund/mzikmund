@@ -171,6 +171,6 @@ public partial class PostEditorViewModel : PageViewModel
 		PostTitle = post.Title;
 		PostRouteName = post.RouteName;
 		PostContent = post.Content;
-		IsPublished = post.IsPublished;
+		IsPublished = post.PublishedDate is not null; // TODO: This logic is wrong, we should work with post status!
 	}
 }

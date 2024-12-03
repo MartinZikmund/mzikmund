@@ -1,16 +1,17 @@
-﻿using MZikmund.DataContracts.Blog;
+﻿using MZikmund.App.Core.ViewModels.Admin;
+using MZikmund.DataContracts.Blog;
 using MZikmund.ViewModels.Admin;
 
 namespace MZikmund.Dialogs.Admin;
 
-public sealed partial class CategoryPickerDialog : CategoryPickerDialogBase
+public sealed partial class CategoryPickerDialog : CategoryPickerDialogBase, ICategoryPickerDialog
 {
 	public CategoryPickerDialog()
 	{
 		InitializeComponent();
 	}
 
-	internal void SetSelectedItems(IEnumerable<Category> itemsToSelect)
+	public void SetSelectedItems(IEnumerable<Category> itemsToSelect)
 	{
 		foreach (var category in itemsToSelect)
 		{
