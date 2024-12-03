@@ -17,10 +17,33 @@ public partial class PostEditorViewModel : PageViewModel
 	private readonly ILoadingIndicator _loadingIndicator;
 	private readonly IPostContentProcessor _postContentProcessor;
 	private readonly ITimerFactory _timerFactory;
-	private string _postTitle = "";
 	private DispatcherQueueTimer? _previewTimer;
 	private bool _isPreviewDirty = true;
+
+	[ObservableProperty]
 	private string _postContent = "";
+
+	[ObservableProperty]
+	private string _postRouteName = "";
+
+	[ObservableProperty]
+	private string _tags = "";
+
+	[ObservableProperty]
+	private string _postTitle = "";
+
+	[ObservableProperty]
+	private string _htmlPreview = "";
+
+	[ObservableProperty]
+	[NotifyPropertyChangedFor(nameof(CategoriesText))]
+	private Category[] _categories = Array.Empty<Category>();
+
+	[ObservableProperty]
+	private Post? _post = null;
+
+	[ObservableProperty]
+	private bool _isPublished;
 
 	public PostEditorViewModel(IMZikmundApi api, IDialogService dialogService, ILoadingIndicator loadingIndicator, IPostContentProcessor postContentProcessor, ITimerFactory timerFactory)
 	{
@@ -31,43 +54,21 @@ public partial class PostEditorViewModel : PageViewModel
 		_timerFactory = timerFactory;
 	}
 
+	partial void OnPostTitleChanged(string value)
+	{
+		PostRouteName = value.GenerateRouteName();
+	}
+
+	partial void OnPostContentChanged(string value)
+	{
+		_isPreviewDirty = true;
+	}
+
 	public override string Title => Post?.Title ?? "";
-
-	public string PostTitle
-	{
-		get => _postTitle;
-		set
-		{
-			_postTitle = value;
-			PostRouteName = _postTitle.GenerateRouteName();
-		}
-	}
-
-	public string PostRouteName { get; set; } = "";
-
-	public string Tags { get; set; } = "";
-
-	public Category[] Categories { get; set; } = Array.Empty<Category>();
-
-	public string PostContent
-	{
-		get => _postContent;
-		set
-		{
-			if (SetProperty(ref _postContent, value))
-			{
-				_isPreviewDirty = true;
-			}
-		}
-	}
-
-	public string HtmlPreview { get; set; } = "";
 
 	public string CategoriesText => Categories is null or { Length: 0 } ?
 		Localizer.Instance.GetString("NoCategoriesSelected") :
 		string.Join(", ", Categories.Select(c => c.DisplayName));
-
-	public Post? Post { get; set; }
 
 	[RelayCommand]
 	private async Task PickCategoriesAsync()
@@ -96,8 +97,8 @@ public partial class PostEditorViewModel : PageViewModel
 		Post.RouteName = PostRouteName;
 		Post.Tags = tags;
 		Post.Categories = Categories;
-		Post.IsPublished = true;
-		Post.PublishedDate = DateTimeOffset.UtcNow; // TODO: Don't always publish!
+		Post.IsPublished = IsPublished;
+		Post.PublishedDate = Post.PublishedDate ?? DateTimeOffset.UtcNow;
 		Post.Content = PostContent;
 
 		if (Post.Id == Guid.Empty)
@@ -170,5 +171,6 @@ public partial class PostEditorViewModel : PageViewModel
 		PostTitle = post.Title;
 		PostRouteName = post.RouteName;
 		PostContent = post.Content;
+		IsPublished = post.IsPublished;
 	}
 }

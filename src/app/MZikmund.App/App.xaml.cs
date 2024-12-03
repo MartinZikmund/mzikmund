@@ -74,7 +74,7 @@ public partial class MZikmundApp : Application, IApplication
 		MainWindow = builder.Window;
 
 #if DEBUG
-		MainWindow.EnableHotReload();
+		MainWindow.UseStudio();
 #endif
 
 		Host = builder.Build();
