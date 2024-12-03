@@ -43,6 +43,10 @@
 	</PropertyGroup>
 	
 	<ItemGroup>
+	  <EmbeddedResource Include="Templates\PostPreviewTemplate.html" />
+	</ItemGroup>
+	
+	<ItemGroup>
 	  <ProjectReference Include="..\MZikmund.App.Core\MZikmund.App.Core.csproj" />
 	</ItemGroup>
 
