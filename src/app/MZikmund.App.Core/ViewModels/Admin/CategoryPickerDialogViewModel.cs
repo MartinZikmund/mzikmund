@@ -4,7 +4,7 @@ using MZikmund.DataContracts.Blog;
 
 namespace MZikmund.ViewModels.Admin;
 
-public class CategoryPickerDialogViewModel : DialogViewModel
+public partial class CategoryPickerDialogViewModel : DialogViewModel
 {
 	private readonly Guid[] _initialSelection;
 	private readonly IMZikmundApi _api;
@@ -14,6 +14,12 @@ public class CategoryPickerDialogViewModel : DialogViewModel
 		_initialSelection = selectedCategoryIds;
 		_api = api;
 	}
+
+	[ObservableProperty]
+	public Category[] _allCategories = Array.Empty<Category>();
+
+	[ObservableProperty]
+	public Category[] _selectedCategories = Array.Empty<Category>();
 
 	public override async void OnOpened(ContentDialog contentDialog)
 	{
@@ -28,8 +34,4 @@ public class CategoryPickerDialogViewModel : DialogViewModel
 			// TODO: Handle dialog exception
 		}
 	}
-
-	public Category[] AllCategories { get; private set; } = Array.Empty<Category>();
-
-	public Category[] SelectedCategories { get; set; } = Array.Empty<Category>();
 }

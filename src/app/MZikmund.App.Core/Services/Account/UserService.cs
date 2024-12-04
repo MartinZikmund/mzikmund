@@ -102,7 +102,7 @@ public class UserService : IUserService
 			_identityClient = PublicClientApplicationBuilder
 				.Create(AuthenticationConstants.ApplicationId)
 				.WithAuthority(AzureCloudInstance.AzurePublic, AuthenticationConstants.TenantId)
-				.WithRedirectUri("https://login.microsoftonline.com/common/oauth2/nativeclient")
+				.WithRedirectUri("http://localhost")
 				.WithUnoHelpers()
 				.Build();
 
