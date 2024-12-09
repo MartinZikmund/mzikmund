@@ -14,7 +14,7 @@ public sealed partial class PostEditorView : PostEditorViewBase
 	{
 		InitializeComponent();
 		// Read the template from the embedded resource
-		_postPreviewTemplate = typeof(PostEditorView).Assembly.GetManifestResourceStream("MZikmund.App.Assets.PostPreviewTemplate.html")!.ReadToEnd()!;
+		_postPreviewTemplate = typeof(PostEditorView).Assembly.GetManifestResourceStream("MZikmund.App.Templates.PostPreviewTemplate.html")!.ReadToEnd()!;
 		PreviewWebViewContainer.Content = _previewWebView = new WebView2();
 		this.Loaded += PostEditorView_Loaded;
 		this.Unloaded += PostEditorView_Unloaded;

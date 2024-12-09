@@ -15,6 +15,7 @@ public class Post
 		get => _content.ReplaceLineEndings("\r\n");
 		set => _content = value;
 	}
+
 	public string Abstract { get; set; } = "";
 
 	public string? HeroImageUrl { get; set; }
