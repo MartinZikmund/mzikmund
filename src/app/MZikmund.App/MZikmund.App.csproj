@@ -42,7 +42,7 @@
 		</UnoFeatures>
 	</PropertyGroup>
 	
-	<PropertyGroup>
+	<PropertyGroup Condition="'$(TargetFramework)'=='net9.0-windows10.0.22621'">
 		<!-- Workaround for https://github.com/unoplatform/uno/issues/18552 -->
 		<PlatformTarget Condition=" '$(PlatformTarget)' == '' AND $(Platform) == 'AnyCPU' AND '$(NETCoreSdkRuntimeIdentifier)' == 'win-x86'">x86</PlatformTarget>
 		<PlatformTarget Condition=" '$(PlatformTarget)' == '' AND $(Platform) == 'AnyCPU' AND '$(NETCoreSdkRuntimeIdentifier)' == 'win-x64'">x64</PlatformTarget>
