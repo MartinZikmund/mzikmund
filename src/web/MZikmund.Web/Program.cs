@@ -20,9 +20,13 @@ using WilderMinds.MetaWeblog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.AddServiceDefaults();
+
 ConfigureServices(builder.Services, builder.Configuration);
 
 var app = builder.Build();
+
+app.MapDefaultEndpoints();
 
 app.UseRewriter(new RewriteOptions()
 	.Add(new LegacyUrlRedirectRule())
