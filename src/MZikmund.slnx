@@ -1,0 +1,94 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="Ad-Hoc" />
+    <BuildType Name="AppStore" />
+    <BuildType Name="Debug" />
+    <BuildType Name="Release" />
+    <Platform Name="Any CPU" />
+    <Platform Name="ARM" />
+    <Platform Name="ARM64" />
+    <Platform Name="iPhone" />
+    <Platform Name="iPhoneSimulator" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/App/">
+    <Project Path="app/MZikmund.App.Core/MZikmund.App.Core.csproj">
+      <BuildType Solution="Ad-Hoc|*" Project="Debug" />
+      <BuildType Solution="AppStore|*" Project="Debug" />
+    </Project>
+    <Project Path="app/MZikmund.App/MZikmund.App.csproj">
+      <BuildType Solution="Ad-Hoc|*" Project="Debug" />
+      <BuildType Solution="AppStore|*" Project="Debug" />
+      <Deploy />
+    </Project>
+  </Folder>
+  <Folder Name="/Host/">
+    <Project Path="host/MZikmund.AppHost/MZikmund.AppHost.csproj">
+      <BuildType Solution="Ad-Hoc|*" Project="Debug" />
+      <BuildType Solution="AppStore|*" Project="Debug" />
+    </Project>
+    <Project Path="host/MZikmund.ServiceDefaults/MZikmund.ServiceDefaults.csproj">
+      <BuildType Solution="Ad-Hoc|*" Project="Debug" />
+      <BuildType Solution="AppStore|*" Project="Debug" />
+    </Project>
+  </Folder>
+  <Folder Name="/Shared/">
+    <Project Path="app/MZikmund.DataContracts/MZikmund.DataContracts.csproj">
+      <BuildType Solution="Ad-Hoc|*" Project="Debug" />
+      <BuildType Solution="AppStore|*" Project="Debug" />
+    </Project>
+    <Project Path="shared/MZikmund.Api/MZikmund.Api.csproj">
+      <BuildType Solution="Ad-Hoc|*" Project="Debug" />
+      <BuildType Solution="AppStore|*" Project="Debug" />
+    </Project>
+    <Project Path="shared/MZikmund.Shared/MZikmund.Shared.csproj">
+      <BuildType Solution="Ad-Hoc|*" Project="Debug" />
+      <BuildType Solution="AppStore|*" Project="Debug" />
+    </Project>
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="../.editorconfig" />
+    <File Path="../global.json" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+    <File Path="Directory.Packages.props" />
+    <File Path="solution-config.props.sample" />
+  </Folder>
+  <Folder Name="/Tools/">
+    <Project Path="tools/MZikmund.LegacyMigration/MZikmund.LegacyMigration.csproj">
+      <BuildType Solution="Ad-Hoc|*" Project="Debug" />
+      <BuildType Solution="AppStore|*" Project="Debug" />
+      <Platform Solution="*|Any CPU" Project="x64" />
+      <Platform Solution="*|ARM" Project="x64" />
+      <Platform Solution="*|ARM64" Project="ARM64" />
+      <Platform Solution="*|iPhone" Project="x64" />
+      <Platform Solution="*|iPhoneSimulator" Project="x64" />
+      <Platform Solution="*|x64" Project="x64" />
+      <Platform Solution="*|x86" Project="x86" />
+      <Deploy />
+    </Project>
+  </Folder>
+  <Folder Name="/Web/">
+    <Project Path="web/MZikmund.Web.Configuration/MZikmund.Web.Configuration.csproj">
+      <BuildType Solution="Ad-Hoc|*" Project="Debug" />
+      <BuildType Solution="AppStore|*" Project="Debug" />
+    </Project>
+    <Project Path="web/MZikmund.Web.Core.Tests/MZikmund.Web.Core.Tests.csproj">
+      <BuildType Solution="Ad-Hoc|*" Project="Debug" />
+      <BuildType Solution="AppStore|*" Project="Debug" />
+    </Project>
+    <Project Path="web/MZikmund.Web.Core/MZikmund.Web.Core.csproj">
+      <BuildType Solution="Ad-Hoc|*" Project="Debug" />
+      <BuildType Solution="AppStore|*" Project="Debug" />
+    </Project>
+    <Project Path="web/MZikmund.Web.Data/MZikmund.Web.Data.csproj">
+      <BuildType Solution="Ad-Hoc|*" Project="Debug" />
+      <BuildType Solution="AppStore|*" Project="Debug" />
+    </Project>
+    <Project Path="web/MZikmund.Web/MZikmund.Web.csproj">
+      <BuildType Solution="Ad-Hoc|*" Project="Release" />
+      <BuildType Solution="AppStore|*" Project="Release" />
+    </Project>
+  </Folder>
+</Solution>
