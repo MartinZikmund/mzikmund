@@ -32,7 +32,10 @@ app.UseRewriter(new RewriteOptions()
 using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
 {
 	var context = serviceScope.ServiceProvider.GetRequiredService<DatabaseContext>();
-	context.Database.Migrate();
+	if (!await context.Database.CanConnectAsync())
+	{
+		context.Database.Migrate();
+	}
 }
 
 // Configure the HTTP request pipeline.
