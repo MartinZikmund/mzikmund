@@ -34,7 +34,7 @@ public class FilesAdminController : Controller
 	}
 
 	[HttpPost]
-	public async Task<IActionResult> Upload([FromForm] IFormFile file)
+	public async Task<IActionResult> Upload(IFormFile file)
 	{
 		if (file == null || file.Length == 0)
 		{
