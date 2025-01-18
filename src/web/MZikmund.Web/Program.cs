@@ -16,7 +16,6 @@ using MZikmund.Web.Core.Services;
 using MZikmund.Web.Core.Syndication;
 using MZikmund.Web.Data;
 using MZikmund.Web.Data.Extensions;
-using WilderMinds.MetaWeblog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,7 +55,6 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseMiddleware<ReallySimpleDiscoveryMiddleware>();
-app.UseMetaWeblog($"/{app.Services.GetRequiredService<ISiteConfiguration>().MetaWeblog.Endpoint}");
 
 app.UseRouting();
 app.UseCors();
@@ -81,7 +79,6 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 	services.AddSingleton<IPostContentProcessor, PostContentProcessor>();
 	services.AddSingleton<IFeedGenerator, FeedGenerator>();
 	services.AddScoped<ISyndicationDataSource, SyndicationDataSource>();
-	services.AddMetaWeblog<MetaWeblogProvider>();
 	services.AddHttpContextAccessor();
 	services.AddScoped<MetaTagsInfo>();
 	services.AddCors(options =>
