@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using MZikmund.Web.Core.Blog;
+using MZikmund.Web.Core.Features.Categories;
 using MZikmund.Web.Core.Syndication;
 
 namespace MZikmund.Web.Controllers;

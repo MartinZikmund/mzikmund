@@ -30,7 +30,7 @@ public class PostsController : Controller
 	[HttpGet]
 	[Route("")]
 	public async Task<IActionResult> GetAll(int pageNumber = 1) =>
-		Ok(await _mediator.Send(new ListPostsQuery(pageNumber, PageSize)));
+		Ok(await _mediator.Send(new GetPostsQuery(pageNumber, PageSize)));
 
 	/// <summary>
 	/// Creates a blog post.
