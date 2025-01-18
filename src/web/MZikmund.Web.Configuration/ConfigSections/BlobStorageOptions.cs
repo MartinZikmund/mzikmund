@@ -3,4 +3,6 @@
 public class BlobStorageOptions
 {
 	public string MediaContainerName { get; set; } = "";
+
+	public string FilesContainerName { get; set; } = "";
 }
