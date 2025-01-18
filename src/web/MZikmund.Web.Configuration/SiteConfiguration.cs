@@ -12,7 +12,6 @@ public class SiteConfiguration : ISiteConfiguration
 		_configuration = configuration;
 		_configuration.GetRequiredSection(nameof(Author)).Bind(Author);
 		_configuration.GetRequiredSection(nameof(General)).Bind(General);
-		_configuration.GetRequiredSection(nameof(MetaWeblog)).Bind(MetaWeblog);
 		_configuration.GetRequiredSection(nameof(BlobStorage)).Bind(BlobStorage);
 	}
 
