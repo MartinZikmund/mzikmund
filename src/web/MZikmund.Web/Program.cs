@@ -11,6 +11,7 @@ using MZikmund.Web.Core.Infrastructure;
 using MZikmund.Web.Core.Middleware;
 using MZikmund.Web.Core.Properties;
 using MZikmund.Web.Core.Services;
+using MZikmund.Web.Core.Services.Blobs;
 using MZikmund.Web.Core.Syndication;
 using MZikmund.Web.Data;
 using MZikmund.Web.Data.Extensions;

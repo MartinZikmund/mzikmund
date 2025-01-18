@@ -1,4 +1,4 @@
-﻿namespace MZikmund.Web.Core.Services;
+﻿namespace MZikmund.Web.Core.Services.Blobs;
 
 public class BlobPathGenerator : IBlobPathGenerator
 {
