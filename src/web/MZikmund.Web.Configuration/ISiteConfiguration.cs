@@ -8,8 +8,6 @@ public interface ISiteConfiguration
 
 	AuthorOptions Author { get; }
 
-	MetaWeblogOptions MetaWeblog { get; }
-
 	BlobStorageOptions BlobStorage { get; }
 }
 
