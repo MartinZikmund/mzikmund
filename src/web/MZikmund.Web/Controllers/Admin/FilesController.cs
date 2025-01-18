@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MZikmund.Web.Core.Services;
+using MZikmund.Web.Core.Services.Blobs;
 
 namespace MZikmund.Web.Controllers.Admin;
 
@@ -23,10 +24,19 @@ public class FilesController : Controller
 	public async Task<IActionResult> UploadBlob([FromForm] IFormFile file)
 	{
 		if (file == null || file.Length == 0)
+		{
 			return BadRequest("File is empty");
+		}
 
 		await using var stream = file.OpenReadStream();
-		var url = await _blobStorage.AddAsync(file.FileName, stream);
+		var url = await _blobStorage.AddAsync(BlobKind.File, file.FileName, stream);
 		return Ok(new { Url = url });
+	}
+
+	[HttpGet]
+	public async Task<IActionResult> GetAll()
+	{
+		var files = await _blobStorage.ListAsync(BlobKind.File);
+		return Ok(files);
 	}
 }
