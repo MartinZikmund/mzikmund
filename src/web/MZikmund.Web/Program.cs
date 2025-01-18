@@ -1,8 +1,6 @@
 using System.Text.Json.Serialization;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Cors.Infrastructure;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
@@ -73,7 +71,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 	});
 
 	services.AddSingleton<IDateProvider, DateProvider>();
-	services.AddSingleton<IMediaBlobPathGenerator, MediaBlobPathGenerator>();
+	services.AddSingleton<IBlobPathGenerator, BlobPathGenerator>();
 	services.AddSingleton<IBlobStorage, BlobStorage>();
 
 	services.AddDataContext();

@@ -1,6 +1,6 @@
 ﻿namespace MZikmund.Web.Core.Services;
 
-public interface IMediaBlobPathGenerator
+public interface IBlobPathGenerator
 {
 	string GenerateBlobPath(string fileName);
 }
