@@ -1,10 +1,10 @@
 ﻿namespace MZikmund.Web.Core.Services;
 
-public class MediaBlobPathGenerator : IMediaBlobPathGenerator
+public class BlobPathGenerator : IBlobPathGenerator
 {
 	private readonly IDateProvider _dateProvider;
 
-	public MediaBlobPathGenerator(IDateProvider dateProvider)
+	public BlobPathGenerator(IDateProvider dateProvider)
 	{
 		_dateProvider = dateProvider;
 	}

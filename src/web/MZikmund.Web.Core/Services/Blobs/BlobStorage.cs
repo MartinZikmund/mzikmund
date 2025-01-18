@@ -3,22 +3,19 @@ using Azure.Storage.Blobs.Models;
 using Microsoft.Extensions.Logging;
 using MZikmund.Web.Configuration;
 using MZikmund.Web.Configuration.Connections;
-using MZikmund.Web.Core.Services.Blobs;
 
-namespace MZikmund.Web.Core.Services;
+namespace MZikmund.Web.Core.Services.Blobs;
 
 public class BlobStorage : IBlobStorage
 {
-	private readonly ISiteConfiguration _siteConfiguration;
-	private readonly IConnectionStringProvider _connectionStringProvider;
+	private readonly IBlobPathGenerator _blobPathGenerator;
+	private readonly ILogger<BlobStorage> _logger;
+
 	private readonly BlobContainerClient _mediaContainer;
 	private readonly BlobContainerClient _filesContainer;
-	private readonly ILogger<BlobStorage> _logger;
 
 	public BlobStorage(ISiteConfiguration siteConfiguration, IConnectionStringProvider connectionStringProvider, ILogger<BlobStorage> logger)
 	{
-		_siteConfiguration = siteConfiguration;
-		_connectionStringProvider = connectionStringProvider;
 		_logger = logger;
 
 		_mediaContainer = new(connectionStringProvider.AzureBlobStorage, siteConfiguration.BlobStorage.MediaContainerName);
@@ -33,72 +30,51 @@ public class BlobStorage : IBlobStorage
 		await _filesContainer.SetAccessPolicyAsync(PublicAccessType.Blob);
 	}
 
-	public async Task<string> AddAsync(BlobKind blobKind, string fileName, byte[] imageBytes)
+	public async Task<BlobInfo> AddAsync(BlobKind blobKind, string blobPath, byte[] imageBytes)
 	{
 		await using var stream = new MemoryStream(imageBytes);
-		return await AddAsync(blobKind, fileName, stream);
+		return await AddAsync(blobKind, blobPath, stream);
 	}
 
-	public async Task<string> AddAsync(BlobKind blobKind, string fileName, Stream stream)
+	public async Task<BlobInfo> AddAsync(BlobKind blobKind, string blobPath, Stream stream)
 	{
-		if (string.IsNullOrWhiteSpace(fileName))
+		if (string.IsNullOrWhiteSpace(blobPath))
 		{
-			throw new ArgumentNullException(nameof(fileName));
+			throw new ArgumentNullException(nameof(blobPath));
 		}
 
-		_logger.LogInformation($"Uploading {fileName} to Azure Blob Storage.");
+		_logger.LogInformation($"Uploading {blobPath} to Azure Blob Storage.");
 
 		var containerClient = GetBlobContainerClient(blobKind);
-		var blob = containerClient.GetBlobClient(fileName);
+		var blobClient = containerClient.GetBlobClient(blobPath);
 
-		var uploadedBlob = await blob.UploadAsync(stream);
+		var uploadedBlob = await blobClient.UploadAsync(stream);
 
-		_logger.LogInformation($"Uploaded blob '{fileName}' to Azure Blob Storage, ETag '{uploadedBlob.Value.ETag}'");
-
-		return fileName;
+		_logger.LogInformation($"Uploaded blob '{blobPath}' to Azure Blob Storage, ETag '{uploadedBlob.Value.ETag}'");
+		var modified = uploadedBlob.Value.LastModified;
+		return new(blobPath, modified);
 	}
 
 	public async Task DeleteAsync(BlobKind blobKind, string fileName)
 	{
 		var containerClient = GetBlobContainerClient(blobKind);
-		await containerClient.DeleteBlobIfExistsAsync(fileName);
+		var blobPath = _blobPathGenerator.GenerateBlobPath(fileName);
+		await containerClient.DeleteBlobIfExistsAsync(blobPath);
 	}
 
-	public async Task<BlobInfo?> GetAsync(BlobKind blobKind, string fileName)
+	public async Task<BlobInfo?[]> ListAsync(BlobKind blobKind)
 	{
 		var containerClient = GetBlobContainerClient(blobKind);
-		var blobClient = containerClient.GetBlobClient(fileName);
-		await using var memoryStream = new MemoryStream();
-		var extension = Path.GetExtension(fileName);
-		if (string.IsNullOrWhiteSpace(extension))
+		var blobInfos = new List<BlobInfo>();
+		await foreach (var blob in containerClient.GetBlobsAsync())
 		{
-			throw new ArgumentException("File extension is empty");
+			var blobName = blob.Name;
+			var modified = blob.Properties.LastModified;
+			blobInfos.Add(new(blobName, modified));
 		}
 
-		var existsTask = blobClient.ExistsAsync();
-		var downloadTask = blobClient.DownloadToAsync(memoryStream);
-
-		var exists = await existsTask;
-		if (!exists)
-		{
-			_logger.LogWarning($"Blob {fileName} not exist.");
-
-			// Can not throw FileNotFoundException,
-			// because hackers may request a large number of 404 images
-			// to flood .NET runtime with exceptions and take out the server
-			return null;
-		}
-
-		await downloadTask;
-		var data = memoryStream.ToArray();
-
-		var fileType = extension.Replace(".", string.Empty);
-		var imageInfo = new BlobInfo(fileName, data);
-
-		return imageInfo;
+		return blobInfos.ToArray();
 	}
-
-	public Task<BlobInfo?[]> ListAsync(BlobKind blobKind, string container) => throw new NotImplementedException();
 
 	private BlobContainerClient GetBlobContainerClient(BlobKind blobKind)
 	{
