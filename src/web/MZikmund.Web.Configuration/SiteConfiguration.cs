@@ -20,7 +20,5 @@ public class SiteConfiguration : ISiteConfiguration
 
 	public AuthorOptions Author { get; } = new();
 
-	public MetaWeblogOptions MetaWeblog { get; } = new();
-
 	public BlobStorageOptions BlobStorage { get; } = new();
 }
