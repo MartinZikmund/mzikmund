@@ -9,7 +9,7 @@ using MZikmund.Web.Data.Specifications;
 
 namespace MZikmund.Web.Core.Features.Posts;
 
-internal sealed class ListPostsHandler : IRequestHandler<ListPostsQuery, PagedResponse<PostListItem>>
+internal sealed class GetPostsHandler : IRequestHandler<GetPostsQuery, PagedResponse<PostListItem>>
 {
 	private readonly IRepository<PostEntity> _postsRepository;
 	private readonly IRepository<CategoryEntity> _categoriesRepository;
@@ -18,7 +18,7 @@ internal sealed class ListPostsHandler : IRequestHandler<ListPostsQuery, PagedRe
 	private readonly IMediator _mediator;
 	private readonly IMapper _mapper;
 
-	public ListPostsHandler(
+	public GetPostsHandler(
 		IRepository<PostEntity> postsRepository,
 		IRepository<CategoryEntity> categoriesRepository,
 		IRepository<TagEntity> tagsRepository,
@@ -34,7 +34,7 @@ internal sealed class ListPostsHandler : IRequestHandler<ListPostsQuery, PagedRe
 		_mapper = mapper;
 	}
 
-	public async Task<PagedResponse<PostListItem>> Handle(ListPostsQuery request, CancellationToken cancellationToken)
+	public async Task<PagedResponse<PostListItem>> Handle(GetPostsQuery request, CancellationToken cancellationToken)
 	{
 		var specification = new ListPostsSpecification(request.Page, request.PageSize, request.CategoryId, request.TagId);
 		var postCount = await _mediator.Send(new CountPostsQuery(request.CategoryId, request.TagId), cancellationToken);
