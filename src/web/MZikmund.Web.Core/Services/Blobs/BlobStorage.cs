@@ -58,8 +58,7 @@ public class BlobStorage : IBlobStorage
 	public async Task DeleteAsync(BlobKind blobKind, string fileName)
 	{
 		var containerClient = GetBlobContainerClient(blobKind);
-		var blobPath = _blobPathGenerator.GenerateBlobPath(fileName);
-		await containerClient.DeleteBlobIfExistsAsync(blobPath);
+		await containerClient.DeleteBlobIfExistsAsync(fileName);
 	}
 
 	public async Task<BlobInfo?[]> ListAsync(BlobKind blobKind)
