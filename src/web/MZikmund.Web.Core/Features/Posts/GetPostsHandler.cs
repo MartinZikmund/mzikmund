@@ -6,29 +6,24 @@ using MZikmund.Web.Core.Services;
 using MZikmund.Web.Data.Entities;
 using MZikmund.Web.Data.Infrastructure;
 using MZikmund.Web.Data.Specifications;
+using MZikmund.Web.Data.Specifications.Posts;
 
 namespace MZikmund.Web.Core.Features.Posts;
 
 internal sealed class GetPostsHandler : IRequestHandler<GetPostsQuery, PagedResponse<PostListItem>>
 {
 	private readonly IRepository<PostEntity> _postsRepository;
-	private readonly IRepository<CategoryEntity> _categoriesRepository;
-	private readonly IRepository<TagEntity> _tagsRepository;
 	private readonly IMarkdownConverter _markdownConverter;
 	private readonly IMediator _mediator;
 	private readonly IMapper _mapper;
 
 	public GetPostsHandler(
 		IRepository<PostEntity> postsRepository,
-		IRepository<CategoryEntity> categoriesRepository,
-		IRepository<TagEntity> tagsRepository,
 		IMarkdownConverter markdownConverter,
 		IMediator mediator,
 		IMapper mapper)
 	{
 		_postsRepository = postsRepository;
-		_categoriesRepository = categoriesRepository;
-		_tagsRepository = tagsRepository;
 		_markdownConverter = markdownConverter;
 		_mediator = mediator;
 		_mapper = mapper;
@@ -36,7 +31,7 @@ internal sealed class GetPostsHandler : IRequestHandler<GetPostsQuery, PagedResp
 
 	public async Task<PagedResponse<PostListItem>> Handle(GetPostsQuery request, CancellationToken cancellationToken)
 	{
-		var specification = new ListPostsSpecification(request.Page, request.PageSize, request.CategoryId, request.TagId);
+		var specification = new GetPostsSpecification(request.Page, request.PageSize, request.CategoryId, request.TagId);
 		var postCount = await _mediator.Send(new CountPostsQuery(request.CategoryId, request.TagId), cancellationToken);
 
 		var posts = await _postsRepository.SelectAsync(specification, post => new PostListItem
