@@ -1,11 +1,11 @@
 ﻿using MZikmund.Web.Data.Entities;
 using MZikmund.Web.Data.Infrastructure;
 
-namespace MZikmund.Web.Data.Specifications;
+namespace MZikmund.Web.Data.Specifications.Posts;
 
-public sealed class ListPostsSpecification : BaseSpecification<PostEntity>
+public sealed class GetPostsSpecification : BaseSpecification<PostEntity>
 {
-	public ListPostsSpecification(int pageNumber, int pageSize, Guid? categoryId = null, Guid? tagId = null)
+	public GetPostsSpecification(int pageNumber, int pageSize, Guid? categoryId = null, Guid? tagId = null)
 	{
 		var startRow = (pageNumber - 1) * pageSize;
 
