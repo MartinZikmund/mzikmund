@@ -1,5 +1,6 @@
 ﻿using Moq;
 using MZikmund.Web.Core.Services;
+using MZikmund.Web.Core.Services.Blobs;
 
 namespace MZikmund.Web.Core.Tests.Services;
 

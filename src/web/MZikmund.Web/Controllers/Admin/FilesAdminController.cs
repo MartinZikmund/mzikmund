@@ -34,7 +34,7 @@ public class FilesAdminController : Controller
 	}
 
 	[HttpPost]
-	public async Task<IActionResult> Upload(IFormFile file)
+	public async Task<IActionResult> Upload(IFormFile file) // TODO Custom File name as parameter
 	{
 		if (file == null || file.Length == 0)
 		{

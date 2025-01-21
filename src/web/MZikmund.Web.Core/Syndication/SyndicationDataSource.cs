@@ -68,7 +68,7 @@ public class SyndicationDataSource : ISyndicationDataSource
 
 	private async Task<IReadOnlyList<FeedEntry>> GetFeedEntriesAsync(Guid? categoryId = null, Guid? tagId = null)
 	{
-		var specification = new ListPostsSpecification(1, 15, categoryId, tagId);
+		var specification = new GetPostsSpecification(1, 15, categoryId, tagId);
 		var posts = await _postsRepository.SelectAsync(specification, post => new FeedEntry
 		{
 			Id = post.Id.ToString(),
