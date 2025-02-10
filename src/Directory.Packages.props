@@ -57,7 +57,7 @@
     <PackageVersion Include="Refit.Newtonsoft.Json" Version="8.0.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.1" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="9.0.0" />
-    <PackageVersion Include="Microsoft.Identity.Web" Version="3.6.2" />
+    <PackageVersion Include="Microsoft.Identity.Web" Version="3.7.0" />
     <PackageVersion Include="Microsoft.Identity.Web.DownstreamApi" Version="3.6.0" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="7.2.0" />
     <!-- Uno -->
