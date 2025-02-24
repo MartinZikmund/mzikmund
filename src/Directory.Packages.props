@@ -1,7 +1,7 @@
 <Project ToolsVersion="15.0">
   <ItemGroup>
     <!-- Web -->
-    <PackageVersion Include="AutoMapper" Version="13.0.1" />
+    <PackageVersion Include="AutoMapper" Version="14.0.0" />
     <PackageVersion Include="Azure.Storage.Blobs" Version="12.23.0" />
     <PackageVersion Include="Betalgo.OpenAI" Version="8.7.2" />
     <PackageVersion Include="BuildWebCompiler2022" Version="1.14.10" />
