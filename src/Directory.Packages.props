@@ -2,7 +2,7 @@
   <ItemGroup>
     <!-- Web -->
     <PackageVersion Include="AutoMapper" Version="14.0.0" />
-    <PackageVersion Include="Azure.Storage.Blobs" Version="12.23.0" />
+    <PackageVersion Include="Azure.Storage.Blobs" Version="12.24.0" />
     <PackageVersion Include="Betalgo.OpenAI" Version="8.7.2" />
     <PackageVersion Include="BuildWebCompiler2022" Version="1.14.15" />
     <PackageVersion Include="Edi.SyndicationFeed.ReaderWriter" Version="2.4.0" />
