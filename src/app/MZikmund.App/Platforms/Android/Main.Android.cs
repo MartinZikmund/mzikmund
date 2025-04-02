@@ -11,6 +11,11 @@ namespace MZikmund.App.Droid;
 )]
 public class Application : Microsoft.UI.Xaml.NativeApplication
 {
+	static Application()
+	{
+		MZikmundApp.InitializeLogging();
+	}
+
 	public Application(IntPtr javaReference, JniHandleOwnership transfer)
 		: base(() => new MZikmundApp(), javaReference, transfer)
 	{

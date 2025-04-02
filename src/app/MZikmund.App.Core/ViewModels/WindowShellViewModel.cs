@@ -10,12 +10,6 @@ public partial class WindowShellViewModel : ViewModelBase
 	private readonly INavigationService _navigationService;
 	private RefCountDisposable? _refCountDisposable;
 
-	[ObservableProperty]
-	private bool _isLoading;
-
-	[ObservableProperty]
-	private string _loadingStatusMessage = "";
-
 	public WindowShellViewModel(IWindowShellProvider provider, INavigationService navigationService)
 	{
 		_provider = provider ?? throw new ArgumentNullException(nameof(provider));
@@ -23,6 +17,12 @@ public partial class WindowShellViewModel : ViewModelBase
 	}
 
 	public string Title { get; set; } = "Martin Zikmund";
+
+	[ObservableProperty]
+	public partial bool IsLoading { get; set; }
+
+	[ObservableProperty]
+	public partial string LoadingStatusMessage { get; set; } = "";
 
 	public IDisposable BeginLoading()
 	{
