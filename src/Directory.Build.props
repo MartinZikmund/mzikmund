@@ -5,6 +5,7 @@
 
 		<DefaultLanguage>en-US</DefaultLanguage>
 		<Nullable>enable</Nullable>
+		<LangVersion>preview</LangVersion>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
 		
@@ -21,10 +22,6 @@
 		-->
 		<NoWarn>$(NoWarn);NU1507;NETSDK1201;PRI257;XAOBS001</NoWarn>
 		<WarningsNotAsErrors>Uno0001</WarningsNotAsErrors>
-
-		<!-- Temporary workaround for https://github.com/microsoft/WindowsAppSDK/issues/4480 -->
-		<WinAppSdkBuildToolsVersion Condition="$(TargetFramework.Contains('windows10'))">10.0.22621.3233</WinAppSdkBuildToolsVersion>
-		<UnoExtensionsVersion Condition="$(TargetFramework.Contains('windows10'))">4.2.2</UnoExtensionsVersion>
 
 		<!-- Temporary workaround for https://github.com/unoplatform/uno/issues/18464 -->
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>

@@ -4,7 +4,7 @@
 			net9.0-android;
 			net9.0-ios;
 			net9.0-browserwasm;
-			net9.0-windows10.0.22621;
+			net9.0-windows10.0.26100;
 		</TargetFrameworks>
 		<!--net9.0-maccatalyst; net9.0-desktop;-->
 
@@ -23,7 +23,6 @@
 		<!-- Package Description -->
 		<Description>MZikmund.App powered by Uno Platform.</Description>
 		<GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
-		<WindowsSdkPackageVersion>10.0.22621.38</WindowsSdkPackageVersion>
 		<!--
       UnoFeatures let's you quickly add and manage implicit package references based on the features you want to use.
       https://aka.platform.uno/singleproject-features
@@ -42,12 +41,12 @@
 		</UnoFeatures>
 	</PropertyGroup>
 	
-	<PropertyGroup Condition="'$(TargetFramework)'=='net9.0-windows10.0.22621'">
+	<PropertyGroup Condition="'$(TargetFramework)'=='net9.0-windows10.0.26100'">
 		<!-- Workaround for https://github.com/unoplatform/uno/issues/18552 -->
 		<PlatformTarget Condition=" '$(PlatformTarget)' == '' AND $(Platform) == 'AnyCPU' AND '$(NETCoreSdkRuntimeIdentifier)' == 'win-x86'">x86</PlatformTarget>
 		<PlatformTarget Condition=" '$(PlatformTarget)' == '' AND $(Platform) == 'AnyCPU' AND '$(NETCoreSdkRuntimeIdentifier)' == 'win-x64'">x64</PlatformTarget>
 		<PlatformTarget Condition=" '$(PlatformTarget)' == '' AND $(Platform) == 'AnyCPU' AND '$(NETCoreSdkRuntimeIdentifier)' == 'win-arm64'">arm64</PlatformTarget>
-	</PropertyGroup>	
+	</PropertyGroup>
 	<ItemGroup>
 	  <EmbeddedResource Include="Templates\PostPreviewTemplate.html" />
 	</ItemGroup>
