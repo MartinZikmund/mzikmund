@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MZikmund.Api.Client;
+using MZikmund.Api.Handlers;
 using MZikmund.App.Core.Infrastructure;
 using MZikmund.Business.Models;
 using MZikmund.DataContracts.Serialization;
@@ -49,18 +50,12 @@ public partial class MZikmundApp : Application, IApplication
 						.Section<AppConfig>()
 				)
 				.UseLocalization()
-				// Register Json serializers (ISerializer and ISerializer)
-				.UseSerialization((context, services) => services
-						.AddContentSerializer(context)
-						.AddJsonTypeInfo(WeatherForecastContext.Default.IImmutableListWeatherForecast))
-					.UseHttp((context, services) => services
-					// Register HttpClient
+				.UseHttp((context, services) => services
 #if DEBUG
-					// DelegatingHandler will be automatically injected into Refit Client
-					.AddTransient<DelegatingHandler, DebugHttpHandler>()
+				// DelegatingHandler will be automatically injected into Refit Client
+				.AddTransient<DelegatingHandler, DebugHttpHandler>()
 #endif
-					.AddSingleton<IWeatherCache, WeatherCache>()
-					.AddRefitClient<IApiClient>(context))
+				.AddRefitClient<IApiClient>(context))
 				.UseDefaultServiceProvider((context, options) =>
 				{
 					options.ValidateScopes = true;
@@ -119,24 +114,43 @@ public partial class MZikmundApp : Application, IApplication
 		services.AddSingleton<IUserService, UserService>();
 		services.AddSingleton<IMarkdownConverter, MarkdownConverter>();
 		services.AddSingleton<IPostContentProcessor, PostContentProcessor>();
-		services.AddSingleton(provider =>
+
+		services.AddSingleton(CreateApi);
+	}
+
+	private static IMZikmundApi CreateApi(IServiceProvider provider)
+	{
+		var configuration = provider.GetRequiredService<IOptions<AppConfig>>();
+
+		if (configuration.Value.ApiUrl is not { } apiUrl)
 		{
-			var configuration = provider.GetRequiredService<IOptions<AppConfig>>();
-			return RestService.For<IMZikmundApi>(configuration.Value.ApiUrl!, new RefitSettings()
-			{
-				AuthorizationHeaderValueGetter = GetTokenAsync
-			});
+			throw new InvalidOperationException("API URL is not set in configuration");
+		}
+
+		var client = new HttpClient(new HttpRequestExceptionHandler())
+		{
+			BaseAddress = new Uri(apiUrl)
+		};
+
+		return RestService.For<IMZikmundApi>(client, new RefitSettings()
+		{
+			AuthorizationHeaderValueGetter = GetTokenAsync
 		});
 
 		async Task<string> GetTokenAsync(HttpRequestMessage message, CancellationToken cancellationToken)
 		{
-			//TODO: Move somewhere more appropriate and integrate refresh token support
 			var userService = Ioc.Default.GetRequiredService<IUserService>();
 			if (!userService.IsLoggedIn || userService.NeedsRefresh)
 			{
 				await userService.AuthenticateAsync();
 			}
-			return userService.AccessToken!;
+
+			if (userService.AccessToken is not { } accessToken)
+			{
+				throw new InvalidOperationException("Access token is not set");
+			}
+
+			return accessToken;
 		}
 	}
 
