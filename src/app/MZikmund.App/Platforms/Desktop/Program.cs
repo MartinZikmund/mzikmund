@@ -7,14 +7,14 @@ public class Program
 	[STAThread]
 	public static void Main(string[] args)
 	{
-		//MZikmundApp.InitializeLogging();
+		MZikmundApp.InitializeLogging();
 
 		var host = SkiaHostBuilder.Create()
 			.App(() => new MZikmundApp())
 			.UseX11()
 			.UseLinuxFrameBuffer()
 			.UseMacOS()
-			.UseWindows()
+			.UseWin32()
 			.Build();
 
 		host.Run();
