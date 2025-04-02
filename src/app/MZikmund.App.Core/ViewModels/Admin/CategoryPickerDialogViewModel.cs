@@ -16,10 +16,10 @@ public partial class CategoryPickerDialogViewModel : DialogViewModel
 	}
 
 	[ObservableProperty]
-	public Category[] _allCategories = Array.Empty<Category>();
+	public partial Category[] AllCategories { get; set; } = Array.Empty<Category>();
 
 	[ObservableProperty]
-	public Category[] _selectedCategories = Array.Empty<Category>();
+	public partial Category[] SelectedCategories { get; set; } = Array.Empty<Category>();
 
 	public override async void OnOpened(ContentDialog contentDialog)
 	{

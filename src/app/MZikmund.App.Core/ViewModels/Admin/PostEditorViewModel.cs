@@ -20,31 +20,6 @@ public partial class PostEditorViewModel : PageViewModel
 	private DispatcherQueueTimer? _previewTimer;
 	private bool _isPreviewDirty = true;
 
-	[ObservableProperty]
-	private string _postContent = "";
-
-	[ObservableProperty]
-	private string _postRouteName = "";
-
-	[ObservableProperty]
-	private string _tags = "";
-
-	[ObservableProperty]
-	private string _postTitle = "";
-
-	[ObservableProperty]
-	private string _htmlPreview = "";
-
-	[ObservableProperty]
-	[NotifyPropertyChangedFor(nameof(CategoriesText))]
-	private Category[] _categories = Array.Empty<Category>();
-
-	[ObservableProperty]
-	private Post? _post = null;
-
-	[ObservableProperty]
-	private bool _isPublished;
-
 	public PostEditorViewModel(IMZikmundApi api, IDialogService dialogService, ILoadingIndicator loadingIndicator, IPostContentProcessor postContentProcessor, ITimerFactory timerFactory)
 	{
 		_api = api;
@@ -53,6 +28,33 @@ public partial class PostEditorViewModel : PageViewModel
 		_postContentProcessor = postContentProcessor;
 		_timerFactory = timerFactory;
 	}
+
+	public override string Title => Post?.Title ?? "";
+
+	[ObservableProperty]
+	public partial string PostContent { get; set; } = "";
+
+	[ObservableProperty]
+	public partial string PostRouteName { get; set; } = "";
+
+	[ObservableProperty]
+	public partial string Tags { get; set; } = "";
+
+	[ObservableProperty]
+	public partial string PostTitle { get; set; } = "";
+
+	[ObservableProperty]
+	public partial string HtmlPreview { get; set; } = "";
+
+	[ObservableProperty]
+	[NotifyPropertyChangedFor(nameof(CategoriesText))]
+	public partial Category[] Categories { get; set; } = Array.Empty<Category>();
+
+	[ObservableProperty]
+	public partial Post? Post { get; set; } = null;
+
+	[ObservableProperty]
+	public partial bool IsPublished { get; set; }
 
 	partial void OnPostTitleChanged(string value)
 	{
@@ -63,8 +65,6 @@ public partial class PostEditorViewModel : PageViewModel
 	{
 		_isPreviewDirty = true;
 	}
-
-	public override string Title => Post?.Title ?? "";
 
 	public string CategoriesText => Categories is null or { Length: 0 } ?
 		Localizer.Instance.GetString("NoCategoriesSelected") :
