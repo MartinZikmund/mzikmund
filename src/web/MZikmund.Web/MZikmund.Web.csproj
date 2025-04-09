@@ -31,6 +31,9 @@
 		<PackageReference Include="Microsoft.Identity.Web.DownstreamApi" />
 		<PackageReference Include="Swashbuckle.AspNetCore" />
 		<PackageReference Include="X.Web.PagedList" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+		  <PrivateAssets>all</PrivateAssets>
+		</PackageReference>
 	</ItemGroup>
 
 	<ItemGroup>
