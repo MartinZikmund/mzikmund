@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Dispatching;
+﻿using System.Globalization;
+using Microsoft.UI.Dispatching;
 using MZikmund.Api.Client;
 using MZikmund.DataContracts.Blog;
 using MZikmund.Services.Dialogs;
@@ -7,6 +8,7 @@ using MZikmund.Services.Localization;
 using MZikmund.Services.Timers;
 using MZikmund.Shared.Extensions;
 using MZikmund.Web.Core.Services;
+using Newtonsoft.Json;
 
 namespace MZikmund.ViewModels.Admin;
 
@@ -18,6 +20,7 @@ public partial class PostEditorViewModel : PageViewModel
 	private readonly IPostContentProcessor _postContentProcessor;
 	private readonly ITimerFactory _timerFactory;
 	private DispatcherQueueTimer? _previewTimer;
+	private DispatcherQueueTimer? _draftTimer;
 	private bool _isPreviewDirty = true;
 
 	public PostEditorViewModel(IMZikmundApi api, IDialogService dialogService, ILoadingIndicator loadingIndicator, IPostContentProcessor postContentProcessor, ITimerFactory timerFactory)
@@ -118,6 +121,41 @@ public partial class PostEditorViewModel : PageViewModel
 		_previewTimer.Interval = TimeSpan.FromMilliseconds(500);
 		_previewTimer.Tick += PreviewTimerOnTick;
 		_previewTimer.Start();
+
+		_draftTimer ??= _timerFactory.CreateTimer();
+		_draftTimer.Interval = TimeSpan.FromSeconds(30);
+		_draftTimer.Tick += DraftTimerOnTick;
+		_draftTimer.Start();
+	}
+
+	private async void DraftTimerOnTick(DispatcherQueueTimer sender, object args)
+	{
+		if (Post is null)
+		{
+			return;
+		}
+
+		// Save to a draft file
+		var draft = new Post
+		{
+			Id = Post.Id,
+			Title = PostTitle,
+			RouteName = PostRouteName,
+			Content = PostContent,
+			Tags = Tags.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+				.Select(t => new Tag { DisplayName = t.Trim() })
+				.ToArray(),
+			Categories = Categories,
+			IsPublished = IsPublished,
+			PublishedDate = Post.PublishedDate ?? DateTimeOffset.UtcNow
+		};
+
+		var serialized = JsonConvert.SerializeObject(draft, Formatting.Indented);
+		// Add time to draft file name
+		var fileName = $"{Post.Id}_{DateTime.UtcNow.ToString("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture)}.txt";
+		var draftFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("Drafts", CreationCollisionOption.OpenIfExists);
+		var draftFile = await draftFolder.CreateFileAsync(fileName, CreationCollisionOption.ReplaceExisting);
+		await FileIO.WriteTextAsync(draftFile, serialized);
 	}
 
 	private async void PreviewTimerOnTick(DispatcherQueueTimer sender, object args)
@@ -157,6 +195,7 @@ public partial class PostEditorViewModel : PageViewModel
 	{
 		base.ViewUnloaded();
 		_previewTimer?.Stop();
+		_draftTimer?.Stop();
 	}
 
 	private void PopulateInfo(Post post)
