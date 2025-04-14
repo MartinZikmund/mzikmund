@@ -60,7 +60,7 @@
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="9.0.0" />
     <PackageVersion Include="Microsoft.Identity.Web" Version="3.8.1" />
     <PackageVersion Include="Microsoft.Identity.Web.DownstreamApi" Version="3.7.1" />
-    <PackageVersion Include="Swashbuckle.AspNetCore" Version="8.1.0" />
+    <PackageVersion Include="Swashbuckle.AspNetCore" Version="8.1.1" />
     <!-- Uno -->
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="9.0.3" />
     <PackageVersion Include="Microsoft.Windows.Compatibility" Version="8.0.2" />
