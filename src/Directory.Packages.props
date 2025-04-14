@@ -24,7 +24,7 @@
     <PackageVersion Include="Moq" Version="4.20.72" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageVersion Include="ReverseMarkdown" Version="4.6.0" />
-    <PackageVersion Include="System.ServiceModel.Syndication" Version="9.0.3" />
+    <PackageVersion Include="System.ServiceModel.Syndication" Version="9.0.4" />
     <PackageVersion Include="System.Text.Json" Version="9.0.1" />
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="9.0.3" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.3" />
