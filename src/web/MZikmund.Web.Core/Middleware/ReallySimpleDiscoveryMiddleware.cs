@@ -54,22 +54,6 @@ public class ReallySimpleDiscoveryMiddleware
 			writer.WriteElementString("engineLink", siteConfiguration.General.EngineRepositoryUrl.ToString());
 			writer.WriteElementString("homePageLink", siteUrl.ToString());
 
-			// APIs
-			writer.WriteStartElement("apis");
-
-			var endpointUrl = new Uri(siteUrl, siteConfiguration.MetaWeblog.Endpoint);
-
-			// MetaWeblog
-			writer.WriteStartElement("api");
-			writer.WriteAttributeString("name", "MetaWeblog");
-			writer.WriteAttributeString("preferred", "true");
-			writer.WriteAttributeString("apiLink", endpointUrl.ToString());
-			writer.WriteAttributeString("blogID", siteUrl.ToString());
-			await writer.WriteEndElementAsync();
-
-			// End APIs
-			await writer.WriteEndElementAsync();
-
 			// End Service
 			await writer.WriteEndElementAsync();
 
