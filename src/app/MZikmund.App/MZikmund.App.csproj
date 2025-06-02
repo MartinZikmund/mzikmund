@@ -30,7 +30,7 @@
     -->
 		<UnoFeatures>
 			Hosting;
-			Http;
+			HttpRefit;
 			Configuration;
 			Serialization;
 			Mvvm;
@@ -39,6 +39,7 @@
 			AuthenticationMsal;
 			Localization;
 			ThemeService;
+			SkiaRenderer;
 		</UnoFeatures>
 	</PropertyGroup>
 	

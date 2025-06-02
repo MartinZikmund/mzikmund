@@ -1,3 +1,4 @@
+using Uno.UI.Hosting;
 using Uno.UI.Runtime.Skia;
 
 namespace MZikmund.App;
@@ -9,7 +10,7 @@ public class Program
 	{
 		MZikmundApp.InitializeLogging();
 
-		var host = SkiaHostBuilder.Create()
+		var host = UnoPlatformHostBuilder.Create()
 			.App(() => new MZikmundApp())
 			.UseX11()
 			.UseLinuxFrameBuffer()
