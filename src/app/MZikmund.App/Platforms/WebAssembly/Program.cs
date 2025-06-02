@@ -1,15 +1,10 @@
-namespace MZikmund.App;
+using Uno.UI.Hosting;
 
-public class Program
-{
-	private static MZikmundApp? _app;
+MZikmundApp.InitializeLogging();
 
-	public static int Main(string[] args)
-	{
-        MZikmundApp.InitializeLogging();
-		
-		Microsoft.UI.Xaml.Application.Start(_ => _app = new MZikmundApp());
+var host = UnoPlatformHostBuilder.Create()
+	.App(() => new MZikmundApp())
+	.UseWebAssembly()
+	.Build();
 
-		return 0;
-	}
-}
+await host.RunAsync();
