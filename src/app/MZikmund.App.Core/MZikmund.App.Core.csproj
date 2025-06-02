@@ -21,14 +21,16 @@
     -->
 		<UnoFeatures>
 			Hosting;
-			Http;
+			HttpRefit;
 			Configuration;
 			Serialization;
 			Mvvm;
+			Lottie;
 			Navigation;
 			AuthenticationMsal;
 			Localization;
 			ThemeService;
+			SkiaRenderer;
 		</UnoFeatures>
 	</PropertyGroup>
 	<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">

@@ -30,7 +30,6 @@
     -->
 		<UnoFeatures>
 			Hosting;
-			Http;
 			HttpRefit;
 			Configuration;
 			Serialization;
