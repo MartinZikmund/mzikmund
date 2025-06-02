@@ -39,6 +39,7 @@
 			AuthenticationMsal;
 			Localization;
 			ThemeService;
+			SkiaRenderer;
 		</UnoFeatures>
 	</PropertyGroup>
 	
