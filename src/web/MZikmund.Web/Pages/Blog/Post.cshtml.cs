@@ -1,7 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MZikmund.DataContracts.Blog;
-using MZikmund.Web.Core.Blog;
+using MZikmund.Web.Core.Features.Posts;
 using MZikmund.Web.Core.Services;
 
 namespace MZikmund.Web.Pages.Blog;
