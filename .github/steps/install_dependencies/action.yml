@@ -13,7 +13,7 @@ inputs:
   sdkVersion:
     description: 'The version of the Windows Sdk'
     required: false
-    default: '22621'
+    default: '26100'
 
 runs:
   using: "composite"
@@ -30,7 +30,8 @@ runs:
       if: ${{ runner.os == 'Windows' }}
       run: .\.github\Install-WindowsSdkISO.ps1 ${{ inputs.sdkVersion }}
 
-    - name: Run uno.check
+    # Run Uno.Check
+    - name: Run Uno.Check
       shell: pwsh
       run: |
         & dotnet tool install --global --version 1.28.3 uno.check
