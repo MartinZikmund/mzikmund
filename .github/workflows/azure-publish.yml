@@ -1,17 +1,10 @@
-name: Deploy to Azure
-
-env:
-  AZURE_WEBAPP_NAME: app-mzikmund    # set this to the name of your Azure Web App
-  AZURE_WEBAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
-  DOTNET_VERSION: '9.0.x'                 # set this to the .NET Core version to use
+name: Build and deploy Azure Web App
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - dev/new-azure-deploy
   workflow_dispatch:
-
-permissions:
-  contents: read
 
 jobs:
   build:
@@ -19,52 +12,57 @@ jobs:
     defaults:
       run:
         working-directory: ./src/web/MZikmund.Web
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - name: Install Dependencies
-        timeout-minutes: 15
-        uses: "./.github/steps/install_dependencies"
+    permissions:
+      contents: read #This is required for actions/checkout
 
-      - name: Restore .NET dependencies
-        run: dotnet restore
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.x'
 
       - name: Restore Node.js dependencies
         run: npm install
 
-      - name: Build with .NET
-        run: dotnet build --no-restore --configuration Release
+      - name: Build with dotnet
+        run: dotnet build --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o "${{env.GITHUB_WORKSPACE}}\myapp"
+        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/webappmzikmund
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
-          name: MZikmund.Web
-          path: "${{env.GITHUB_WORKSPACE}}\\myapp"
-          retention-days: 2
+          name: .net-app
+          path: ${{env.DOTNET_ROOT}}/webappmzikmund
 
   deploy:
-    permissions:
-      contents: none
     runs-on: windows-latest
     needs: build
-    environment:
-      name: 'Development'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+    permissions:
+      id-token: write #This is required for requesting the JWT
+      contents: read #This is required for actions/checkout
 
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
-          name: MZikmund.Web
+          name: .net-app
+      
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_08F8E19FF47646218DA5D86A1B9BE5A3 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_CBA5A83ED3A445448C79408DD00D46DE }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_96CC7ED07E5E42629CACE3CC5B3214E5 }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
-        uses: azure/webapps-deploy@v2
+        uses: azure/webapps-deploy@v3
         with:
-          app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+          app-name: 'webapp-mzikmund'
+          slot-name: 'Production'
+          package: .
+          
