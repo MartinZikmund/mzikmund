@@ -3,9 +3,11 @@ using System.Data;
 using System.Net;
 using System.Text.RegularExpressions;
 using Azure;
+using Castle.Core.Logging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Rewrite;
+using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 
 namespace MZikmund.Web.Core.Infrastructure;
@@ -17,6 +19,12 @@ public partial class LegacyUrlRedirectRule : IRule
 	private const string WwwComLegacyUrl = "www.mzikmund.com";
 
 	private const string NewUrl = "https://mzikmund.dev";
+	private readonly ILogger<LegacyUrlRedirectRule> _logger;
+
+	public LegacyUrlRedirectRule(ILogger<LegacyUrlRedirectRule> logger)
+	{
+		_logger = logger;
+	}
 
 	[GeneratedRegex(@"\d{4}/\d{1,2}/([a-zA-Z0-9\-]+)/?", RegexOptions.None)]
 	private static partial Regex LegacyBlogPostRegex();
@@ -24,6 +32,10 @@ public partial class LegacyUrlRedirectRule : IRule
 	public void ApplyRule(RewriteContext context)
 	{
 		var hostString = context.HttpContext?.Request?.Host.Host;
+
+		_logger.LogInformation(
+			"Applying rewrite rule for host '{Host}'",
+			hostString ?? "null");
 
 		if (hostString is null)
 		{
