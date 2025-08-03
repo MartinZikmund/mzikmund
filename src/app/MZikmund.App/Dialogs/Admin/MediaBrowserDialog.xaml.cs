@@ -18,6 +18,7 @@ public sealed partial class MediaBrowserDialog : MediaBrowserDialogBase
 		{
 			ViewModel.PropertyChanged += ViewModel_PropertyChanged;
 			UpdateSelectButtonState();
+			UpdateUIVisibility();
 		}
 	}
 
@@ -27,11 +28,24 @@ public sealed partial class MediaBrowserDialog : MediaBrowserDialogBase
 		{
 			UpdateSelectButtonState();
 		}
+		else if (e.PropertyName == nameof(ViewModel.IsLoading))
+		{
+			UpdateUIVisibility();
+		}
 	}
 
 	private void UpdateSelectButtonState()
 	{
 		SelectButton.IsEnabled = ViewModel?.SelectedFile != null;
+	}
+
+	private void UpdateUIVisibility()
+	{
+		if (ViewModel != null)
+		{
+			FilesListView.Visibility = ViewModel.IsLoading ? Visibility.Collapsed : Visibility.Visible;
+			LoadingRing.Visibility = ViewModel.IsLoading ? Visibility.Visible : Visibility.Collapsed;
+		}
 	}
 
 	private void CancelButton_Click(object sender, RoutedEventArgs e)
