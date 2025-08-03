@@ -3,7 +3,12 @@ using MZikmund.App.Core.ViewModels.Admin;
 using MZikmund.Web.Core.Services.Blobs;
 using MZikmund.Services.Dialogs;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml;
+using MZikmund.App;
+using MZikmund.ViewModels;
 using Refit;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
 namespace MZikmund.ViewModels.Admin;
 
@@ -86,7 +91,8 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 			}
 
 			// Initialize the file picker with the window handle
-			var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
+			var app = (MZikmundApp)Application.Current;
+			var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(app.MainWindow!);
 			WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
 
 			var file = await picker.PickSingleFileAsync();
