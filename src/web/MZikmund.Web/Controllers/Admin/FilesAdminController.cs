@@ -11,9 +11,7 @@ namespace MZikmund.Web.Controllers.Admin;
 /// Represents operations for generic files.
 /// </summary>
 [ApiController]
-#if !DEBUG
 [Authorize]
-#endif
 [Route("api/v1/admin/files")]
 public class FilesAdminController : Controller
 {

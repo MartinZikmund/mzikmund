@@ -10,9 +10,7 @@ namespace MZikmund.Web.Controllers.Admin;
 /// Represents operations for image files.
 /// </summary>
 [ApiController]
-#if !DEBUG
 [Authorize]
-#endif
 [Route("api/v1/admin/images")]
 public class ImagesAdminController : Controller
 {
