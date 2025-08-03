@@ -8,6 +8,7 @@ using MZikmund.Services.Localization;
 using MZikmund.Services.Timers;
 using MZikmund.Shared.Extensions;
 using MZikmund.Web.Core.Services;
+using MZikmund.ViewModels.Admin;
 using Newtonsoft.Json;
 
 namespace MZikmund.ViewModels.Admin;
@@ -125,6 +126,70 @@ public partial class PostEditorViewModel : PageViewModel
 		{
 			await _api.UpdatePostAsync(Post.Id, Post);
 		}
+	}
+
+	[RelayCommand]
+	private async Task BrowseImagesAsync()
+	{
+		var dialogViewModel = new MediaBrowserDialogViewModel(_api, isImageMode: true);
+		var result = await _dialogService.ShowAsync(dialogViewModel);
+		
+		if (result == ContentDialogResult.Primary && dialogViewModel.SelectedFile != null)
+		{
+			if (Post != null)
+			{
+				Post.HeroImageUrl = GetPublicUrl(dialogViewModel.SelectedFile.BlobPath);
+			}
+		}
+	}
+
+	[RelayCommand]
+	private async Task InsertImageAsync()
+	{
+		var dialogViewModel = new MediaBrowserDialogViewModel(_api, isImageMode: true);
+		var result = await _dialogService.ShowAsync(dialogViewModel);
+		
+		if (result == ContentDialogResult.Primary && dialogViewModel.SelectedFile != null)
+		{
+			var imageUrl = GetPublicUrl(dialogViewModel.SelectedFile.BlobPath);
+			var markdownImage = $"![{dialogViewModel.SelectedFile.FileName}]({imageUrl})";
+			InsertTextAtCursor(markdownImage);
+		}
+	}
+
+	[RelayCommand]
+	private async Task InsertFileAsync()
+	{
+		var dialogViewModel = new MediaBrowserDialogViewModel(_api, isImageMode: false);
+		var result = await _dialogService.ShowAsync(dialogViewModel);
+		
+		if (result == ContentDialogResult.Primary && dialogViewModel.SelectedFile != null)
+		{
+			var fileUrl = GetPublicUrl(dialogViewModel.SelectedFile.BlobPath);
+			var markdownLink = $"[{dialogViewModel.SelectedFile.FileName}]({fileUrl})";
+			InsertTextAtCursor(markdownLink);
+		}
+	}
+
+	private void InsertTextAtCursor(string text)
+	{
+		// Insert text at the end of content for now
+		// In a full implementation, this would insert at the cursor position
+		if (!string.IsNullOrEmpty(PostContent))
+		{
+			PostContent += "\n" + text;
+		}
+		else
+		{
+			PostContent = text;
+		}
+	}
+
+	private string GetPublicUrl(string blobPath)
+	{
+		// This would typically be configured based on your blob storage setup
+		// For now, return a relative path
+		return "/" + blobPath.TrimStart('/');
 	}
 
 	public override void ViewLoaded()
