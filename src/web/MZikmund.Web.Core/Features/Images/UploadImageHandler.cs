@@ -12,8 +12,8 @@ public class UploadImageHandler : IRequestHandler<UploadImageCommand, BlobInfo>
 
 	private readonly IBlobStorage _blobStorage;
 	private readonly IBlobPathGenerator _blobPathGenerator;
-	private static uint[] ResizeWidths = { 1200, 1000, 800, 400 };
-	private static uint ThumbnailWidth = 200;
+	private static readonly uint[] ResizeWidths = { 1200, 1000, 800, 400 };
+	private static readonly uint ThumbnailWidth = 200;
 
 	public UploadImageHandler(IBlobStorage blobStorage, IBlobPathGenerator blobPathGenerator)
 	{
@@ -25,7 +25,7 @@ public class UploadImageHandler : IRequestHandler<UploadImageCommand, BlobInfo>
 	{
 		var path = _blobPathGenerator.GenerateBlobPath(request.FileName);
 
-		List<BlobInfo> uploadedBlobs = new List<BlobInfo>();
+		var uploadedBlobs = new List<BlobInfo>();
 		var isGif = request.FileName.EndsWith(".gif", StringComparison.OrdinalIgnoreCase);
 
 		var stream = new MemoryStream();
