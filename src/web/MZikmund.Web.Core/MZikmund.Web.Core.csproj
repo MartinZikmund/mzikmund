@@ -12,6 +12,7 @@
 		<PackageReference Include="Markdown.ColorCode" />
 		<PackageReference Include="AutoMapper" />
 		<PackageReference Include="Microsoft.AspNetCore.Rewrite" />
+		<PackageReference Include="Microsoft.AspNetCore.StaticFiles" />
 		<PackageReference Include="Newtonsoft.Json" />
 		<PackageReference Include="MediatR" />
 		<PackageReference Include="System.ServiceModel.Syndication" />

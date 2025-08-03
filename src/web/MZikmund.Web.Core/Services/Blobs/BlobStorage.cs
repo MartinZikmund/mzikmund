@@ -1,5 +1,7 @@
-﻿using Azure.Storage.Blobs;
+﻿using System.Reflection.Metadata;
+using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Logging;
 using MZikmund.Web.Configuration;
 using MZikmund.Web.Configuration.Connections;
@@ -12,6 +14,8 @@ public class BlobStorage : IBlobStorage
 
 	private readonly BlobContainerClient _mediaContainer;
 	private readonly BlobContainerClient _filesContainer;
+
+	private readonly FileExtensionContentTypeProvider _fileExtensionContentTypeProvider = new();
 
 	public BlobStorage(ISiteConfiguration siteConfiguration, IConnectionStringProvider connectionStringProvider, ILogger<BlobStorage> logger)
 	{
@@ -46,12 +50,26 @@ public class BlobStorage : IBlobStorage
 
 		var containerClient = GetBlobContainerClient(blobKind);
 		var blobClient = containerClient.GetBlobClient(blobPath);
+		var blobHttpHeader = new BlobHttpHeaders
+		{
+			ContentType = GetContentType(blobPath)
+		};
 
-		var uploadedBlob = await blobClient.UploadAsync(stream);
+		var uploadedBlob = await blobClient.UploadAsync(stream, blobHttpHeader);
 
 		_logger.LogInformation($"Uploaded blob '{blobPath}' to Azure Blob Storage, ETag '{uploadedBlob.Value.ETag}'");
 		var modified = uploadedBlob.Value.LastModified;
 		return new(blobPath, modified);
+	}
+
+	private string GetContentType(string path)
+	{
+		if (_fileExtensionContentTypeProvider.TryGetContentType(path, out var contentType))
+		{
+			return contentType;
+		}
+
+		return "application/octet-stream";
 	}
 
 	public async Task DeleteAsync(BlobKind blobKind, string fileName)

@@ -32,6 +32,7 @@ public class UploadImageHandler : IRequestHandler<UploadImageCommand, BlobInfo>
 		var stream = new MemoryStream();
 		await request.Stream.CopyToAsync(stream);
 
+		stream.Position = 0;
 		var originalWidth = GetOriginalWidth(stream, isGif);
 
 		uploadedBlobs.Add(await UploadAsnc(stream, Path.Combine(OriginalPathPrefix, path))); // Original size
@@ -50,7 +51,7 @@ public class UploadImageHandler : IRequestHandler<UploadImageCommand, BlobInfo>
 		// Create thumbnail
 		stream.Position = 0; // Reset stream position
 		using var thumbnailStream = isGif ? await ResizeGif(stream, ThumbnailWidth, cancellationToken) : await ResizeImageAsync(stream, ThumbnailWidth, cancellationToken);
-		var thumbnailFileName = Path.Combine(ThumbnailPathPrefix, GetPathWithSizeSuffix(path, ThumbnailWidth));
+		var thumbnailFileName = Path.Combine(ThumbnailPathPrefix, path);
 		uploadedBlobs.Add(await UploadAsnc(thumbnailStream, thumbnailFileName));
 
 		return new BlobInfo(path, uploadedBlobs.Last().LastModified);

@@ -6,6 +6,7 @@ using MZikmund.Web.Core.Services;
 using MZikmund.Web.Data.Entities;
 using MZikmund.Web.Data.Infrastructure;
 using MZikmund.Web.Data.Specifications;
+using MZikmund.Web.Data.Specifications.Posts;
 
 namespace MZikmund.Web.Core.Syndication;
 
