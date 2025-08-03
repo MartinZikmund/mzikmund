@@ -2,8 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MZikmund.Web.Core.Features.Files;
-using MZikmund.Web.Core.Services;
-using MZikmund.Web.Core.Services.Blobs;
 
 namespace MZikmund.Web.Controllers.Admin;
 

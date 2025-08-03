@@ -1,5 +1,3 @@
-﻿using MZikmund.Web.Core.Services.Blobs;
-
 namespace MZikmund.Web.Core.Services.Blobs;
 
 public interface IBlobStorage

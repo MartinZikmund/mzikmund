@@ -1,4 +1,3 @@
-﻿using System.Reflection.Metadata.Ecma335;
 using ImageMagick;
 using MediatR;
 using MZikmund.Web.Core.Services.Blobs;
