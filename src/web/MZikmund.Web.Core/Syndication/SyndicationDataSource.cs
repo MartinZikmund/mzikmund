@@ -6,6 +6,7 @@ using MZikmund.Web.Core.Services;
 using MZikmund.Web.Data.Entities;
 using MZikmund.Web.Data.Infrastructure;
 using MZikmund.Web.Data.Specifications;
+using MZikmund.Web.Data.Specifications.Posts;
 
 namespace MZikmund.Web.Core.Syndication;
 
@@ -68,7 +69,7 @@ public class SyndicationDataSource : ISyndicationDataSource
 
 	private async Task<IReadOnlyList<FeedEntry>> GetFeedEntriesAsync(Guid? categoryId = null, Guid? tagId = null)
 	{
-		var specification = new ListPostsSpecification(1, 15, categoryId, tagId);
+		var specification = new GetPostsSpecification(1, 15, categoryId, tagId);
 		var posts = await _postsRepository.SelectAsync(specification, post => new FeedEntry
 		{
 			Id = post.Id.ToString(),

@@ -7,14 +7,15 @@
 	<ItemGroup>
 		<PackageReference Include="Azure.Storage.Blobs" />
 		<PackageReference Include="Edi.SyndicationFeed.ReaderWriter" />
+		<PackageReference Include="Magick.NET-Q16-AnyCPU" />
 		<PackageReference Include="Markdig" />
 		<PackageReference Include="Markdown.ColorCode" />
 		<PackageReference Include="AutoMapper" />
 		<PackageReference Include="Microsoft.AspNetCore.Rewrite" />
+		<PackageReference Include="Microsoft.AspNetCore.StaticFiles" />
 		<PackageReference Include="Newtonsoft.Json" />
 		<PackageReference Include="MediatR" />
 		<PackageReference Include="System.ServiceModel.Syndication" />
-		<PackageReference Include="WilderMinds.MetaWeblog" />
 	</ItemGroup>
 
 	<ItemGroup>

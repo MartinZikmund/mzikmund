@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MZikmund.Web.Controllers.Admin;
-using MZikmund.Web.Core.Blog;
+using MZikmund.Web.Core.Features.Tags;
 
 namespace MZikmund.Web.Controllers;
 
