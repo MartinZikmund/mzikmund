@@ -33,9 +33,13 @@ public sealed partial class PostEditorView : PostEditorViewBase
 			await _previewWebView.EnsureCoreWebView2Async();
 			ViewModel!.PropertyChanged += ViewModel_PropertyChanged;
 		}
-		catch (Exception)
+		catch (Exception ex)
 		{
-			// TODO: Log error
+			if (XamlRoot?.Content is WindowShell windowShell)
+			{
+				var logger = windowShell.ServiceProvider.GetRequiredService<ILogger<PostEditorView>>();
+				logger.LogError(ex, "Failed to initialize WebView2 in PostEditorView");
+			}
 		}
 	}
 
