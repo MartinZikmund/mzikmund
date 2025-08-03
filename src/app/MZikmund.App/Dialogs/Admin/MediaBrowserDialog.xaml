@@ -24,8 +24,8 @@
         &lt;/Grid&gt;
 
         &lt;Grid Grid.Row="2"&gt;
-            &lt;ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
-                          Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay}" /&gt;
+            &lt;ProgressRing x:Name="LoadingRing" IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
+                          HorizontalAlignment="Center" VerticalAlignment="Center" /&gt;
             
             &lt;ListView x:Name="FilesListView"
                       ItemsSource="{x:Bind ViewModel.FilteredFiles, Mode=OneWay}"
