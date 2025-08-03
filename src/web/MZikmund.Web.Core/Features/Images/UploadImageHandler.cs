@@ -9,11 +9,11 @@ public class UploadImageHandler : IRequestHandler<UploadImageCommand, BlobInfo>
 	private const string OriginalPathPrefix = "original";
 	private const string ResizedPathPrefix = "resized";
 	private const string ThumbnailPathPrefix = "thumbnail";
+	private const uint ThumbnailWidth = 200;
 
 	private readonly IBlobStorage _blobStorage;
 	private readonly IBlobPathGenerator _blobPathGenerator;
 	private static readonly uint[] ResizeWidths = { 1200, 1000, 800, 400 };
-	private static readonly uint ThumbnailWidth = 200;
 
 	public UploadImageHandler(IBlobStorage blobStorage, IBlobPathGenerator blobPathGenerator)
 	{
