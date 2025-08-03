@@ -1,4 +1,5 @@
-﻿using ImageMagick;
+﻿using System.Reflection.Metadata.Ecma335;
+using ImageMagick;
 using MediatR;
 using MZikmund.Web.Core.Services.Blobs;
 
@@ -6,9 +7,14 @@ namespace MZikmund.Web.Core.Features.Images;
 
 public class UploadImageHandler : IRequestHandler<UploadImageCommand, BlobInfo>
 {
+	private const string OriginalPathPrefix = "original";
+	private const string ResizedPathPrefix = "resized";
+	private const string ThumbnailPathPrefix = "thumbnail";
+
 	private readonly IBlobStorage _blobStorage;
 	private readonly IBlobPathGenerator _blobPathGenerator;
 	private static uint[] ResizeWidths = { 1200, 1000, 800, 400 };
+	private static uint ThumbnailWidth = 200;
 
 	public UploadImageHandler(IBlobStorage blobStorage, IBlobPathGenerator blobPathGenerator)
 	{
@@ -18,7 +24,9 @@ public class UploadImageHandler : IRequestHandler<UploadImageCommand, BlobInfo>
 
 	public async Task<BlobInfo> Handle(UploadImageCommand request, CancellationToken cancellationToken)
 	{
-		List<BlobInfo> uploadedFiles = new List<BlobInfo>();
+		var path = _blobPathGenerator.GenerateBlobPath(request.FileName);
+
+		List<BlobInfo> uploadedBlobs = new List<BlobInfo>();
 		var isGif = request.FileName.EndsWith(".gif", StringComparison.OrdinalIgnoreCase);
 
 		var stream = new MemoryStream();
@@ -26,7 +34,7 @@ public class UploadImageHandler : IRequestHandler<UploadImageCommand, BlobInfo>
 
 		var originalWidth = GetOriginalWidth(stream, isGif);
 
-		uploadedFiles.Add(await UploadAsnc(stream, request.FileName)); // Original size
+		uploadedBlobs.Add(await UploadAsnc(stream, Path.Combine(OriginalPathPrefix, path))); // Original size
 
 		foreach (var resizeWidth in ResizeWidths)
 		{
@@ -34,12 +42,18 @@ public class UploadImageHandler : IRequestHandler<UploadImageCommand, BlobInfo>
 			{
 				stream.Position = 0; // Reset stream position
 				using var resizedStream = isGif ? await ResizeGif(stream, resizeWidth, cancellationToken) : await ResizeImageAsync(stream, resizeWidth, cancellationToken);
-				var resizedFileName = GetPathWithSizeSuffix(request.FileName, resizeWidth);
-				uploadedFiles.Add(await UploadAsnc(resizedStream, resizedFileName));
+				var resizedFileName = Path.Combine(ResizedPathPrefix, GetPathWithSizeSuffix(path, resizeWidth));
+				uploadedBlobs.Add(await UploadAsnc(resizedStream, resizedFileName));
 			}
 		}
 
-		return uploadedFiles.First();
+		// Create thumbnail
+		stream.Position = 0; // Reset stream position
+		using var thumbnailStream = isGif ? await ResizeGif(stream, ThumbnailWidth, cancellationToken) : await ResizeImageAsync(stream, ThumbnailWidth, cancellationToken);
+		var thumbnailFileName = Path.Combine(ThumbnailPathPrefix, GetPathWithSizeSuffix(path, ThumbnailWidth));
+		uploadedBlobs.Add(await UploadAsnc(thumbnailStream, thumbnailFileName));
+
+		return new BlobInfo(path, uploadedBlobs.Last().LastModified);
 	}
 
 	private string GetPathWithSizeSuffix(string path, uint width)

@@ -12,5 +12,5 @@ public interface IBlobStorage
 
 	Task DeleteAsync(BlobKind blobKind, string blobPath);
 
-	Task<BlobInfo[]> ListAsync(BlobKind blobKind);
+	Task<BlobInfo[]> ListAsync(BlobKind blobKind, string? prefix = null);
 }

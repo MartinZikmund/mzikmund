@@ -60,18 +60,18 @@ public class BlobStorage : IBlobStorage
 		await containerClient.DeleteBlobIfExistsAsync(fileName);
 	}
 
-	public async Task<BlobInfo?[]> ListAsync(BlobKind blobKind)
+	public async Task<BlobInfo[]> ListAsync(BlobKind blobKind, string? prefix = null)
 	{
 		var containerClient = GetBlobContainerClient(blobKind);
-		var blobInfos = new List<BlobInfo>();
-		await foreach (var blob in containerClient.GetBlobsAsync())
+		var blobs = new List<BlobInfo>();
+		await foreach (var blob in containerClient.GetBlobsAsync(prefix: prefix))
 		{
 			var blobName = blob.Name;
 			var modified = blob.Properties.LastModified;
-			blobInfos.Add(new(blobName, modified));
+			blobs.Add(new(blobName, modified));
 		}
 
-		return blobInfos.ToArray();
+		return blobs.ToArray();
 	}
 
 	private BlobContainerClient GetBlobContainerClient(BlobKind blobKind)
