@@ -3,14 +3,17 @@ using MediatR;
 using MZikmund.Web.Core.Services.Blobs;
 
 namespace MZikmund.Web.Core.Features.Images;
+
 public class UploadImageHandler : IRequestHandler<UploadImageCommand, BlobInfo>
 {
 	private readonly IBlobStorage _blobStorage;
-	private static int[] ResizeWidths = { 1200, 1000, 800, 400 };
+	private readonly IBlobPathGenerator _blobPathGenerator;
+	private static uint[] ResizeWidths = { 1200, 1000, 800, 400 };
 
-	public UploadImageHandler(IBlobStorage blobStorage)
+	public UploadImageHandler(IBlobStorage blobStorage, IBlobPathGenerator blobPathGenerator)
 	{
 		_blobStorage = blobStorage;
+		_blobPathGenerator = blobPathGenerator;
 	}
 
 	public async Task<BlobInfo> Handle(UploadImageCommand request, CancellationToken cancellationToken)
@@ -24,6 +27,26 @@ public class UploadImageHandler : IRequestHandler<UploadImageCommand, BlobInfo>
 		var originalWidth = GetOriginalWidth(stream, isGif);
 
 		uploadedFiles.Add(await UploadAsnc(stream, request.FileName)); // Original size
+
+		foreach (var resizeWidth in ResizeWidths)
+		{
+			if (originalWidth > resizeWidth && !cancellationToken.IsCancellationRequested)
+			{
+				stream.Position = 0; // Reset stream position
+				using var resizedStream = isGif ? await ResizeGif(stream, resizeWidth, cancellationToken) : await ResizeImageAsync(stream, resizeWidth, cancellationToken);
+				var resizedFileName = GetPathWithSizeSuffix(request.FileName, resizeWidth);
+				uploadedFiles.Add(await UploadAsnc(resizedStream, resizedFileName));
+			}
+		}
+
+		return uploadedFiles.First();
+	}
+
+	private string GetPathWithSizeSuffix(string path, uint width)
+	{
+		var extension = Path.GetExtension(path);
+		var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(path);
+		return $"{fileNameWithoutExtension}-{width}{extension}";
 	}
 
 	private uint GetOriginalWidth(Stream stream, bool isGif)
@@ -42,7 +65,7 @@ public class UploadImageHandler : IRequestHandler<UploadImageCommand, BlobInfo>
 
 	private async Task<BlobInfo> UploadAsnc(Stream stream, string fileName) => await _blobStorage.AddAsync(BlobKind.Image, fileName, stream);
 
-	private static async Task<Stream> ResizeGif(Stream sourceStream, int width)
+	private static async Task<Stream> ResizeGif(Stream sourceStream, uint width, CancellationToken cancellationToken)
 	{
 		using var gif = new MagickImageCollection(sourceStream);
 
@@ -54,24 +77,21 @@ public class UploadImageHandler : IRequestHandler<UploadImageCommand, BlobInfo>
 		// the height will be calculated with the aspect ratio.
 		foreach (var image in gif)
 		{
-			image.Resize(200, 0);
+			image.Resize(width, 0);
 		}
 
 		var outputStream = new MemoryStream();
-		await gif.WriteAsync(outputStream, MagickFormat.Gif);
+		await gif.WriteAsync(outputStream, MagickFormat.Gif, cancellationToken);
 		outputStream.Position = 0;
 		return outputStream;
 	}
 
-	private static async Task<Stream> ResizeImageAsync(Stream stream, string extension)
+	private static async Task<Stream> ResizeImageAsync(Stream stream, uint width, CancellationToken cancellationToken)
 	{
 		using var image = new MagickImage(stream);
-		image.Resize(new MagickGeometry(1024, 1024)
-		{
-			IgnoreAspectRatio = true
-		});
+		image.Resize(width, 0);
 		var outputStream = new MemoryStream();
-		await image.WriteAsync(outputStream, GetFormat(extension));
+		await image.WriteAsync(outputStream, cancellationToken);
 		outputStream.Position = 0;
 		return outputStream;
 	}

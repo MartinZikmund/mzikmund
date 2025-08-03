@@ -8,7 +8,6 @@ namespace MZikmund.Web.Core.Services.Blobs;
 
 public class BlobStorage : IBlobStorage
 {
-	private readonly IBlobPathGenerator _blobPathGenerator;
 	private readonly ILogger<BlobStorage> _logger;
 
 	private readonly BlobContainerClient _mediaContainer;
