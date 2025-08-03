@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MZikmund.Web.Core.Features.Files;
 using MZikmund.Web.Core.Features.Images;
 
 namespace MZikmund.Web.Controllers.Admin;
@@ -32,17 +33,17 @@ public class ImagesAdminController : Controller
 	}
 
 	[HttpPost]
-	public async Task<IActionResult> Upload(IFormFile file, [FromQuery] string fileName)
+	public async Task<IActionResult> Upload(IFormFile file, [FromQuery] string desiredFileName)
 	{
 		if (file == null || file.Length == 0)
 		{
 			return BadRequest("File is empty");
 		}
 
-		var name = string.IsNullOrEmpty(fileName) ? file.FileName : fileName;
+		var fileName = FormFileNameHelper.GetFileName(file, desiredFileName);
 
 		await using var stream = file.OpenReadStream();
-		var result = await _mediator.Send(new UploadImageCommand(file.FileName, stream));
+		var result = await _mediator.Send(new UploadImageCommand(fileName, stream));
 		return Ok(result);
 	}
 }

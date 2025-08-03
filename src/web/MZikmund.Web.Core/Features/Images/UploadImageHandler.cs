@@ -61,7 +61,8 @@ public class UploadImageHandler : IRequestHandler<UploadImageCommand, BlobInfo>
 	{
 		var extension = Path.GetExtension(path);
 		var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(path);
-		return $"{fileNameWithoutExtension}-{width}{extension}";
+		var directory = Path.GetDirectoryName(path) ?? "";
+		return Path.Combine(directory, $"{fileNameWithoutExtension}-{width}{extension}");
 	}
 
 	private uint GetOriginalWidth(Stream stream, bool isGif)

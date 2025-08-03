@@ -36,14 +36,14 @@ public class FilesAdminController : Controller
 	}
 
 	[HttpPost]
-	public async Task<IActionResult> Upload(IFormFile file, [FromQuery] string fileName)
+	public async Task<IActionResult> Upload(IFormFile file, [FromQuery] string desiredFileName)
 	{
 		if (file == null || file.Length == 0)
 		{
 			return BadRequest("File is empty");
 		}
 
-		var name = string.IsNullOrEmpty(fileName) ? file.FileName : fileName;
+		var fileName = FormFileNameHelper.GetFileName(file, desiredFileName);
 
 		await using var stream = file.OpenReadStream();
 		var result = await _mediator.Send(new UploadFileCommand(fileName, stream));
