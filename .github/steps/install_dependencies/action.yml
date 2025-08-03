@@ -34,5 +34,5 @@ runs:
     - name: Run Uno.Check
       shell: pwsh
       run: |
-        & dotnet tool install --global --version 1.28.3 uno.check
+        & dotnet tool install --global --version 1.31.13 uno.check
         & ~/.dotnet/tools/uno-check --ci --fix --non-interactive --verbose --skip openjdk 
