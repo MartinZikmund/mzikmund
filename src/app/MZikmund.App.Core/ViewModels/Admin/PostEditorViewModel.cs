@@ -66,6 +66,12 @@ public partial class PostEditorViewModel : PageViewModel
 	[ObservableProperty]
 	public partial TimeSpan PublishTime { get; set; } = DateTimeOffset.Now.TimeOfDay;
 
+	[ObservableProperty]
+	public partial int SelectionStart { get; set; }
+
+	[ObservableProperty]
+	public partial int SelectionLength { get; set; }
+
 	partial void OnPostTitleChanged(string value)
 	{
 		PostRouteName = value.GenerateRouteName();
@@ -173,16 +179,27 @@ public partial class PostEditorViewModel : PageViewModel
 
 	private void InsertTextAtCursor(string text)
 	{
-		// Insert text at the end of content for now
-		// In a full implementation, this would insert at the cursor position
-		if (!string.IsNullOrEmpty(PostContent))
-		{
-			PostContent += "\n" + text;
-		}
-		else
+		if (string.IsNullOrEmpty(PostContent))
 		{
 			PostContent = text;
+			SelectionStart = text.Length;
+			SelectionLength = 0;
+			return;
 		}
+
+		// Ensure selection start is within bounds
+		var insertPosition = Math.Max(0, Math.Min(SelectionStart, PostContent.Length));
+		var selectionLength = Math.Max(0, Math.Min(SelectionLength, PostContent.Length - insertPosition));
+		
+		// Insert text at cursor position, replacing any selected text
+		var beforeText = PostContent.Substring(0, insertPosition);
+		var afterText = PostContent.Substring(insertPosition + selectionLength);
+		
+		PostContent = beforeText + text + afterText;
+		
+		// Update cursor position to be after the inserted text
+		SelectionStart = insertPosition + text.Length;
+		SelectionLength = 0;
 	}
 
 	private string GetPublicUrl(string blobPath)
