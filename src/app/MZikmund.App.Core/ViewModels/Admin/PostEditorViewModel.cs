@@ -8,6 +8,7 @@ using MZikmund.Services.Localization;
 using MZikmund.Services.Timers;
 using MZikmund.Shared.Extensions;
 using MZikmund.Web.Core.Services;
+using MZikmund.ViewModels.Admin;
 using Newtonsoft.Json;
 
 namespace MZikmund.ViewModels.Admin;
@@ -58,6 +59,12 @@ public partial class PostEditorViewModel : PageViewModel
 
 	[ObservableProperty]
 	public partial bool IsPublished { get; set; }
+
+	[ObservableProperty]
+	public partial int SelectionStart { get; set; }
+
+	[ObservableProperty]
+	public partial int SelectionLength { get; set; }
 
 	partial void OnPostTitleChanged(string value)
 	{
@@ -112,6 +119,81 @@ public partial class PostEditorViewModel : PageViewModel
 		{
 			await _api.UpdatePostAsync(Post.Id, Post);
 		}
+	}
+
+	[RelayCommand]
+	private async Task BrowseImagesAsync()
+	{
+		var dialogViewModel = new MediaBrowserDialogViewModel(_api, isImageMode: true);
+		var result = await _dialogService.ShowAsync(dialogViewModel);
+		
+		if (result == ContentDialogResult.Primary && dialogViewModel.SelectedFile != null)
+		{
+			if (Post != null)
+			{
+				Post.HeroImageUrl = GetPublicUrl(dialogViewModel.SelectedFile.BlobPath);
+			}
+		}
+	}
+
+	[RelayCommand]
+	private async Task InsertImageAsync()
+	{
+		var dialogViewModel = new MediaBrowserDialogViewModel(_api, isImageMode: true);
+		var result = await _dialogService.ShowAsync(dialogViewModel);
+		
+		if (result == ContentDialogResult.Primary && dialogViewModel.SelectedFile != null)
+		{
+			var imageUrl = GetPublicUrl(dialogViewModel.SelectedFile.BlobPath);
+			var markdownImage = $"![{dialogViewModel.SelectedFile.FileName}]({imageUrl})";
+			InsertTextAtCursor(markdownImage);
+		}
+	}
+
+	[RelayCommand]
+	private async Task InsertFileAsync()
+	{
+		var dialogViewModel = new MediaBrowserDialogViewModel(_api, isImageMode: false);
+		var result = await _dialogService.ShowAsync(dialogViewModel);
+		
+		if (result == ContentDialogResult.Primary && dialogViewModel.SelectedFile != null)
+		{
+			var fileUrl = GetPublicUrl(dialogViewModel.SelectedFile.BlobPath);
+			var markdownLink = $"[{dialogViewModel.SelectedFile.FileName}]({fileUrl})";
+			InsertTextAtCursor(markdownLink);
+		}
+	}
+
+	private void InsertTextAtCursor(string text)
+	{
+		if (string.IsNullOrEmpty(PostContent))
+		{
+			PostContent = text;
+			SelectionStart = text.Length;
+			SelectionLength = 0;
+			return;
+		}
+
+		// Ensure selection start is within bounds
+		var insertPosition = Math.Max(0, Math.Min(SelectionStart, PostContent.Length));
+		var selectionLength = Math.Max(0, Math.Min(SelectionLength, PostContent.Length - insertPosition));
+		
+		// Insert text at cursor position, replacing any selected text
+		var beforeText = PostContent.Substring(0, insertPosition);
+		var afterText = PostContent.Substring(insertPosition + selectionLength);
+		
+		PostContent = beforeText + text + afterText;
+		
+		// Update cursor position to be after the inserted text
+		SelectionStart = insertPosition + text.Length;
+		SelectionLength = 0;
+	}
+
+	private string GetPublicUrl(string blobPath)
+	{
+		// This would typically be configured based on your blob storage setup
+		// For now, return a relative path
+		return "/" + blobPath.TrimStart('/');
 	}
 
 	public override void ViewLoaded()
