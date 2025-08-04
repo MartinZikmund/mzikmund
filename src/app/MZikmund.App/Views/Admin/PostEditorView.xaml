@@ -74,10 +74,13 @@
 				</Button>
 			</Grid>
 			<TextBox
+				x:Name="ContentTextBox"
 				Grid.Row="1"
 				AcceptsReturn="True"
 				FontFamily="{StaticResource CodeFont}"
 				Text="{x:Bind ViewModel.PostContent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+				SelectionStart="{x:Bind ViewModel.SelectionStart, Mode=TwoWay}"
+				SelectionLength="{x:Bind ViewModel.SelectionLength, Mode=TwoWay}"
 				TextWrapping="Wrap" />
 		</Grid>
 
