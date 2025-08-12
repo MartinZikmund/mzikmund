@@ -112,11 +112,11 @@ public partial class MZikmundApp : Application, IApplication
 		services.AddScoped<IDialogService, DialogService>();
 		services.AddScoped<IWindowShellProvider, WindowShellProvider>();
 		services.AddScoped<ITimerFactory, TimerFactory>();
-		services.AddSingleton<IUserService, UserService>();
+		services.AddScoped<IUserService, UserService>();
 		services.AddSingleton<IMarkdownConverter, MarkdownConverter>();
 		services.AddSingleton<IPostContentProcessor, PostContentProcessor>();
 
-		services.AddSingleton(CreateApi);
+		services.AddScoped(CreateApi);
 	}
 
 	private static IMZikmundApi CreateApi(IServiceProvider provider)
@@ -128,19 +128,14 @@ public partial class MZikmundApp : Application, IApplication
 			throw new InvalidOperationException("API URL is not set in configuration");
 		}
 
-		var client = new HttpClient(new HttpRequestExceptionHandler())
-		{
-			BaseAddress = new Uri(apiUrl)
-		};
-
-		return RestService.For<IMZikmundApi>(client, new RefitSettings()
+		return RestService.For<IMZikmundApi>(apiUrl, new RefitSettings()
 		{
 			AuthorizationHeaderValueGetter = GetTokenAsync
 		});
 
 		async Task<string> GetTokenAsync(HttpRequestMessage message, CancellationToken cancellationToken)
 		{
-			var userService = Ioc.Default.GetRequiredService<IUserService>();
+			var userService = provider.GetRequiredService<IUserService>();
 			if (!userService.IsLoggedIn || userService.NeedsRefresh)
 			{
 				await userService.AuthenticateAsync();

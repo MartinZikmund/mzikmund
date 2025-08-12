@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<local:MediaBrowserDialogBase
+    x:Class="MZikmund.App.Dialogs.Admin.MediaBrowserDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:MZikmund.App.Dialogs.Admin"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid
+        Width="600"
+        Height="500"
+        Padding="16"
+        RowDefinitions="Auto, Auto, *, Auto">
+        <TextBlock
+            Grid.Row="0"
+            Margin="0,0,0,16"
+            FontSize="20"
+            Text="Media Browser" />
+
+        <Grid
+            Grid.Row="1"
+            Margin="0,0,0,16"
+            ColumnDefinitions="*, Auto"
+            ColumnSpacing="8">
+            <TextBox
+                Grid.Column="0"
+                PlaceholderText="Search files..."
+                Text="{x:Bind ViewModel.SearchFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <Button Grid.Column="1" Command="{x:Bind ViewModel.UploadFileCommand}">
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                    <SymbolIcon Symbol="Upload" />
+                    <TextBlock Text="Upload" />
+                </StackPanel>
+            </Button>
+        </Grid>
+
+        <Grid Grid.Row="2">
+            <ProgressRing
+                x:Name="LoadingRing"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" />
+
+            <ListView
+                x:Name="FilesListView"
+                ItemsSource="{x:Bind ViewModel.FilteredFiles, Mode=OneWay}"
+                SelectedItem="{x:Bind ViewModel.SelectedFile, Mode=TwoWay}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid
+                            Padding="8"
+                            ColumnDefinitions="Auto, *"
+                            ColumnSpacing="8">
+                            <SymbolIcon Grid.Column="0" Symbol="Document" />
+                            <StackPanel Grid.Column="1">
+                                <TextBlock FontWeight="SemiBold" Text="{Binding FileName}" />
+                                <TextBlock
+                                    FontSize="12"
+                                    Opacity="0.7"
+                                    Text="{Binding BlobPath}" />
+                                <TextBlock
+                                    FontSize="12"
+                                    Opacity="0.7"
+                                    Text="{Binding LastModified}" />
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
+
+        <StackPanel
+            Grid.Row="3"
+            Margin="0,16,0,0"
+            HorizontalAlignment="Right"
+            Orientation="Horizontal"
+            Spacing="8">
+            <Button Click="CancelButton_Click" Content="Cancel" />
+            <Button
+                x:Name="SelectButton"
+                Click="SelectButton_Click"
+                Content="Select"
+                Style="{StaticResource AccentButtonStyle}" />
+        </StackPanel>
+    </Grid>
+</local:MediaBrowserDialogBase>
