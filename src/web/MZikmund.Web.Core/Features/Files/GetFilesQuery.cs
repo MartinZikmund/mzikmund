@@ -1,6 +1,6 @@
 ﻿using MediatR;
-using MZikmund.Web.Core.Services.Blobs;
+using MZikmund.DataContracts.Blobs;
 
 namespace MZikmund.Web.Core.Features.Files;
 
-public record GetFilesQuery : IRequest<IEnumerable<BlobInfo>>;
+public record GetFilesQuery : IRequest<IEnumerable<StorageItemInfo>>;

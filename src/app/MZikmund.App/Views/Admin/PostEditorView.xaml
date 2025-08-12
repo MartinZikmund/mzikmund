@@ -35,54 +35,64 @@
                 HorizontalAlignment="Stretch"
                 Command="{x:Bind ViewModel.PickCategoriesCommand}"
                 Content="{x:Bind ViewModel.CategoriesText, Mode=OneWay}" />
-			<TextBlock Text="Tags" />
-			<TextBox Text="{x:Bind ViewModel.Tags, Mode=TwoWay}" />
-			<TextBlock Text="Hero image URL" />
-			<Grid ColumnDefinitions="*, Auto">
-				<TextBox Grid.Column="0" Text="{x:Bind ViewModel.Post.HeroImageUrl, Mode=TwoWay}" />
-				<Button Grid.Column="1" Margin="4,0,0,0" Command="{x:Bind ViewModel.BrowseImagesCommand}">
-					<StackPanel Orientation="Horizontal" Spacing="4">
-						<SymbolIcon Symbol="Folder" />
-						<TextBlock Text="Browse" />
-					</StackPanel>
-				</Button>
-			</Grid>
-			<TextBlock Text="Hero image ALT" />
-			<TextBox Text="{x:Bind ViewModel.Post.HeroImageAlt, Mode=TwoWay}" />
-		</StackPanel>
-		<TextBox
+            <TextBlock Text="Tags" />
+            <TextBox Text="{x:Bind ViewModel.Tags, Mode=TwoWay}" />
+            <TextBlock Text="Hero image URL" />
+            <Grid ColumnDefinitions="*, Auto">
+                <TextBox Grid.Column="0" Text="{x:Bind ViewModel.Post.HeroImageUrl, Mode=TwoWay}" />
+                <Button
+                    Grid.Column="1"
+                    Margin="4,0,0,0"
+                    Command="{x:Bind ViewModel.BrowseImagesCommand}">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <SymbolIcon Symbol="Folder" />
+                        <TextBlock Text="Browse" />
+                    </StackPanel>
+                </Button>
+            </Grid>
+            <TextBlock Text="Hero image ALT" />
+            <TextBox Text="{x:Bind ViewModel.Post.HeroImageAlt, Mode=TwoWay}" />
+        </StackPanel>
+        <TextBox
             Grid.Row="1"
             AcceptsReturn="True"
             FontFamily="{StaticResource CodeFont}"
             Header="Abstract"
             Text="{x:Bind ViewModel.Post.Abstract, Mode=TwoWay}"
             TextWrapping="Wrap" />
-		<Grid Grid.Row="2" RowDefinitions="Auto, *" RowSpacing="4">
-			<Grid ColumnDefinitions="*, Auto, Auto">
-				<TextBlock Text="Content" />
-				<Button Grid.Column="1" Margin="4,0,0,0" Command="{x:Bind ViewModel.InsertImageCommand}">
-					<StackPanel Orientation="Horizontal" Spacing="4">
-						<SymbolIcon Symbol="Pictures" />
-						<TextBlock Text="Insert Image" />
-					</StackPanel>
-				</Button>
-				<Button Grid.Column="2" Margin="4,0,0,0" Command="{x:Bind ViewModel.InsertFileCommand}">
-					<StackPanel Orientation="Horizontal" Spacing="4">
-						<SymbolIcon Symbol="Attach" />
-						<TextBlock Text="Insert File" />
-					</StackPanel>
-				</Button>
-			</Grid>
-			<TextBox
-				x:Name="ContentTextBox"
-				Grid.Row="1"
-				AcceptsReturn="True"
-				FontFamily="{StaticResource CodeFont}"
-				Text="{x:Bind ViewModel.PostContent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-				SelectionStart="{x:Bind ViewModel.SelectionStart, Mode=TwoWay}"
-				SelectionLength="{x:Bind ViewModel.SelectionLength, Mode=TwoWay}"
-				TextWrapping="Wrap" />
-		</Grid>
+        <Grid
+            Grid.Row="2"
+            RowDefinitions="Auto, *"
+            RowSpacing="4">
+            <Grid ColumnDefinitions="*, Auto, Auto">
+                <TextBlock Text="Content" />
+                <Button
+                    Grid.Column="1"
+                    Margin="4,0,0,0"
+                    Command="{x:Bind ViewModel.InsertImageCommand}">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <SymbolIcon Symbol="Pictures" />
+                        <TextBlock Text="Insert Image" />
+                    </StackPanel>
+                </Button>
+                <Button
+                    Grid.Column="2"
+                    Margin="4,0,0,0"
+                    Command="{x:Bind ViewModel.InsertFileCommand}">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <SymbolIcon Symbol="Attach" />
+                        <TextBlock Text="Insert File" />
+                    </StackPanel>
+                </Button>
+            </Grid>
+            <TextBox
+                x:Name="ContentTextBox"
+                Grid.Row="1"
+                AcceptsReturn="True"
+                FontFamily="{StaticResource CodeFont}"
+                Text="{x:Bind ViewModel.PostContent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                TextWrapping="Wrap" />
+        </Grid>
 
         <Grid
             Grid.Row="2"
