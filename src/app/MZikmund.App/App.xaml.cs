@@ -146,11 +146,11 @@ public partial class MZikmundApp : Application, IApplication
 		services.AddScoped<IDialogService, DialogService>();
 		services.AddScoped<IWindowShellProvider, WindowShellProvider>();
 		services.AddScoped<ITimerFactory, TimerFactory>();
-		services.AddSingleton<IUserService, UserService>();
+		services.AddScoped<IUserService, UserService>();
 		services.AddSingleton<IMarkdownConverter, MarkdownConverter>();
 		services.AddSingleton<IPostContentProcessor, PostContentProcessor>();
 
-		services.AddSingleton(CreateApi);
+		services.AddScoped(CreateApi);
 	}
 
 	private static IMZikmundApi CreateApi(IServiceProvider provider)
@@ -170,7 +170,7 @@ public partial class MZikmundApp : Application, IApplication
 
 		async Task<string> GetTokenAsync(HttpRequestMessage message, CancellationToken cancellationToken)
 		{
-			var userService = Ioc.Default.GetRequiredService<IUserService>();
+			var userService = provider.GetRequiredService<IUserService>();
 			if (!userService.IsLoggedIn || userService.NeedsRefresh)
 			{
 				await userService.AuthenticateAsync();

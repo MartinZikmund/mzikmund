@@ -2,6 +2,7 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Logging;
+using MZikmund.DataContracts.Blobs;
 using MZikmund.Web.Configuration;
 using MZikmund.Web.Configuration.Connections;
 
@@ -32,13 +33,13 @@ public class BlobStorage : IBlobStorage
 		await _filesContainer.SetAccessPolicyAsync(PublicAccessType.Blob);
 	}
 
-	public async Task<BlobInfo> AddAsync(BlobKind blobKind, string blobPath, byte[] imageBytes)
+	public async Task<StorageItemInfo> AddAsync(BlobKind blobKind, string blobPath, byte[] imageBytes)
 	{
 		await using var stream = new MemoryStream(imageBytes);
 		return await AddAsync(blobKind, blobPath, stream);
 	}
 
-	public async Task<BlobInfo> AddAsync(BlobKind blobKind, string blobPath, Stream stream)
+	public async Task<StorageItemInfo> AddAsync(BlobKind blobKind, string blobPath, Stream stream)
 	{
 		if (string.IsNullOrWhiteSpace(blobPath))
 		{
@@ -77,10 +78,10 @@ public class BlobStorage : IBlobStorage
 		await containerClient.DeleteBlobIfExistsAsync(fileName);
 	}
 
-	public async Task<BlobInfo[]> ListAsync(BlobKind blobKind, string? prefix = null)
+	public async Task<StorageItemInfo[]> ListAsync(BlobKind blobKind, string? prefix = null)
 	{
 		var containerClient = GetBlobContainerClient(blobKind);
-		var blobs = new List<BlobInfo>();
+		var blobs = new List<StorageItemInfo>();
 		await foreach (var blob in containerClient.GetBlobsAsync(prefix: prefix))
 		{
 			var blobName = blob.Name;

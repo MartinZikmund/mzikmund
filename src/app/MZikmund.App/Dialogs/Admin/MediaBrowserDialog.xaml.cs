@@ -1,6 +1,7 @@
 using MZikmund.App.Core.ViewModels.Admin;
 using MZikmund.ViewModels.Admin;
 using Microsoft.UI.Xaml;
+using MZikmund.Dialogs;
 
 namespace MZikmund.App.Dialogs.Admin;
 
@@ -50,15 +51,13 @@ public sealed partial class MediaBrowserDialog : MediaBrowserDialogBase
 
 	private void CancelButton_Click(object sender, RoutedEventArgs e)
 	{
-		Result = ContentDialogResult.None;
 	}
 
 	private void SelectButton_Click(object sender, RoutedEventArgs e)
 	{
-		Result = ContentDialogResult.Primary;
 	}
 }
 
-public abstract partial class MediaBrowserDialogBase : DialogBase&lt;MediaBrowserDialogViewModel&gt;
+public abstract partial class MediaBrowserDialogBase : DialogBase<MediaBrowserDialogViewModel>
 {
 }
