@@ -10,12 +10,14 @@ using MZikmund.Shared.Extensions;
 using MZikmund.Web.Core.Services;
 using MZikmund.ViewModels.Admin;
 using Newtonsoft.Json;
+using MZikmund.Services.Navigation;
 
 namespace MZikmund.ViewModels.Admin;
 
 public partial class PostEditorViewModel : PageViewModel
 {
 	private readonly IMZikmundApi _api;
+	private readonly IWindowShellProvider _windowShellProvider;
 	private readonly IDialogService _dialogService;
 	private readonly ILoadingIndicator _loadingIndicator;
 	private readonly IPostContentProcessor _postContentProcessor;
@@ -24,9 +26,10 @@ public partial class PostEditorViewModel : PageViewModel
 	private DispatcherQueueTimer? _draftTimer;
 	private bool _isPreviewDirty = true;
 
-	public PostEditorViewModel(IMZikmundApi api, IDialogService dialogService, ILoadingIndicator loadingIndicator, IPostContentProcessor postContentProcessor, ITimerFactory timerFactory)
+	public PostEditorViewModel(IMZikmundApi api, IWindowShellProvider windowShellProvider, IDialogService dialogService, ILoadingIndicator loadingIndicator, IPostContentProcessor postContentProcessor, ITimerFactory timerFactory)
 	{
 		_api = api;
+		_windowShellProvider = windowShellProvider;
 		_dialogService = dialogService;
 		_loadingIndicator = loadingIndicator;
 		_postContentProcessor = postContentProcessor;
@@ -124,9 +127,9 @@ public partial class PostEditorViewModel : PageViewModel
 	[RelayCommand]
 	private async Task BrowseImagesAsync()
 	{
-		var dialogViewModel = new MediaBrowserDialogViewModel(_api, isImageMode: true);
+		var dialogViewModel = new MediaBrowserDialogViewModel(_api, _windowShellProvider, isImageMode: true);
 		var result = await _dialogService.ShowAsync(dialogViewModel);
-		
+
 		if (result == ContentDialogResult.Primary && dialogViewModel.SelectedFile != null)
 		{
 			if (Post != null)
@@ -139,9 +142,9 @@ public partial class PostEditorViewModel : PageViewModel
 	[RelayCommand]
 	private async Task InsertImageAsync()
 	{
-		var dialogViewModel = new MediaBrowserDialogViewModel(_api, isImageMode: true);
+		var dialogViewModel = new MediaBrowserDialogViewModel(_api, _windowShellProvider, isImageMode: true);
 		var result = await _dialogService.ShowAsync(dialogViewModel);
-		
+
 		if (result == ContentDialogResult.Primary && dialogViewModel.SelectedFile != null)
 		{
 			var imageUrl = GetPublicUrl(dialogViewModel.SelectedFile.BlobPath);
@@ -153,9 +156,9 @@ public partial class PostEditorViewModel : PageViewModel
 	[RelayCommand]
 	private async Task InsertFileAsync()
 	{
-		var dialogViewModel = new MediaBrowserDialogViewModel(_api, isImageMode: false);
+		var dialogViewModel = new MediaBrowserDialogViewModel(_api, _windowShellProvider, isImageMode: false);
 		var result = await _dialogService.ShowAsync(dialogViewModel);
-		
+
 		if (result == ContentDialogResult.Primary && dialogViewModel.SelectedFile != null)
 		{
 			var fileUrl = GetPublicUrl(dialogViewModel.SelectedFile.BlobPath);
@@ -177,13 +180,13 @@ public partial class PostEditorViewModel : PageViewModel
 		// Ensure selection start is within bounds
 		var insertPosition = Math.Max(0, Math.Min(SelectionStart, PostContent.Length));
 		var selectionLength = Math.Max(0, Math.Min(SelectionLength, PostContent.Length - insertPosition));
-		
+
 		// Insert text at cursor position, replacing any selected text
 		var beforeText = PostContent.Substring(0, insertPosition);
 		var afterText = PostContent.Substring(insertPosition + selectionLength);
-		
+
 		PostContent = beforeText + text + afterText;
-		
+
 		// Update cursor position to be after the inserted text
 		SelectionStart = insertPosition + text.Length;
 		SelectionLength = 0;

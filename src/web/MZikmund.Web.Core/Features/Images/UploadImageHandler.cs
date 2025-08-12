@@ -1,10 +1,11 @@
 using ImageMagick;
 using MediatR;
+using MZikmund.DataContracts.Blobs;
 using MZikmund.Web.Core.Services.Blobs;
 
 namespace MZikmund.Web.Core.Features.Images;
 
-public class UploadImageHandler : IRequestHandler<UploadImageCommand, BlobInfo>
+public class UploadImageHandler : IRequestHandler<UploadImageCommand, StorageItemInfo>
 {
 	private const string OriginalPathPrefix = "original";
 	private const string ResizedPathPrefix = "resized";
@@ -21,11 +22,11 @@ public class UploadImageHandler : IRequestHandler<UploadImageCommand, BlobInfo>
 		_blobPathGenerator = blobPathGenerator;
 	}
 
-	public async Task<BlobInfo> Handle(UploadImageCommand request, CancellationToken cancellationToken)
+	public async Task<StorageItemInfo> Handle(UploadImageCommand request, CancellationToken cancellationToken)
 	{
 		var path = _blobPathGenerator.GenerateBlobPath(request.FileName);
 
-		var uploadedBlobs = new List<BlobInfo>();
+		var uploadedBlobs = new List<StorageItemInfo>();
 		var isGif = request.FileName.EndsWith(".gif", StringComparison.OrdinalIgnoreCase);
 
 		var stream = new MemoryStream();
@@ -53,7 +54,7 @@ public class UploadImageHandler : IRequestHandler<UploadImageCommand, BlobInfo>
 		var thumbnailFileName = Path.Combine(ThumbnailPathPrefix, path);
 		uploadedBlobs.Add(await UploadAsnc(thumbnailStream, thumbnailFileName));
 
-		return new BlobInfo(path, uploadedBlobs.Last().LastModified);
+		return new StorageItemInfo(path, uploadedBlobs.Last().LastModified);
 	}
 
 	private string GetPathWithSizeSuffix(string path, uint width)
@@ -78,7 +79,7 @@ public class UploadImageHandler : IRequestHandler<UploadImageCommand, BlobInfo>
 		}
 	}
 
-	private async Task<BlobInfo> UploadAsnc(Stream stream, string fileName) => await _blobStorage.AddAsync(BlobKind.Image, fileName, stream);
+	private async Task<StorageItemInfo> UploadAsnc(Stream stream, string fileName) => await _blobStorage.AddAsync(BlobKind.Image, fileName, stream);
 
 	private static async Task<Stream> ResizeGif(Stream sourceStream, uint width, CancellationToken cancellationToken)
 	{

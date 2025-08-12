@@ -1,6 +1,6 @@
 ﻿using MediatR;
-using MZikmund.Web.Core.Services.Blobs;
+using MZikmund.DataContracts.Blobs;
 
 namespace MZikmund.Web.Core.Features.Files;
 
-public record UploadFileCommand(string FileName, Stream Stream) : IRequest<BlobInfo>;
+public record UploadFileCommand(string FileName, Stream Stream) : IRequest<StorageItemInfo>;
