@@ -1,6 +1,5 @@
 using MZikmund.Api.Client;
 using MZikmund.App.Core.ViewModels.Admin;
-using MZikmund.Web.Core.Services.Blobs;
 using MZikmund.Services.Dialogs;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml;
@@ -9,25 +8,32 @@ using MZikmund.ViewModels;
 using Refit;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MZikmund.DataContracts.Blobs;
+using MZikmund.Services.Navigation;
 
 namespace MZikmund.ViewModels.Admin;
 
 public partial class MediaBrowserDialogViewModel : DialogViewModel
 {
 	private readonly IMZikmundApi _api;
+	private readonly IWindowShellProvider _windowShellProvider;
 	private readonly bool _isImageMode;
 
-	public MediaBrowserDialogViewModel(IMZikmundApi api, bool isImageMode = true)
+	public MediaBrowserDialogViewModel(
+		IMZikmundApi api,
+		IWindowShellProvider windowShellProvider,
+		bool isImageMode = true)
 	{
 		_api = api;
+		_windowShellProvider = windowShellProvider;
 		_isImageMode = isImageMode;
 	}
 
 	[ObservableProperty]
-	public partial BlobInfo[] MediaFiles { get; set; } = Array.Empty<BlobInfo>();
+	public partial StorageItemInfo[] MediaFiles { get; set; } = Array.Empty<StorageItemInfo>();
 
 	[ObservableProperty]
-	public partial BlobInfo? SelectedFile { get; set; }
+	public partial StorageItemInfo? SelectedFile { get; set; }
 
 	[ObservableProperty]
 	public partial string SearchFilter { get; set; } = "";
@@ -35,8 +41,8 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 	[ObservableProperty]
 	public partial bool IsLoading { get; set; }
 
-	public BlobInfo[] FilteredFiles => string.IsNullOrEmpty(SearchFilter) 
-		? MediaFiles 
+	public StorageItemInfo[] FilteredFiles => string.IsNullOrEmpty(SearchFilter)
+		? MediaFiles
 		: MediaFiles.Where(f => f.FileName.Contains(SearchFilter, StringComparison.OrdinalIgnoreCase)).ToArray();
 
 	partial void OnSearchFilterChanged(string value)
@@ -50,13 +56,13 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 		IsLoading = true;
 		try
 		{
-			var response = _isImageMode 
-				? await _api.GetImagesAsync() 
+			var response = _isImageMode
+				? await _api.GetImagesAsync()
 				: await _api.GetFilesAsync();
-			
+
 			if (response.IsSuccessStatusCode)
 			{
-				MediaFiles = response.Content?.ToArray() ?? Array.Empty<BlobInfo>();
+				MediaFiles = response.Content?.ToArray() ?? Array.Empty<StorageItemInfo>();
 			}
 		}
 		catch (Exception)
@@ -76,7 +82,7 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 		{
 			var picker = new Windows.Storage.Pickers.FileOpenPicker();
 			picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail;
-			
+
 			if (_isImageMode)
 			{
 				picker.FileTypeFilter.Add(".jpg");
@@ -91,8 +97,8 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 			}
 
 			// Initialize the file picker with the window handle
-			var app = (MZikmundApp)Application.Current;
-			var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(app.MainWindow!);
+			var window = _windowShellProvider.Window;
+			var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
 			WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
 
 			var file = await picker.PickSingleFileAsync();
@@ -103,11 +109,11 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 				{
 					using var stream = await file.OpenStreamForReadAsync();
 					var streamPart = new StreamPart(stream, file.Name, file.ContentType);
-					
-					var response = _isImageMode 
+
+					var response = _isImageMode
 						? await _api.UploadImageAsync(streamPart, file.Name)
 						: await _api.UploadFileAsync(streamPart, file.Name);
-					
+
 					if (response.IsSuccessStatusCode)
 					{
 						await LoadFilesAsync();
