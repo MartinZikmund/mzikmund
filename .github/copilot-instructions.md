@@ -85,9 +85,7 @@ This is Martin Zikmund's personal website and blog, built as a multi-platform so
 ## Testing Guidelines
 
 ### Test Structure
-- Unit tests should be placed in corresponding `.Tests` projects
-- Follow the naming convention: `ProjectName.Tests`
-- Use xUnit as the testing framework (if tests exist)
+- Use xUnit as the testing framework
 - Mock external dependencies using appropriate mocking frameworks
 
 ### Test Coverage
