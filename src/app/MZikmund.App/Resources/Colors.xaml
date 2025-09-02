@@ -9,6 +9,6 @@
     </ResourceDictionary.ThemeDictionaries>
     <Color x:Key="BrandColor">#1592e5</Color>
     <SolidColorBrush x:Key="BrandBrush" Color="{StaticResource BrandColor}" />
-	<SolidColorBrush x:Key="NavigationViewContentBackground" Color="Transparent" />
-	<StaticResource x:Key="SystemAccentColor" ResourceKey="BrandColor" />
+    <SolidColorBrush x:Key="NavigationViewContentBackground" Color="Transparent" />
+    <StaticResource x:Key="SystemAccentColor" ResourceKey="BrandColor" />
 </ResourceDictionary>
