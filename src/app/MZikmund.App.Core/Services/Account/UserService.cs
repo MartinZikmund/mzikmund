@@ -65,6 +65,18 @@ public class UserService : IUserService
 	{
 		if (_auth0Client == null)
 		{
+			// Validate that Auth0 configuration is not using placeholder values
+			if (string.IsNullOrEmpty(AuthenticationConstants.Domain) || 
+				AuthenticationConstants.Domain.Contains("your-auth0-domain") ||
+				string.IsNullOrEmpty(AuthenticationConstants.ClientId) || 
+				AuthenticationConstants.ClientId.Contains("your-auth0-client-id"))
+			{
+				throw new InvalidOperationException(
+					"Auth0 configuration is not set or contains placeholder values. " +
+					"Please update AuthenticationConstants.cs with your actual Auth0 configuration. " +
+					"See docs/AUTH0_MIGRATION.md for details.");
+			}
+
 			var options = new Auth0ClientOptions
 			{
 				Domain = AuthenticationConstants.Domain,
@@ -74,7 +86,8 @@ public class UserService : IUserService
 			};
 
 			// Add audience if needed for API calls
-			if (!string.IsNullOrEmpty(AuthenticationConstants.Audience))
+			if (!string.IsNullOrEmpty(AuthenticationConstants.Audience) && 
+				!AuthenticationConstants.Audience.Contains("your-api-identifier"))
 			{
 				options.Audience = AuthenticationConstants.Audience;
 			}

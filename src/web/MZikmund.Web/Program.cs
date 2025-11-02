@@ -56,8 +56,21 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 		.AddJwtBearer(options =>
 		{
 			var auth0Config = configuration.GetSection("Auth0");
-			options.Authority = $"https://{auth0Config["Domain"]}";
-			options.Audience = auth0Config["Audience"];
+			var domain = auth0Config["Domain"];
+			var audience = auth0Config["Audience"];
+
+			// Validate that Auth0 configuration is not using placeholder values
+			if (string.IsNullOrEmpty(domain) || domain.Contains("your-auth0-domain") ||
+				string.IsNullOrEmpty(audience) || audience.Contains("your-api-identifier"))
+			{
+				throw new InvalidOperationException(
+					"Auth0 configuration is not set or contains placeholder values. " +
+					"Please configure Auth0:Domain and Auth0:Audience in appsettings.json, " +
+					"User Secrets, or environment variables. See docs/AUTH0_MIGRATION.md for details.");
+			}
+
+			options.Authority = $"https://{domain}";
+			options.Audience = audience;
 			options.TokenValidationParameters = new TokenValidationParameters
 			{
 				ValidateIssuer = true,
