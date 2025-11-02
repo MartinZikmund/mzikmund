@@ -26,9 +26,7 @@
 		</PackageReference>
 		<PackageReference Include="Newtonsoft.Json" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" />
-		<PackageReference Include="Microsoft.Identity.Web" />
-		<PackageReference Include="Microsoft.Identity.Web.DownstreamApi" />
+		<PackageReference Include="Auth0.AspNetCore.Authentication" />
 		<PackageReference Include="Swashbuckle.AspNetCore" />
 		<PackageReference Include="X.Web.PagedList" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design">

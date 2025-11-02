@@ -2,15 +2,17 @@
 
 public static class AuthenticationConstants
 {
-	public const string ApplicationId = "7e13557a-4799-46b8-9e2b-0f31c41a051e";
+	public const string Domain = "your-auth0-domain.auth0.com";
 
-	public const string TenantId = "4e973842-1a98-40ec-9542-3c2019f0fb8e";
+	public const string ClientId = "your-auth0-client-id";
+
+	public const string Audience = "your-api-identifier";
 
 	public static string[] DefaultScopes { get; } = new string[]
 	{
-		"api://862d5839-f30f-41a9-ab6f-ff7eef19342c/access_as_user",
-		"user.read",
+		"openid",
 		"profile",
+		"email",
 		"offline_access"
 	};
 }

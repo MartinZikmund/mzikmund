@@ -1,7 +1,6 @@
-﻿using Microsoft.Identity.Client;
-using Uno.UI.MSAL;
-using MZikmund.Services.Preferences;
-using Microsoft.Identity.Client.Extensions.Msal;
+﻿using Auth0.OidcClient;
+using IdentityModel.OidcClient;
+using IdentityModel.OidcClient.Browser;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
@@ -9,11 +8,13 @@ namespace MZikmund.Services.Account;
 
 public class UserService : IUserService
 {
-	private IPublicClientApplication? _identityClient;
+	private Auth0Client? _auth0Client;
 	private AuthenticationInfo? _authenticationInfo;
+	private readonly IBrowser _browser;
 
-	public UserService()
+	public UserService(IBrowser browser)
 	{
+		_browser = browser;
 	}
 
 	public bool IsLoggedIn => _authenticationInfo != null;
@@ -31,99 +32,54 @@ public class UserService : IUserService
 			return;
 		}
 
-		await EnsureIdentityClientAsync();
+		EnsureAuth0Client();
 
-		var accounts = await _identityClient.GetAccountsAsync();
-		AuthenticationResult? result = null;
-		bool tryInteractiveLogin = false;
+		LoginResult? result = null;
 
 		try
 		{
-			result = await _identityClient
-				.AcquireTokenSilent(AuthenticationConstants.DefaultScopes, accounts.FirstOrDefault())
-				.ExecuteAsync();
-		}
-		catch (MsalUiRequiredException)
-		{
-			tryInteractiveLogin = true;
+			result = await _auth0Client.LoginAsync();
+
+			if (result.IsError)
+			{
+				Debug.WriteLine($"Auth0 Error: {result.Error}");
+				return;
+			}
+
+			_authenticationInfo = new AuthenticationInfo
+			{
+				DisplayName = result.User?.Identity?.Name ?? "",
+				ExpiresOn = result.AccessTokenExpiration,
+				Token = result.AccessToken,
+				UserId = result.User?.FindFirst("sub")?.Value ?? ""
+			};
 		}
 		catch (Exception ex)
 		{
-			Debug.WriteLine($"MSAL Silent Error: {ex.Message}");
+			Debug.WriteLine($"Auth0 Error: {ex.Message}");
 		}
-
-		if (tryInteractiveLogin)
-		{
-			try
-			{
-				result = await _identityClient
-					.AcquireTokenInteractive(AuthenticationConstants.DefaultScopes)
-					.ExecuteAsync();
-			}
-			catch (Exception ex)
-			{
-				Debug.WriteLine($"MSAL Interactive Error: {ex.Message}");
-			}
-		}
-
-		_authenticationInfo = new AuthenticationInfo
-		{
-			DisplayName = result?.Account?.Username ?? "",
-			ExpiresOn = result?.ExpiresOn ?? DateTimeOffset.MinValue,
-			Token = result?.AccessToken ?? "",
-			UserId = result?.Account?.Username ?? ""
-		};
 	}
 
-	[MemberNotNull(nameof(_identityClient))]
-	private async Task EnsureIdentityClientAsync()
+	[MemberNotNull(nameof(_auth0Client))]
+	private void EnsureAuth0Client()
 	{
-		if (_identityClient == null)
+		if (_auth0Client == null)
 		{
-#if __ANDROID__
-			_identityClient = PublicClientApplicationBuilder
-				.Create(AuthenticationConstants.ApplicationId)
-				.WithAuthority(AzureCloudInstance.AzurePublic, AuthenticationConstants.TenantId)
-				.WithRedirectUri($"msal{AuthenticationConstants.ApplicationId}://auth")
-				.WithParentActivityOrWindow(() => ContextHelper.Current)
-				.Build();
+			var options = new Auth0ClientOptions
+			{
+				Domain = AuthenticationConstants.Domain,
+				ClientId = AuthenticationConstants.ClientId,
+				Scope = string.Join(" ", AuthenticationConstants.DefaultScopes),
+				Browser = _browser
+			};
 
-			await Task.CompletedTask;
-#elif __IOS__
-			_identityClient = PublicClientApplicationBuilder
-				.Create(AuthenticationConstants.ApplicationId)
-				.WithAuthority(AzureCloudInstance.AzurePublic, AuthenticationConstants.TenantId)
-				.WithIosKeychainSecurityGroup("com.microsoft.adalcache")
-				.WithRedirectUri($"msal{AuthenticationConstants.ApplicationId}://auth")
-				.Build();
+			// Add audience if needed for API calls
+			if (!string.IsNullOrEmpty(AuthenticationConstants.Audience))
+			{
+				options.Audience = AuthenticationConstants.Audience;
+			}
 
-			await Task.CompletedTask;
-#else
-			_identityClient = PublicClientApplicationBuilder
-				.Create(AuthenticationConstants.ApplicationId)
-				.WithAuthority(AzureCloudInstance.AzurePublic, AuthenticationConstants.TenantId)
-				.WithRedirectUri("http://localhost")
-				.WithUnoHelpers()
-				.Build();
-
-			await AttachTokenCacheAsync();
-#endif
+			_auth0Client = new Auth0Client(options);
 		}
 	}
-
-#if !__ANDROID__ && !__IOS__
-	private async Task AttachTokenCacheAsync()
-	{
-#if !HAS_UNO
-		// Cache configuration and hook-up to public application. Refer to https://github.com/AzureAD/microsoft-authentication-extensions-for-dotnet/wiki/Cross-platform-Token-Cache#configuring-the-token-cache
-		var storageProperties = new StorageCreationPropertiesBuilder("msal.cache", ApplicationData.Current.LocalFolder.Path)
-				.Build();
-
-		var msalcachehelper = await MsalCacheHelper.CreateAsync(storageProperties);
-		msalcachehelper.RegisterCache(_identityClient!.UserTokenCache);
-#else
-		await Task.CompletedTask;
-#endif
-	}
-#endif
 }

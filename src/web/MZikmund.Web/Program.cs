@@ -3,7 +3,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Web;
+using Microsoft.IdentityModel.Tokens;
 using MZikmund.Web.Configuration;
 using MZikmund.Web.Configuration.Connections;
 using MZikmund.Web.Core.Content.Meta;
@@ -53,7 +53,19 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 	});
 
 	services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-		.AddMicrosoftIdentityWebApi(configuration.GetSection("AzureAd"));
+		.AddJwtBearer(options =>
+		{
+			var auth0Config = configuration.GetSection("Auth0");
+			options.Authority = $"https://{auth0Config["Domain"]}";
+			options.Audience = auth0Config["Audience"];
+			options.TokenValidationParameters = new TokenValidationParameters
+			{
+				ValidateIssuer = true,
+				ValidateAudience = true,
+				ValidateLifetime = true,
+				ValidateIssuerSigningKey = true
+			};
+		});
 
 	services.AddLocalization(options => options.ResourcesPath = "Resources");
 
