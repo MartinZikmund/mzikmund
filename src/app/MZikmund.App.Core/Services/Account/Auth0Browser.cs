@@ -1,5 +1,7 @@
+using Auth0.OidcClient;
 using IdentityModel.OidcClient.Browser;
 using System.Diagnostics;
+using Windows.System;
 
 namespace MZikmund.Services.Account;
 
@@ -24,7 +26,7 @@ public class Auth0Browser : IBrowser
 			// 3. Extract the authorization code from the callback
 			// 4. Return it to the Auth0Client for token exchange
 			var uri = new Uri(options.StartUrl);
-			await Launcher.Default.OpenAsync(uri);
+			await Launcher.LaunchUriAsync(uri);
 
 			// IMPORTANT: This simplified implementation returns immediately.
 			// In a real implementation, you would wait for the deep link callback

@@ -1,6 +1,6 @@
 ﻿using Auth0.OidcClient;
-using IdentityModel.OidcClient;
-using IdentityModel.OidcClient.Browser;
+using Duende.IdentityModel.OidcClient;
+using Duende.IdentityModel.OidcClient.Browser;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
@@ -10,11 +10,9 @@ public class UserService : IUserService
 {
 	private Auth0Client? _auth0Client;
 	private AuthenticationInfo? _authenticationInfo;
-	private readonly IBrowser _browser;
 
-	public UserService(IBrowser browser)
+	public UserService()
 	{
-		_browser = browser;
 	}
 
 	public bool IsLoggedIn => _authenticationInfo != null;
@@ -66,9 +64,9 @@ public class UserService : IUserService
 		if (_auth0Client == null)
 		{
 			// Validate that Auth0 configuration is not using placeholder values
-			if (string.IsNullOrEmpty(AuthenticationConstants.Domain) || 
+			if (string.IsNullOrEmpty(AuthenticationConstants.Domain) ||
 				AuthenticationConstants.Domain.Contains("your-auth0-domain") ||
-				string.IsNullOrEmpty(AuthenticationConstants.ClientId) || 
+				string.IsNullOrEmpty(AuthenticationConstants.ClientId) ||
 				AuthenticationConstants.ClientId.Contains("your-auth0-client-id"))
 			{
 				throw new InvalidOperationException(
@@ -82,15 +80,8 @@ public class UserService : IUserService
 				Domain = AuthenticationConstants.Domain,
 				ClientId = AuthenticationConstants.ClientId,
 				Scope = string.Join(" ", AuthenticationConstants.DefaultScopes),
-				Browser = _browser
+				Browser = new WebAuthenticatorBrowser()
 			};
-
-			// Add audience if needed for API calls
-			if (!string.IsNullOrEmpty(AuthenticationConstants.Audience) && 
-				!AuthenticationConstants.Audience.Contains("your-api-identifier"))
-			{
-				options.Audience = AuthenticationConstants.Audience;
-			}
 
 			_auth0Client = new Auth0Client(options);
 		}

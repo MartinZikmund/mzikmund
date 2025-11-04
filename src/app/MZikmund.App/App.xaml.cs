@@ -33,6 +33,7 @@ public partial class MZikmundApp : Application, IApplication
 	{
 		this.InitializeComponent();
 	}
+
 	public Window? MainWindow { get; private set; }
 
 	internal static IHost? Host { get; private set; }
@@ -129,12 +130,7 @@ public partial class MZikmundApp : Application, IApplication
 			throw new InvalidOperationException("API URL is not set in configuration");
 		}
 
-		var client = new HttpClient(new HttpRequestExceptionHandler())
-		{
-			BaseAddress = new Uri(apiUrl)
-		};
-
-		return RestService.For<IMZikmundApi>(client, new RefitSettings()
+		return RestService.For<IMZikmundApi>(apiUrl, new RefitSettings()
 		{
 			AuthorizationHeaderValueGetter = GetTokenAsync
 		});

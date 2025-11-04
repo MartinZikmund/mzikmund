@@ -1,6 +1,6 @@
 [
   {
-    "Name": "API \u002B Windows App",
+    "Name": "API + Windows App",
     "Projects": [
       {
         "Path": "web\\MZikmund.Web\\MZikmund.Web.csproj",
@@ -8,9 +8,9 @@
         "DebugTarget": "https"
       },
       {
-        "Path": "app\\MZikmund.Windows\\MZikmund.Windows.csproj",
+        "Path": "app\\MZikmund.App\\MZikmund.App.csproj",
         "Action": "Start",
-        "DebugTarget": "Packaged"
+        "DebugTarget": "MZikmund.App (WinAppSDK Packaged)"
       }
     ]
   }
