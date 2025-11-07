@@ -1,9 +1,9 @@
 ﻿using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
-using System.Text;
 using System.Text.Json;
+using MZikmund.App.Core.Infrastructure;
 #if WINDOWS
-using Windows.Security.Authentication.Web;
+using Microsoft.Security.Authentication.OAuth;
 using Windows.Security.Cryptography;
 using Windows.Security.Cryptography.Core;
 #endif
@@ -14,9 +14,19 @@ public class UserService : IUserService
 {
 	private AuthenticationInfo? _authenticationInfo;
 	private string? _refreshToken;
+#if WINDOWS
+	private readonly IApplication _application;
+#endif
 
-	public UserService()
+	public UserService(
+#if WINDOWS
+		IApplication application
+#endif
+		)
 	{
+#if WINDOWS
+		_application = application;
+#endif
 	}
 
 	public bool IsLoggedIn => _authenticationInfo != null;
@@ -70,91 +80,106 @@ public class UserService : IUserService
 	private async Task PerformAuthenticationAsync()
 	{
 #if WINDOWS
+		if (_application.MainWindow == null)
+		{
+			throw new InvalidOperationException("Main window is not available");
+		}
+
 		// Use OAuth2Manager on Windows platforms
 		var authority = $"https://{AuthenticationConstants.Domain}";
-		var redirectUri = "https://localhost/callback";
-		
+
+		// Build authorization URL
+		var authUrl = $"{authority}/authorize";
+
 		// Generate PKCE code verifier and challenge
 		var codeVerifier = GenerateCodeVerifier();
 		var codeChallenge = GenerateCodeChallenge(codeVerifier);
 
-		// Build authorization URL
-		var authUrl = $"{authority}/authorize?" +
-			$"client_id={Uri.EscapeDataString(AuthenticationConstants.ClientId)}&" +
-			$"response_type=code&" +
-			$"redirect_uri={Uri.EscapeDataString(redirectUri)}&" +
-			$"scope={Uri.EscapeDataString(string.Join(" ", AuthenticationConstants.DefaultScopes))}&" +
-			$"code_challenge={Uri.EscapeDataString(codeChallenge)}&" +
-			$"code_challenge_method=S256";
+		// Build scope string
+		var scopes = string.Join(" ", AuthenticationConstants.DefaultScopes);
 
-		if (!string.IsNullOrEmpty(AuthenticationConstants.Audience) && 
+		// Create authorization request parameters for Auth0
+		var authRequestParams = AuthRequestParams.CreateForAuthorizationCodeRequest(
+			AuthenticationConstants.ClientId,
+			new Uri("https://localhost/callback"));
+
+		authRequestParams.Scope = scopes;
+		authRequestParams.CodeChallenge = codeChallenge;
+		authRequestParams.CodeChallengeMethod = CodeChallengeMethodKind.S256;
+
+		// Auth0 requires audience parameter
+		if (!string.IsNullOrEmpty(AuthenticationConstants.Audience) &&
 			!AuthenticationConstants.Audience.Contains("your-api-identifier"))
 		{
-			authUrl += $"&audience={Uri.EscapeDataString(AuthenticationConstants.Audience)}";
+			// Create full auth URL with audience parameter
+			authUrl = $"{authUrl}?audience={Uri.EscapeDataString(AuthenticationConstants.Audience)}";
 		}
 
-		var startUri = new Uri(authUrl);
-		var endUri = new Uri(redirectUri);
+		// Get window ID from the main window
+		var windowHandle = WinRT.Interop.WindowNative.GetWindowHandle(_application.MainWindow);
+		var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(windowHandle);
 
-		// Use WebAuthenticationBroker for OAuth2 authentication
-		var result = await WebAuthenticationBroker.AuthenticateAsync(
-			WebAuthenticationOptions.None,
-			startUri,
-			endUri);
+		// Perform OAuth2 authorization
+		var result = await OAuth2Manager.RequestAuthWithParamsAsync(
+			windowId,
+			new Uri(authUrl),
+			authRequestParams);
 
-		if (result.ResponseStatus == WebAuthenticationStatus.Success)
+		if (result.Response != null)
 		{
 			// Extract authorization code from response
-			var responseUri = new Uri(result.ResponseData);
-			var code = ParseQueryString(responseUri.Query, "code");
+			var code = result.Response.Code;
 
 			if (!string.IsNullOrEmpty(code))
 			{
-				// Exchange code for tokens
-				await ExchangeCodeForTokensAsync(code, codeVerifier, redirectUri);
+				// Store code verifier for token exchange
+				await ExchangeCodeForTokensAsync(code, codeVerifier, "https://localhost/callback");
 			}
 		}
-		else if (result.ResponseStatus == WebAuthenticationStatus.UserCancel)
+		else if (result.Failure != null)
 		{
-			Debug.WriteLine("User cancelled authentication");
-		}
-		else
-		{
-			Debug.WriteLine($"Authentication error: {result.ResponseErrorDetail}");
+			if (result.Failure.Error == "user_cancelled")
+			{
+				Debug.WriteLine("User cancelled authentication");
+			}
+			else
+			{
+				Debug.WriteLine($"Authentication error: {result.Failure.Error} - {result.Failure.ErrorDescription}");
+			}
 		}
 #else
-		// For non-Windows platforms, use WebAuthenticator from Uno Platform
-		var authority = $"https://{AuthenticationConstants.Domain}";
-		var redirectUri = "dev.mzikmund.MZikmund.App://callback";
-		
-		// Generate PKCE code verifier and challenge
-		var codeVerifier = GenerateCodeVerifier();
-		var codeChallenge = GenerateCodeChallenge(codeVerifier);
+		//// For non-Windows platforms, use WebAuthenticator from Uno Platform
+		//var authority = $"https://{AuthenticationConstants.Domain}";
+		//var redirectUri = "dev.mzikmund.MZikmund.App://callback";
 
-		// Build authorization URL
-		var authUrl = $"{authority}/authorize?" +
-			$"client_id={Uri.EscapeDataString(AuthenticationConstants.ClientId)}&" +
-			$"response_type=code&" +
-			$"redirect_uri={Uri.EscapeDataString(redirectUri)}&" +
-			$"scope={Uri.EscapeDataString(string.Join(" ", AuthenticationConstants.DefaultScopes))}&" +
-			$"code_challenge={Uri.EscapeDataString(codeChallenge)}&" +
-			$"code_challenge_method=S256";
+		//// Generate PKCE code verifier and challenge
+		//var codeVerifier = GenerateCodeVerifier();
+		//var codeChallenge = GenerateCodeChallenge(codeVerifier);
 
-		if (!string.IsNullOrEmpty(AuthenticationConstants.Audience) && 
-			!AuthenticationConstants.Audience.Contains("your-api-identifier"))
-		{
-			authUrl += $"&audience={Uri.EscapeDataString(AuthenticationConstants.Audience)}";
-		}
+		//// Build authorization URL
+		//var authUrl = $"{authority}/authorize?" +
+		//	$"client_id={Uri.EscapeDataString(AuthenticationConstants.ClientId)}&" +
+		//	$"response_type=code&" +
+		//	$"redirect_uri={Uri.EscapeDataString(redirectUri)}&" +
+		//	$"scope={Uri.EscapeDataString(string.Join(" ", AuthenticationConstants.DefaultScopes))}&" +
+		//	$"code_challenge={Uri.EscapeDataString(codeChallenge)}&" +
+		//	$"code_challenge_method=S256";
 
-		// Use platform WebAuthenticator
-		var result = await WebAuthenticator.Default.AuthenticateAsync(
-			new Uri(authUrl),
-			new Uri(redirectUri));
+		//if (!string.IsNullOrEmpty(AuthenticationConstants.Audience) &&
+		//	!AuthenticationConstants.Audience.Contains("your-api-identifier"))
+		//{
+		//	authUrl += $"&audience={Uri.EscapeDataString(AuthenticationConstants.Audience)}";
+		//}
 
-		if (result?.Properties?.TryGetValue("code", out var code) == true && !string.IsNullOrEmpty(code))
-		{
-			await ExchangeCodeForTokensAsync(code, codeVerifier, redirectUri);
-		}
+		//// Use platform WebAuthenticator
+		//var result = await WebAuthenticator.Default.AuthenticateAsync(
+		//	new Uri(authUrl),
+		//	new Uri(redirectUri));
+
+		//if (result?.Properties?.TryGetValue("code", out var code) == true && !string.IsNullOrEmpty(code))
+		//{
+		//	await ExchangeCodeForTokensAsync(code, codeVerifier, redirectUri);
+		//}
 #endif
 	}
 
@@ -191,13 +216,13 @@ public class UserService : IUserService
 				// Parse JWT to get user info
 				var handler = new JwtSecurityTokenHandler();
 				var token = handler.ReadJwtToken(tokenResponse.access_token);
-				
+
 				var expiresOn = DateTimeOffset.UtcNow.AddSeconds(tokenResponse.expires_in);
-				
+
 				_authenticationInfo = new AuthenticationInfo
 				{
-					DisplayName = token.Claims.FirstOrDefault(c => c.Type == "name")?.Value ?? 
-								  token.Claims.FirstOrDefault(c => c.Type == "email")?.Value ?? 
+					DisplayName = token.Claims.FirstOrDefault(c => c.Type == "name")?.Value ??
+								  token.Claims.FirstOrDefault(c => c.Type == "email")?.Value ??
 								  "User",
 					ExpiresOn = expiresOn,
 					Token = tokenResponse.access_token,
@@ -252,13 +277,13 @@ public class UserService : IUserService
 					// Parse JWT to get user info
 					var handler = new JwtSecurityTokenHandler();
 					var token = handler.ReadJwtToken(tokenResponse.access_token);
-					
+
 					var expiresOn = DateTimeOffset.UtcNow.AddSeconds(tokenResponse.expires_in);
-					
+
 					_authenticationInfo = new AuthenticationInfo
 					{
-						DisplayName = token.Claims.FirstOrDefault(c => c.Type == "name")?.Value ?? 
-									  token.Claims.FirstOrDefault(c => c.Type == "email")?.Value ?? 
+						DisplayName = token.Claims.FirstOrDefault(c => c.Type == "name")?.Value ??
+									  token.Claims.FirstOrDefault(c => c.Type == "email")?.Value ??
 									  "User",
 						ExpiresOn = expiresOn,
 						Token = tokenResponse.access_token,
@@ -282,12 +307,12 @@ public class UserService : IUserService
 		const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
 		var random = new Random();
 		var verifier = new char[128];
-		
+
 		for (int i = 0; i < verifier.Length; i++)
 		{
 			verifier[i] = chars[random.Next(chars.Length)];
 		}
-		
+
 		return new string(verifier);
 	}
 
@@ -299,17 +324,18 @@ public class UserService : IUserService
 		var hashAlgorithm = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha256);
 		var hash = hashAlgorithm.HashData(buffer);
 		var challenge = CryptographicBuffer.EncodeToBase64String(hash);
-		
+
 		// Convert to URL-safe base64
 		return challenge.TrimEnd('=').Replace('+', '-').Replace('/', '_');
 #else
-		// Use standard .NET cryptography
-		using var sha256 = System.Security.Cryptography.SHA256.Create();
-		var hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(codeVerifier));
-		var challenge = Convert.ToBase64String(hash);
-		
-		// Convert to URL-safe base64
-		return challenge.TrimEnd('=').Replace('+', '-').Replace('/', '_');
+		return "";
+		//// Use standard .NET cryptography
+		//using var sha256 = System.Security.Cryptography.SHA256.Create();
+		//var hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(codeVerifier));
+		//var challenge = Convert.ToBase64String(hash);
+
+		//// Convert to URL-safe base64
+		//return challenge.TrimEnd('=').Replace('+', '-').Replace('/', '_');
 #endif
 	}
 
@@ -321,7 +347,7 @@ public class UserService : IUserService
 		}
 
 		// Remove leading '?' if present
-		if (query.StartsWith("?"))
+		if (query.StartsWith('?'))
 		{
 			query = query.Substring(1);
 		}
@@ -339,7 +365,7 @@ public class UserService : IUserService
 		return null;
 	}
 
-	private class TokenResponse
+	private sealed class TokenResponse
 	{
 		public string access_token { get; set; } = "";
 		public string? refresh_token { get; set; }
