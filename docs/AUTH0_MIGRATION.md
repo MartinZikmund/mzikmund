@@ -45,11 +45,13 @@ The application has been migrated from Microsoft Entra ID to Auth0 for authentic
 4. Configure:
    - **Name**: MZikmund App
    - **Allowed Callback URLs**: 
+     - `https://localhost/callback` (Windows - required for OAuth2Manager)
      - `dev.mzikmund.MZikmund.App://callback` (Android/iOS)
-     - `http://localhost/callback` (Desktop/WASM)
    - **Allowed Logout URLs**: 
+     - `https://localhost/logout`
      - `dev.mzikmund.MZikmund.App://logout`
-     - `http://localhost/logout`
+   - **Token Endpoint Authentication Method**: None (for PKCE)
+   - **Grant Types**: Authorization Code, Refresh Token
 5. Note the **Client ID** - you'll need it for the app configuration
 
 ## Configuration
@@ -125,69 +127,52 @@ curl --request GET \
 
 ## Platform-Specific Notes
 
+### Windows
+The Windows implementation uses the **OAuth2Manager API** via `WebAuthenticationBroker` which provides native OAuth2 support:
+- Automatically handles the OAuth flow with a native Windows dialog
+- Uses `https://localhost/callback` as the redirect URI
+- Implements PKCE (Proof Key for Code Exchange) for enhanced security
+- No additional configuration needed beyond Auth0 settings
+
 ### Android
+- Uses Uno Platform's `WebAuthenticator` for OAuth flows
 - Ensure the redirect URI is properly configured in AndroidManifest.xml
 - The format should be: `dev.mzikmund.MZikmund.App://callback`
-- **Note**: The current `Auth0Browser` implementation is simplified. For production, implement proper deep linking to capture OAuth callbacks.
+- Implements PKCE for secure authentication
 
 ### iOS
+- Uses Uno Platform's `WebAuthenticator` for OAuth flows
 - Add URL scheme to Info.plist
 - The format should be: `dev.mzikmund.MZikmund.App`
-- **Note**: The current `Auth0Browser` implementation is simplified. For production, implement proper deep linking to capture OAuth callbacks.
+- Implements PKCE for secure authentication
 
-### Desktop/WASM
-- Uses `http://localhost` for callback
-- **Note**: The current `Auth0Browser` implementation is simplified. For production, implement a local HTTP listener to properly capture OAuth callbacks.
+### Desktop/WASM (non-Windows)
+- Uses Uno Platform's `WebAuthenticator` for OAuth flows
+- Uses custom URL scheme for callback handling
+- Implements PKCE for secure authentication
 
 ## Implementation Notes
 
-### Browser Implementation
+### OAuth2 Authentication Flow
 
-The current `Auth0Browser.cs` implementation is simplified for demonstration purposes. For production use, you should implement proper callback handling:
+The Uno Platform app now uses platform-native OAuth2 APIs:
 
-**Mobile (Android/iOS):**
-1. Register custom URL schemes in platform-specific configuration
-2. Implement deep link handlers in your app
-3. Use `TaskCompletionSource` to wait for the callback
-4. Extract authorization code from the callback URL
-5. Return it to the Auth0Client
+**Windows Platform:**
+- Uses `Windows.Security.Authentication.Web.WebAuthenticationBroker`
+- Provides native Windows authentication experience
+- Automatically handles browser launch and callback
+- Implements PKCE (Proof Key for Code Exchange) as required by Auth0
 
-**Desktop/WASM:**
-1. Start a local HTTP listener (e.g., `HttpListener` on a specific port)
-2. Configure Auth0 callback URL to point to this listener
-3. Wait for the HTTP request with the authorization code
-4. Parse the authorization code from the query string
-5. Return it to the Auth0Client
+**Other Platforms (Android, iOS, Desktop, WASM):**
+- Uses Uno Platform's `WebAuthenticator` API
+- Provides platform-appropriate authentication experiences
+- Implements PKCE for secure token exchange
 
-Example production implementation structure:
-```csharp
-public class ProductionAuth0Browser : IBrowser
-{
-    private TaskCompletionSource<string>? _callbackTcs;
-    
-    public async Task<BrowserResult> InvokeAsync(BrowserOptions options, CancellationToken ct)
-    {
-        _callbackTcs = new TaskCompletionSource<string>();
-        
-        // Start local listener or register deep link handler
-        // Open browser
-        // Wait for callback
-        var callbackUrl = await _callbackTcs.Task;
-        
-        return new BrowserResult 
-        { 
-            ResultType = BrowserResultType.Success,
-            Response = callbackUrl 
-        };
-    }
-    
-    // Method called by deep link handler or HTTP listener
-    public void HandleCallback(string url)
-    {
-        _callbackTcs?.SetResult(url);
-    }
-}
-```
+**Key Features:**
+1. **PKCE Support**: All platforms use PKCE (RFC 7636) for enhanced security
+2. **Refresh Token Support**: Tokens are automatically refreshed when needed
+3. **Token Caching**: Authentication state is maintained in memory during app session
+4. **Platform-Native Experience**: Each platform uses its native authentication mechanisms
 
 
 ## Troubleshooting

@@ -51,10 +51,8 @@
 		<Compile Include="..\MZikmund.App\GlobalUsings.cs" Link="GlobalUsings.cs" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Auth0.OidcClient.MAUI" />
 		<PackageReference Include="Humanizer" />
-		<PackageReference Include="Auth0.OidcClient.Core" />
-		<PackageReference Include="IdentityModel.OidcClient" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\shared\MZikmund.Api\MZikmund.Api.csproj" />

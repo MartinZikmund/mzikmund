@@ -60,9 +60,8 @@
     <PackageVersion Include="Refit" Version="8.0.0" />
     <PackageVersion Include="Refit.Newtonsoft.Json" Version="8.0.0" />
     <PackageVersion Include="Auth0.AspNetCore.Authentication" Version="1.4.1" />
-    <PackageVersion Include="Auth0.OidcClient.Core" Version="4.2.0" />
-    <PackageVersion Include="IdentityModel.OidcClient" Version="6.0.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.3" />
+    <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.2.1" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="9.0.0" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="8.1.1" />
     <!-- Uno -->

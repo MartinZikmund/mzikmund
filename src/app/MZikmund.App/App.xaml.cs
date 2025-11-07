@@ -113,7 +113,6 @@ public partial class MZikmundApp : Application, IApplication
 		services.AddScoped<IDialogService, DialogService>();
 		services.AddScoped<IWindowShellProvider, WindowShellProvider>();
 		services.AddScoped<ITimerFactory, TimerFactory>();
-		services.AddSingleton<IdentityModel.OidcClient.Browser.IBrowser, Auth0Browser>();
 		services.AddSingleton<IUserService, UserService>();
 		services.AddSingleton<IMarkdownConverter, MarkdownConverter>();
 		services.AddSingleton<IPostContentProcessor, PostContentProcessor>();
