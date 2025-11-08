@@ -382,9 +382,17 @@ public class UserService : IUserService
 				}
 			}
 		}
-		catch (Exception ex)
+		catch (HttpRequestException ex)
 		{
-			Debug.WriteLine($"Token refresh failed: {ex.Message}");
+			Debug.WriteLine($"Token refresh failed (HTTP error): {ex.Message}");
+		}
+		catch (TaskCanceledException ex)
+		{
+			Debug.WriteLine($"Token refresh failed (request timed out): {ex.Message}");
+		}
+		catch (JsonException ex)
+		{
+			Debug.WriteLine($"Token refresh failed (JSON error): {ex.Message}");
 		}
 #endif
 
