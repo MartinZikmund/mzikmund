@@ -11,6 +11,6 @@ public interface IUserService
 	string? AccessToken { get; }
 
 	Task AuthenticateAsync();
-	
+
 	Task LogoutAsync();
 }
