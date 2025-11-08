@@ -2,10 +2,10 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
 using MZikmund.App.Core.Infrastructure;
+using MZikmund.Services.Preferences;
+
 #if WINDOWS
 using Microsoft.Security.Authentication.OAuth;
-using Windows.Security.Cryptography;
-using Windows.Security.Cryptography.Core;
 #endif
 
 namespace MZikmund.Services.Account;
@@ -16,17 +16,21 @@ public class UserService : IUserService
 	private string? _refreshToken;
 #if WINDOWS
 	private readonly IApplication _application;
+	private readonly IWindowShell _windowShell;
+	private readonly IAppPreferences _appPreferences;
 #endif
 
 	public UserService(
 #if WINDOWS
-		IApplication application
+		IWindowShell windowShell,
 #endif
+		IAppPreferences appPreferences
 		)
 	{
 #if WINDOWS
-		_application = application;
+		_windowShell = windowShell;
 #endif
+		_appPreferences = appPreferences;
 	}
 
 	public bool IsLoggedIn => _authenticationInfo != null;
@@ -91,21 +95,16 @@ public class UserService : IUserService
 		// Build authorization URL
 		var authUrl = $"{authority}/authorize";
 
-		// Generate PKCE code verifier and challenge
-		var codeVerifier = GenerateCodeVerifier();
-		var codeChallenge = GenerateCodeChallenge(codeVerifier);
-
 		// Build scope string
 		var scopes = string.Join(" ", AuthenticationConstants.DefaultScopes);
 
 		// Create authorization request parameters for Auth0
+		// OAuth2Manager handles PKCE automatically, so we don't need to generate code verifier/challenge
 		var authRequestParams = AuthRequestParams.CreateForAuthorizationCodeRequest(
 			AuthenticationConstants.ClientId,
 			new Uri("mzikmund-app://oauthcallback"));
 
 		authRequestParams.Scope = scopes;
-		authRequestParams.CodeChallenge = codeChallenge;
-		authRequestParams.CodeChallengeMethod = CodeChallengeMethodKind.S256;
 
 		// Auth0 requires audience parameter
 		if (!string.IsNullOrEmpty(AuthenticationConstants.Audience) &&
@@ -120,31 +119,56 @@ public class UserService : IUserService
 		var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(windowHandle);
 
 		// Perform OAuth2 authorization
-		var result = await OAuth2Manager.RequestAuthWithParamsAsync(
+		var authResult = await OAuth2Manager.RequestAuthWithParamsAsync(
 			windowId,
 			new Uri(authUrl),
 			authRequestParams);
 
-		if (result.Response != null)
+		if (authResult.Response != null)
 		{
-			// Extract authorization code from response
-			var code = result.Response.Code;
+			// Use OAuth2Manager to exchange the authorization code for tokens
+			var tokenRequestParams = TokenRequestParams.CreateForAuthorizationCodeRequest(authResult.Response);
 
-			if (!string.IsNullOrEmpty(code))
+			var tokenEndpoint = $"{authority}/oauth/token";
+			var tokenResult = await OAuth2Manager.RequestTokenAsync(
+				new Uri(tokenEndpoint),
+				tokenRequestParams);
+
+			if (tokenResult.Response != null)
 			{
-				// Store code verifier for token exchange
-				await ExchangeCodeForTokensAsync(code, codeVerifier, "mzikmund-app://oauthcallback");
+				var tokenResponse = tokenResult.Response;
+				_refreshToken = tokenResponse.RefreshToken;
+
+				// Parse JWT to get user info
+				var handler = new JwtSecurityTokenHandler();
+				var token = handler.ReadJwtToken(tokenResponse.AccessToken);
+
+				var expiresOn = DateTimeOffset.UtcNow.AddSeconds(tokenResponse.ExpiresIn);
+
+				_authenticationInfo = new AuthenticationInfo
+				{
+					DisplayName = token.Claims.FirstOrDefault(c => c.Type == "name")?.Value ??
+								  token.Claims.FirstOrDefault(c => c.Type == "email")?.Value ??
+								  "User",
+					ExpiresOn = expiresOn,
+					Token = tokenResponse.AccessToken,
+					UserId = token.Claims.FirstOrDefault(c => c.Type == "sub")?.Value ?? ""
+				};
+			}
+			else if (tokenResult.Failure != null)
+			{
+				Debug.WriteLine($"Token exchange failed: {tokenResult.Failure.Error} - {tokenResult.Failure.ErrorDescription}");
 			}
 		}
-		else if (result.Failure != null)
+		else if (authResult.Failure != null)
 		{
-			if (result.Failure.Error == "user_cancelled")
+			if (authResult.Failure.Error == "user_cancelled")
 			{
 				Debug.WriteLine("User cancelled authentication");
 			}
 			else
 			{
-				Debug.WriteLine($"Authentication error: {result.Failure.Error} - {result.Failure.ErrorDescription}");
+				Debug.WriteLine($"Authentication error: {authResult.Failure.Error} - {authResult.Failure.ErrorDescription}");
 			}
 		}
 #else
@@ -183,61 +207,6 @@ public class UserService : IUserService
 #endif
 	}
 
-	private async Task ExchangeCodeForTokensAsync(string code, string codeVerifier, string redirectUri)
-	{
-		var authority = $"https://{AuthenticationConstants.Domain}";
-		var tokenEndpoint = $"{authority}/oauth/token";
-
-		var requestData = new Dictionary<string, string>
-		{
-			{ "grant_type", "authorization_code" },
-			{ "client_id", AuthenticationConstants.ClientId },
-			{ "code", code },
-			{ "redirect_uri", redirectUri },
-			{ "code_verifier", codeVerifier }
-		};
-
-		using var httpClient = new HttpClient();
-		using var request = new HttpRequestMessage(HttpMethod.Post, tokenEndpoint)
-		{
-			Content = new FormUrlEncodedContent(requestData)
-		};
-		// Ensure proper content type header
-		request.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/x-www-form-urlencoded");
-
-		var response = await httpClient.SendAsync(request);
-		var responseContent = await response.Content.ReadAsStringAsync();
-
-		if (response.IsSuccessStatusCode)
-		{
-			var tokenResponse = JsonSerializer.Deserialize<TokenResponse>(responseContent);
-			if (tokenResponse != null)
-			{
-				_refreshToken = tokenResponse.refresh_token;
-
-				// Parse JWT to get user info
-				var handler = new JwtSecurityTokenHandler();
-				var token = handler.ReadJwtToken(tokenResponse.access_token);
-
-				var expiresOn = DateTimeOffset.UtcNow.AddSeconds(tokenResponse.expires_in);
-
-				_authenticationInfo = new AuthenticationInfo
-				{
-					DisplayName = token.Claims.FirstOrDefault(c => c.Type == "name")?.Value ??
-								  token.Claims.FirstOrDefault(c => c.Type == "email")?.Value ??
-								  "User",
-					ExpiresOn = expiresOn,
-					Token = tokenResponse.access_token,
-					UserId = token.Claims.FirstOrDefault(c => c.Type == "sub")?.Value ?? ""
-				};
-			}
-		}
-		else
-		{
-			Debug.WriteLine($"Token exchange failed: {responseContent}");
-		}
-	}
-
 	private async Task<bool> RefreshTokenAsync()
 	{
 		if (string.IsNullOrEmpty(_refreshToken))
@@ -245,6 +214,57 @@ public class UserService : IUserService
 			return false;
 		}
 
+#if WINDOWS
+		// Use OAuth2Manager for token refresh
+		var authority = $"https://{AuthenticationConstants.Domain}";
+		var tokenEndpoint = $"{authority}/oauth/token";
+
+		var tokenRequestParams = TokenRequestParams.CreateForRefreshToken(_refreshToken);
+
+		try
+		{
+			var tokenResult = await OAuth2Manager.RequestTokenAsync(
+				new Uri(tokenEndpoint),
+				tokenRequestParams);
+
+			if (tokenResult.Response != null)
+			{
+				var tokenResponse = tokenResult.Response;
+
+				// Update refresh token if a new one is provided
+				if (!string.IsNullOrEmpty(tokenResponse.RefreshToken))
+				{
+					_refreshToken = tokenResponse.RefreshToken;
+				}
+
+				// Parse JWT to get user info
+				var handler = new JwtSecurityTokenHandler();
+				var token = handler.ReadJwtToken(tokenResponse.AccessToken);
+
+				var expiresOn = DateTimeOffset.UtcNow.AddSeconds(tokenResponse.ExpiresIn);
+
+				_authenticationInfo = new AuthenticationInfo
+				{
+					DisplayName = token.Claims.FirstOrDefault(c => c.Type == "name")?.Value ??
+								  token.Claims.FirstOrDefault(c => c.Type == "email")?.Value ??
+								  "User",
+					ExpiresOn = expiresOn,
+					Token = tokenResponse.AccessToken,
+					UserId = token.Claims.FirstOrDefault(c => c.Type == "sub")?.Value ?? ""
+				};
+
+				return true;
+			}
+			else if (tokenResult.Failure != null)
+			{
+				Debug.WriteLine($"Token refresh failed: {tokenResult.Failure.Error} - {tokenResult.Failure.ErrorDescription}");
+			}
+		}
+		catch (Exception ex)
+		{
+			Debug.WriteLine($"Token refresh failed: {ex.Message}");
+		}
+#else
 		var authority = $"https://{AuthenticationConstants.Domain}";
 		var tokenEndpoint = $"{authority}/oauth/token";
 
@@ -300,73 +320,12 @@ public class UserService : IUserService
 		{
 			Debug.WriteLine($"Token refresh failed: {ex.Message}");
 		}
+#endif
 
 		return false;
 	}
 
-	private string GenerateCodeVerifier()
-	{
-		const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
-		var random = new Random();
-		var verifier = new char[128];
-
-		for (int i = 0; i < verifier.Length; i++)
-		{
-			verifier[i] = chars[random.Next(chars.Length)];
-		}
-
-		return new string(verifier);
-	}
-
-	private string GenerateCodeChallenge(string codeVerifier)
-	{
-#if WINDOWS
-		// Use Windows Cryptography API
-		var buffer = CryptographicBuffer.ConvertStringToBinary(codeVerifier, BinaryStringEncoding.Utf8);
-		var hashAlgorithm = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha256);
-		var hash = hashAlgorithm.HashData(buffer);
-		var challenge = CryptographicBuffer.EncodeToBase64String(hash);
-
-		// Convert to URL-safe base64
-		return challenge.TrimEnd('=').Replace('+', '-').Replace('/', '_');
-#else
-		return "";
-		//// Use standard .NET cryptography
-		//using var sha256 = System.Security.Cryptography.SHA256.Create();
-		//var hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(codeVerifier));
-		//var challenge = Convert.ToBase64String(hash);
-
-		//// Convert to URL-safe base64
-		//return challenge.TrimEnd('=').Replace('+', '-').Replace('/', '_');
-#endif
-	}
-
-	private string? ParseQueryString(string query, string key)
-	{
-		if (string.IsNullOrEmpty(query))
-		{
-			return null;
-		}
-
-		// Remove leading '?' if present
-		if (query.StartsWith('?'))
-		{
-			query = query.Substring(1);
-		}
-
-		var pairs = query.Split('&');
-		foreach (var pair in pairs)
-		{
-			var parts = pair.Split('=');
-			if (parts.Length == 2 && parts[0] == key)
-			{
-				return Uri.UnescapeDataString(parts[1]);
-			}
-		}
-
-		return null;
-	}
-
+#if !WINDOWS
 	private sealed class TokenResponse
 	{
 		public string access_token { get; set; } = "";
@@ -374,4 +333,5 @@ public class UserService : IUserService
 		public int expires_in { get; set; }
 		public string token_type { get; set; } = "";
 	}
+#endif
 }
