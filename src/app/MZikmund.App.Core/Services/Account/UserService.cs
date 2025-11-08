@@ -14,10 +14,9 @@ public class UserService : IUserService
 {
 	private AuthenticationInfo? _authenticationInfo;
 	private string? _refreshToken;
-#if WINDOWS
-	private readonly IApplication _application;
-	private readonly IWindowShell _windowShell;
 	private readonly IAppPreferences _appPreferences;
+#if WINDOWS
+	private readonly IWindowShell _windowShell;
 #endif
 
 	public UserService(
@@ -31,6 +30,9 @@ public class UserService : IUserService
 		_windowShell = windowShell;
 #endif
 		_appPreferences = appPreferences;
+		
+		// Load cached authentication info on initialization
+		LoadCachedAuthentication();
 	}
 
 	public bool IsLoggedIn => _authenticationInfo != null;
@@ -40,6 +42,59 @@ public class UserService : IUserService
 	public bool NeedsRefresh => _authenticationInfo?.ExpiresOn < DateTimeOffset.UtcNow.AddMinutes(-5);
 
 	public string? AccessToken => _authenticationInfo?.Token;
+
+	private void LoadCachedAuthentication()
+	{
+		// Try to restore authentication from cache
+		var accessToken = _appPreferences.AccessToken;
+		var refreshToken = _appPreferences.RefreshToken;
+		var userId = _appPreferences.UserId;
+		var displayName = _appPreferences.DisplayName;
+		var expiresOn = _appPreferences.TokenExpiresOn;
+
+		if (!string.IsNullOrEmpty(accessToken) && 
+			!string.IsNullOrEmpty(userId) && 
+			!string.IsNullOrEmpty(displayName) &&
+			expiresOn.HasValue)
+		{
+			_authenticationInfo = new AuthenticationInfo
+			{
+				Token = accessToken,
+				UserId = userId,
+				DisplayName = displayName,
+				ExpiresOn = expiresOn.Value
+			};
+			
+			_refreshToken = refreshToken;
+			
+			Debug.WriteLine($"Loaded cached authentication for user: {displayName}");
+		}
+	}
+
+	private void SaveAuthenticationToCache()
+	{
+		if (_authenticationInfo != null)
+		{
+			_appPreferences.AccessToken = _authenticationInfo.Token;
+			_appPreferences.UserId = _authenticationInfo.UserId;
+			_appPreferences.DisplayName = _authenticationInfo.DisplayName;
+			_appPreferences.TokenExpiresOn = _authenticationInfo.ExpiresOn;
+			_appPreferences.RefreshToken = _refreshToken;
+			
+			Debug.WriteLine($"Saved authentication to cache for user: {_authenticationInfo.DisplayName}");
+		}
+	}
+
+	private void ClearAuthenticationCache()
+	{
+		_appPreferences.AccessToken = null;
+		_appPreferences.RefreshToken = null;
+		_appPreferences.UserId = null;
+		_appPreferences.DisplayName = null;
+		_appPreferences.TokenExpiresOn = null;
+		
+		Debug.WriteLine("Cleared authentication cache");
+	}
 
 	public async Task AuthenticateAsync()
 	{
@@ -68,6 +123,7 @@ public class UserService : IUserService
 				var refreshed = await RefreshTokenAsync();
 				if (refreshed)
 				{
+					SaveAuthenticationToCache();
 					return;
 				}
 			}
@@ -78,15 +134,17 @@ public class UserService : IUserService
 		catch (Exception ex)
 		{
 			Debug.WriteLine($"Auth0 Error: {ex.Message}");
+			// Clear cache on authentication failure
+			ClearAuthenticationCache();
 		}
 	}
 
 	private async Task PerformAuthenticationAsync()
 	{
 #if WINDOWS
-		if (_application.MainWindow == null)
+		if (_windowShell.XamlRoot == null)
 		{
-			throw new InvalidOperationException("Main window is not available");
+			throw new InvalidOperationException("XamlRoot is not available");
 		}
 
 		// Use OAuth2Manager on Windows platforms
@@ -154,6 +212,9 @@ public class UserService : IUserService
 					Token = tokenResponse.AccessToken,
 					UserId = token.Claims.FirstOrDefault(c => c.Type == "sub")?.Value ?? ""
 				};
+
+				// Save to cache after successful authentication
+				SaveAuthenticationToCache();
 			}
 			else if (tokenResult.Failure != null)
 			{
@@ -323,6 +384,14 @@ public class UserService : IUserService
 #endif
 
 		return false;
+	}
+
+	public void Logout()
+	{
+		_authenticationInfo = null;
+		_refreshToken = null;
+		ClearAuthenticationCache();
+		Debug.WriteLine("User logged out");
 	}
 
 #if !WINDOWS
