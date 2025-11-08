@@ -7,9 +7,6 @@ using Microsoft.UI;
 using MZikmund.Business.Models;
 using Microsoft.Extensions.Options;
 
-
-
-
 #if WINDOWS
 using Microsoft.Security.Authentication.OAuth;
 #endif
