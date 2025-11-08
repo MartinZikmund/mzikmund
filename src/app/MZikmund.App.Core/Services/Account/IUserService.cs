@@ -12,5 +12,5 @@ public interface IUserService
 
 	Task AuthenticateAsync();
 	
-	void Logout();
+	Task LogoutAsync();
 }

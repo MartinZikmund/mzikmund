@@ -172,9 +172,8 @@ public class UserService : IUserService
 			authUrl = $"{authUrl}?audience={Uri.EscapeDataString(AuthenticationConstants.Audience)}";
 		}
 
-		// Get window ID from the main window
-		var windowHandle = WinRT.Interop.WindowNative.GetWindowHandle(_application.MainWindow);
-		var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(windowHandle);
+		// Get window ID from XamlRoot
+		var windowId = _windowShell.XamlRoot.ContentIslandEnvironment.AppWindowId;
 
 		// Perform OAuth2 authorization
 		var authResult = await OAuth2Manager.RequestAuthWithParamsAsync(
@@ -386,12 +385,45 @@ public class UserService : IUserService
 		return false;
 	}
 
-	public void Logout()
+	public async Task LogoutAsync()
 	{
+#if WINDOWS
+		// For Auth0, we should logout by opening the browser to the logout endpoint
+		// This ensures the Auth0 session is properly terminated
+		if (_windowShell.XamlRoot != null && _authenticationInfo != null)
+		{
+			try
+			{
+				var authority = $"https://{AuthenticationConstants.Domain}";
+				var returnTo = Uri.EscapeDataString("mzikmund-app://logout");
+				
+				// Build Auth0 logout URL
+				// See: https://auth0.com/docs/api/authentication#logout
+				var logoutUrl = $"{authority}/v2/logout?" +
+					$"client_id={Uri.EscapeDataString(AuthenticationConstants.ClientId)}&" +
+					$"returnTo={returnTo}";
+
+				// Get window ID from XamlRoot
+				var windowId = _windowShell.XamlRoot.ContentIslandEnvironment.AppWindowId;
+
+				// Open the logout URL in the browser
+				// This will clear the Auth0 session cookies
+				await Windows.System.Launcher.LaunchUriAsync(new Uri(logoutUrl));
+				
+				Debug.WriteLine("Auth0 logout initiated in browser");
+			}
+			catch (Exception ex)
+			{
+				Debug.WriteLine($"Error during Auth0 logout: {ex.Message}");
+			}
+		}
+#endif
+
+		// Clear local authentication state
 		_authenticationInfo = null;
 		_refreshToken = null;
 		ClearAuthenticationCache();
-		Debug.WriteLine("User logged out");
+		Debug.WriteLine("User logged out locally");
 	}
 
 #if !WINDOWS
