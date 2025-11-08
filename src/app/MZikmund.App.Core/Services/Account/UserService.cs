@@ -3,6 +3,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
 using MZikmund.App.Core.Infrastructure;
 using MZikmund.Services.Preferences;
+using Microsoft.UI;
+
+
 
 #if WINDOWS
 using Microsoft.Security.Authentication.OAuth;
@@ -16,21 +19,21 @@ public class UserService : IUserService
 	private string? _refreshToken;
 	private readonly IAppPreferences _appPreferences;
 #if WINDOWS
-	private readonly IWindowShell _windowShell;
+	private readonly IApplication _application;
 #endif
 
 	public UserService(
 #if WINDOWS
-		IWindowShell windowShell,
+		IApplication application,
 #endif
 		IAppPreferences appPreferences
 		)
 	{
 #if WINDOWS
-		_windowShell = windowShell;
+		_application = application;
 #endif
 		_appPreferences = appPreferences;
-		
+
 		// Load cached authentication info on initialization
 		LoadCachedAuthentication();
 	}
@@ -52,8 +55,8 @@ public class UserService : IUserService
 		var displayName = _appPreferences.DisplayName;
 		var expiresOn = _appPreferences.TokenExpiresOn;
 
-		if (!string.IsNullOrEmpty(accessToken) && 
-			!string.IsNullOrEmpty(userId) && 
+		if (!string.IsNullOrEmpty(accessToken) &&
+			!string.IsNullOrEmpty(userId) &&
 			!string.IsNullOrEmpty(displayName) &&
 			expiresOn.HasValue)
 		{
@@ -64,9 +67,9 @@ public class UserService : IUserService
 				DisplayName = displayName,
 				ExpiresOn = expiresOn.Value
 			};
-			
+
 			_refreshToken = refreshToken;
-			
+
 			Debug.WriteLine($"Loaded cached authentication for user: {displayName}");
 		}
 	}
@@ -80,7 +83,7 @@ public class UserService : IUserService
 			_appPreferences.DisplayName = _authenticationInfo.DisplayName;
 			_appPreferences.TokenExpiresOn = _authenticationInfo.ExpiresOn;
 			_appPreferences.RefreshToken = _refreshToken;
-			
+
 			Debug.WriteLine($"Saved authentication to cache for user: {_authenticationInfo.DisplayName}");
 		}
 	}
@@ -92,7 +95,7 @@ public class UserService : IUserService
 		_appPreferences.UserId = null;
 		_appPreferences.DisplayName = null;
 		_appPreferences.TokenExpiresOn = null;
-		
+
 		Debug.WriteLine("Cleared authentication cache");
 	}
 
@@ -142,9 +145,9 @@ public class UserService : IUserService
 	private async Task PerformAuthenticationAsync()
 	{
 #if WINDOWS
-		if (_windowShell.XamlRoot == null)
+		if (_application.MainWindow is null)
 		{
-			throw new InvalidOperationException("XamlRoot is not available");
+			throw new InvalidOperationException("Window is not available");
 		}
 
 		// Use OAuth2Manager on Windows platforms
@@ -172,8 +175,8 @@ public class UserService : IUserService
 			authUrl = $"{authUrl}?audience={Uri.EscapeDataString(AuthenticationConstants.Audience)}";
 		}
 
-		// Get window ID from XamlRoot
-		var windowId = _windowShell.XamlRoot.ContentIslandEnvironment.AppWindowId;
+		// Get window ID
+		var windowId = GetWindowHandle();
 
 		// Perform OAuth2 authorization
 		var authResult = await OAuth2Manager.RequestAuthWithParamsAsync(
@@ -385,31 +388,37 @@ public class UserService : IUserService
 		return false;
 	}
 
+#if WINDOWS
+	private WindowId GetWindowHandle()
+	{
+		var window = _application.MainWindow;
+		var windowHandle = WinRT.Interop.WindowNative.GetWindowHandle(window);
+		return new WindowId((ulong)windowHandle);
+	}
+#endif
+
 	public async Task LogoutAsync()
 	{
 #if WINDOWS
 		// For Auth0, we should logout by opening the browser to the logout endpoint
 		// This ensures the Auth0 session is properly terminated
-		if (_windowShell.XamlRoot != null && _authenticationInfo != null)
+		if (_application.MainWindow != null && _authenticationInfo != null)
 		{
 			try
 			{
 				var authority = $"https://{AuthenticationConstants.Domain}";
 				var returnTo = Uri.EscapeDataString("mzikmund-app://logout");
-				
+
 				// Build Auth0 logout URL
 				// See: https://auth0.com/docs/api/authentication#logout
 				var logoutUrl = $"{authority}/v2/logout?" +
 					$"client_id={Uri.EscapeDataString(AuthenticationConstants.ClientId)}&" +
 					$"returnTo={returnTo}";
 
-				// Get window ID from XamlRoot
-				var windowId = _windowShell.XamlRoot.ContentIslandEnvironment.AppWindowId;
-
 				// Open the logout URL in the browser
 				// This will clear the Auth0 session cookies
 				await Windows.System.Launcher.LaunchUriAsync(new Uri(logoutUrl));
-				
+
 				Debug.WriteLine("Auth0 logout initiated in browser");
 			}
 			catch (Exception ex)
