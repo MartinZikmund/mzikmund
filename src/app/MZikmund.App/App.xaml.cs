@@ -52,6 +52,7 @@ public partial class MZikmundApp : Application, IApplication
 					configBuilder
 						.EmbeddedSource<MZikmundApp>()
 						.Section<AppConfig>()
+						.Section<AuthConfig>()
 				)
 				.UseLocalization()
 				.UseHttp((context, services) => services

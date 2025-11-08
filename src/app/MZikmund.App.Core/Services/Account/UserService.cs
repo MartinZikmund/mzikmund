@@ -4,6 +4,9 @@ using System.Text.Json;
 using MZikmund.App.Core.Infrastructure;
 using MZikmund.Services.Preferences;
 using Microsoft.UI;
+using MZikmund.Business.Models;
+using Microsoft.Extensions.Options;
+
 
 
 
@@ -18,6 +21,7 @@ public class UserService : IUserService
 	private AuthenticationInfo? _authenticationInfo;
 	private string? _refreshToken;
 	private readonly IAppPreferences _appPreferences;
+	private readonly IOptions<AuthConfig> _authConfig;
 #if WINDOWS
 	private readonly IApplication _application;
 #endif
@@ -26,13 +30,14 @@ public class UserService : IUserService
 #if WINDOWS
 		IApplication application,
 #endif
-		IAppPreferences appPreferences
-		)
+		IAppPreferences appPreferences,
+		IOptions<AuthConfig> authConfig)
 	{
 #if WINDOWS
 		_application = application;
 #endif
 		_appPreferences = appPreferences;
+		_authConfig = authConfig;
 
 		// Load cached authentication info on initialization
 		LoadCachedAuthentication();
@@ -107,10 +112,8 @@ public class UserService : IUserService
 		}
 
 		// Validate that Auth0 configuration is not using placeholder values
-		if (string.IsNullOrEmpty(AuthenticationConstants.Domain) ||
-			AuthenticationConstants.Domain.Contains("your-auth0-domain") ||
-			string.IsNullOrEmpty(AuthenticationConstants.ClientId) ||
-			AuthenticationConstants.ClientId.Contains("your-auth0-client-id"))
+		if (string.IsNullOrEmpty(_authConfig.Value.ClientId) ||
+			_authConfig.Value.ClientId.Contains("your-auth0-client-id"))
 		{
 			throw new InvalidOperationException(
 				"Auth0 configuration is not set or contains placeholder values. " +
@@ -162,7 +165,7 @@ public class UserService : IUserService
 		// Create authorization request parameters for Auth0
 		// OAuth2Manager handles PKCE automatically, so we don't need to generate code verifier/challenge
 		var authRequestParams = AuthRequestParams.CreateForAuthorizationCodeRequest(
-			AuthenticationConstants.ClientId,
+			_authConfig.Value.ClientId,
 			new Uri("mzikmund-app://oauthcallback"));
 
 		authRequestParams.Scope = scopes;
@@ -334,7 +337,7 @@ public class UserService : IUserService
 		var requestData = new Dictionary<string, string>
 		{
 			{ "grant_type", "refresh_token" },
-			{ "client_id", AuthenticationConstants.ClientId },
+			{ "client_id", _authConfig.Value.ClientId },
 			{ "refresh_token", _refreshToken }
 		};
 
@@ -412,7 +415,7 @@ public class UserService : IUserService
 				// Build Auth0 logout URL
 				// See: https://auth0.com/docs/api/authentication#logout
 				var logoutUrl = $"{authority}/v2/logout?" +
-					$"client_id={Uri.EscapeDataString(AuthenticationConstants.ClientId)}&" +
+					$"client_id={Uri.EscapeDataString(_authConfig.Value.ClientId)}&" +
 					$"returnTo={returnTo}";
 
 				// Open the logout URL in the browser
