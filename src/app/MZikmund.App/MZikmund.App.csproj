@@ -24,6 +24,7 @@
 		<!-- Package Description -->
 		<Description>MZikmund.App powered by Uno Platform.</Description>
 		<GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
+		<StartupObject>MZikmund.App.MZikmundProgram</StartupObject>
 		<!--
       UnoFeatures let's you quickly add and manage implicit package references based on the features you want to use.
       https://aka.platform.uno/singleproject-features

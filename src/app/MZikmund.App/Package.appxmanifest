@@ -35,6 +35,14 @@
 				<uap:SplashScreen />
 				<uap:DefaultTile/>
 			</uap:VisualElements>
+			<Extensions>
+				<uap:Extension Category="windows.protocol">
+					<uap:Protocol Name="mzikmund-app">
+						<uap:Logo>Images\StoreLogo.png</uap:Logo>
+						<uap:DisplayName>MZikmund app scheme</uap:DisplayName>
+					</uap:Protocol>
+				</uap:Extension>
+			</Extensions>
 		</Application>
 	</Applications>
 

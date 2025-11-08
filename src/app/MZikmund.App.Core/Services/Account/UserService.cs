@@ -101,7 +101,7 @@ public class UserService : IUserService
 		// Create authorization request parameters for Auth0
 		var authRequestParams = AuthRequestParams.CreateForAuthorizationCodeRequest(
 			AuthenticationConstants.ClientId,
-			new Uri("https://localhost/callback"));
+			new Uri("mzikmund-app://oauthcallback"));
 
 		authRequestParams.Scope = scopes;
 		authRequestParams.CodeChallenge = codeChallenge;
@@ -133,7 +133,7 @@ public class UserService : IUserService
 			if (!string.IsNullOrEmpty(code))
 			{
 				// Store code verifier for token exchange
-				await ExchangeCodeForTokensAsync(code, codeVerifier, "https://localhost/callback");
+				await ExchangeCodeForTokensAsync(code, codeVerifier, "mzikmund-app://oauthcallback");
 			}
 		}
 		else if (result.Failure != null)
@@ -202,6 +202,8 @@ public class UserService : IUserService
 		{
 			Content = new FormUrlEncodedContent(requestData)
 		};
+		// Ensure proper content type header
+		request.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/x-www-form-urlencoded");
 
 		var response = await httpClient.SendAsync(request);
 		var responseContent = await response.Content.ReadAsStringAsync();

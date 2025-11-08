@@ -1,5 +1,7 @@
+using System.Diagnostics;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.Security.Authentication.OAuth;
 using MZikmund.Api.Client;
 using MZikmund.Api.Handlers;
 using MZikmund.App.Core.Infrastructure;
@@ -216,5 +218,14 @@ public partial class MZikmundApp : Application, IApplication
 		global::Uno.UI.Adapter.Microsoft.Extensions.Logging.LoggingAdapter.Initialize();
 #endif
 #endif
+	}
+
+	internal void OnUriCallback(Uri uri)
+	{
+		if (!OAuth2Manager.CompleteAuthRequest(uri))
+		{
+			// The response is either invalid or does not correspond to any pending auth requests.
+		}
+		Debug.WriteLine($"responseUri: {uri}");
 	}
 }
