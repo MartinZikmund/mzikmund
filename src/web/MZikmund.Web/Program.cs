@@ -3,7 +3,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Web;
+using Microsoft.IdentityModel.Tokens;
 using MZikmund.Web.Configuration;
 using MZikmund.Web.Configuration.Connections;
 using MZikmund.Web.Core.Content.Meta;
@@ -53,7 +53,43 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 	});
 
 	services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-		.AddMicrosoftIdentityWebApi(configuration.GetSection("AzureAd"));
+		.AddJwtBearer(options =>
+		{
+			var auth0Config = configuration.GetSection("Auth0");
+			var domain = auth0Config["Domain"];
+			var audience = auth0Config["Audience"];
+
+			// Validate that Auth0 configuration is not using placeholder values
+			if (string.IsNullOrEmpty(domain) || domain.Contains("your-auth0-domain") ||
+				string.IsNullOrEmpty(audience) || audience.Contains("your-api-identifier"))
+			{
+				throw new InvalidOperationException(
+					"Auth0 configuration is not set or contains placeholder values. " +
+					"Please configure Auth0:Domain and Auth0:Audience in appsettings.json, " +
+					"User Secrets, or environment variables. See docs/AUTH0_MIGRATION.md for details.");
+			}
+
+			options.Authority = $"https://{domain}";
+			options.Audience = audience;
+			options.TokenValidationParameters = new TokenValidationParameters
+			{
+				ValidateIssuer = true,
+				ValidateAudience = true,
+				ValidateLifetime = true,
+				ValidateIssuerSigningKey = true
+			};
+		});
+
+	// Add authorization policies
+	services.AddAuthorization(options =>
+	{
+		options.AddPolicy("AdminPolicy", policy =>
+		{
+			policy.RequireAuthenticatedUser();
+			// Check for "admin:all" permission in the permissions claim
+			policy.RequireClaim("permissions", "admin:all");
+		});
+	});
 
 	services.AddLocalization(options => options.ResourcesPath = "Resources");
 

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MZikmund.Api.Client;
@@ -33,6 +34,7 @@ public partial class MZikmundApp : Application, IApplication
 	{
 		this.InitializeComponent();
 	}
+
 	public Window? MainWindow { get; private set; }
 
 	internal static IHost? Host { get; private set; }
@@ -49,6 +51,7 @@ public partial class MZikmundApp : Application, IApplication
 					configBuilder
 						.EmbeddedSource<MZikmundApp>()
 						.Section<AppConfig>()
+						.Section<AuthConfig>()
 				)
 				.UseLocalization()
 				.UseHttp((context, services) => services
@@ -128,12 +131,7 @@ public partial class MZikmundApp : Application, IApplication
 			throw new InvalidOperationException("API URL is not set in configuration");
 		}
 
-		var client = new HttpClient(new HttpRequestExceptionHandler())
-		{
-			BaseAddress = new Uri(apiUrl)
-		};
-
-		return RestService.For<IMZikmundApi>(client, new RefitSettings()
+		return RestService.For<IMZikmundApi>(apiUrl, new RefitSettings()
 		{
 			AuthorizationHeaderValueGetter = GetTokenAsync
 		});
@@ -221,4 +219,14 @@ public partial class MZikmundApp : Application, IApplication
 #endif
 #endif
 	}
+
+#if WINDOWS
+	internal void OnUriCallback(Uri uri)
+	{
+		if (!Microsoft.Security.Authentication.OAuth.OAuth2Manager.CompleteAuthRequest(uri))
+		{
+			this.Log().LogError("Could not authenticate");
+		}
+	}
+#endif
 }

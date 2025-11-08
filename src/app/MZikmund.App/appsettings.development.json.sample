@@ -3,8 +3,7 @@
 		"Environment": "Development",
 		"ApiUrl": "https://localhost:7007/api"
 	},
-	"ApiClient": {
-		"Url": "https://localhost:7007",
-		"UseNativeHandler": true
+	"AuthConfig": {
+		"ClientId": "your-auth0-client-id"
 	}
 }

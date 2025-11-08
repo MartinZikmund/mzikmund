@@ -1,6 +1,7 @@
 <Project ToolsVersion="15.0">
   <ItemGroup>
     <!-- Web -->
+    <PackageVersion Include="Auth0.OidcClient.MAUI" Version="1.4.0" />
     <PackageVersion Include="AutoMapper" Version="14.0.0" />
     <PackageVersion Include="Azure.Storage.Blobs" Version="12.24.0" />
     <PackageVersion Include="Betalgo.OpenAI" Version="8.7.2" />
@@ -58,10 +59,10 @@
     </PackageVersion>
     <PackageVersion Include="Refit" Version="8.0.0" />
     <PackageVersion Include="Refit.Newtonsoft.Json" Version="8.0.0" />
+    <PackageVersion Include="Auth0.AspNetCore.Authentication" Version="1.4.1" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.3" />
+    <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.2.1" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="9.0.0" />
-    <PackageVersion Include="Microsoft.Identity.Web" Version="3.8.3" />
-    <PackageVersion Include="Microsoft.Identity.Web.DownstreamApi" Version="3.7.1" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="8.1.1" />
     <!-- Uno -->
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="9.0.4" />

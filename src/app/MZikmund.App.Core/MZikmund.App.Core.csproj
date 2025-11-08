@@ -27,7 +27,6 @@
 			Mvvm;
 			Lottie;
 			Navigation;
-			AuthenticationMsal;
 			Localization;
 			ThemeService;
 			SkiaRenderer;
@@ -53,6 +52,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Humanizer" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\shared\MZikmund.Api\MZikmund.Api.csproj" />

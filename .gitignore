@@ -355,3 +355,4 @@ src/web/MZikmund.Web/wwwroot/js
 solution-config.props
 # Publish Profiles
 !**/Properties/PublishProfiles/*.pubxml
+/src/app/MZikmund.App/appsettings.development.json

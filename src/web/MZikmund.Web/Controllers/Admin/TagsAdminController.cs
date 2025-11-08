@@ -10,7 +10,7 @@ namespace MZikmund.Web.Controllers.Admin;
 /// Represents admin operations for blog tags.
 /// </summary>
 [ApiController]
-[Authorize]
+[Authorize(Policy = "AdminPolicy")]
 [Route("api/v1/admin/tags")]
 public class TagsAdminController : Controller
 {

@@ -7,7 +7,6 @@
 			net9.0-desktop;
 			net9.0-windows10.0.26100;
 		</TargetFrameworks>
-		<!--net9.0-maccatalyst; net9.0-desktop;-->
 
 		<OutputType>Exe</OutputType>
 		<UnoSingleProject>true</UnoSingleProject>
@@ -36,7 +35,6 @@
 			Mvvm;
 			Lottie;
 			Navigation;
-			AuthenticationMsal;
 			Localization;
 			ThemeService;
 			SkiaRenderer;
@@ -44,6 +42,8 @@
 	</PropertyGroup>
 	
 	<PropertyGroup Condition="'$(TargetFramework)'=='net9.0-windows10.0.26100'">
+		<StartupObject>MZikmund.App.MZikmundProgram</StartupObject>
+
 		<!-- Workaround for https://github.com/unoplatform/uno/issues/18552 -->
 		<PlatformTarget Condition=" '$(PlatformTarget)' == '' AND $(Platform) == 'AnyCPU' AND '$(NETCoreSdkRuntimeIdentifier)' == 'win-x86'">x86</PlatformTarget>
 		<PlatformTarget Condition=" '$(PlatformTarget)' == '' AND $(Platform) == 'AnyCPU' AND '$(NETCoreSdkRuntimeIdentifier)' == 'win-x64'">x64</PlatformTarget>
