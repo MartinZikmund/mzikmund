@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace MZikmund.Web.Controllers;
 
 [ApiController]
-[Authorize]
+[Authorize(Policy = "AdminPolicy")]
 [Route("api/v1/test")]
 public class TestController
 {

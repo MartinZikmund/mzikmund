@@ -80,6 +80,17 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 			};
 		});
 
+	// Add authorization policies
+	services.AddAuthorization(options =>
+	{
+		options.AddPolicy("AdminPolicy", policy =>
+		{
+			policy.RequireAuthenticatedUser();
+			// Check for "admin:all" permission in the permissions claim
+			policy.RequireClaim("permissions", "admin:all");
+		});
+	});
+
 	services.AddLocalization(options => options.ResourcesPath = "Resources");
 
 	services.AddControllers()

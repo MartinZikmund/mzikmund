@@ -10,7 +10,7 @@ namespace MZikmund.Web.Controllers.Admin;
 /// Represents admin operations for blog posts.
 /// </summary>
 [ApiController]
-[Authorize]
+[Authorize(Policy = "AdminPolicy")]
 [Route("api/v1/admin/posts")]
 public class PostsAdminController : Controller
 {

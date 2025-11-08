@@ -10,7 +10,7 @@ namespace MZikmund.Web.Controllers.Admin;
 /// Represents admin operations for blog categories.
 /// </summary>
 [ApiController]
-[Authorize]
+[Authorize(Policy = "AdminPolicy")]
 [Route("api/v1/admin/categories")]
 public class CategoriesAdminController : Controller
 {
