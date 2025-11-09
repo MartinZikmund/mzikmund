@@ -50,6 +50,9 @@ public partial class PostEditorViewModel : PageViewModel
 	public partial string HtmlPreview { get; set; } = "";
 
 	[ObservableProperty]
+	public partial int CaretPosition { get; set; } = 0;
+
+	[ObservableProperty]
 	[NotifyPropertyChangedFor(nameof(CategoriesText))]
 	public partial Category[] Categories { get; set; } = Array.Empty<Category>();
 
@@ -65,6 +68,11 @@ public partial class PostEditorViewModel : PageViewModel
 	}
 
 	partial void OnPostContentChanged(string value)
+	{
+		_isPreviewDirty = true;
+	}
+
+	partial void OnCaretPositionChanged(int value)
 	{
 		_isPreviewDirty = true;
 	}
@@ -166,7 +174,7 @@ public partial class PostEditorViewModel : PageViewModel
 			try
 			{
 				_isPreviewDirty = false;
-				HtmlPreview = await _postContentProcessor.ProcessAsync(PostContent);
+				HtmlPreview = await _postContentProcessor.ProcessAsync(PostContent, CaretPosition);
 			}
 			finally
 			{
