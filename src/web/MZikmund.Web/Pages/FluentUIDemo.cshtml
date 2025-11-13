@@ -1,0 +1,206 @@
+@page
+@model FluentUIDemoModel
+@{
+    ViewData["Title"] = "Fluent UI Web Components Demo";
+}
+
+<div class="container">
+    <h1 class="display-4 mb-4">Fluent UI Web Components Demo</h1>
+    <p class="lead mb-5">This page demonstrates various Fluent UI Web Components integrated into the website.</p>
+
+    <div class="row mb-5">
+        <div class="col-md-6">
+            <h2>Buttons</h2>
+            <div class="d-flex gap-2 mb-3">
+                <fluent-button appearance="accent">Accent Button</fluent-button>
+                <fluent-button appearance="neutral">Neutral Button</fluent-button>
+                <fluent-button appearance="outline">Outline Button</fluent-button>
+                <fluent-button appearance="stealth">Stealth Button</fluent-button>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <h2>Text Input</h2>
+            <fluent-text-field placeholder="Enter your name" class="mb-3">Name</fluent-text-field>
+            <fluent-text-area placeholder="Enter a description" class="mb-3">Description</fluent-text-area>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-md-6">
+            <h2>Checkbox and Radio</h2>
+            <fluent-checkbox checked>Subscribe to newsletter</fluent-checkbox>
+            <fluent-checkbox>Accept terms and conditions</fluent-checkbox>
+            
+            <div class="mt-3">
+                <fluent-radio-group orientation="vertical">
+                    <label slot="label">Choose an option</label>
+                    <fluent-radio value="1">Option 1</fluent-radio>
+                    <fluent-radio value="2">Option 2</fluent-radio>
+                    <fluent-radio value="3">Option 3</fluent-radio>
+                </fluent-radio-group>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <h2>Switch</h2>
+            <fluent-switch checked>Enable notifications</fluent-switch>
+            <fluent-switch>Dark mode</fluent-switch>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-md-6">
+            <h2>Slider</h2>
+            <fluent-slider min="0" max="100" value="50">Volume</fluent-slider>
+        </div>
+        
+        <div class="col-md-6">
+            <h2>Progress</h2>
+            <fluent-progress value="65" max="100"></fluent-progress>
+            <p class="mt-2">Progress: 65%</p>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-md-6">
+            <h2>Select/Combobox</h2>
+            <fluent-select>
+                <fluent-option>Select an option</fluent-option>
+                <fluent-option value="1">Option 1</fluent-option>
+                <fluent-option value="2">Option 2</fluent-option>
+                <fluent-option value="3">Option 3</fluent-option>
+            </fluent-select>
+        </div>
+        
+        <div class="col-md-6">
+            <h2>Badge</h2>
+            <div class="d-flex gap-2">
+                <fluent-badge appearance="accent">Accent</fluent-badge>
+                <fluent-badge appearance="lightweight">Lightweight</fluent-badge>
+                <fluent-badge appearance="neutral">Neutral</fluent-badge>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-md-12">
+            <h2>Cards</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <fluent-card>
+                        <h3>Card Title 1</h3>
+                        <p>This is a Fluent UI card component with some content inside it.</p>
+                        <fluent-button appearance="accent">Learn More</fluent-button>
+                    </fluent-card>
+                </div>
+                <div class="col-md-4">
+                    <fluent-card>
+                        <h3>Card Title 2</h3>
+                        <p>Another card demonstrating the flexible layout capabilities.</p>
+                        <fluent-button appearance="neutral">Explore</fluent-button>
+                    </fluent-card>
+                </div>
+                <div class="col-md-4">
+                    <fluent-card>
+                        <h3>Card Title 3</h3>
+                        <p>Cards can contain any content you need for your application.</p>
+                        <fluent-button appearance="outline">Read More</fluent-button>
+                    </fluent-card>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-md-12">
+            <h2>Accordion</h2>
+            <fluent-accordion>
+                <fluent-accordion-item expanded>
+                    <span slot="heading">Section 1</span>
+                    <div>
+                        This is the content of section 1. It can contain any HTML or Fluent UI components.
+                    </div>
+                </fluent-accordion-item>
+                <fluent-accordion-item>
+                    <span slot="heading">Section 2</span>
+                    <div>
+                        This is the content of section 2 with different information.
+                    </div>
+                </fluent-accordion-item>
+                <fluent-accordion-item>
+                    <span slot="heading">Section 3</span>
+                    <div>
+                        This is the content of section 3 with even more details.
+                    </div>
+                </fluent-accordion-item>
+            </fluent-accordion>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-md-12">
+            <h2>Tabs</h2>
+            <fluent-tabs>
+                <fluent-tab id="tab-1">Tab One</fluent-tab>
+                <fluent-tab id="tab-2">Tab Two</fluent-tab>
+                <fluent-tab id="tab-3">Tab Three</fluent-tab>
+                <fluent-tab-panel id="panel-1">
+                    <p>Content for Tab One. This demonstrates the Fluent UI tabs component.</p>
+                </fluent-tab-panel>
+                <fluent-tab-panel id="panel-2">
+                    <p>Content for Tab Two. Switch between tabs to see different content.</p>
+                </fluent-tab-panel>
+                <fluent-tab-panel id="panel-3">
+                    <p>Content for Tab Three. Tabs are great for organizing related content.</p>
+                </fluent-tab-panel>
+            </fluent-tabs>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-md-12">
+            <h2>Dialog/Modal</h2>
+            <fluent-button id="open-dialog-btn" appearance="accent">Open Dialog</fluent-button>
+            <fluent-dialog id="demo-dialog" hidden>
+                <h3>Dialog Title</h3>
+                <p>This is a Fluent UI dialog component. It can contain forms, messages, or any other content.</p>
+                <div class="d-flex gap-2 mt-3">
+                    <fluent-button id="confirm-btn" appearance="accent">Confirm</fluent-button>
+                    <fluent-button id="cancel-btn" appearance="neutral">Cancel</fluent-button>
+                </div>
+            </fluent-dialog>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Dialog interaction
+        document.addEventListener('DOMContentLoaded', function() {
+            const openBtn = document.getElementById('open-dialog-btn');
+            const dialog = document.getElementById('demo-dialog');
+            const confirmBtn = document.getElementById('confirm-btn');
+            const cancelBtn = document.getElementById('cancel-btn');
+            
+            if (openBtn && dialog) {
+                openBtn.addEventListener('click', () => {
+                    dialog.removeAttribute('hidden');
+                });
+            }
+            
+            if (confirmBtn && dialog) {
+                confirmBtn.addEventListener('click', () => {
+                    dialog.setAttribute('hidden', '');
+                    alert('Confirmed!');
+                });
+            }
+            
+            if (cancelBtn && dialog) {
+                cancelBtn.addEventListener('click', () => {
+                    dialog.setAttribute('hidden', '');
+                });
+            }
+        });
+    </script>
+}

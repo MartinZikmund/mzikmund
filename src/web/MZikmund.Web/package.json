@@ -3,13 +3,14 @@
 	"name": "asp.net",
 	"private": true,
 	"dependencies": {
+		"@fluentui/web-components": "^2.6.1",
 		"bootstrap": "5.3.3"
 	},
 	"devDependencies": {
 		"@types/node": "22.7.7",
 		"eslint": "9.8.0",
-		"ts-loader": "9.5.1",
 		"sass": "1.77.8",
-		"sass-loader": "16.0.0"
+		"sass-loader": "16.0.0",
+		"ts-loader": "9.5.1"
 	}
 }
