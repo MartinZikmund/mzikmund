@@ -1,0 +1,72 @@
+@page
+@model ContactModel
+@{
+    ViewData["Title"] = "Contact";
+}
+
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <h1 class="display-4 text-center text-primary mb-4">@ViewData["Title"]</h1>
+        
+        @if (Model.ShowSuccessMessage)
+        {
+            <div class="alert alert-success" role="alert">
+                <h4 class="alert-heading">Thank you!</h4>
+                <p>Your message has been sent successfully. I'll get back to you as soon as possible.</p>
+            </div>
+        }
+        
+        <div class="card shadow">
+            <div class="card-body">
+                <p class="lead text-center mb-4">
+                    Have a question or want to get in touch? I'd love to hear from you!
+                </p>
+                
+                <form method="post">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="Form.Name" class="form-label"></label>
+                            <input asp-for="Form.Name" class="form-control" placeholder="Your full name" />
+                            <span asp-validation-for="Form.Name" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Form.Email" class="form-label"></label>
+                            <input asp-for="Form.Email" class="form-control" placeholder="your.email@example.com" />
+                            <span asp-validation-for="Form.Email" class="text-danger"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Form.Subject" class="form-label"></label>
+                        <input asp-for="Form.Subject" class="form-control" placeholder="What's this about?" />
+                        <span asp-validation-for="Form.Subject" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label asp-for="Form.Message" class="form-label"></label>
+                        <textarea asp-for="Form.Message" class="form-control" rows="5" placeholder="Your message..."></textarea>
+                        <span asp-validation-for="Form.Message" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fa fa-paper-plane me-2"></i>Send Message
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4">
+            <p class="text-muted">
+                You can also reach me on social media:
+            </p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="https://github.com/MartinZikmund/" class="btn btn-outline-secondary btn-sm">GitHub</a>
+                <a href="https://x.com/mzikmunddev/" class="btn btn-outline-secondary btn-sm">Twitter</a>
+                <a href="https://www.youtube.com/@@mzikmund" class="btn btn-outline-secondary btn-sm">YouTube</a>
+                <a href="https://facebook.com/mzikmunddev/" class="btn btn-outline-secondary btn-sm">Facebook</a>
+            </div>
+        </div>
+    </div>
+</div>
