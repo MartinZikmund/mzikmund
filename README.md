@@ -120,16 +120,16 @@ To run the Uno Platform application:
 cd src/app/MZikmund.App
 
 # For WebAssembly
-dotnet run -f net9.0-browserwasm
+dotnet run -f net10.0-browserwasm
 
 # For Windows
-dotnet run -f net9.0-windows10.0.26100
+dotnet run -f net10.0-windows10.0.26100
 
 # For Android (requires Android emulator or device)
-dotnet run -f net9.0-android
+dotnet run -f net10.0-android
 
 # For iOS (requires Mac with Xcode)
-dotnet run -f net9.0-ios
+dotnet run -f net10.0-ios
 ```
 
 Alternatively, open the solution in Visual Studio and select the desired target framework and platform.
@@ -157,7 +157,7 @@ dotnet build -c Release
 
 ```bash
 cd src/app/MZikmund.App
-dotnet build -f net9.0-browserwasm -c Release
+dotnet build -f net10.0-browserwasm -c Release
 ```
 
 ## 🧪 Running Tests
