@@ -18,6 +18,15 @@ public sealed partial class PostEditorView : PostEditorViewBase
 		PreviewWebViewContainer.Content = _previewWebView = new WebView2();
 		this.Loaded += PostEditorView_Loaded;
 		this.Unloaded += PostEditorView_Unloaded;
+		ContentTextBox.SelectionChanged += ContentTextBox_SelectionChanged;
+	}
+
+	private void ContentTextBox_SelectionChanged(object sender, RoutedEventArgs e)
+	{
+		if (ViewModel != null)
+		{
+			ViewModel.CaretPosition = ContentTextBox.SelectionStart;
+		}
 	}
 
 	private void PostEditorView_Unloaded(object sender, RoutedEventArgs e)
