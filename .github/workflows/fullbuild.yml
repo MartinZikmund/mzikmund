@@ -4,8 +4,7 @@ env:
   STEP_TIMEOUT_MINUTES: 60
   DOTNET_VERSION: 10.0.x
   SOLUTION_FILE: src/MZikmund.slnx
-  
-  STEP_TIMEOUT_MINUTES: 60
+
 on:
   push:
     branches:
