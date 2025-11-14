@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Uno.Sdk">
 	<PropertyGroup>
 		<TargetFrameworks>
-			net9.0-android;
-			net9.0-ios;
-			net9.0-browserwasm;
-			net9.0-desktop;
-			net9.0-windows10.0.26100;
+			net10.0-android;
+			net10.0-ios;
+			net10.0-browserwasm;
+			net10.0-desktop;
+			net10.0-windows10.0.26100;
 		</TargetFrameworks>
 
 		<OutputType>Exe</OutputType>
@@ -41,7 +41,7 @@
 		</UnoFeatures>
 	</PropertyGroup>
 	
-	<PropertyGroup Condition="'$(TargetFramework)'=='net9.0-windows10.0.26100'">
+	<PropertyGroup Condition="'$(TargetFramework)'=='net10.0-windows10.0.26100'">
 		<StartupObject>MZikmund.App.MZikmundProgram</StartupObject>
 
 		<!-- Workaround for https://github.com/unoplatform/uno/issues/18552 -->

@@ -29,12 +29,12 @@ jobs:
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v4.2.0
         with:
-          dotnet-version: 9.x
+          dotnet-version: 10.x
       - run: |
           cd src/app/MZikmund.App
           dotnet workload restore
           dotnet workload install wasm-tools
-          dotnet publish -c Release -f net9.0-browserwasm
+          dotnet publish -c Release -f net10.0-browserwasm
       - name: Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
@@ -45,7 +45,7 @@ jobs:
           action: "upload"
           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
-          app_location: "src/app/MZikmund.App/bin/Release/net9.0-browserwasm/publish/wwwroot" # App source code path
+          app_location: "src/app/MZikmund.App/bin/Release/net10.0-browserwasm/publish/wwwroot" # App source code path
           ###### End of Repository/Build Configurations ######
 
   close_pull_request_job:
@@ -59,4 +59,4 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURESTATICWEBAPPSDEPLOYMENTTOKEN }}
           action: "close"
-          app_location: "src/app/MZikmund.App/bin/Release/net9.0-browserwasm/publish/wwwroot"
+          app_location: "src/app/MZikmund.App/bin/Release/net10.0-browserwasm/publish/wwwroot"

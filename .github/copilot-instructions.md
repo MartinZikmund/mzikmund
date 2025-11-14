@@ -6,7 +6,7 @@ This is Martin Zikmund's personal website and blog, built as a multi-platform so
 ## Architecture & Technology Stack
 
 ### Core Technologies
-- **.NET 9** - Latest version with preview language features enabled
+- **.NET 10** - Latest version with preview language features enabled
 - **ASP.NET Core** - Web application framework
 - **Uno Platform** - Cross-platform UI framework for mobile/desktop apps
 - **Entity Framework Core** - Data access layer
@@ -97,7 +97,7 @@ This is Martin Zikmund's personal website and blog, built as a multi-platform so
 ## Build & Deployment
 
 ### Local Development
-- Ensure .NET 9 SDK is installed
+- Ensure .NET 10 SDK is installed
 - Use `dotnet restore` to restore packages
 - Use `dotnet build` to build the solution
 - Use `dotnet run` for local development
@@ -165,7 +165,7 @@ This is Martin Zikmund's personal website and blog, built as a multi-platform so
 ## Troubleshooting
 
 ### Common Issues
-- **Build Errors**: Check .NET 9 SDK installation and version compatibility
+- **Build Errors**: Check .NET 10 SDK installation and version compatibility
 - **Package Issues**: Verify Central Package Management configuration
 - **Authentication**: Ensure proper Microsoft Identity Platform setup
 - **Cross-Platform**: Check Uno Platform documentation for platform-specific issues

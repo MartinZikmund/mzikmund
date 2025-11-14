@@ -2,6 +2,8 @@ name: Full build
 
 env:
   STEP_TIMEOUT_MINUTES: 60
+  DOTNET_VERSION: 10.0.x
+  SOLUTION_FILE: MZikmund.slnx
 
 on:
   push:
@@ -24,11 +26,26 @@ jobs:
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
-    - name: Install Dependencies
-      timeout-minutes: ${{ fromJSON(env.STEP_TIMEOUT_MINUTES) }}
-      uses: "./.github/steps/install_dependencies"
-    - name: Restore .NET dependencies
-      run: dotnet restore
+    - name: NuGet cache
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.sln*', '**/*.csproj', '**/Directory.Packages.props', '**/global.json') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-          
+
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: |
+          ${{ env.DOTNET_VERSION }}
+
+    - name: Install .NET workloads
+      run:
+        dotnet workload restore "$env:SOLUTION_FILE"
+    - name: Install .NET workloads wasm-tools
+      run:
+        dotnet workload install wasm-tools
     - name: Restore Node.js dependencies
       run: |
         cd web/MZikmund.Web
