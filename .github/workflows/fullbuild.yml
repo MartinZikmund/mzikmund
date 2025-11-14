@@ -45,7 +45,7 @@ jobs:
         dotnet workload restore "$env:SOLUTION_FILE"
     - name: Install .NET workloads wasm-tools
       run:
-        dotnet workload install wasm-tools "$env:SOLUTION_FILE"
+        dotnet workload install wasm-tools
     - name: Restore Node.js dependencies
       run: |
         cd web/MZikmund.Web
