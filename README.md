@@ -4,7 +4,7 @@ Personal website and blog built with modern .NET technologies and Uno Platform.
 
 ## 📖 About
 
-This is a full-featured personal website and blog platform built with .NET 9, ASP.NET Core, and Uno Platform. The project includes:
+This is a full-featured personal website and blog platform built with .NET 10, ASP.NET Core, and Uno Platform. The project includes:
 
 - **Web Application**: A full-featured ASP.NET Core website and blog with authentication, content management, and API endpoints
 - **Cross-Platform App**: Native mobile and desktop applications for Android, iOS, Windows, Mac, Linux, and WebAssembly using Uno Platform
@@ -14,7 +14,7 @@ This is a full-featured personal website and blog platform built with .NET 9, AS
 ## 🚀 Technology Stack
 
 ### Core Technologies
-- **.NET 9** - Latest .NET framework with C# preview language features
+- **.NET 10** - Latest .NET framework with C# preview language features
 - **ASP.NET Core** - Web application framework
 - **Uno Platform** - Cross-platform UI framework for building native mobile, desktop, and web apps
 - **Entity Framework Core** - Object-relational mapper for database access
@@ -40,7 +40,7 @@ This is a full-featured personal website and blog platform built with .NET 9, AS
 
 Before setting up the project, ensure you have the following installed:
 
-- **.NET 9 SDK** or later - [Download here](https://dotnet.microsoft.com/download/dotnet/9.0)
+- **.NET 10 SDK** or later - [Download here](https://dotnet.microsoft.com/download/dotnet/9.0)
 - **Visual Studio 2022** (17.12+) or **Visual Studio Code** with C# Dev Kit extension
   - For Uno Platform development, install the Uno Platform workload
 - **Node.js and npm** - For TypeScript compilation and frontend tooling
