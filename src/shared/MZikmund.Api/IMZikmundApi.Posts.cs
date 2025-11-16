@@ -7,7 +7,7 @@ namespace MZikmund.Api.Client;
 public partial interface IMZikmundApi
 {
 	[Get("/v1/posts")]
-	Task<ApiResponse<PagedResponse<PostListItem>>> GetPostsAsync();
+	Task<ApiResponse<PagedResponse<PostListItem>>> GetPostsAsync(int pageNumber = 1);
 
 	[Get("/v1/posts/{postId}")]
 	Task<ApiResponse<Post>> GetPostAsync(Guid postId);

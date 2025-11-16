@@ -21,24 +21,20 @@ public sealed partial class PostView : PostViewBase
 {
 	private readonly WebView2 _previewWebView;
 
-	private string _postPreviewTemplate;
-
 	public PostView()
 	{
 		InitializeComponent();
-		// Read the template from the embedded resource
-		_postPreviewTemplate = typeof(PostView).Assembly.GetManifestResourceStream("MZikmund.App.Templates.PostPreviewTemplate.html")?.ReadToEnd()!;
 		PreviewWebViewContainer.Content = _previewWebView = new WebView2();
-		this.Loaded += PostEditorView_Loaded;
-		this.Unloaded += PostEditorView_Unloaded;
+		this.Loaded += PostView_Loaded;
+		this.Unloaded += PostView_Unloaded;
 	}
 
-	private void PostEditorView_Unloaded(object sender, RoutedEventArgs e)
+	private void PostView_Unloaded(object sender, RoutedEventArgs e)
 	{
 		ViewModel!.PropertyChanged -= ViewModel_PropertyChanged;
 	}
 
-	private async void PostEditorView_Loaded(object sender, RoutedEventArgs e)
+	private async void PostView_Loaded(object sender, RoutedEventArgs e)
 	{
 		try
 		{
@@ -52,19 +48,22 @@ public sealed partial class PostView : PostViewBase
 		}
 	}
 
-	private void OnWebViewInitialized(WebView2 sender, CoreWebView2InitializedEventArgs args) => UpdatePreview();
+	private void OnWebViewInitialized(WebView2 sender, CoreWebView2InitializedEventArgs args) => NavigateToChromelessUrl();
 
 	private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
 	{
-		if (e.PropertyName == nameof(ViewModel.HtmlPreview))
+		if (e.PropertyName == nameof(ViewModel.ChromelessUrl))
 		{
-			UpdatePreview();
+			NavigateToChromelessUrl();
 		}
 	}
 
-	private void UpdatePreview()
+	private void NavigateToChromelessUrl()
 	{
-		_previewWebView.NavigateToString(string.Format(CultureInfo.InvariantCulture, _postPreviewTemplate, ViewModel!.HtmlPreview ?? ""));
+		if (!string.IsNullOrEmpty(ViewModel!.ChromelessUrl))
+		{
+			_previewWebView.Source = new Uri(ViewModel.ChromelessUrl);
+		}
 	}
 }
 

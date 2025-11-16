@@ -12,6 +12,11 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
 	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="*" />
+			<RowDefinition Height="Auto" />
+		</Grid.RowDefinitions>
+
 		<ListView ItemsSource="{x:Bind ViewModel.Posts}" ItemClick="{x:Bind ViewModel.ItemClicked}" IsItemClickEnabled="True" SelectionMode="None">
 			<ListView.ItemContainerStyle>
 				<Style TargetType="ListViewItem">
@@ -32,5 +37,28 @@
 				</DataTemplate>
 			</ListView.ItemTemplate>
 		</ListView>
+
+		<Grid Grid.Row="1" Padding="16" ColumnSpacing="8">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto" />
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="Auto" />
+			</Grid.ColumnDefinitions>
+			<Button 
+				Content="Previous" 
+				Command="{x:Bind ViewModel.GoToPreviousPageCommand}" 
+				IsEnabled="{x:Bind ViewModel.CanGoToPreviousPage, Mode=OneWay}" />
+			<TextBlock 
+				Grid.Column="1" 
+				Text="{x:Bind ViewModel.CurrentPage, Mode=OneWay}" 
+				HorizontalAlignment="Center" 
+				VerticalAlignment="Center" 
+				Style="{ThemeResource BodyTextBlockStyle}" />
+			<Button 
+				Grid.Column="2" 
+				Content="Next" 
+				Command="{x:Bind ViewModel.GoToNextPageCommand}" 
+				IsEnabled="{x:Bind ViewModel.CanGoToNextPage, Mode=OneWay}" />
+		</Grid>
 	</Grid>
 </local:BlogViewBase>
