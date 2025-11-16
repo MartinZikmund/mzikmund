@@ -41,13 +41,25 @@ public class BlogViewModel : PageViewModel
 	public int CurrentPage
 	{
 		get => _currentPage;
-		private set => SetProperty(ref _currentPage, value);
+		private set
+		{
+			if (SetProperty(ref _currentPage, value))
+			{
+				OnPropertyChanged(nameof(CanLoadMore));
+			}
+		}
 	}
 
 	public int TotalPages
 	{
 		get => _totalPages;
-		private set => SetProperty(ref _totalPages, value);
+		private set
+		{
+			if (SetProperty(ref _totalPages, value))
+			{
+				OnPropertyChanged(nameof(CanLoadMore));
+			}
+		}
 	}
 
 	public int TotalCount
@@ -61,8 +73,11 @@ public class BlogViewModel : PageViewModel
 		get => _isLoadingMore;
 		private set
 		{
-			SetProperty(ref _isLoadingMore, value);
-			(LoadMoreCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
+			if (SetProperty(ref _isLoadingMore, value))
+			{
+				OnPropertyChanged(nameof(CanLoadMore));
+				(LoadMoreCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
+			}
 		}
 	}
 
