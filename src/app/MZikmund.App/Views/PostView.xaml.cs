@@ -1,19 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
 using MZikmund.ViewModels;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 
 namespace MZikmund.Views;
 
@@ -21,24 +8,20 @@ public sealed partial class PostView : PostViewBase
 {
 	private readonly WebView2 _previewWebView;
 
-	private string _postPreviewTemplate;
-
 	public PostView()
 	{
 		InitializeComponent();
-		// Read the template from the embedded resource
-		_postPreviewTemplate = typeof(PostView).Assembly.GetManifestResourceStream("MZikmund.App.Templates.PostPreviewTemplate.html")?.ReadToEnd()!;
 		PreviewWebViewContainer.Content = _previewWebView = new WebView2();
-		this.Loaded += PostEditorView_Loaded;
-		this.Unloaded += PostEditorView_Unloaded;
+		Loaded += PostView_Loaded;
+		Unloaded += PostView_Unloaded;
 	}
 
-	private void PostEditorView_Unloaded(object sender, RoutedEventArgs e)
+	private void PostView_Unloaded(object sender, RoutedEventArgs e)
 	{
 		ViewModel!.PropertyChanged -= ViewModel_PropertyChanged;
 	}
 
-	private async void PostEditorView_Loaded(object sender, RoutedEventArgs e)
+	private async void PostView_Loaded(object sender, RoutedEventArgs e)
 	{
 		try
 		{
@@ -52,19 +35,22 @@ public sealed partial class PostView : PostViewBase
 		}
 	}
 
-	private void OnWebViewInitialized(WebView2 sender, CoreWebView2InitializedEventArgs args) => UpdatePreview();
+	private void OnWebViewInitialized(WebView2 sender, CoreWebView2InitializedEventArgs args) => NavigateToPost();
 
 	private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
 	{
-		if (e.PropertyName == nameof(ViewModel.HtmlPreview))
+		if (e.PropertyName == nameof(ViewModel.EmbedUrl))
 		{
-			UpdatePreview();
+			NavigateToPost();
 		}
 	}
 
-	private void UpdatePreview()
+	private void NavigateToPost()
 	{
-		_previewWebView.NavigateToString(string.Format(CultureInfo.InvariantCulture, _postPreviewTemplate, ViewModel!.HtmlPreview ?? ""));
+		if (!string.IsNullOrEmpty(ViewModel?.EmbedUrl) && _previewWebView.CoreWebView2 != null)
+		{
+			_previewWebView.Source = new Uri(ViewModel.EmbedUrl);
+		}
 	}
 }
 
