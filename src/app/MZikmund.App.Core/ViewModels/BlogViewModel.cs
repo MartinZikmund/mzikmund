@@ -63,6 +63,7 @@ public class BlogViewModel : PageViewModel
 		{
 			SetProperty(ref _isLoadingMore, value);
 			(LoadMoreCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
+			OnPropertyChanged(nameof(CanLoadMore));
 		}
 	}
 
