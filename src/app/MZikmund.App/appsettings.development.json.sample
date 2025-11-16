@@ -1,7 +1,8 @@
 ﻿{
 	"AppConfig": {
 		"Environment": "Development",
-		"ApiUrl": "https://localhost:7007/api"
+		"ApiUrl": "https://localhost:7007/api",
+		"WebUrl": "https://localhost:7007/"
 	},
 	"AuthConfig": {
 		"ClientId": "your-auth0-client-id"
