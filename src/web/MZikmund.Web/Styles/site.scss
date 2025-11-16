@@ -26,6 +26,14 @@ html {
     min-height: 100%;
 }
 
+body {
+    background-color: #F3F3F3;
+}
+
+[data-bs-theme="dark"] body {
+    background-color: #202020;
+}
+
 article {
     max-width: 50em;
     margin: auto;
@@ -54,7 +62,7 @@ article figure {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
     border-radius: 0.75rem !important;
-    background: var(--bs-body-bg);
+    background: #ffffff;
 
     .card-link-wrapper {
         color: inherit;
@@ -75,6 +83,10 @@ article figure {
             color: var(--bs-primary);
         }
     }
+}
+
+[data-bs-theme="dark"] .article-card {
+    background: #000000;
 }
 
 .article-card-image-wrapper {
