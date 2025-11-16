@@ -12,6 +12,9 @@ namespace MZikmund.Blog {
 		private tocList: HTMLElement | null = null;
 		private activeItem: HTMLElement | null = null;
 		private observer: IntersectionObserver | null = null;
+		private mediaQuery: MediaQueryList | null = null;
+		private mediaQueryHandler: (() => void) | null = null;
+		private usedIds: Set<string> = new Set();
 
 		public init(): void {
 			// Wait for DOM to be ready
@@ -59,6 +62,9 @@ namespace MZikmund.Blog {
 				if (!element.id) {
 					// Create an ID if one doesn't exist
 					element.id = this.generateId(element.textContent || '');
+				} else {
+					// Track existing IDs to avoid duplicates
+					this.usedIds.add(element.id);
 				}
 
 				headings.push({
@@ -73,12 +79,22 @@ namespace MZikmund.Blog {
 		}
 
 		private generateId(text: string): string {
-			return text
+			let baseId = text
 				.toLowerCase()
 				.replace(/[^\w\s-]/g, '')
 				.replace(/\s+/g, '-')
 				.replace(/--+/g, '-')
 				.trim();
+			
+			// Ensure unique ID by appending a number if duplicate
+			let id = baseId;
+			let counter = 1;
+			while (this.usedIds.has(id)) {
+				id = `${baseId}-${counter}`;
+				counter++;
+			}
+			this.usedIds.add(id);
+			return id;
 		}
 
 		private buildToc(headings: TocItem[]): void {
@@ -149,22 +165,40 @@ namespace MZikmund.Blog {
 		}
 
 		private setupScrollSpy(headings: TocItem[]): void {
+			// The rootMargin values fine-tune when a heading is considered "active":
+			// - Top margin (-80px) offsets fixed header height
+			// - Bottom margin (-80%) reduces intersection area so only topmost visible heading is active
 			const options = {
 				rootMargin: '-80px 0px -80% 0px',
 				threshold: 0
 			};
 
 			this.observer = new IntersectionObserver((entries) => {
-				entries.forEach((entry) => {
-					if (entry.isIntersecting) {
-						const id = entry.target.id;
-						this.setActiveItem(id);
+				// Find the topmost visible heading
+				const visibleEntries = entries.filter(entry => entry.isIntersecting);
+				if (visibleEntries.length === 0) {
+					return;
+				}
+
+				// Find entry closest to top of viewport
+				let topEntry = visibleEntries[0];
+				let minTop = Math.abs(visibleEntries[0].boundingClientRect.top);
+				
+				visibleEntries.forEach(entry => {
+					const top = Math.abs(entry.boundingClientRect.top);
+					if (top < minTop) {
+						minTop = top;
+						topEntry = entry;
 					}
 				});
+
+				if (topEntry && topEntry.target.id) {
+					this.setActiveItem(topEntry.target.id);
+				}
 			}, options);
 
 			headings.forEach((heading) => {
-				this.observer!.observe(heading.element);
+				this.observer?.observe(heading.element);
 			});
 		}
 
@@ -193,9 +227,11 @@ namespace MZikmund.Blog {
 
 			this.tocList.addEventListener('click', (e) => {
 				const target = e.target as HTMLElement;
-				if (target.tagName === 'A') {
+				const link = target.closest('a');
+				
+				if (link && link instanceof HTMLAnchorElement) {
 					e.preventDefault();
-					const href = target.getAttribute('href');
+					const href = link.getAttribute('href');
 					if (href) {
 						const targetElement = document.querySelector(href);
 						if (targetElement) {
@@ -203,8 +239,8 @@ namespace MZikmund.Blog {
 								behavior: 'smooth',
 								block: 'start'
 							});
-							// Update URL without scrolling
-							history.pushState(null, '', href);
+							// Use replaceState instead of pushState to avoid polluting browser history
+							history.replaceState(null, '', href);
 						}
 					}
 				}
@@ -221,33 +257,48 @@ namespace MZikmund.Blog {
 				return;
 			}
 
-			// Only add toggle functionality on mobile/tablet
-			const mediaQuery = window.matchMedia('(max-width: 1199px)');
-			
-			const setupToggle = () => {
-				if (mediaQuery.matches) {
-					// Start collapsed on mobile
-					this.tocList!.classList.add('collapsed');
-					title.classList.add('collapsed');
+			const tocList = this.tocList;
 
-					title.addEventListener('click', this.handleToggleClick);
-				} else {
-					// Remove collapse classes on desktop
-					this.tocList!.classList.remove('collapsed');
-					title.classList.remove('collapsed');
-					title.removeEventListener('click', this.handleToggleClick);
-				}
-			};
-
-			this.handleToggleClick = () => {
-				this.tocList!.classList.toggle('collapsed');
+			// Create toggle handler
+			const handleToggleClick = () => {
+				tocList.classList.toggle('collapsed');
 				title.classList.toggle('collapsed');
 			};
 
-			setupToggle();
-			mediaQuery.addEventListener('change', setupToggle);
+			// Only add toggle functionality on mobile/tablet
+			this.mediaQuery = window.matchMedia('(max-width: 1199px)');
+			
+			this.mediaQueryHandler = () => {
+				if (this.mediaQuery!.matches) {
+					// Start collapsed on mobile
+					tocList.classList.add('collapsed');
+					title.classList.add('collapsed');
+					title.addEventListener('click', handleToggleClick);
+				} else {
+					// Remove collapse classes on desktop
+					tocList.classList.remove('collapsed');
+					title.classList.remove('collapsed');
+					title.removeEventListener('click', handleToggleClick);
+				}
+			};
+
+			this.mediaQueryHandler();
+			this.mediaQuery.addEventListener('change', this.mediaQueryHandler);
 		}
 
-		private handleToggleClick: () => void = () => {};
+		public destroy(): void {
+			// Cleanup IntersectionObserver
+			if (this.observer) {
+				this.observer.disconnect();
+				this.observer = null;
+			}
+
+			// Cleanup media query listener
+			if (this.mediaQuery && this.mediaQueryHandler) {
+				this.mediaQuery.removeEventListener('change', this.mediaQueryHandler);
+				this.mediaQuery = null;
+				this.mediaQueryHandler = null;
+			}
+		}
 	}
 }
