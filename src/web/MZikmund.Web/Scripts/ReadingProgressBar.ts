@@ -3,6 +3,13 @@ namespace MZikmund.Blog {
         private progressBar: HTMLElement | null = null;
 
         public init(): void {
+            // Wait for DOM to be ready before checking for blog post page
+            document.addEventListener('DOMContentLoaded', () => {
+                this.initialize();
+            });
+        }
+
+        private initialize(): void {
             // Only initialize if we're on a blog post page
             if (!this.isBlogPostPage()) {
                 return;
