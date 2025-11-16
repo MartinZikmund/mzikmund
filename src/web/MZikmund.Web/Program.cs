@@ -39,7 +39,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 	services.AddScoped<MetaTagsInfo>();
 	services.AddCors(options =>
 	{
-		options.AddDefaultPolicy(
+		options.AddPolicy("WasmAppPolicy",
 			policy =>
 			{
 				policy.WithOrigins(
@@ -158,11 +158,12 @@ async Task Configure(WebApplication app)
 	app.UseMiddleware<ReallySimpleDiscoveryMiddleware>();
 
 	app.UseRouting();
-	app.UseCors();
-	app.MapHealthChecks("/health");
+	app.UseCors("WasmAppPolicy");
 
 	app.UseAuthentication();
 	app.UseAuthorization();
+
+	app.MapHealthChecks("/health");
 
 	app.MapControllers();
 	app.MapRazorPages();

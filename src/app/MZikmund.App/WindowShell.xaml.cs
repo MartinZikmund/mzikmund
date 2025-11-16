@@ -28,7 +28,8 @@ public sealed partial class WindowShell : Page, IWindowShell
 		_windowScope = serviceProvider.CreateScope();
 		var windowShellProvider = (WindowShellProvider)ServiceProvider.GetRequiredService<IWindowShellProvider>();
 		windowShellProvider.SetShell(this, associatedWindow);
-		ServiceProvider.GetRequiredService<INavigationService>().RegisterViewsFromAssembly(typeof(MZikmundApp).Assembly);
+		var navigationService = ServiceProvider.GetRequiredService<INavigationService>();
+		navigationService.RegisterViewsFromAssembly(typeof(MZikmundApp).Assembly);
 		ServiceProvider.GetRequiredService<IDialogService>().RegisterDialogsFromAssembly(typeof(MZikmundApp).Assembly);
 
 		ViewModel = ServiceProvider.GetRequiredService<WindowShellViewModel>();
@@ -38,6 +39,10 @@ public sealed partial class WindowShell : Page, IWindowShell
 		CustomizeWindow();
 
 		Loaded += WindowShell_Loaded;
+
+		// Navigate to Blog as the default page
+		navigationService.Navigate<BlogViewModel>();
+		AppNavigation.SelectedItem = BlogNavigationViewItem;
 	}
 
 	public IServiceProvider ServiceProvider => _windowScope.ServiceProvider;
@@ -118,11 +123,7 @@ public sealed partial class WindowShell : Page, IWindowShell
 			navigationService.Navigate<SettingsViewModel>();
 		}
 
-		if (args.InvokedItemContainer == HomeNavigationViewItem)
-		{
-
-		}
-		else if (args.InvokedItemContainer == BlogNavigationViewItem)
+		if (args.InvokedItemContainer == BlogNavigationViewItem)
 		{
 			navigationService.Navigate<BlogViewModel>();
 		}
