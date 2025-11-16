@@ -1,7 +1,7 @@
 ﻿@model PostListItem
 <div class="col-md-6 col-lg-4 mb-4 d-flex align-items-stretch">
     <article class="article-card card border-0 shadow-sm h-100 w-100">
-        <a asp-page="/Blog/Post" asp-route-routename="@Model.RouteName" class="card-link-wrapper">
+        <a asp-page="/Blog/Post" asp-route-routename="@Model.RouteName" class="card-link-wrapper" aria-label="Read blog post: @Model.Title">
             <div class="article-card-image-wrapper">
                 @if (Model.HeroImageUrl is not null)
                 {
