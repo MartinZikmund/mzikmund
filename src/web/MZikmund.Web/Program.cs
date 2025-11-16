@@ -28,7 +28,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 {
 	var siteConfiguration = new SiteConfiguration(configuration);
 	services.AddSingleton<ISiteConfiguration>(siteConfiguration);
-	services.AddAutoMapper(typeof(CoreAssemblyMarker).Assembly);
+	services.AddAutoMapper(c => c.AddMaps(typeof(CoreAssemblyMarker)));
 	services.AddSingleton<ICache, Cache>();
 	services.AddSingleton<IConnectionStringProvider, ConnectionStringProvider>();
 	services.AddSingleton<IMarkdownConverter, MarkdownConverter>();
