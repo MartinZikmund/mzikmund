@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json;
 
 namespace MZikmund.Services.Preferences;
 
@@ -41,11 +41,11 @@ public class PreferencesService : IPreferencesService
 		var container = roamed ? ApplicationData.Current.RoamingSettings : ApplicationData.Current.LocalSettings;
 		if (container.Values.ContainsKey(key))
 		{
-			container.Values[key] = JsonConvert.SerializeObject(value);
+			container.Values[key] = JsonSerializer.Serialize(value);
 		}
 		else
 		{
-			container.Values.Add(key, JsonConvert.SerializeObject(value));
+			container.Values.Add(key, JsonSerializer.Serialize(value));
 		}
 		_preferenceCache[key] = value!;
 	}
@@ -73,7 +73,7 @@ public class PreferencesService : IPreferencesService
 			try
 			{
 				var serialized = (string)value;
-				return JsonConvert.DeserializeObject<T>(serialized);
+				return JsonSerializer.Deserialize<T>(serialized);
 			}
 			catch
 			{

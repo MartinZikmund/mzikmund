@@ -1,77 +1,77 @@
 ﻿#nullable disable
 
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace MZikmund.LegacyMigration.Json;
 
 public sealed class Post
 {
-	[JsonProperty("ID")]
+	[JsonPropertyName("ID")]
 	public long Id { get; set; }
 
-	[JsonProperty("post_author")]
+	[JsonPropertyName("post_author")]
 	public long PostAuthor { get; set; }
 
-	[JsonProperty("post_date")]
+	[JsonPropertyName("post_date")]
 	public string PostDate { get; set; }
 
-	[JsonProperty("post_date_gmt")]
+	[JsonPropertyName("post_date_gmt")]
 	public string PostDateGmt { get; set; }
 
-	[JsonProperty("post_content")]
+	[JsonPropertyName("post_content")]
 	public string PostContent { get; set; } = null!;
 
-	[JsonProperty("post_title")]
+	[JsonPropertyName("post_title")]
 	public string PostTitle { get; set; } = null!;
 
-	[JsonProperty("post_excerpt")]
+	[JsonPropertyName("post_excerpt")]
 	public string PostExcerpt { get; set; } = null!;
 
-	[JsonProperty("post_status")]
+	[JsonPropertyName("post_status")]
 	public string PostStatus { get; set; } = null!;
 
-	[JsonProperty("comment_status")]
+	[JsonPropertyName("comment_status")]
 	public string CommentStatus { get; set; } = null!;
 
-	[JsonProperty("ping_status")]
+	[JsonPropertyName("ping_status")]
 	public string PingStatus { get; set; } = null!;
 
-	[JsonProperty("post_password")]
+	[JsonPropertyName("post_password")]
 	public string PostPassword { get; set; } = null!;
 
-	[JsonProperty("post_name")]
+	[JsonPropertyName("post_name")]
 	public string PostName { get; set; } = null!;
 
-	[JsonProperty("to_ping")]
+	[JsonPropertyName("to_ping")]
 	public string ToPing { get; set; } = null!;
 
-	[JsonProperty("pinged")]
+	[JsonPropertyName("pinged")]
 	public string Pinged { get; set; } = null!;
 
-	[JsonProperty("post_modified")]
+	[JsonPropertyName("post_modified")]
 	public string PostModified { get; set; }
 
-	[JsonProperty("post_modified_gmt")]
+	[JsonPropertyName("post_modified_gmt")]
 	public string PostModifiedGmt { get; set; }
 
-	[JsonProperty("post_content_filtered")]
+	[JsonPropertyName("post_content_filtered")]
 	public string PostContentFiltered { get; set; } = null!;
 
-	[JsonProperty("post_parent")]
+	[JsonPropertyName("post_parent")]
 	public long PostParent { get; set; }
 
-	[JsonProperty("guid")]
+	[JsonPropertyName("guid")]
 	public string Guid { get; set; } = null!;
 
-	[JsonProperty("menu_order")]
+	[JsonPropertyName("menu_order")]
 	public int MenuOrder { get; set; }
 
-	[JsonProperty("post_type")]
+	[JsonPropertyName("post_type")]
 	public string PostType { get; set; } = null!;
 
-	[JsonProperty("post_mime_type")]
+	[JsonPropertyName("post_mime_type")]
 	public string PostMimeType { get; set; } = null!;
 
-	[JsonProperty("comment_count")]
+	[JsonPropertyName("comment_count")]
 	public long CommentCount { get; set; }
 }

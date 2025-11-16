@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -11,7 +12,6 @@ using MZikmund.LegacyMigration.Json;
 using MZikmund.LegacyMigration.Processors;
 using MZikmund.Web.Data;
 using MZikmund.Web.Data.Entities;
-using Newtonsoft.Json;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 
@@ -188,7 +188,7 @@ internal sealed partial class MainViewModel : ObservableObject
 		await enricher.EnrichAsync(posts, terms, termRelationships, termTaxonomies);
 
 		var targetFile = await SourceFolder.CreateFileAsync(EnrichedPostsFileName, CreationCollisionOption.ReplaceExisting);
-		var content = JsonConvert.SerializeObject(posts);
+		var content = JsonSerializer.Serialize(posts);
 		await FileIO.WriteTextAsync(targetFile, content);
 	}
 
@@ -215,7 +215,7 @@ internal sealed partial class MainViewModel : ObservableObject
 		using var stream = await sourceFile.OpenStreamForReadAsync();
 
 		var json = await File.ReadAllTextAsync(sourceFile.Path);
-		var result = JsonConvert.DeserializeObject<IList<T>>(json);
+		var result = JsonSerializer.Deserialize<IList<T>>(json);
 		if (result is null)
 		{
 			throw new InvalidOperationException("Could not parse JSON file.");
