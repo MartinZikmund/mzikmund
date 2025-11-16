@@ -97,7 +97,7 @@ article figure {
     position: relative;
 }
 
-[data-theme=dark] .article-card-image-wrapper {
+[data-bs-theme="dark"] .article-card-image-wrapper {
     background: var(--bs-gray-700);
 }
 
