@@ -46,6 +46,10 @@
     <File Path="solution-config.props.sample" />
   </Folder>
   <Folder Name="/Tools/">
+    <Project Path="tools/MZikmund.HeroImageGenerator/MZikmund.HeroImageGenerator.csproj">
+      <BuildType Solution="Ad-Hoc|*" Project="Debug" />
+      <BuildType Solution="AppStore|*" Project="Debug" />
+    </Project>
     <Project Path="tools/MZikmund.LegacyMigration/MZikmund.LegacyMigration.csproj">
       <BuildType Solution="Ad-Hoc|*" Project="Debug" />
       <BuildType Solution="AppStore|*" Project="Debug" />
