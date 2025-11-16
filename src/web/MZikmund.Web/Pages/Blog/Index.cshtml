@@ -1,7 +1,10 @@
 ﻿@page
 @model MZikmund.Web.Pages.Blog.IndexModel
 @{
-    <h1 class="display-4 text-center text-primary">@Localizer["Blog"]</h1>
+    <div class="blog-header text-center mb-5">
+        <h1 class="display-4 fw-bold text-primary mb-2">@Localizer["Blog"]</h1>
+        <p class="lead text-muted">@Localizer["Thoughts, ideas, and tutorials on software development"]</p>
+    </div>
     <div class="row">
         <partial name="_PostList" model="Model.BlogPosts" />
     </div>
