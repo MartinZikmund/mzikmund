@@ -9,7 +9,10 @@ public sealed partial class BlogView : BlogViewBase
 	public BlogView()
 	{
 		this.InitializeComponent();
+		Scroller.RegisterPropertyChangedCallback(ScrollViewer.ViewportHeightProperty, OnViewPortChanged);
 	}
+
+	private void OnViewPortChanged(DependencyObject sender, DependencyProperty dp) => TryLoadMore();
 
 	private void PostCard_PointerPressed(object sender, PointerRoutedEventArgs e)
 	{
@@ -19,12 +22,20 @@ public sealed partial class BlogView : BlogViewBase
 		}
 	}
 
-	private void PostCard_PointerEntered(object sender, PointerRoutedEventArgs e)
+	private void ScrollViewer_ViewChanged(object sender, ScrollViewerViewChangedEventArgs e)
 	{
-		// Intentionally left blank; add visual feedback here if desired.
+		TryLoadMore();
 	}
 
-	private void PostCard_PointerExited(object sender, PointerRoutedEventArgs e) { }
+	private void TryLoadMore()
+	{
+		double difference = Scroller.ScrollableHeight - Scroller.VerticalOffset;
+
+		if (difference < 100 && ViewModel?.CanLoadMore == true && ViewModel.LoadMoreCommand.CanExecute(null))
+		{
+			ViewModel.LoadMoreCommand?.Execute(null);
+		}
+	}
 }
 
 public partial class BlogViewBase : PageBase<BlogViewModel>

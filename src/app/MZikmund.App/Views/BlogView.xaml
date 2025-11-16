@@ -17,7 +17,10 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <ScrollViewer Grid.Row="0">
+        <ScrollViewer
+            x:Name="Scroller"
+            Grid.Row="0"
+            ViewChanged="ScrollViewer_ViewChanged">
             <ItemsRepeater ItemsSource="{x:Bind ViewModel.Posts, Mode=OneWay}">
                 <ItemsRepeater.Layout>
                     <UniformGridLayout
@@ -34,8 +37,6 @@
                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                             BorderThickness="1"
                             CornerRadius="{ThemeResource ControlCornerRadius}"
-                            PointerEntered="PostCard_PointerEntered"
-                            PointerExited="PostCard_PointerExited"
                             PointerPressed="PostCard_PointerPressed"
                             Tag="{x:Bind Item}">
                             <Grid.RowDefinitions>
@@ -111,11 +112,6 @@
                 HorizontalAlignment="Center"
                 IsActive="{x:Bind ViewModel.IsLoadingMore, Mode=OneWay}"
                 Visibility="{x:Bind ViewModel.IsLoadingMore, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" />
-            <TextBlock
-                HorizontalAlignment="Center"
-                Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                Style="{ThemeResource CaptionTextBlockStyle}"
-                Text="{x:Bind ViewModel.TotalCount, Mode=OneWay}" />
         </StackPanel>
     </Grid>
 </local:BlogViewBase>
