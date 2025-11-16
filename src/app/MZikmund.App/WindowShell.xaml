@@ -16,15 +16,27 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-		<Grid x:Name="TitleBarGrid" Padding="16,0" ColumnSpacing="16" Visibility="{x:Bind HasCustomTitleBar}" Height="48">
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="Auto" />
-				<ColumnDefinition Width="Auto" />
-				<ColumnDefinition Width="*" />
-			</Grid.ColumnDefinitions>
-			<BitmapIcon ShowAsMonochrome="False" Width="16" UriSource="ms-appx:///Assets/NavigationViewLogo.png" />
-			<TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{x:Bind ViewModel.Title}" Style="{ThemeResource CaptionTextBlockStyle}" />
-		</Grid>
+        <Grid
+            x:Name="TitleBarGrid"
+            Height="48"
+            Padding="16,0"
+            ColumnSpacing="16"
+            Visibility="{x:Bind HasCustomTitleBar}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <BitmapIcon
+                Width="16"
+                ShowAsMonochrome="False"
+                UriSource="ms-appx:///Assets/NavigationViewLogo.png" />
+            <TextBlock
+                Grid.Column="1"
+                VerticalAlignment="Center"
+                Style="{ThemeResource CaptionTextBlockStyle}"
+                Text="{x:Bind ViewModel.Title}" />
+        </Grid>
         <mux:NavigationView
             x:Name="AppNavigation"
             Grid.Row="1"
@@ -37,11 +49,11 @@
             PaneDisplayMode="LeftMinimal"
             PaneTitle="Martin Zikmund">
             <mux:NavigationView.MenuItems>
-                <mux:NavigationViewItem x:Name="HomeNavigationViewItem" Content="{extensions:Localize Key=Home}">
+                <!--<mux:NavigationViewItem x:Name="HomeNavigationViewItem" Content="{extensions:Localize Key=Home}" Visibility="Collapsed">
                     <mux:NavigationViewItem.Icon>
 						<BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///Assets/NavigationViewLogo.png" />
 					</mux:NavigationViewItem.Icon>
-                </mux:NavigationViewItem>
+                </mux:NavigationViewItem>-->
                 <mux:NavigationViewItem x:Name="BlogNavigationViewItem" Content="{extensions:Localize Key=Blog}">
                     <mux:NavigationViewItem.Icon>
                         <BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///Assets/Icons/Navigation/Blog.png" />
