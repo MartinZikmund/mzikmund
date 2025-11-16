@@ -10,12 +10,18 @@
     --bs-link-color: red;
     --bs-link-color-rgb: 255,0,0;*/
     --bs-body-bg: #F3F3F3;
+}
+
+.card {
     --bs-card-bg: #ffffff;
+}
+
+[data-bs-theme="dark"] .card{
+    --bs-card-bg: #0E0E0E;
 }
 
 [data-bs-theme="dark"] {
     --bs-body-bg: #202020;
-    --bs-card-bg: #000000;
 }
 
 html {
