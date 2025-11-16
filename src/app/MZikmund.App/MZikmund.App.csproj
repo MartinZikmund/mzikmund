@@ -41,7 +41,7 @@
 			WebView;
 		</UnoFeatures>
 	</PropertyGroup>
-	
+
 	<PropertyGroup Condition="'$(TargetFramework)'=='net10.0-windows10.0.26100'">
 		<StartupObject>MZikmund.App.MZikmundProgram</StartupObject>
 
@@ -51,11 +51,11 @@
 		<PlatformTarget Condition=" '$(PlatformTarget)' == '' AND $(Platform) == 'AnyCPU' AND '$(NETCoreSdkRuntimeIdentifier)' == 'win-arm64'">arm64</PlatformTarget>
 	</PropertyGroup>
 	<ItemGroup>
-	  <EmbeddedResource Include="Templates\PostPreviewTemplate.html" />
+		<EmbeddedResource Include="Templates\PostPreviewTemplate.html" />
 	</ItemGroup>
-	
+
 	<ItemGroup>
-	  <ProjectReference Include="..\MZikmund.App.Core\MZikmund.App.Core.csproj" />
+		<ProjectReference Include="..\MZikmund.App.Core\MZikmund.App.Core.csproj" />
 	</ItemGroup>
 
 </Project>

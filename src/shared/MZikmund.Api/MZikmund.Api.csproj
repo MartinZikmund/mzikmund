@@ -8,8 +8,6 @@
 
 	<ItemGroup>
 		<PackageReference Include="Refit" />
-		<PackageReference Include="Refit.Newtonsoft.Json" />
-		<PackageReference Include="Newtonsoft.Json" />
 	</ItemGroup>
 
 	<ItemGroup>
