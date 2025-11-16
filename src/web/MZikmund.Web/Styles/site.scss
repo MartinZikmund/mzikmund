@@ -81,3 +81,16 @@ article {
         margin-right: auto;
     }
 }
+
+// Reading progress bar
+.reading-progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--bs-primary), var(--bs-info));
+    width: 0%;
+    z-index: 1030; // Above navbar (which is typically 1020-1029)
+    transition: width 0.1s ease-out;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
