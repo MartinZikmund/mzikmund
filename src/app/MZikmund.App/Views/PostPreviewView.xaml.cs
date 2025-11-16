@@ -16,7 +16,11 @@ public sealed partial class PostPreviewView : PostPreviewViewBase
 		InitializeComponent();
 		// Read the template from the embedded resource
 		using var stream = typeof(PostPreviewView).Assembly.GetManifestResourceStream("MZikmund.Templates.PostPreviewTemplate.html");
-		using var reader = new StreamReader(stream!);
+		if (stream == null)
+		{
+			throw new InvalidOperationException("Post preview template not found: MZikmund.Templates.PostPreviewTemplate.html");
+		}
+		using var reader = new StreamReader(stream);
 		_postPreviewTemplate = reader.ReadToEnd();
 		PreviewWebViewContainer.Content = _previewWebView = new WebView2();
 		Loaded += PostPreviewView_Loaded;
