@@ -89,6 +89,11 @@ article {
     margin: auto;
 }
 
+// Override for blog posts with TOC - remove width constraint
+.blog-post {
+    max-width: none;
+}
+
 article figure {
     width: 100%;
     text-align: center;
@@ -503,11 +508,13 @@ article {
     display: flex;
     gap: 2rem;
     position: relative;
-    justify-content: center;
+    max-width: calc(50em + 280px + 2rem); // Content width + TOC width + gap
+    margin: 0 auto; // Center the entire layout
+    padding: 0 1rem; // Add some padding on smaller screens
 }
 
 .blog-post-main {
-    flex: 0 1 50em; // Fixed width matching article max-width
+    flex: 0 0 50em; // Fixed width matching article max-width
     max-width: 50em;
     min-width: 0;
 }
