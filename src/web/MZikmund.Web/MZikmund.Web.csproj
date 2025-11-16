@@ -28,7 +28,7 @@
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
 		<PackageReference Include="Auth0.AspNetCore.Authentication" />
 		<PackageReference Include="Swashbuckle.AspNetCore" />
-		<PackageReference Include="X.Web.PagedList" />
+		<PackageReference Include="X.PagedList.Mvc.Core" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design">
 		  <PrivateAssets>all</PrivateAssets>
 		</PackageReference>
