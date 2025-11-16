@@ -1,6 +1,6 @@
 [
   {
-    "Name": "API + Windows App",
+    "Name": "Web + Windows App",
     "Projects": [
       {
         "Path": "web\\MZikmund.Web\\MZikmund.Web.csproj",
