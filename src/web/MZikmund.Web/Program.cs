@@ -42,9 +42,19 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 		options.AddPolicy("WasmAppPolicy",
 			policy =>
 			{
-				policy.WithOrigins(
-					siteConfiguration.General.WasmAppUrl.AbsoluteUri.TrimEnd('/'),
-					"https://mzikmund.app")
+				policy.SetIsOriginAllowed(origin =>
+					{
+						if (string.IsNullOrEmpty(origin))
+						{
+							return false;
+						}
+
+						var uri = new Uri(origin);
+						// Allow https://mzikmund.app and all its subdomains (https://*.mzikmund.app)
+						return uri.Scheme == "https" &&
+							   (uri.Host.Equals("mzikmund.app", StringComparison.OrdinalIgnoreCase) ||
+								uri.Host.EndsWith(".mzikmund.app", StringComparison.OrdinalIgnoreCase));
+					})
 					.AllowAnyMethod()
 					.AllowAnyHeader()
 					.AllowCredentials();
