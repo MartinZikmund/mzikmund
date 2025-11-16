@@ -30,15 +30,36 @@
 						<Grid.RowDefinitions>
 							<RowDefinition Height="Auto" />
 							<RowDefinition Height="Auto" />
+							<RowDefinition Height="Auto" />
 						</Grid.RowDefinitions>
-						<TextBlock Style="{ThemeResource SubheaderTextBlockStyle}" Text="{x:Bind Item.Title}" />
-						<TextBlock Text="{x:Bind AbstractPlain}" Grid.Row="1" TextWrapping="Wrap" />
+						<Border 
+							Grid.Row="0" 
+							CornerRadius="{ThemeResource ControlCornerRadius}" 
+							Margin="0,0,0,8"
+							MaxHeight="200">
+							<Image 
+								Source="{x:Bind Item.HeroImageUrl}" 
+								Stretch="UniformToFill" 
+								HorizontalAlignment="Center"
+								VerticalAlignment="Center" />
+						</Border>
+						<TextBlock 
+							Grid.Row="1" 
+							Style="{ThemeResource SubheaderTextBlockStyle}" 
+							Text="{x:Bind Item.Title}" 
+							TextWrapping="Wrap" />
+						<TextBlock 
+							Grid.Row="2" 
+							Text="{x:Bind AbstractPlain}" 
+							TextWrapping="Wrap" 
+							MaxLines="3" 
+							TextTrimming="CharacterEllipsis" />
 					</Grid>
 				</DataTemplate>
 			</ListView.ItemTemplate>
 		</ListView>
 
-		<Grid Grid.Row="1" Padding="16" ColumnSpacing="8">
+		<Grid Grid.Row="1" Padding="16" ColumnSpacing="8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,1,0,0">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="Auto" />
 				<ColumnDefinition Width="*" />
@@ -48,12 +69,27 @@
 				Content="Previous" 
 				Command="{x:Bind ViewModel.GoToPreviousPageCommand}" 
 				IsEnabled="{x:Bind ViewModel.CanGoToPreviousPage, Mode=OneWay}" />
-			<TextBlock 
+			<StackPanel 
 				Grid.Column="1" 
-				Text="{x:Bind ViewModel.CurrentPage, Mode=OneWay}" 
+				Orientation="Vertical"
 				HorizontalAlignment="Center" 
-				VerticalAlignment="Center" 
-				Style="{ThemeResource BodyTextBlockStyle}" />
+				VerticalAlignment="Center">
+				<TextBlock 
+					HorizontalAlignment="Center"
+					Style="{ThemeResource BodyStrongTextBlockStyle}">
+					<Run Text="Page " />
+					<Run Text="{x:Bind ViewModel.CurrentPage, Mode=OneWay}" />
+					<Run Text=" of " />
+					<Run Text="{x:Bind ViewModel.TotalPages, Mode=OneWay}" />
+				</TextBlock>
+				<TextBlock 
+					HorizontalAlignment="Center"
+					Style="{ThemeResource CaptionTextBlockStyle}"
+					Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+					<Run Text="{x:Bind ViewModel.TotalCount, Mode=OneWay}" />
+					<Run Text=" posts" />
+				</TextBlock>
+			</StackPanel>
 			<Button 
 				Grid.Column="2" 
 				Content="Next" 
