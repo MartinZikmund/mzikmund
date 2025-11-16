@@ -9,6 +9,13 @@
     --bs-primary-rgb: 255,0,0;
     --bs-link-color: red;
     --bs-link-color-rgb: 255,0,0;*/
+    --bs-body-bg: #F3F3F3;
+    --bs-card-bg: #ffffff;
+}
+
+[data-bs-theme="dark"] {
+    --bs-body-bg: #202020;
+    --bs-card-bg: #000000;
 }
 
 html {
@@ -24,14 +31,6 @@ html {
 html {
     position: relative;
     min-height: 100%;
-}
-
-body {
-    background-color: #F3F3F3;
-}
-
-[data-bs-theme="dark"] body {
-    background-color: #202020;
 }
 
 article {
@@ -62,7 +61,7 @@ article figure {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
     border-radius: 0.75rem !important;
-    background: #ffffff;
+    background: var(--bs-card-bg);
 
     .card-link-wrapper {
         color: inherit;
@@ -83,10 +82,6 @@ article figure {
             color: var(--bs-primary);
         }
     }
-}
-
-[data-bs-theme="dark"] .article-card {
-    background: #000000;
 }
 
 .article-card-image-wrapper {
