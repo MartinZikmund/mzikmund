@@ -1,0 +1,47 @@
+@page "/embed/post/{id:guid}"
+@using MZikmund.DataContracts.Blog
+@model MZikmund.Web.Pages.Embed.PostEmbedModel
+
+@{
+	Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="robots" content="noindex, nofollow" />
+	<title>@Model.BlogPost?.Title</title>
+
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+	<link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+	<div class="container">
+		<main role="main" class="pb-4">
+			<article class="blog-post">
+				<header>
+					@* <img class="hero-image shadow mb-3 img-fluid mx-auto d-block" src="@Model.BlogPost.Localizations[0].HeroImage" /> *@
+
+					<h1 class="display-3 text-center text-primary">@Model.BlogPost?.Title</h1>
+					@* <div class="lead text-center">@Model.BlogPost?.PublishDate!.Value.Date.ToOrdinalWords()</div> *@
+					<p class="text-center lead mb-1 mt-2">
+						@foreach (var category in Model.BlogPost!.Categories)
+						{
+							<a class="badge bg-primary text-decoration-none" asp-page="/Blog/CategoryPostList" asp-route-categoryName="@category.RouteName">@category.DisplayName</a>
+						}
+					</p>
+					<p class="text-center text-secondary">@Model.BlogPost.PublishedDate.Humanize()</p>
+				</header>
+				<div class="post-content">
+					@Html.Raw(Model.HtmlContent)
+				</div>
+			</article>
+		</main>
+	</div>
+	<script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+	<script src="~/js/site.js" asp-append-version="true"></script>
+</body>
+</html>
