@@ -4,9 +4,14 @@ namespace MZikmund.Blog {
 
         public init(): void {
             // Wait for DOM to be ready before checking for blog post page
-            document.addEventListener('DOMContentLoaded', () => {
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => {
+                    this.initialize();
+                });
+            } else {
+                // DOM already loaded
                 this.initialize();
-            });
+            }
         }
 
         private initialize(): void {
