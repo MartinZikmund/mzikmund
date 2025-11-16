@@ -59,7 +59,8 @@ namespace MZikmund.Blog {
             const scrollTop = window.scrollY || document.documentElement.scrollTop;
 
             // Calculate percentage (0-100)
-            const scrollPercentage = (scrollTop / (documentHeight - windowHeight)) * 100;
+            const maxScroll = documentHeight - windowHeight;
+            const scrollPercentage = maxScroll > 0 ? (scrollTop / maxScroll) * 100 : 0;
 
             // Clamp between 0 and 100
             const progress = Math.min(Math.max(scrollPercentage, 0), 100);
