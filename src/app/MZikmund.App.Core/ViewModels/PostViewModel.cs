@@ -23,7 +23,7 @@ public class PostViewModel : PageViewModel
 		Post = postResponse.Content!;
 		
 		// Get the base URL from configuration
-		var baseUrl = _appConfig.Value.ApiUrl?.Replace("/api", "") ?? "https://mzikmund.dev";
+		var baseUrl = _appConfig.Value.WebUrl;
 		EmbedUrl = $"{baseUrl}/embed/post/{postId}";
 		OnPropertyChanged(nameof(EmbedUrl));
 	}
