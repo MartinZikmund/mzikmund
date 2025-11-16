@@ -16,6 +16,7 @@ public class BlogViewModel : PageViewModel
 	private readonly ILoadingIndicator _loadingIndicator;
 	private readonly IMarkdownConverter _markdownConverter;
 	private readonly INavigationService _navigationService;
+	private readonly ILogger<BlogViewModel> _logger;
 	private int _currentPage = 1;
 	private int _totalPages = 1;
 	private int _totalCount;
@@ -25,12 +26,14 @@ public class BlogViewModel : PageViewModel
 		IMZikmundApi api,
 		ILoadingIndicator loadingIndicator,
 		IMarkdownConverter markdownConverter,
-		INavigationService navigationService)
+		INavigationService navigationService,
+		ILogger<BlogViewModel> logger)
 	{
 		_api = api ?? throw new ArgumentNullException(nameof(api));
 		_loadingIndicator = loadingIndicator;
 		_markdownConverter = markdownConverter;
 		_navigationService = navigationService;
+		_logger = logger;
 		LoadMoreCommand = new AsyncRelayCommand(LoadMoreAsync, () => CanLoadMore);
 	}
 
@@ -82,17 +85,24 @@ public class BlogViewModel : PageViewModel
 
 	private async Task LoadPostsAsync(int pageNumber)
 	{
-		var response = await _api.GetPostsAsync(pageNumber);
-		if (response.Content != null)
+		try
 		{
-			foreach (var post in response.Content.Data)
+			var response = await _api.GetPostsAsync(pageNumber);
+			if (response.Content != null)
 			{
-				Posts.Add(new(post, _markdownConverter));
-			}
+				foreach (var post in response.Content.Data)
+				{
+					Posts.Add(new(post, _markdownConverter));
+				}
 
-			TotalCount = response.Content.TotalCount;
-			TotalPages = (int)Math.Ceiling((double)response.Content.TotalCount / response.Content.PageSize);
-			CurrentPage = response.Content.PageNumber;
+				TotalCount = response.Content.TotalCount;
+				TotalPages = (int)Math.Ceiling((double)response.Content.TotalCount / response.Content.PageSize);
+				CurrentPage = response.Content.PageNumber;
+			}
+		}
+		catch (Exception ex)
+		{
+			_logger.LogError(ex, "Load failed");
 		}
 	}
 

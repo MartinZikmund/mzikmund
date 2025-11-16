@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MZikmund.Api.Client;
 using MZikmund.Api.Handlers;
+using MZikmund.Api.Serialization;
 using MZikmund.App.Core.Infrastructure;
 using MZikmund.Business.Models;
 using MZikmund.DataContracts.Serialization;
@@ -133,7 +134,8 @@ public partial class MZikmundApp : Application, IApplication
 
 		return RestService.For<IMZikmundApi>(apiUrl, new RefitSettings()
 		{
-			AuthorizationHeaderValueGetter = GetTokenAsync
+			AuthorizationHeaderValueGetter = GetTokenAsync,
+			ContentSerializer = new SystemTextJsonContentSerializer(MZikmundApiSerializerContext.Default.Options),
 		});
 
 		async Task<string> GetTokenAsync(HttpRequestMessage message, CancellationToken cancellationToken)
