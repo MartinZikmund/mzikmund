@@ -47,9 +47,9 @@ public sealed partial class PostView : PostViewBase
 
 	private void NavigateToPost()
 	{
-		if (!string.IsNullOrEmpty(ViewModel?.EmbedUrl) && _previewWebView.CoreWebView2 != null)
+		if (ViewModel?.EmbedUrl is not null && _previewWebView.CoreWebView2 != null)
 		{
-			_previewWebView.Source = new Uri(ViewModel.EmbedUrl);
+			_previewWebView.Source = ViewModel.EmbedUrl;
 		}
 	}
 }

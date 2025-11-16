@@ -21,14 +21,18 @@ public class PostViewModel : PageViewModel
 		var postId = (Guid)parameter!;
 		var postResponse = await _api.GetPostAsync(postId);
 		Post = postResponse.Content!;
-		
+
 		// Get the base URL from configuration
 		var baseUrl = _appConfig.Value.WebUrl;
-		EmbedUrl = $"{baseUrl}/embed/post/{postId}";
+		if (baseUrl is null)
+		{
+			throw new InvalidOperationException("WebUrl is not set in configuration");
+		}
+		EmbedUrl = new Uri(new Uri(baseUrl), $"{baseUrl}embed/post/{postId}");
 		OnPropertyChanged(nameof(EmbedUrl));
 	}
 
 	public Post? Post { get; private set; }
 
-	public string EmbedUrl { get; private set; } = "";
+	public Uri? EmbedUrl { get; private set; }
 }

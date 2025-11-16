@@ -42,7 +42,12 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 		options.AddDefaultPolicy(
 			policy =>
 			{
-				policy.WithOrigins(siteConfiguration.General.WasmAppUrl.AbsoluteUri).AllowAnyMethod().AllowAnyHeader();
+				policy.WithOrigins(
+					siteConfiguration.General.WasmAppUrl.AbsoluteUri.TrimEnd('/'),
+					"https://mzikmund.app")
+					.AllowAnyMethod()
+					.AllowAnyHeader()
+					.AllowCredentials();
 			});
 	});
 	services.Configure<RouteOptions>(option =>
