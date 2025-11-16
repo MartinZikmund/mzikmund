@@ -32,8 +32,7 @@ namespace MZikmund.Blog {
 
 			const headings = this.extractHeadings();
 			if (headings.length === 0) {
-				// Hide TOC if no headings found
-				this.tocContainer.style.display = 'none';
+				// Keep TOC hidden if no headings found
 				return;
 			}
 
@@ -41,6 +40,9 @@ namespace MZikmund.Blog {
 			this.setupScrollSpy(headings);
 			this.setupSmoothScroll();
 			this.setupMobileToggle();
+			
+			// Make TOC visible after building
+			this.tocContainer.classList.add('toc-visible');
 		}
 
 		private extractHeadings(): TocItem[] {

@@ -503,15 +503,27 @@ article {
     display: flex;
     gap: 2rem;
     position: relative;
+    justify-content: center;
 }
 
 .blog-post-main {
-    flex: 1;
-    min-width: 0; // Allow flexbox to shrink this properly
+    flex: 0 1 50em; // Fixed width matching article max-width
+    max-width: 50em;
+    min-width: 0;
 }
 
 #toc-container {
-    display: none; // Hidden by default, shown via media query
+    // Always reserve space but initially invisible to prevent layout shift
+    flex: 0 0 280px;
+    max-width: 280px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+
+    &.toc-visible {
+        opacity: 1;
+        visibility: visible;
+    }
 
     .toc-nav {
         background-color: var(--bs-light);
@@ -594,10 +606,6 @@ article {
 // Desktop view - TOC on the right side
 @media (min-width: 1200px) {
     #toc-container {
-        display: block;
-        flex: 0 0 280px;
-        max-width: 280px;
-
         .toc-nav {
             position: sticky;
             top: 5rem;
@@ -610,9 +618,18 @@ article {
 // Tablet/Mobile view - Collapsible TOC at top
 @media (max-width: 1199px) {
     #toc-container {
-        display: block;
+        // On mobile, use display to fully hide/show
+        display: none;
         width: 100%;
         margin-bottom: 2rem;
+        opacity: 1;
+        visibility: visible;
+        flex: 1 1 auto;
+        max-width: none;
+
+        &.toc-visible {
+            display: block;
+        }
 
         .toc-nav {
             position: relative;
