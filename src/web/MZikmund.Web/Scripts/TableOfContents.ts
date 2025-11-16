@@ -110,20 +110,28 @@ namespace MZikmund.Blog {
 
 				listItem.appendChild(link);
 
+				// Handle nesting - go up or down multiple levels if needed
 				if (heading.level > lastLevel) {
-					// Create nested list
-					const nestedList = document.createElement('ul');
-					nestedList.className = 'toc-list toc-nested';
-					if (currentList.lastElementChild) {
-						currentList.lastElementChild.appendChild(nestedList);
+					// Create nested list(s) for going deeper
+					let levelsDown = heading.level - lastLevel;
+					while (levelsDown > 0) {
+						const nestedList = document.createElement('ul');
+						nestedList.className = 'toc-list toc-nested';
+						if (currentList.lastElementChild) {
+							currentList.lastElementChild.appendChild(nestedList);
+						} else {
+							// If no previous item, append to current list
+							currentList.appendChild(nestedList);
+						}
+						currentList = nestedList;
+						levelsDown--;
 					}
-					currentList = nestedList;
 				} else if (heading.level < lastLevel) {
-					// Go back to parent level
+					// Go back to parent level(s)
 					let levelsUp = lastLevel - heading.level;
 					while (levelsUp > 0 && currentList.parentElement) {
 						const parent = currentList.parentElement.closest('ul');
-						if (parent) {
+						if (parent && parent.classList.contains('toc-list')) {
 							currentList = parent;
 						}
 						levelsUp--;
