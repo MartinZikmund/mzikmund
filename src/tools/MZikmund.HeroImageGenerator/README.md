@@ -49,11 +49,15 @@ The tool uses `appsettings.json` for configuration. You need to provide:
 2. Run the tool:
 
 ```bash
+# Process all posts without hero images
 dotnet run
+
+# Process only a specific number of posts (e.g., 5 posts for testing)
+dotnet run 5
 ```
 
 The tool will:
-- Query all posts without hero images
+- Query posts without hero images (ordered by publication/creation date, newest first)
 - For each post:
   - Generate a prompt from the post title and content
   - Call OpenAI DALL-E to generate an image
@@ -72,6 +76,9 @@ The tool will:
 
 Be aware that generating images with DALL-E incurs costs:
 - DALL-E 3 (1024x1024, standard quality): ~$0.04 per image
-- The tool will process ALL posts without hero images in a single run
+- The tool will process ALL posts without hero images unless you specify a limit
 
-Consider running on a small subset first or manually reviewing which posts need hero images.
+**Recommendations:**
+- Start with a small number (e.g., `dotnet run 1`) to test the configuration
+- Review the generated images before processing all posts
+- Consider which posts actually need hero images

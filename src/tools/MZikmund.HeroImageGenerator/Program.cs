@@ -17,6 +17,13 @@ sealed class Program
     {
         try
         {
+            // Parse command-line arguments
+            int? maxPosts = null;
+            if (args.Length > 0 && int.TryParse(args[0], out var limit))
+            {
+                maxPosts = limit;
+            }
+
             var host = CreateHostBuilder(args).Build();
 
             using var scope = host.Services.CreateScope();
@@ -24,9 +31,14 @@ sealed class Program
             var logger = services.GetRequiredService<ILogger<Program>>();
 
             logger.LogInformation("Starting Hero Image Generator Tool");
+            
+            if (maxPosts.HasValue)
+            {
+                logger.LogInformation("Processing up to {MaxPosts} posts", maxPosts.Value);
+            }
 
             var generatorService = services.GetRequiredService<HeroImageGeneratorService>();
-            await generatorService.ProcessPostsAsync();
+            await generatorService.ProcessPostsAsync(maxPosts);
 
             logger.LogInformation("Hero Image Generator Tool completed successfully");
             return 0;

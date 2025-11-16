@@ -36,15 +36,23 @@ public class HeroImageGeneratorService
     /// <summary>
     /// Processes all posts without hero images.
     /// </summary>
-    public async Task ProcessPostsAsync(CancellationToken cancellationToken = default)
+    /// <param name="maxPosts">Optional maximum number of posts to process. If null, processes all posts.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    public async Task ProcessPostsAsync(int? maxPosts = null, CancellationToken cancellationToken = default)
     {
         await _blobStorage.InitializeAsync();
 
-        var postsWithoutHeroImage = await _dbContext.Post
+        var query = _dbContext.Post
             .Where(p => string.IsNullOrEmpty(p.HeroImageUrl))
-            .ToListAsync(cancellationToken);
+            .OrderByDescending(p => p.PublishedDate ?? p.CreatedDate);
 
-        _logger.LogInformation("Found {Count} posts without hero images", postsWithoutHeroImage.Count);
+        var postsWithoutHeroImage = maxPosts.HasValue 
+            ? await query.Take(maxPosts.Value).ToListAsync(cancellationToken)
+            : await query.ToListAsync(cancellationToken);
+
+        _logger.LogInformation("Found {Count} posts without hero images{Limit}", 
+            postsWithoutHeroImage.Count,
+            maxPosts.HasValue ? $" (processing up to {maxPosts.Value})" : "");
 
         foreach (var post in postsWithoutHeroImage)
         {
@@ -57,7 +65,7 @@ public class HeroImageGeneratorService
             await ProcessPostAsync(post, cancellationToken);
         }
 
-        _logger.LogInformation("Completed processing all posts");
+        _logger.LogInformation("Completed processing posts");
     }
 
     /// <summary>
