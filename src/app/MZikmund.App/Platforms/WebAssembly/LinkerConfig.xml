@@ -1,7 +1,8 @@
 <linker>
-  <assembly fullname="MZikmund.App" />
+	<assembly fullname="MZikmund.App" />
+	<assembly fullname="MZikmund.App.Core" />
 
-  <!--
+	<!--
   Uncomment this section when using JSON.NET
   <assembly fullname="System.Core">
     <type fullname="System.Linq.Expressions*" />
