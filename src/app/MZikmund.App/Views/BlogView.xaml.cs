@@ -20,7 +20,9 @@ public sealed partial class BlogView : BlogViewBase
 	}
 
 	private void PostCard_PointerEntered(object sender, PointerRoutedEventArgs e)
-		=> (sender as UIElement)?.StartBringIntoView();
+	{
+		// Intentionally left blank; add visual feedback here if desired.
+	}
 
 	private void PostCard_PointerExited(object sender, PointerRoutedEventArgs e) { }
 }
