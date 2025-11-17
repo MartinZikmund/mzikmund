@@ -1,17 +1,28 @@
 {
-	"compileOnSave": true,
 	"compilerOptions": {
-		"noImplicitAny": false,
-		"noEmitOnError": false,
-		"removeComments": false,
-		"target": "ES2015",
-		"outFile": "wwwroot/js/site.js",
-		"module": "System",
+		"target": "ES2020",
+		"useDefineForClassFields": true,
+		"module": "ESNext",
+		"lib": ["ES2020", "DOM", "DOM.Iterable"],
+		"skipLibCheck": true,
+
+		/* Bundler mode */
+		"moduleResolution": "bundler",
+		"allowImportingTsExtensions": true,
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"noEmit": true,
+
+		/* Linting */
 		"strict": true,
-		"moduleResolution": "node"
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitAny": false
 	},
 	"include": [
-		"Scripts/**/*"
+		"Scripts/**/*",
+		"vite.config.ts"
 	],
 	"exclude": [
 		"node_modules",

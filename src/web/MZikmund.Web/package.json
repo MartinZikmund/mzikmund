@@ -2,14 +2,20 @@
 	"version": "1.0.0",
 	"name": "asp.net",
 	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"preview": "vite preview"
+	},
 	"dependencies": {
 		"bootstrap": "5.3.8"
 	},
 	"devDependencies": {
 		"@types/node": "24.10.1",
 		"eslint": "9.39.1",
-		"ts-loader": "9.5.4",
 		"sass": "1.94.0",
-		"sass-loader": "16.0.6"
+		"typescript": "5.7.2",
+		"vite": "6.0.7"
 	}
 }

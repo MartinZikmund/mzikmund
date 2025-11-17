@@ -1,5 +1,6 @@
-/// <reference path="ThemeSwitchManager.ts" />
-/// <reference path="ReadingProgressBar.ts" />
+import { ThemeSwitchManager } from './ThemeSwitchManager';
+import { ReadingProgressBar } from './ReadingProgressBar';
+import '../Styles/site.scss';
 
-MZikmund.Theming.ThemeSwitchManager.init();
-new MZikmund.Blog.ReadingProgressBar().init();
+ThemeSwitchManager.init();
+new ReadingProgressBar().init();
