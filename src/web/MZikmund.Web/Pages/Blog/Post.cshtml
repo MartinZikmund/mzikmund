@@ -45,12 +45,17 @@
                 if (heroElement) {
                     const url = heroElement.dataset.heroUrl;
                     if (url) {
-                        // Escape special characters for safe CSS usage
+                        // Comprehensive escaping for safe CSS usage
                         const escapedUrl = url.replace(/\\/g, '\\\\')
                             .replace(/"/g, '\\"')
                             .replace(/'/g, "\\'")
                             .replace(/\(/g, '\\(')
-                            .replace(/\)/g, '\\)');
+                            .replace(/\)/g, '\\)')
+                            .replace(/\n/g, '\\n')
+                            .replace(/\r/g, '\\r')
+                            .replace(/\t/g, '\\t')
+                            .replace(/\f/g, '\\f')
+                            .replace(/\v/g, '\\v');
                         heroElement.style.setProperty('--hero-bg-url', 'url("' + escapedUrl + '")');
                     }
                 }
