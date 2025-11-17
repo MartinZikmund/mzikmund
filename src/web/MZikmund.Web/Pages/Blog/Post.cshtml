@@ -17,20 +17,45 @@
     }
 }
 
-<article class="blog-post">
-    <header>
-        @* <img class="hero-image shadow mb-3 img-fluid mx-auto d-block" src="@Model.BlogPost.Localizations[0].HeroImage" /> *@
+@if (Model.BlogPost?.HeroImageUrl is not null)
+{
+    @section AboveMain
+    {
+        <div class="blog-post-hero" style="background-image: url('@Model.BlogPost.HeroImageUrl');">
+            <div class="blog-post-hero-overlay">
+                <div class="container">
+                    <div class="blog-post-hero-content">
+                        <h1 class="display-3 text-white mb-3">@Model.BlogPost.Title</h1>
+                        <div class="blog-post-hero-meta">
+                            <p class="lead mb-2">
+                                @foreach (var category in Model.BlogPost.Categories)
+                                {
+                                    <a class="badge bg-light text-dark text-decoration-none" asp-page="/Blog/CategoryPostList" asp-route-categoryName="@category.RouteName">@category.DisplayName</a>
+                                }
+                            </p>
+                            <p class="text-white-50 mb-0">@Model.BlogPost.PublishedDate.Humanize()</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
 
-        <h1 class="display-3 text-center text-primary">@Model.BlogPost?.Title</h1>
-        @* <div class="lead text-center">@Model.BlogPost?.PublishDate!.Value.Date.ToOrdinalWords()</div> *@
-        <p class="text-center lead mb-1 mt-2">
-            @foreach (var category in Model.BlogPost!.Categories)
-            {
-                <a class="badge bg-primary text-decoration-none" asp-page="/Blog/CategoryPostList" asp-route-categoryName="@category.RouteName">@category.DisplayName</a>
-            }
-        </p>
-        <p class="text-center text-secondary">@Model.BlogPost.PublishedDate.Humanize()</p>
-    </header>
+<article class="blog-post">
+    @if (Model.BlogPost?.HeroImageUrl is null)
+    {
+        <header>
+            <h1 class="display-3 text-center text-primary">@Model.BlogPost?.Title</h1>
+            <p class="text-center lead mb-1 mt-2">
+                @foreach (var category in Model.BlogPost!.Categories)
+                {
+                    <a class="badge bg-primary text-decoration-none" asp-page="/Blog/CategoryPostList" asp-route-categoryName="@category.RouteName">@category.DisplayName</a>
+                }
+            </p>
+            <p class="text-center text-secondary">@Model.BlogPost.PublishedDate.Humanize()</p>
+        </header>
+    }
     <div class="post-content">
         @Html.Raw(Model.HtmlContent)
     </div>
