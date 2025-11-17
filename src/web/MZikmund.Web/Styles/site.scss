@@ -39,6 +39,196 @@ html {
     min-height: 100%;
 }
 
+// Enhanced Navbar Styles
+.navbar {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.95) !important;
+    transition: all 0.3s ease;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+
+    .navbar-brand {
+        transition: transform 0.3s ease, opacity 0.3s ease;
+        
+        &:hover {
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
+
+        img {
+            transition: filter 0.3s ease;
+        }
+    }
+
+    .nav-link {
+        position: relative;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        padding: 0.5rem 1rem !important;
+        transition: color 0.3s ease;
+        
+        &::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: var(--bs-primary);
+            transition: width 0.3s ease, left 0.3s ease;
+        }
+
+        &:hover {
+            color: var(--bs-primary) !important;
+            
+            &::after {
+                width: 80%;
+                left: 10%;
+            }
+        }
+
+        &.active {
+            color: var(--bs-primary) !important;
+            font-weight: 600;
+            
+            &::after {
+                width: 80%;
+                left: 10%;
+            }
+        }
+    }
+
+    .dropdown {
+        .dropdown-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            
+            &::after {
+                transition: transform 0.3s ease;
+            }
+        }
+
+        &.show .dropdown-toggle::after {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-menu {
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            animation: slideDown 0.3s ease;
+            margin-top: 0.5rem;
+            border-radius: 0.5rem;
+            overflow: hidden;
+
+            .dropdown-item {
+                padding: 0.75rem 1.25rem;
+                transition: all 0.2s ease;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+
+                &:hover {
+                    background: var(--bs-primary-bg-subtle);
+                    color: var(--bs-primary);
+                    transform: translateX(4px);
+                }
+
+                &.selected {
+                    background: var(--bs-primary-bg-subtle);
+                    font-weight: 600;
+                    
+                    &::after {
+                        content: '✓';
+                        margin-left: 0.5rem;
+                        color: var(--bs-primary);
+                    }
+                }
+            }
+        }
+    }
+}
+
+[data-bs-theme="dark"] .navbar {
+    background: rgba(30, 30, 30, 0.95) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+    .navbar-brand img {
+        filter: brightness(0.9);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// Navbar toggler improvements
+.navbar-toggler {
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    padding: 0.5rem 0.75rem;
+    transition: all 0.3s ease;
+
+    &:hover {
+        border-color: var(--bs-primary);
+        background: var(--bs-primary-bg-subtle);
+    }
+
+    &:focus {
+        box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+    }
+
+    .navbar-toggler-icon {
+        transition: transform 0.3s ease;
+    }
+
+    &[aria-expanded="true"] .navbar-toggler-icon {
+        transform: rotate(90deg);
+    }
+}
+
+[data-bs-theme="dark"] .navbar-toggler {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+// Mobile menu improvements
+@media (max-width: 575.98px) {
+    .navbar-collapse {
+        animation: slideDown 0.3s ease;
+        margin-top: 1rem;
+        padding: 1rem;
+        background: var(--bs-body-bg);
+        border-radius: 0.5rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+
+        .nav-link {
+            padding: 0.75rem 1rem !important;
+            border-radius: 0.25rem;
+            margin-bottom: 0.25rem;
+
+            &:hover {
+                background: var(--bs-primary-bg-subtle);
+            }
+        }
+
+        .dropdown-menu {
+            border: none;
+            box-shadow: none;
+            background: transparent;
+            padding-left: 1rem;
+
+            .dropdown-item {
+                border-radius: 0.25rem;
+            }
+        }
+    }
+}
+
 article {
     max-width: 50em;
     margin: auto;
