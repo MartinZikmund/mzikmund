@@ -18,7 +18,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./src
@@ -40,16 +40,23 @@ jobs:
         dotnet-version: |
           ${{ env.DOTNET_VERSION }}
 
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        cache-dependency-path: ./src/web/MZikmund.Web/package-lock.json
+
     - name: Install .NET workloads
       run:
-        dotnet workload restore "$env:SOLUTION_FILE"
+        dotnet workload restore "$SOLUTION_FILE"
     - name: Install .NET workloads wasm-tools
       run:
         dotnet workload install wasm-tools
     - name: Restore Node.js dependencies
       run: |
         cd web/MZikmund.Web
-        npm install
+        npm ci
     - name: Build
       run: dotnet build --configuration Release
     - name: Test
