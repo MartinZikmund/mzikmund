@@ -37,14 +37,12 @@ public class PostModel : PageModel
 		MetaKeywords = string.Join(", ", BlogPost.Tags.Select(t => t.DisplayName));
 		
 		// Validate and sanitize hero image URL
-		if (!string.IsNullOrWhiteSpace(BlogPost.HeroImageUrl))
+		// Only allow http:// and https:// URLs for security
+		if (!string.IsNullOrWhiteSpace(BlogPost.HeroImageUrl) &&
+			Uri.TryCreate(BlogPost.HeroImageUrl, UriKind.Absolute, out var uri) &&
+			(uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
 		{
-			// Only allow http:// and https:// URLs for security
-			if (Uri.TryCreate(BlogPost.HeroImageUrl, UriKind.Absolute, out var uri) &&
-				(uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
-			{
-				SafeHeroImageUrl = uri.ToString();
-			}
+			SafeHeroImageUrl = uri.ToString();
 		}
 	}
 }
