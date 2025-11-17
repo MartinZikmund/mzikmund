@@ -14,7 +14,7 @@ public sealed partial class BlogView : BlogViewBase
 
 	private void OnViewPortChanged(DependencyObject sender, DependencyProperty dp) => TryLoadMore();
 
-	private void PostCard_PointerPressed(object sender, PointerRoutedEventArgs e)
+	private void PostCard_Tapped(object sender, TappedRoutedEventArgs e)
 	{
 		if (sender is FrameworkElement element && element.Tag is PostListItem post)
 		{

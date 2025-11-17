@@ -8,8 +8,6 @@ public class Program
 	[STAThread]
 	public static void Main(string[] args)
 	{
-		MZikmundApp.InitializeLogging();
-
 		var host = UnoPlatformHostBuilder.Create()
 			.App(() => new MZikmundApp())
 			.UseX11()

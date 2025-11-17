@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using MZikmund.ViewModels;
@@ -25,9 +26,9 @@ public sealed partial class PostView : PostViewBase
 	{
 		try
 		{
-			_previewWebView.CoreWebView2Initialized += OnWebViewInitialized;
 			await _previewWebView.EnsureCoreWebView2Async();
 			ViewModel!.PropertyChanged += ViewModel_PropertyChanged;
+			NavigateToPost();
 		}
 		catch (Exception)
 		{
@@ -35,9 +36,7 @@ public sealed partial class PostView : PostViewBase
 		}
 	}
 
-	private void OnWebViewInitialized(WebView2 sender, CoreWebView2InitializedEventArgs args) => NavigateToPost();
-
-	private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+	private async void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
 	{
 		if (e.PropertyName == nameof(ViewModel.EmbedUrl))
 		{
