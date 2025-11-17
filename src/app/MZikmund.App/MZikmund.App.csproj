@@ -34,6 +34,7 @@
 			Serialization;
 			Mvvm;
 			Lottie;
+			Logging;
 			Navigation;
 			Localization;
 			ThemeService;
