@@ -21,7 +21,18 @@
 {
     @section AboveMain
     {
-        <div class="blog-post-hero" style="--hero-bg-url: url('@Html.Raw(Model.BlogPost.HeroImageUrl.Replace("'", "\\'").Replace("\"", "\\\""))');">
+        @{
+            // Escape URL for safe use in CSS
+            var escapedUrl = Model.BlogPost.HeroImageUrl
+                .Replace("\\", "\\\\")
+                .Replace("'", "\\'")
+                .Replace("\"", "\\\"")
+                .Replace("\n", "\\n")
+                .Replace("\r", "\\r")
+                .Replace("(", "\\(")
+                .Replace(")", "\\)");
+        }
+        <div class="blog-post-hero" style="--hero-bg-url: url('@Html.Raw(escapedUrl)');">
             <div class="blog-post-hero-overlay">
                 <div class="container">
                     <div class="blog-post-hero-content">

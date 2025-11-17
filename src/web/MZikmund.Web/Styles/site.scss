@@ -232,7 +232,7 @@ article {
     position: relative;
     width: 100%;
     min-height: 400px;
-    background-image: var(--hero-bg-url);
+    background-image: var(--hero-bg-url, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
