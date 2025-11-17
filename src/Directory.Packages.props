@@ -71,6 +71,5 @@
     <PackageVersion Include="SkiaSharp.Skottie" Version="3.119.1" />
     <PackageVersion Include="SkiaSharp.Views.Uno.WinUI" Version="3.119.1" />
     <PackageVersion Include="Xamarin.Google.Android.Material" Version="1.13.0" />
-    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
   </ItemGroup>
 </Project>
