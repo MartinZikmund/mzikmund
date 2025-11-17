@@ -24,6 +24,8 @@ public class PostEmbedModel : PageModel
 
 	public string MetaKeywords { get; set; } = "";
 
+	public string? SafeHeroImageUrl { get; set; }
+
 	public async Task<IActionResult> OnGet(Guid id)
 	{
 		try
@@ -35,6 +37,15 @@ public class PostEmbedModel : PageModel
 			BlogPost = await _mediator.Send(new GetPostByIdQuery(id));
 			HtmlContent = await _postContentProcessor.ProcessAsync(BlogPost.Content);
 			MetaKeywords = string.Join(", ", BlogPost.Tags.Select(t => t.DisplayName));
+
+			// Validate and sanitize hero image URL
+			// Only allow http:// and https:// URLs for security
+			if (!string.IsNullOrWhiteSpace(BlogPost.HeroImageUrl) &&
+				Uri.TryCreate(BlogPost.HeroImageUrl, UriKind.Absolute, out var uri) &&
+				(uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
+			{
+				SafeHeroImageUrl = uri.ToString();
+			}
 
 			return Page();
 		}
