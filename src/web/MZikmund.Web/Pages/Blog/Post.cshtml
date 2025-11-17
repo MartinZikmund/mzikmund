@@ -46,16 +46,8 @@
                     const url = heroElement.dataset.heroUrl;
                     if (url) {
                         // Comprehensive escaping for safe CSS usage
-                        const escapedUrl = url.replace(/\\/g, '\\\\')
-                            .replace(/"/g, '\\"')
-                            .replace(/'/g, "\\'")
-                            .replace(/\(/g, '\\(')
-                            .replace(/\)/g, '\\)')
-                            .replace(/\n/g, '\\n')
-                            .replace(/\r/g, '\\r')
-                            .replace(/\t/g, '\\t')
-                            .replace(/\f/g, '\\f')
-                            .replace(/\v/g, '\\v');
+                        // Only escape quotes for safe CSS url() usage
+                        const escapedUrl = url.replace(/"/g, '\\"').replace(/'/g, "\\'");
                         heroElement.style.setProperty('--hero-bg-url', 'url("' + escapedUrl + '")');
                     }
                 }
