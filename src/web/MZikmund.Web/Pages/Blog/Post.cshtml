@@ -45,7 +45,13 @@
                 if (heroElement) {
                     const url = heroElement.dataset.heroUrl;
                     if (url) {
-                        heroElement.style.setProperty('--hero-bg-url', 'url("' + url + '")');
+                        // Escape special characters for safe CSS usage
+                        const escapedUrl = url.replace(/\\/g, '\\\\')
+                            .replace(/"/g, '\\"')
+                            .replace(/'/g, "\\'")
+                            .replace(/\(/g, '\\(')
+                            .replace(/\)/g, '\\)');
+                        heroElement.style.setProperty('--hero-bg-url', 'url("' + escapedUrl + '")');
                     }
                 }
             })();
@@ -54,7 +60,7 @@
 }
 
 <article class="blog-post">
-    @if (Model.BlogPost?.HeroImageUrl is null)
+    @if (Model.SafeHeroImageUrl is null)
     {
         <header>
             <h1 class="display-3 text-center text-primary">@Model.BlogPost?.Title</h1>

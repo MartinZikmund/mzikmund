@@ -40,8 +40,10 @@ public class PostModel : PageModel
 		if (!string.IsNullOrWhiteSpace(BlogPost.HeroImageUrl))
 		{
 			// Only allow http:// and https:// URLs for security
+			// Explicitly reject javascript:, data:, and other potentially dangerous schemes
 			if (Uri.TryCreate(BlogPost.HeroImageUrl, UriKind.Absolute, out var uri) &&
-				(uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
+				(uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps) &&
+				uri.Scheme != "javascript" && uri.Scheme != "data")
 			{
 				SafeHeroImageUrl = uri.ToString();
 			}
