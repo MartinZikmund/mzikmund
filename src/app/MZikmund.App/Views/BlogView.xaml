@@ -37,8 +37,8 @@
                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                             BorderThickness="1"
                             CornerRadius="{ThemeResource ControlCornerRadius}"
-                            PointerPressed="PostCard_PointerPressed"
-                            Tag="{x:Bind Item}">
+                            Tag="{x:Bind Item}"
+                            Tapped="PostCard_Tapped">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="200" />
                                 <RowDefinition Height="*" />
