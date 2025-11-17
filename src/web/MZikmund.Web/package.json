@@ -5,7 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
-		"build": "vite build",
+		"build": "node build-assets.js",
 		"preview": "vite preview"
 	},
 	"dependencies": {

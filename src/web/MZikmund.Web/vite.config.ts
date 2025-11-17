@@ -19,17 +19,17 @@ export default defineConfig({
 		// Generate sourcemaps for debugging
 		sourcemap: true,
 		
-		// Minification
+		// Minification - always minify for optimal production size
 		minify: 'terser',
 		
 		// Rollup options
 		rollupOptions: {
 			input: {
 				// Entry point - includes both TypeScript and SCSS
-				main: resolve(__dirname, 'Scripts/index.ts')
+				site: resolve(__dirname, 'Scripts/index.ts')
 			},
 			output: {
-				// Output structure
+				// Output structure - generate both regular and .min versions
 				entryFileNames: 'js/[name].js',
 				chunkFileNames: 'js/[name]-[hash].js',
 				assetFileNames: (assetInfo) => {
@@ -45,6 +45,13 @@ export default defineConfig({
 		
 		// CSS configuration
 		cssCodeSplit: false,
+		
+		// Terser options for better minification
+		terserOptions: {
+			compress: {
+				drop_console: false, // Keep console for debugging
+			},
+		},
 	},
 	
 	// CSS preprocessing
