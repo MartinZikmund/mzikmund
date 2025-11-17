@@ -28,10 +28,23 @@ public class PostModel : PageModel
 
 	public string MetaKeywords { get; set; } = "";
 
+	public string? SafeHeroImageUrl { get; set; }
+
 	public async Task OnGet(string routeName)
 	{
 		BlogPost = await _mediator.Send(new GetPostByRouteNameQuery(routeName));
 		HtmlContent = await _postContentProcessor.ProcessAsync(BlogPost.Content);
 		MetaKeywords = string.Join(", ", BlogPost.Tags.Select(t => t.DisplayName));
+		
+		// Validate and sanitize hero image URL
+		if (!string.IsNullOrWhiteSpace(BlogPost.HeroImageUrl))
+		{
+			// Only allow http:// and https:// URLs for security
+			if (Uri.TryCreate(BlogPost.HeroImageUrl, UriKind.Absolute, out var uri) &&
+				(uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
+			{
+				SafeHeroImageUrl = uri.ToString();
+			}
+		}
 	}
 }

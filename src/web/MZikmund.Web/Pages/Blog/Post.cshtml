@@ -17,22 +17,11 @@
     }
 }
 
-@if (Model.BlogPost?.HeroImageUrl is not null)
+@if (Model.SafeHeroImageUrl is not null)
 {
     @section AboveMain
     {
-        @{
-            // Escape URL for safe use in CSS
-            var escapedUrl = Model.BlogPost.HeroImageUrl
-                .Replace("\\", "\\\\")
-                .Replace("'", "\\'")
-                .Replace("\"", "\\\"")
-                .Replace("\n", "\\n")
-                .Replace("\r", "\\r")
-                .Replace("(", "\\(")
-                .Replace(")", "\\)");
-        }
-        <div class="blog-post-hero" style="--hero-bg-url: url('@Html.Raw(escapedUrl)');">
+        <div class="blog-post-hero" data-hero-url="@Model.SafeHeroImageUrl">
             <div class="blog-post-hero-overlay">
                 <div class="container">
                     <div class="blog-post-hero-content">
@@ -50,6 +39,17 @@
                 </div>
             </div>
         </div>
+        <script>
+            (function() {
+                const heroElement = document.querySelector('.blog-post-hero');
+                if (heroElement) {
+                    const url = heroElement.dataset.heroUrl;
+                    if (url) {
+                        heroElement.style.setProperty('--hero-bg-url', 'url("' + url + '")');
+                    }
+                }
+            })();
+        </script>
     }
 }
 
