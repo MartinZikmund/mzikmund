@@ -15,6 +15,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="BuildWebCompiler2022" Version="*" />
 		<PackageReference Include="Humanizer" />
 		<PackageReference Include="MediatR" />
 		<PackageReference Include="AutoMapper" />
