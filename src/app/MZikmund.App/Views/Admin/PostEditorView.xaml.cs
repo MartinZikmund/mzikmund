@@ -18,11 +18,13 @@ public sealed partial class PostEditorView : PostEditorViewBase
 		PreviewWebViewContainer.Content = _previewWebView = new WebView2();
 		this.Loaded += PostEditorView_Loaded;
 		this.Unloaded += PostEditorView_Unloaded;
+		ContentTextBox.SelectionChanged += ContentTextBox_SelectionChanged;
 	}
 
 	private void PostEditorView_Unloaded(object sender, RoutedEventArgs e)
 	{
 		ViewModel!.PropertyChanged -= ViewModel_PropertyChanged;
+		ContentTextBox.SelectionChanged -= ContentTextBox_SelectionChanged;
 	}
 
 	private async void PostEditorView_Loaded(object sender, RoutedEventArgs e)
@@ -51,6 +53,48 @@ public sealed partial class PostEditorView : PostEditorViewBase
 		{
 			UpdatePreview();
 		}
+	}
+
+	private async void ContentTextBox_SelectionChanged(object sender, RoutedEventArgs e)
+	{
+		if (_previewWebView?.CoreWebView2 is null)
+		{
+			return;
+		}
+
+		// Calculate the current line number from the caret position
+		var text = ContentTextBox.Text;
+		var caretPosition = ContentTextBox.SelectionStart;
+		var lineNumber = GetLineNumberFromPosition(text, caretPosition);
+
+		// Call JavaScript to scroll to the corresponding element
+		try
+		{
+			await _previewWebView.ExecuteScriptAsync($"scrollToSourceLine({lineNumber})");
+		}
+		catch
+		{
+			// Ignore errors if the script fails (e.g., during navigation)
+		}
+	}
+
+	private static int GetLineNumberFromPosition(string text, int position)
+	{
+		if (string.IsNullOrEmpty(text) || position <= 0)
+		{
+			return 0;
+		}
+
+		var lineNumber = 0;
+		for (var i = 0; i < Math.Min(position, text.Length); i++)
+		{
+			if (text[i] == '\n')
+			{
+				lineNumber++;
+			}
+		}
+
+		return lineNumber;
 	}
 
 	private void UpdatePreview()
