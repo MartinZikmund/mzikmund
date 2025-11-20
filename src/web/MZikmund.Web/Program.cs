@@ -31,7 +31,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 	services.AddAutoMapper(c => c.AddMaps(typeof(CoreAssemblyMarker)));
 	services.AddSingleton<ICache, Cache>();
 	services.AddSingleton<IConnectionStringProvider, ConnectionStringProvider>();
-	services.AddSingleton<IMarkdownConverter, MarkdownConverter>();
+	services.AddSingleton<IMarkdownConverter>(new MarkdownConverter(false));
 	services.AddSingleton<IPostContentProcessor, PostContentProcessor>();
 	services.AddSingleton<IFeedGenerator, FeedGenerator>();
 	services.AddScoped<ISyndicationDataSource, SyndicationDataSource>();
