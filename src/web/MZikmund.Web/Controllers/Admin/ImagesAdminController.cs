@@ -22,7 +22,8 @@ public class ImagesAdminController : Controller
 	}
 
 	[HttpGet]
-	public async Task<IActionResult> GetAll() => Ok(await _mediator.Send(new GetImagesQuery()));
+	public async Task<IActionResult> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50) => 
+		Ok(await _mediator.Send(new GetImagesQuery(pageNumber, pageSize)));
 
 	[HttpGet("{fileName}")]
 	public async Task<IActionResult> GetSizes(string fileName)

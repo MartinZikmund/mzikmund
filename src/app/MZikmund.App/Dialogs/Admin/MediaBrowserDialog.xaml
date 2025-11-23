@@ -43,32 +43,53 @@
                 VerticalAlignment="Center"
                 IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" />
 
-            <ListView
-                x:Name="FilesListView"
-                ItemsSource="{x:Bind ViewModel.FilteredFiles, Mode=OneWay}"
-                SelectedItem="{x:Bind ViewModel.SelectedFile, Mode=TwoWay}">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <Grid
-                            Padding="8"
-                            ColumnDefinitions="Auto, *"
-                            ColumnSpacing="8">
-                            <SymbolIcon Grid.Column="0" Symbol="Document" />
-                            <StackPanel Grid.Column="1">
-                                <TextBlock FontWeight="SemiBold" Text="{Binding FileName}" />
-                                <TextBlock
-                                    FontSize="12"
-                                    Opacity="0.7"
-                                    Text="{Binding BlobPath}" />
-                                <TextBlock
-                                    FontSize="12"
-                                    Opacity="0.7"
-                                    Text="{Binding LastModified}" />
-                            </StackPanel>
-                        </Grid>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+            <ScrollViewer>
+                <StackPanel>
+                    <ListView
+                        x:Name="FilesListView"
+                        ItemsSource="{x:Bind ViewModel.FilteredFiles, Mode=OneWay}"
+                        SelectedItem="{x:Bind ViewModel.SelectedFile, Mode=TwoWay}">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid
+                                    Padding="8"
+                                    ColumnDefinitions="Auto, *"
+                                    ColumnSpacing="8">
+                                    <SymbolIcon Grid.Column="0" Symbol="Document" />
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock FontWeight="SemiBold" Text="{Binding FileName}" />
+                                        <TextBlock
+                                            FontSize="12"
+                                            Opacity="0.7"
+                                            Text="{Binding BlobPath}" />
+                                        <TextBlock
+                                            FontSize="12"
+                                            Opacity="0.7"
+                                            Text="{Binding LastModified}" />
+                                    </StackPanel>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
+                    <Button
+                        Margin="8"
+                        HorizontalAlignment="Center"
+                        Command="{x:Bind ViewModel.LoadMoreCommand}"
+                        IsEnabled="{x:Bind ViewModel.HasMoreItems, Mode=OneWay}"
+                        Visibility="{x:Bind ViewModel.HasMoreItems, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <SymbolIcon Symbol="Download" Visibility="{x:Bind ViewModel.IsLoadingMore, Mode=OneWay, Converter={StaticResource InverseNullToVisibilityConverter}}" />
+                            <ProgressRing
+                                Width="16"
+                                Height="16"
+                                IsActive="{x:Bind ViewModel.IsLoadingMore, Mode=OneWay}"
+                                Visibility="{x:Bind ViewModel.IsLoadingMore, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                            <TextBlock Text="Load More" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </ScrollViewer>
         </Grid>
 
         <StackPanel
