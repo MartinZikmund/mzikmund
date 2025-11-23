@@ -13,4 +13,8 @@ public partial interface IMZikmundApi
 	[Headers("Authorization: Bearer")]
 	[Multipart]
 	Task<ApiResponse<StorageItemInfo>> UploadImageAsync([AliasAs("file")] StreamPart streamPart, [AliasAs("desiredFileName")] string? desiredFileName = null);
+
+	[Delete("/v1/admin/images/{path}")]
+	[Headers("Authorization: Bearer")]
+	Task<ApiResponse<object?>> DeleteImageAsync(string path);
 }

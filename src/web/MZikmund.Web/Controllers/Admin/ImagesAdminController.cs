@@ -30,6 +30,14 @@ public class ImagesAdminController : Controller
 		throw new NotImplementedException("This method is not implemented yet.");
 	}
 
+	[HttpDelete]
+	[Route("{path}")]
+	public async Task<IActionResult> Delete(string path)
+	{
+		await _mediator.Send(new DeleteImageCommand(path));
+		return NoContent();
+	}
+
 	[HttpPost]
 	public async Task<IActionResult> Upload(IFormFile file, [FromQuery] string desiredFileName)
 	{

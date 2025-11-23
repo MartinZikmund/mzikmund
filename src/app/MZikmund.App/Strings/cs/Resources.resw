@@ -123,4 +123,34 @@
   <data name="LoadMore" xml:space="preserve">
     <value>Načíst další</value>
   </data>
+  <data name="Media" xml:space="preserve">
+    <value>Média</value>
+  </data>
+  <data name="Upload" xml:space="preserve">
+    <value>Nahrát</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Smazat</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>Hledat</value>
+  </data>
+  <data name="AllFiles" xml:space="preserve">
+    <value>Všechny soubory</value>
+  </data>
+  <data name="Images" xml:space="preserve">
+    <value>Obrázky</value>
+  </data>
+  <data name="Files" xml:space="preserve">
+    <value>Soubory</value>
+  </data>
+  <data name="NoFilesFound" xml:space="preserve">
+    <value>Žádné soubory nenalezeny</value>
+  </data>
+  <data name="ConfirmDeleteFile" xml:space="preserve">
+    <value>Opravdu chcete smazat tento soubor?</value>
+  </data>
+  <data name="DeleteFile" xml:space="preserve">
+    <value>Smazat soubor</value>
+  </data>
 </root>
