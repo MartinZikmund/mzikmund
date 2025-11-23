@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:MZikmund.App.Dialogs.Admin"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:xaml="using:MZikmund.Extensions.Xaml"
     mc:Ignorable="d">
 
     <Grid
@@ -85,7 +86,7 @@
                                 Height="16"
                                 IsActive="{x:Bind ViewModel.IsLoadingMore, Mode=OneWay}"
                                 Visibility="{x:Bind ViewModel.IsLoadingMore, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
-                            <TextBlock Text="Load More" />
+                            <TextBlock Text="{xaml:Localize Key=LoadMore}" />
                         </StackPanel>
                     </Button>
                 </StackPanel>
