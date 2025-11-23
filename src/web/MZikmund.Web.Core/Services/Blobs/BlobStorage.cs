@@ -94,6 +94,16 @@ public class BlobStorage : IBlobStorage
 
 	public async Task<(StorageItemInfo[] Items, int TotalCount)> ListPagedAsync(BlobKind blobKind, int pageNumber, int pageSize, string? prefix = null)
 	{
+		if (pageNumber < 1)
+		{
+			throw new ArgumentOutOfRangeException(nameof(pageNumber), "Page number must be greater than or equal to 1.");
+		}
+
+		if (pageSize <= 0)
+		{
+			throw new ArgumentOutOfRangeException(nameof(pageSize), "Page size must be greater than 0.");
+		}
+
 		var containerClient = GetBlobContainerClient(blobKind);
 		var allBlobs = new List<StorageItemInfo>();
 
