@@ -150,4 +150,7 @@
   <data name="DeleteFile" xml:space="preserve">
     <value>Smazat soubor</value>
   </data>
+  <data name="CopyUrl" xml:space="preserve">
+    <value>Kopírovat URL</value>
+  </data>
 </root>
