@@ -156,4 +156,25 @@
   <data name="CopyUrl" xml:space="preserve">
     <value>Kopírovat URL</value>
   </data>
+  <data name="CouldNotLoadData" xml:space="preserve">
+    <value>Nelze načíst data</value>
+  </data>
+  <data name="ErrorLoadingData" xml:space="preserve">
+    <value>Při načítání dat ze serveru došlo k chybě.</value>
+  </data>
+  <data name="UploadFailed" xml:space="preserve">
+    <value>Nahrávání selhalo</value>
+  </data>
+  <data name="ErrorUploadingFile" xml:space="preserve">
+    <value>Při nahrávání souboru došlo k chybě.</value>
+  </data>
+  <data name="ErrorOpeningFilePicker" xml:space="preserve">
+    <value>Při otevírání výběru souborů došlo k chybě.</value>
+  </data>
+  <data name="DeleteFailed" xml:space="preserve">
+    <value>Mazání selhalo</value>
+  </data>
+  <data name="ErrorDeletingFile" xml:space="preserve">
+    <value>Při mazání souboru došlo k chybě.</value>
+  </data>
 </root>

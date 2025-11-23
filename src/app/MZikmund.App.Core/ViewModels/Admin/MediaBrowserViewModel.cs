@@ -111,8 +111,8 @@ public partial class MediaBrowserViewModel : PageViewModel
 		{
 			await _dialogService.ShowStatusMessageAsync(
 				StatusMessageDialogType.Error,
-				"Could not load data",
-				$"Error occurred loading data from server. {ex}");
+				Localizer.Instance.GetString("CouldNotLoadData"),
+				$"{Localizer.Instance.GetString("ErrorLoadingData")} {ex}");
 		}
 	}
 
@@ -153,8 +153,8 @@ public partial class MediaBrowserViewModel : PageViewModel
 				{
 					await _dialogService.ShowStatusMessageAsync(
 						StatusMessageDialogType.Error,
-						"Upload failed",
-						$"Error occurred uploading file. {ex}");
+						Localizer.Instance.GetString("UploadFailed"),
+						$"{Localizer.Instance.GetString("ErrorUploadingFile")} {ex}");
 				}
 			}
 		}
@@ -162,8 +162,8 @@ public partial class MediaBrowserViewModel : PageViewModel
 		{
 			await _dialogService.ShowStatusMessageAsync(
 				StatusMessageDialogType.Error,
-				"Upload failed",
-				$"Error occurred opening file picker. {ex}");
+				Localizer.Instance.GetString("UploadFailed"),
+				$"{Localizer.Instance.GetString("ErrorOpeningFilePicker")} {ex}");
 		}
 	}
 
@@ -203,8 +203,8 @@ public partial class MediaBrowserViewModel : PageViewModel
 		{
 			await _dialogService.ShowStatusMessageAsync(
 				StatusMessageDialogType.Error,
-				"Delete failed",
-				$"Error occurred deleting file. {ex}");
+				Localizer.Instance.GetString("DeleteFailed"),
+				$"{Localizer.Instance.GetString("ErrorDeletingFile")} {ex}");
 		}
 	}
 

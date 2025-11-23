@@ -219,4 +219,25 @@
   <data name="CopyUrl" xml:space="preserve">
     <value>Copy URL</value>
   </data>
+  <data name="CouldNotLoadData" xml:space="preserve">
+    <value>Could not load data</value>
+  </data>
+  <data name="ErrorLoadingData" xml:space="preserve">
+    <value>Error occurred loading data from server.</value>
+  </data>
+  <data name="UploadFailed" xml:space="preserve">
+    <value>Upload failed</value>
+  </data>
+  <data name="ErrorUploadingFile" xml:space="preserve">
+    <value>Error occurred uploading file.</value>
+  </data>
+  <data name="ErrorOpeningFilePicker" xml:space="preserve">
+    <value>Error occurred opening file picker.</value>
+  </data>
+  <data name="DeleteFailed" xml:space="preserve">
+    <value>Delete failed</value>
+  </data>
+  <data name="ErrorDeletingFile" xml:space="preserve">
+    <value>Error occurred deleting file.</value>
+  </data>
 </root>
