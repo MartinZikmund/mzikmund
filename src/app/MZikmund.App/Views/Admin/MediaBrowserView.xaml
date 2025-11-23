@@ -115,7 +115,7 @@
                                     Tag="{x:Bind Url}">
                                     <StackPanel Orientation="Horizontal" Spacing="4">
                                         <SymbolIcon FontSize="12" Symbol="Copy" />
-                                        <TextBlock FontSize="12" Text="Copy URL" />
+                                        <TextBlock FontSize="12" Text="{xaml:Localize Key=CopyUrl}" />
                                     </StackPanel>
                                 </Button>
                             </StackPanel>
