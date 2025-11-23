@@ -34,6 +34,11 @@ public class ImagesAdminController : Controller
 	[Route("{path}")]
 	public async Task<IActionResult> Delete(string path)
 	{
+		if (string.IsNullOrEmpty(path))
+		{
+			return BadRequest("Path cannot be empty");
+		}
+
 		await _mediator.Send(new DeleteImageCommand(path));
 		return NoContent();
 	}
