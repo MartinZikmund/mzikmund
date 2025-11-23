@@ -175,7 +175,9 @@ public partial class MediaBrowserViewModel : PageViewModel
 			return;
 		}
 
-		var confirmResult = await _dialogService.ShowConfirmDialogAsync(
+		// Show confirmation dialog
+		var confirmResult = await _dialogService.ShowStatusMessageAsync(
+			StatusMessageDialogType.Warning,
 			Localizer.Instance.GetString("DeleteFile"),
 			Localizer.Instance.GetString("ConfirmDeleteFile"));
 
