@@ -14,6 +14,7 @@ public class DatabaseContext : DbContext
 	{
 	}
 
+	public virtual DbSet<BlobMetadataEntity> BlobMetadata { get; set; }
 	public virtual DbSet<CategoryEntity> Category { get; set; }
 	public virtual DbSet<PostEntity> Post { get; set; }
 	public virtual DbSet<PostCategoryEntity> PostCategory { get; set; }
@@ -24,6 +25,7 @@ public class DatabaseContext : DbContext
 	{
 		base.OnModelCreating(modelBuilder);
 
+		modelBuilder.ApplyConfiguration(new BlobMetadataConfiguration());
 		modelBuilder.ApplyConfiguration(new PostCategoryConfiguration());
 		modelBuilder.ApplyConfiguration(new PostConfiguration());
 		modelBuilder.ApplyConfiguration(new CategoryConfiguration());

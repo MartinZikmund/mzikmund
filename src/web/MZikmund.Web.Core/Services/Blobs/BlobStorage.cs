@@ -1,25 +1,34 @@
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MZikmund.DataContracts.Blobs;
 using MZikmund.Web.Configuration;
 using MZikmund.Web.Configuration.Connections;
+using MZikmund.Web.Data;
+using MZikmund.Web.Data.Entities;
 
 namespace MZikmund.Web.Core.Services.Blobs;
 
 public class BlobStorage : IBlobStorage
 {
 	private readonly ILogger<BlobStorage> _logger;
+	private readonly DatabaseContext _dbContext;
 
 	private readonly BlobContainerClient _mediaContainer;
 	private readonly BlobContainerClient _filesContainer;
 
 	private readonly FileExtensionContentTypeProvider _fileExtensionContentTypeProvider = new();
 
-	public BlobStorage(ISiteConfiguration siteConfiguration, IConnectionStringProvider connectionStringProvider, ILogger<BlobStorage> logger)
+	public BlobStorage(
+		ISiteConfiguration siteConfiguration, 
+		IConnectionStringProvider connectionStringProvider, 
+		ILogger<BlobStorage> logger,
+		DatabaseContext dbContext)
 	{
 		_logger = logger;
+		_dbContext = dbContext;
 
 		_mediaContainer = new(connectionStringProvider.AzureBlobStorage, siteConfiguration.BlobStorage.MediaContainerName);
 		_filesContainer = new(connectionStringProvider.AzureBlobStorage, siteConfiguration.BlobStorage.FilesContainerName);
@@ -50,15 +59,36 @@ public class BlobStorage : IBlobStorage
 
 		var containerClient = GetBlobContainerClient(blobKind);
 		var blobClient = containerClient.GetBlobClient(blobPath);
+		var contentType = GetContentType(blobPath);
 		var blobHttpHeader = new BlobHttpHeaders
 		{
-			ContentType = GetContentType(blobPath)
+			ContentType = contentType
 		};
+
+		// Get stream length before upload
+		var streamLength = stream.CanSeek ? stream.Length : 0;
 
 		var uploadedBlob = await blobClient.UploadAsync(stream, blobHttpHeader);
 
 		_logger.LogInformation($"Uploaded blob '{blobPath}' to Azure Blob Storage, ETag '{uploadedBlob.Value.ETag}'");
 		var modified = uploadedBlob.Value.LastModified;
+
+		// Save metadata to database
+		var fileName = Path.GetFileName(blobPath);
+		var metadata = new BlobMetadataEntity
+		{
+			Id = Guid.NewGuid(),
+			Kind = (MZikmund.Web.Data.Entities.BlobKind)blobKind,
+			BlobPath = blobPath,
+			FileName = fileName,
+			LastModified = modified,
+			Size = streamLength,
+			ContentType = contentType
+		};
+
+		_dbContext.BlobMetadata.Add(metadata);
+		await _dbContext.SaveChangesAsync();
+
 		return new(blobPath, modified);
 	}
 
@@ -76,6 +106,17 @@ public class BlobStorage : IBlobStorage
 	{
 		var containerClient = GetBlobContainerClient(blobKind);
 		await containerClient.DeleteBlobIfExistsAsync(fileName);
+
+		// Delete metadata from database
+		var dbBlobKind = (MZikmund.Web.Data.Entities.BlobKind)blobKind;
+		var metadata = await _dbContext.BlobMetadata
+			.FirstOrDefaultAsync(b => b.BlobPath == fileName && b.Kind == dbBlobKind);
+		
+		if (metadata != null)
+		{
+			_dbContext.BlobMetadata.Remove(metadata);
+			await _dbContext.SaveChangesAsync();
+		}
 	}
 
 	public async Task<StorageItemInfo[]> ListAsync(BlobKind blobKind, string? prefix = null)
@@ -104,27 +145,26 @@ public class BlobStorage : IBlobStorage
 			throw new ArgumentOutOfRangeException(nameof(pageSize), "Page size must be greater than 0.");
 		}
 
-		var containerClient = GetBlobContainerClient(blobKind);
-		var allBlobs = new List<StorageItemInfo>();
+		// Query from database with efficient pagination
+		var dbBlobKind = (MZikmund.Web.Data.Entities.BlobKind)blobKind;
+		var query = _dbContext.BlobMetadata.Where(b => b.Kind == dbBlobKind);
 
-		// First, get all blobs to calculate total count and apply sorting
-		// Azure Blob Storage doesn't support server-side sorting by LastModified
-		await foreach (var blob in containerClient.GetBlobsAsync(prefix: prefix))
+		if (!string.IsNullOrEmpty(prefix))
 		{
-			var blobName = blob.Name;
-			var modified = blob.Properties.LastModified;
-			allBlobs.Add(new(blobName, modified));
+			query = query.Where(b => b.BlobPath.StartsWith(prefix));
 		}
 
-		// Sort by LastModified descending
-		var sortedBlobs = allBlobs.OrderByDescending(b => b.LastModified).ToList();
-		var totalCount = sortedBlobs.Count;
+		var totalCount = await query.CountAsync();
 
-		// Apply pagination
 		var skip = (pageNumber - 1) * pageSize;
-		var pagedBlobs = sortedBlobs.Skip(skip).Take(pageSize).ToArray();
+		var items = await query
+			.OrderByDescending(b => b.LastModified)
+			.Skip(skip)
+			.Take(pageSize)
+			.Select(b => new StorageItemInfo(b.BlobPath, b.LastModified))
+			.ToArrayAsync();
 
-		return (pagedBlobs, totalCount);
+		return (items, totalCount);
 	}
 
 	private BlobContainerClient GetBlobContainerClient(BlobKind blobKind)
