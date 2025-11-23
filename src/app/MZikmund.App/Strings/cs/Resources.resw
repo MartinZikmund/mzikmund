@@ -177,4 +177,7 @@
   <data name="ErrorDeletingFile" xml:space="preserve">
     <value>Při mazání souboru došlo k chybě.</value>
   </data>
+  <data name="LoadMore" xml:space="preserve">
+    <value>Načíst další</value>
+  </data>
 </root>

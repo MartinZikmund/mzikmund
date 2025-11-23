@@ -35,6 +35,12 @@ public partial class MediaBrowserViewModel : PageViewModel
 
 	public override string Title => Localizer.Instance.GetString("Media");
 
+	private const int PageSize = 50;
+	private int _currentImagesPage = 1;
+	private int _currentFilesPage = 1;
+	private bool _hasMoreImages = true;
+	private bool _hasMoreFiles = true;
+
 	[ObservableProperty]
 	public partial ObservableCollection<StorageItemInfo> MediaFiles { get; set; } = new ObservableCollection<StorageItemInfo>();
 
@@ -43,6 +49,12 @@ public partial class MediaBrowserViewModel : PageViewModel
 
 	[ObservableProperty]
 	public partial MediaFilterMode FilterMode { get; set; } = MediaFilterMode.All;
+
+	[ObservableProperty]
+	public partial bool HasMoreItems { get; set; } = true;
+
+	[ObservableProperty]
+	public partial bool IsLoadingMore { get; set; }
 
 	public StorageItemInfo[] FilteredFiles
 	{
@@ -90,21 +102,29 @@ public partial class MediaBrowserViewModel : PageViewModel
 		using var loadingScope = _loadingIndicator.BeginLoading();
 		try
 		{
-			var imagesResponse = await _api.GetImagesAsync();
-			var filesResponse = await _api.GetFilesAsync();
+			_currentImagesPage = 1;
+			_currentFilesPage = 1;
+			_hasMoreImages = true;
+			_hasMoreFiles = true;
+
+			var imagesResponse = await _api.GetImagesAsync(_currentImagesPage, PageSize);
+			var filesResponse = await _api.GetFilesAsync(_currentFilesPage, PageSize);
 
 			MediaFiles.Clear();
 
 			if (imagesResponse.IsSuccessStatusCode && imagesResponse.Content != null)
 			{
-				MediaFiles.AddRange(imagesResponse.Content);
+				MediaFiles.AddRange(imagesResponse.Content.Data);
+				_hasMoreImages = imagesResponse.Content.PageNumber * imagesResponse.Content.PageSize < imagesResponse.Content.TotalCount;
 			}
 
 			if (filesResponse.IsSuccessStatusCode && filesResponse.Content != null)
 			{
-				MediaFiles.AddRange(filesResponse.Content);
+				MediaFiles.AddRange(filesResponse.Content.Data);
+				_hasMoreFiles = filesResponse.Content.PageNumber * filesResponse.Content.PageSize < filesResponse.Content.TotalCount;
 			}
 
+			HasMoreItems = _hasMoreImages || _hasMoreFiles;
 			OnPropertyChanged(nameof(FilteredFiles));
 		}
 		catch (Exception ex)
@@ -113,6 +133,57 @@ public partial class MediaBrowserViewModel : PageViewModel
 				StatusMessageDialogType.Error,
 				Localizer.Instance.GetString("CouldNotLoadData"),
 				$"{Localizer.Instance.GetString("ErrorLoadingData")} {ex}");
+		}
+	}
+
+	[RelayCommand]
+	private async Task LoadMoreAsync()
+	{
+		if (IsLoadingMore || !HasMoreItems)
+		{
+			return;
+		}
+
+		IsLoadingMore = true;
+		try
+		{
+			if (_hasMoreImages)
+			{
+				_currentImagesPage++;
+				var imagesResponse = await _api.GetImagesAsync(_currentImagesPage, PageSize);
+
+				if (imagesResponse.IsSuccessStatusCode && imagesResponse.Content != null)
+				{
+					MediaFiles.AddRange(imagesResponse.Content.Data);
+					_hasMoreImages = imagesResponse.Content.PageNumber * imagesResponse.Content.PageSize < imagesResponse.Content.TotalCount;
+				}
+			}
+
+			if (_hasMoreFiles)
+			{
+				_currentFilesPage++;
+				var filesResponse = await _api.GetFilesAsync(_currentFilesPage, PageSize);
+
+				if (filesResponse.IsSuccessStatusCode && filesResponse.Content != null)
+				{
+					MediaFiles.AddRange(filesResponse.Content.Data);
+					_hasMoreFiles = filesResponse.Content.PageNumber * filesResponse.Content.PageSize < filesResponse.Content.TotalCount;
+				}
+			}
+
+			HasMoreItems = _hasMoreImages || _hasMoreFiles;
+			OnPropertyChanged(nameof(FilteredFiles));
+		}
+		catch (Exception ex)
+		{
+			await _dialogService.ShowStatusMessageAsync(
+				StatusMessageDialogType.Error,
+				Localizer.Instance.GetString("CouldNotLoadData"),
+				$"{Localizer.Instance.GetString("ErrorLoadingData")} {ex}");
+		}
+		finally
+		{
+			IsLoadingMore = false;
 		}
 	}
 

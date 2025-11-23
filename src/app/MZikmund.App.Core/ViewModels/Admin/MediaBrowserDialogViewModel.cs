@@ -29,8 +29,12 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 		_isImageMode = isImageMode;
 	}
 
+	private const int PageSize = 50;
+	private int _currentPage = 1;
+	private bool _hasMoreItems = true;
+
 	[ObservableProperty]
-	public partial StorageItemInfo[] MediaFiles { get; set; } = Array.Empty<StorageItemInfo>();
+	public partial List<StorageItemInfo> MediaFiles { get; set; } = new List<StorageItemInfo>();
 
 	[ObservableProperty]
 	public partial StorageItemInfo? SelectedFile { get; set; }
@@ -41,9 +45,15 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 	[ObservableProperty]
 	public partial bool IsLoading { get; set; }
 
-	public StorageItemInfo[] FilteredFiles => string.IsNullOrEmpty(SearchFilter)
+	[ObservableProperty]
+	public partial bool HasMoreItems { get; set; } = true;
+
+	[ObservableProperty]
+	public partial bool IsLoadingMore { get; set; }
+
+	public List<StorageItemInfo> FilteredFiles => string.IsNullOrEmpty(SearchFilter)
 		? MediaFiles
-		: MediaFiles.Where(f => f.FileName.Contains(SearchFilter, StringComparison.OrdinalIgnoreCase)).ToArray();
+		: MediaFiles.Where(f => f.FileName.Contains(SearchFilter, StringComparison.OrdinalIgnoreCase)).ToList();
 
 	partial void OnSearchFilterChanged(string value)
 	{
@@ -56,13 +66,18 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 		IsLoading = true;
 		try
 		{
-			var response = _isImageMode
-				? await _api.GetImagesAsync()
-				: await _api.GetFilesAsync();
+			_currentPage = 1;
+			_hasMoreItems = true;
 
-			if (response.IsSuccessStatusCode)
+			var response = _isImageMode
+				? await _api.GetImagesAsync(_currentPage, PageSize)
+				: await _api.GetFilesAsync(_currentPage, PageSize);
+
+			if (response.IsSuccessStatusCode && response.Content != null)
 			{
-				MediaFiles = response.Content?.ToArray() ?? Array.Empty<StorageItemInfo>();
+				MediaFiles = response.Content.Data.ToList();
+				_hasMoreItems = response.Content.PageNumber * response.Content.PageSize < response.Content.TotalCount;
+				HasMoreItems = _hasMoreItems;
 			}
 		}
 		catch (Exception)
@@ -72,6 +87,40 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 		finally
 		{
 			IsLoading = false;
+		}
+	}
+
+	[RelayCommand]
+	private async Task LoadMoreAsync()
+	{
+		if (IsLoadingMore || !_hasMoreItems)
+		{
+			return;
+		}
+
+		IsLoadingMore = true;
+		try
+		{
+			_currentPage++;
+			var response = _isImageMode
+				? await _api.GetImagesAsync(_currentPage, PageSize)
+				: await _api.GetFilesAsync(_currentPage, PageSize);
+
+			if (response.IsSuccessStatusCode && response.Content != null)
+			{
+				MediaFiles.AddRange(response.Content.Data);
+				_hasMoreItems = response.Content.PageNumber * response.Content.PageSize < response.Content.TotalCount;
+				HasMoreItems = _hasMoreItems;
+				OnPropertyChanged(nameof(FilteredFiles));
+			}
+		}
+		catch (Exception)
+		{
+			// TODO: Handle error
+		}
+		finally
+		{
+			IsLoadingMore = false;
 		}
 	}
 

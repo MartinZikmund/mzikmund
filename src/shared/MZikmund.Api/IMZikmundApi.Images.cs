@@ -1,3 +1,4 @@
+using MZikmund.DataContracts;
 using MZikmund.DataContracts.Blobs;
 using Refit;
 
@@ -7,7 +8,7 @@ public partial interface IMZikmundApi
 {
 	[Get("/v1/admin/images")]
 	[Headers("Authorization: Bearer")]
-	Task<ApiResponse<IEnumerable<StorageItemInfo>>> GetImagesAsync();
+	Task<ApiResponse<PagedResponse<StorageItemInfo>>> GetImagesAsync([Query] int pageNumber = 1, [Query] int pageSize = 50);
 
 	[Post("/v1/admin/images")]
 	[Headers("Authorization: Bearer")]

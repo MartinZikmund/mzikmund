@@ -240,4 +240,7 @@
   <data name="ErrorDeletingFile" xml:space="preserve">
     <value>Error occurred deleting file.</value>
   </data>
+  <data name="LoadMore" xml:space="preserve">
+    <value>Load More</value>
+  </data>
 </root>
