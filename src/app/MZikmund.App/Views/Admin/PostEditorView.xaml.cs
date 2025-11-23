@@ -88,7 +88,7 @@ public sealed partial class PostEditorView : PostEditorViewBase
 		var lineNumber = 0;
 		for (var i = 0; i < Math.Min(position, text.Length); i++)
 		{
-			if (text[i] == '\n')
+			if (text[i] == '\r')
 			{
 				lineNumber++;
 			}
