@@ -1,29 +1,34 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using MZikmund.DataContracts;
 using MZikmund.DataContracts.Blobs;
-using MZikmund.Web.Core.Features.Images;
-using MZikmund.Web.Core.Services.Blobs;
+using MZikmund.Web.Data;
 
-namespace MZikmund.Web.Core.Features.Files;
+namespace MZikmund.Web.Core.Features.Images;
 
 public class GetImagesHandler : IRequestHandler<GetImagesQuery, PagedResponse<StorageItemInfo>>
 {
-	private readonly IBlobStorage _blobStorage;
+	private readonly DatabaseContext _dbContext;
 
-	public GetImagesHandler(IBlobStorage blobStorage)
+	public GetImagesHandler(DatabaseContext dbContext)
 	{
-		_blobStorage = blobStorage;
+		_dbContext = dbContext;
 	}
 
 	public async Task<PagedResponse<StorageItemInfo>> Handle(GetImagesQuery request, CancellationToken cancellationToken)
 	{
-		var (thumbnails, totalCount) = await _blobStorage.ListPagedAsync(BlobKind.Image, request.PageNumber, request.PageSize, "thumbnail");
-		
-		// Remove the prefix "thumbnail/" from the blob names
-		var images = thumbnails
-			.Select(blob => new StorageItemInfo(blob.BlobPath.Replace("thumbnail/", string.Empty), blob.LastModified))
-			.ToArray();
+		var query = _dbContext.BlobMetadata.Where(b => b.Kind == MZikmund.Web.Data.Entities.BlobKind.Image);
 
-		return new PagedResponse<StorageItemInfo>(images, request.PageNumber, request.PageSize, totalCount);
+		var totalCount = await query.CountAsync(cancellationToken);
+
+		var skip = (request.PageNumber - 1) * request.PageSize;
+		var items = await query
+			.OrderByDescending(b => b.LastModified)
+			.Skip(skip)
+			.Take(request.PageSize)
+			.Select(b => new StorageItemInfo(b.BlobPath, b.LastModified))
+			.ToArrayAsync(cancellationToken);
+
+		return new PagedResponse<StorageItemInfo>(items, request.PageNumber, request.PageSize, totalCount);
 	}
 }
