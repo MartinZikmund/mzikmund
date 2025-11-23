@@ -16,14 +16,8 @@ public class GetFilesHandler : IRequestHandler<GetFilesQuery, PagedResponse<Stor
 
 	public async Task<PagedResponse<StorageItemInfo>> Handle(GetFilesQuery request, CancellationToken cancellationToken)
 	{
-		var allFiles = (await _blobStorage.ListAsync(BlobKind.File))
-			.OrderByDescending(x => x.LastModified)
-			.ToList();
+		var (files, totalCount) = await _blobStorage.ListPagedAsync(BlobKind.File, request.PageNumber, request.PageSize);
 
-		var totalCount = allFiles.Count;
-		var skip = (request.PageNumber - 1) * request.PageSize;
-		var pagedFiles = allFiles.Skip(skip).Take(request.PageSize);
-
-		return new PagedResponse<StorageItemInfo>(pagedFiles, request.PageNumber, request.PageSize, totalCount);
+		return new PagedResponse<StorageItemInfo>(files, request.PageNumber, request.PageSize, totalCount);
 	}
 }

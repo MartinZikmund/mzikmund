@@ -92,6 +92,31 @@ public class BlobStorage : IBlobStorage
 		return blobs.ToArray();
 	}
 
+	public async Task<(StorageItemInfo[] Items, int TotalCount)> ListPagedAsync(BlobKind blobKind, int pageNumber, int pageSize, string? prefix = null)
+	{
+		var containerClient = GetBlobContainerClient(blobKind);
+		var allBlobs = new List<StorageItemInfo>();
+
+		// First, get all blobs to calculate total count and apply sorting
+		// Azure Blob Storage doesn't support server-side sorting by LastModified
+		await foreach (var blob in containerClient.GetBlobsAsync(prefix: prefix))
+		{
+			var blobName = blob.Name;
+			var modified = blob.Properties.LastModified;
+			allBlobs.Add(new(blobName, modified));
+		}
+
+		// Sort by LastModified descending
+		var sortedBlobs = allBlobs.OrderByDescending(b => b.LastModified).ToList();
+		var totalCount = sortedBlobs.Count;
+
+		// Apply pagination
+		var skip = (pageNumber - 1) * pageSize;
+		var pagedBlobs = sortedBlobs.Skip(skip).Take(pageSize).ToArray();
+
+		return (pagedBlobs, totalCount);
+	}
+
 	private BlobContainerClient GetBlobContainerClient(BlobKind blobKind)
 	{
 		var containerClient = blobKind switch

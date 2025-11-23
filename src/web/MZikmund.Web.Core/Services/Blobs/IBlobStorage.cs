@@ -13,4 +13,6 @@ public interface IBlobStorage
 	Task DeleteAsync(BlobKind blobKind, string blobPath);
 
 	Task<StorageItemInfo[]> ListAsync(BlobKind blobKind, string? prefix = null);
+
+	Task<(StorageItemInfo[] Items, int TotalCount)> ListPagedAsync(BlobKind blobKind, int pageNumber, int pageSize, string? prefix = null);
 }

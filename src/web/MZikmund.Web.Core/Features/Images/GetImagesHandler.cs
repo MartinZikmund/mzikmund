@@ -17,17 +17,13 @@ public class GetImagesHandler : IRequestHandler<GetImagesQuery, PagedResponse<St
 
 	public async Task<PagedResponse<StorageItemInfo>> Handle(GetImagesQuery request, CancellationToken cancellationToken)
 	{
-		var thumbnails = await _blobStorage.ListAsync(BlobKind.Image, "thumbnail");
+		var (thumbnails, totalCount) = await _blobStorage.ListPagedAsync(BlobKind.Image, request.PageNumber, request.PageSize, "thumbnail");
+		
 		// Remove the prefix "thumbnail/" from the blob names
-		var allImages = thumbnails
+		var images = thumbnails
 			.Select(blob => new StorageItemInfo(blob.BlobPath.Replace("thumbnail/", string.Empty), blob.LastModified))
-			.OrderByDescending(x => x.LastModified)
-			.ToList();
+			.ToArray();
 
-		var totalCount = allImages.Count;
-		var skip = (request.PageNumber - 1) * request.PageSize;
-		var pagedImages = allImages.Skip(skip).Take(request.PageSize);
-
-		return new PagedResponse<StorageItemInfo>(pagedImages, request.PageNumber, request.PageSize, totalCount);
+		return new PagedResponse<StorageItemInfo>(images, request.PageNumber, request.PageSize, totalCount);
 	}
 }
