@@ -29,8 +29,8 @@ public class PostsController : Controller
 	/// <returns>All blog posts.</returns>
 	[HttpGet]
 	[Route("")]
-	public async Task<IActionResult> GetAll(int pageNumber = 1) =>
-		Ok(await _mediator.Send(new GetPostsQuery(pageNumber, PageSize)));
+	public async Task<IActionResult> GetAll(int pageNumber = 1, string? searchTerm = null) =>
+		Ok(await _mediator.Send(new GetPostsQuery(pageNumber, PageSize, SearchTerm: searchTerm)));
 
 	/// <summary>
 	/// Creates a blog post.
