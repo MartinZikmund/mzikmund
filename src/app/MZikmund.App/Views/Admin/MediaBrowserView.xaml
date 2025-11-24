@@ -1,6 +1,5 @@
 ﻿<local:MediaBrowserViewBase
     x:Class="MZikmund.Views.Admin.MediaBrowserView"
-    x:Name="Root"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -9,6 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="using:MZikmund.ViewModels.Admin"
     xmlns:xaml="using:MZikmund.Extensions.Xaml"
+    x:Name="Root"
     d:Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     mc:Ignorable="d">
 
@@ -106,7 +106,7 @@
                                         Command="{Binding ElementName=Root, Path=ViewModel.DeleteFileCommand}"
                                         CommandParameter="{x:Bind}">
                                         <StackPanel Orientation="Horizontal" Spacing="4">
-                                            <SymbolIcon FontSize="12" Symbol="Delete" />
+                                            <SymbolIcon Symbol="Delete" />
                                             <TextBlock FontSize="12" Text="{xaml:Localize Key=Delete}" />
                                         </StackPanel>
                                     </Button>
@@ -115,7 +115,7 @@
                                         Click="CopyUrl_Click"
                                         Tag="{x:Bind Url}">
                                         <StackPanel Orientation="Horizontal" Spacing="4">
-                                            <SymbolIcon FontSize="12" Symbol="Copy" />
+                                            <SymbolIcon Symbol="Copy" />
                                             <TextBlock FontSize="12" Text="{xaml:Localize Key=CopyUrl}" />
                                         </StackPanel>
                                     </Button>
@@ -152,10 +152,7 @@
             VerticalAlignment="Center"
             Spacing="8"
             Visibility="{x:Bind ViewModel.FilteredFiles.Length, Mode=OneWay, Converter={StaticResource EmptyCollectionToVisibilityConverter}}">
-            <SymbolIcon
-                FontSize="48"
-                Foreground="{ThemeResource TextFillColorTertiaryBrush}"
-                Symbol="Document" />
+            <SymbolIcon Foreground="{ThemeResource TextFillColorTertiaryBrush}" Symbol="Document" />
             <TextBlock
                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                 Text="{xaml:Localize Key=NoFilesFound}"
