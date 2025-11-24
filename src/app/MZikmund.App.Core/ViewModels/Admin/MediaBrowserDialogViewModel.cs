@@ -53,10 +53,8 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 	{
 		if (value != null && _isImageMode)
 		{
-			// Generate available variants for the selected image
-			var baseUrl = "https://mzikmund.blob.core.windows.net/media";  // TODO: Get from configuration
-			AvailableVariants = ImageVariantHelper.GetImageVariants(value.BlobPath, baseUrl);
-			SelectedVariant = AvailableVariants.FirstOrDefault(); // Select original by default
+			// Load available variants from API
+			_ = LoadImageVariantsAsync(value.BlobPath);
 		}
 		else
 		{
@@ -64,6 +62,31 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 			SelectedVariant = null;
 		}
 		OnPropertyChanged(nameof(SelectedUrl));
+	}
+
+	private async Task LoadImageVariantsAsync(string imagePath)
+	{
+		try
+		{
+			var response = await _api.GetImageVariantsAsync(imagePath);
+			if (response.IsSuccessStatusCode && response.Content != null)
+			{
+				AvailableVariants = response.Content;
+				SelectedVariant = AvailableVariants.FirstOrDefault(); // Select original by default
+			}
+			else
+			{
+				// Fallback to empty list if API call fails
+				AvailableVariants = new List<ImageVariant>();
+				SelectedVariant = null;
+			}
+		}
+		catch (Exception)
+		{
+			// Fallback to empty list on error
+			AvailableVariants = new List<ImageVariant>();
+			SelectedVariant = null;
+		}
 	}
 
 	partial void OnSelectedVariantChanged(ImageVariant? value)
