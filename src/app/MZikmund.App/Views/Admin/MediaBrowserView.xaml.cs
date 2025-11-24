@@ -19,6 +19,6 @@ public sealed partial class MediaBrowserView : MediaBrowserViewBase
 	}
 }
 
-public partial class MediaBrowserViewBase : PageBase<MediaBrowserViewModel>
+public class MediaBrowserViewBase : PageBase<MediaBrowserViewModel>
 {
 }
