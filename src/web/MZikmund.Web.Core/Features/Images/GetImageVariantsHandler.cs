@@ -9,7 +9,6 @@ public class GetImageVariantsHandler : IRequestHandler<GetImageVariantsQuery, Li
 {
 private readonly IBlobStorage _blobStorage;
 private readonly ISiteConfiguration _siteConfiguration;
-private static readonly uint[] ResizeWidths = { 1200, 1000, 800, 400 };
 private const uint ThumbnailWidth = 200;
 
 public GetImageVariantsHandler(IBlobStorage blobStorage, ISiteConfiguration siteConfiguration)
@@ -24,54 +23,43 @@ var variants = new List<ImageVariant>();
 // TODO: Get account name from configuration or parse from connection string
 var baseUrl = $"https://mzikmund.blob.core.windows.net/{_siteConfiguration.BlobStorage.MediaContainerName}";
 
+// Get file name without extension for prefix search
+var fileNameWithoutExt = Path.GetFileNameWithoutExtension(request.ImagePath);
+var extension = Path.GetExtension(request.ImagePath);
+var directory = Path.GetDirectoryName(request.ImagePath) ?? "";
+
 // Check for original
 var originalPath = Path.Combine("original", request.ImagePath);
-var originalExists = await BlobExistsAsync(originalPath);
-if (originalExists)
+var originalBlobs = await _blobStorage.ListAsync(Services.Blobs.BlobKind.Image, originalPath);
+if (originalBlobs.Any(b => b.BlobPath == originalPath))
 {
 variants.Add(new ImageVariant("Original", $"{baseUrl}/{originalPath}"));
 }
 
-// Check for resized variants
-foreach (var width in ResizeWidths)
+// Use prefix search for resized variants - get all blobs starting with the filename
+var resizedPrefix = Path.Combine("resized", directory, fileNameWithoutExt).Replace("\\", "/");
+var resizedBlobs = await _blobStorage.ListAsync(Services.Blobs.BlobKind.Image, resizedPrefix);
+
+// Parse resized variants from the returned blobs
+foreach (var blob in resizedBlobs)
 {
-var resizedPath = Path.Combine("resized", GetPathWithSizeSuffix(request.ImagePath, width));
-var resizedExists = await BlobExistsAsync(resizedPath);
-if (resizedExists)
+// Extract width from filename pattern: {filename}-{width}.{ext}
+var blobFileName = Path.GetFileNameWithoutExtension(blob.BlobPath);
+var parts = blobFileName.Split('-');
+if (parts.Length >= 2 && uint.TryParse(parts[^1], out var width))
 {
-variants.Add(new ImageVariant("Resized", $"{baseUrl}/{resizedPath}", width));
+variants.Add(new ImageVariant("Resized", $"{baseUrl}/{blob.BlobPath}", width));
 }
 }
 
 // Check for thumbnail
 var thumbnailPath = Path.Combine("thumbnail", request.ImagePath);
-var thumbnailExists = await BlobExistsAsync(thumbnailPath);
-if (thumbnailExists)
+var thumbnailBlobs = await _blobStorage.ListAsync(Services.Blobs.BlobKind.Image, thumbnailPath);
+if (thumbnailBlobs.Any(b => b.BlobPath == thumbnailPath))
 {
 variants.Add(new ImageVariant("Thumbnail", $"{baseUrl}/{thumbnailPath}", ThumbnailWidth));
 }
 
 return variants;
-}
-
-private async Task<bool> BlobExistsAsync(string blobPath)
-{
-try
-{
-var blobs = await _blobStorage.ListAsync(Services.Blobs.BlobKind.Image, blobPath);
-return blobs.Any(b => b.BlobPath == blobPath);
-}
-catch
-{
-return false;
-}
-}
-
-private string GetPathWithSizeSuffix(string path, uint width)
-{
-var extension = Path.GetExtension(path);
-var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(path);
-var directory = Path.GetDirectoryName(path) ?? "";
-return Path.Combine(directory, $"{fileNameWithoutExtension}-{width}{extension}");
 }
 }
