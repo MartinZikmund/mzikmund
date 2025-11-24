@@ -143,11 +143,11 @@ public partial class PostEditorViewModel : PageViewModel
 		var dialogViewModel = new MediaBrowserDialogViewModel(_api, _windowShellProvider, isImageMode: true);
 		var result = await _dialogService.ShowAsync(dialogViewModel);
 
-		if (result == ContentDialogResult.Primary && dialogViewModel.SelectedFile != null)
+		if (result == ContentDialogResult.Primary && dialogViewModel.SelectedUrl != null)
 		{
 			if (Post != null)
 			{
-				Post.HeroImageUrl = GetPublicUrl(dialogViewModel.SelectedFile.BlobPath);
+				Post.HeroImageUrl = dialogViewModel.SelectedUrl;
 			}
 		}
 	}
@@ -158,10 +158,9 @@ public partial class PostEditorViewModel : PageViewModel
 		var dialogViewModel = new MediaBrowserDialogViewModel(_api, _windowShellProvider, isImageMode: true);
 		var result = await _dialogService.ShowAsync(dialogViewModel);
 
-		if (result == ContentDialogResult.Primary && dialogViewModel.SelectedFile != null)
+		if (result == ContentDialogResult.Primary && dialogViewModel.SelectedFile != null && dialogViewModel.SelectedUrl != null)
 		{
-			var imageUrl = GetPublicUrl(dialogViewModel.SelectedFile.BlobPath);
-			var markdownImage = $"![{dialogViewModel.SelectedFile.FileName}]({imageUrl})";
+			var markdownImage = $"![{dialogViewModel.SelectedFile.FileName}]({dialogViewModel.SelectedUrl})";
 			InsertTextAtCursor(markdownImage);
 		}
 	}

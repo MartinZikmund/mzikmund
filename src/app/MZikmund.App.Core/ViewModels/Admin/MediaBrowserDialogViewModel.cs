@@ -40,6 +40,43 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 	public partial StorageItemInfo? SelectedFile { get; set; }
 
 	[ObservableProperty]
+	public partial List<ImageVariant> AvailableVariants { get; set; } = new List<ImageVariant>();
+
+	[ObservableProperty]
+	public partial ImageVariant? SelectedVariant { get; set; }
+
+	public string? SelectedUrl => _isImageMode && SelectedVariant != null 
+		? SelectedVariant.Url 
+		: (SelectedFile != null ? GetPublicUrl(SelectedFile.BlobPath) : null);
+
+	partial void OnSelectedFileChanged(StorageItemInfo? value)
+	{
+		if (value != null && _isImageMode)
+		{
+			// Generate available variants for the selected image
+			var baseUrl = "https://mzikmund.blob.core.windows.net/media";  // TODO: Get from configuration
+			AvailableVariants = ImageVariantHelper.GetImageVariants(value.BlobPath, baseUrl);
+			SelectedVariant = AvailableVariants.FirstOrDefault(); // Select original by default
+		}
+		else
+		{
+			AvailableVariants = new List<ImageVariant>();
+			SelectedVariant = null;
+		}
+		OnPropertyChanged(nameof(SelectedUrl));
+	}
+
+	partial void OnSelectedVariantChanged(ImageVariant? value)
+	{
+		OnPropertyChanged(nameof(SelectedUrl));
+	}
+
+	private string GetPublicUrl(string blobPath)
+	{
+		return $"https://mzikmund.blob.core.windows.net/media/{blobPath}";
+	}
+
+	[ObservableProperty]
 	public partial string SearchFilter { get; set; } = "";
 
 	[ObservableProperty]
