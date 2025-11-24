@@ -13,7 +13,7 @@ public partial interface IMZikmundApi
 	[Post("/v1/admin/files")]
 	[Headers("Authorization: Bearer")]
 	[Multipart]
-	Task<ApiResponse<StorageItemInfo>> UploadFileAsync([AliasAs("file")] StreamPart streamPart, [AliasAs("desiredFileName")] string? desiredFileName = null);
+	Task<ApiResponse<StorageItemInfo>> UploadFileAsync([AliasAs("file")] StreamPart streamPart, [Query] string? desiredFileName = null);
 
 	[Delete("/v1/admin/files/{path}")]
 	[Headers("Authorization: Bearer")]
