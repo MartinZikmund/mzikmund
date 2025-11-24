@@ -24,12 +24,15 @@ public class IndexModel : PageModel
 
 	public StaticPagedList<PostListItem> BlogPosts { get; private set; } = null!;
 
-	public async Task OnGet(int pageNumber = 1)
+	public string? SearchTerm { get; set; }
+
+	public async Task OnGet(int pageNumber = 1, string? searchTerm = null)
 	{
+		SearchTerm = searchTerm;
 		RouteData.Values.ToList();
 		var pageSize = 12; // TODO: Include in configuration
 						   //var pagesize = _blogConfig.ContentSettings.PostListPageSize;
-		var posts = await _mediator.Send(new GetPostsQuery(pageNumber, pageSize));
+		var posts = await _mediator.Send(new GetPostsQuery(pageNumber, pageSize, SearchTerm: searchTerm));
 		foreach (var post in posts.Data)
 		{
 			post.Abstract = await _postContentProcessor.ProcessAsync(post.Abstract);
