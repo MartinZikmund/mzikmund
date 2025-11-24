@@ -25,10 +25,16 @@ public class ImagesAdminController : Controller
 	public async Task<IActionResult> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50) => 
 		Ok(await _mediator.Send(new GetImagesQuery(pageNumber, pageSize)));
 
-	[HttpGet("{fileName}")]
-	public async Task<IActionResult> GetSizes(string fileName)
+	[HttpGet("variants/{*imagePath}")]
+	public async Task<IActionResult> GetVariants(string imagePath)
 	{
-		throw new NotImplementedException("This method is not implemented yet.");
+		if (string.IsNullOrEmpty(imagePath))
+		{
+			return BadRequest("Image path cannot be empty");
+		}
+
+		var variants = await _mediator.Send(new GetImageVariantsQuery(imagePath));
+		return Ok(variants);
 	}
 
 	[HttpDelete]

@@ -18,4 +18,8 @@ public partial interface IMZikmundApi
 	[Delete("/v1/admin/images/{path}")]
 	[Headers("Authorization: Bearer")]
 	Task<ApiResponse<object?>> DeleteImageAsync(string path);
+
+	[Get("/v1/admin/images/variants/{imagePath}")]
+	[Headers("Authorization: Bearer")]
+	Task<ApiResponse<List<ImageVariant>>> GetImageVariantsAsync(string imagePath);
 }
