@@ -32,6 +32,7 @@ public sealed class CountPostsHandler : IRequestHandler<CountPostsQuery, int>
 
 		if (!string.IsNullOrWhiteSpace(request.SearchTerm))
 		{
+			// EF Core translates Contains to database query, which is case-insensitive by default in SQL Server
 			posts = posts.Where(p => p.Title.Contains(request.SearchTerm) || p.Content.Contains(request.SearchTerm) || p.Abstract.Contains(request.SearchTerm));
 		}
 
