@@ -1,6 +1,4 @@
 using System.Collections.ObjectModel;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using MZikmund.Api.Client;
 using MZikmund.DataContracts.Blobs;
 using MZikmund.Extensions;
@@ -215,10 +213,8 @@ public partial class MediaBrowserViewModel : PageViewModel
 						? await _api.UploadImageAsync(streamPart, file.Name)
 						: await _api.UploadFileAsync(streamPart, file.Name);
 
-					if (response.IsSuccessStatusCode)
-					{
-						await RefreshListAsync();
-					}
+					await response.EnsureSuccessfulAsync();
+					await RefreshListAsync();
 				}
 				catch (Exception ex)
 				{

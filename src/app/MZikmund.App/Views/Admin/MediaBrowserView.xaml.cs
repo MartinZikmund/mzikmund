@@ -6,7 +6,10 @@ namespace MZikmund.Views.Admin;
 
 public sealed partial class MediaBrowserView : MediaBrowserViewBase
 {
-	public MediaBrowserView() => InitializeComponent();
+	public MediaBrowserView()
+	{
+		InitializeComponent();
+	}
 
 	private void CopyUrl_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
 	{

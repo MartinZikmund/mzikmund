@@ -151,7 +151,7 @@
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
             Spacing="8"
-            Visibility="{x:Bind ViewModel.FilteredFiles.Length, Mode=OneWay, Converter={StaticResource EmptyCollectionToVisibilityConverter}}">
+            Visibility="{x:Bind ViewModel.FilteredFiles, Mode=OneWay, Converter={StaticResource EmptyCollectionToVisibilityConverter}}">
             <SymbolIcon Foreground="{ThemeResource TextFillColorTertiaryBrush}" Symbol="Document" />
             <TextBlock
                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
