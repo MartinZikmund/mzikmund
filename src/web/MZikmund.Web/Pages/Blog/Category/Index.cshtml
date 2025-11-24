@@ -1,0 +1,43 @@
+@page "/Blog/Category"
+@model MZikmund.Web.Pages.Blog.Category.IndexModel
+
+@{
+    MetaTags.Title = "Blog Categories";
+}
+
+<div class="blog-header text-center mb-5">
+    <h1 class="display-4 fw-bold text-primary mb-2">Blog Categories</h1>
+    <p class="lead text-muted">Browse posts by category</p>
+</div>
+
+<div class="row">
+    @foreach (var category in Model.Categories)
+    {
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(category.Icon))
+                    {
+                        <div class="text-center mb-3">
+                            <i class="@category.Icon fa-3x text-primary"></i>
+                        </div>
+                    }
+                    <h5 class="card-title">
+                        <a asp-page="/Blog/CategoryPostList" asp-route-categoryName="@category.RouteName" class="text-decoration-none">
+                            @category.DisplayName
+                        </a>
+                    </h5>
+                    @if (!string.IsNullOrEmpty(category.Description))
+                    {
+                        <p class="card-text text-muted">@category.Description</p>
+                    }
+                </div>
+                <div class="card-footer bg-light">
+                    <small class="text-muted">
+                        @category.PostCount @(category.PostCount == 1 ? "post" : "posts")
+                    </small>
+                </div>
+            </div>
+        </div>
+    }
+</div>
