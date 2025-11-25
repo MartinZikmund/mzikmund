@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using MZikmund.DataContracts;
 using MZikmund.DataContracts.Blobs;
+using MZikmund.Web.Core.Services.Blobs;
 using MZikmund.Web.Data;
 using MZikmund.Web.Data.Extensions;
 
@@ -10,10 +11,12 @@ namespace MZikmund.Web.Core.Features.Files;
 public class GetFilesHandler : IRequestHandler<GetFilesQuery, PagedResponse<StorageItemInfo>>
 {
 	private readonly DatabaseContext _dbContext;
+	private readonly IBlobUrlProvider _blobUrlProvider;
 
-	public GetFilesHandler(DatabaseContext dbContext)
+	public GetFilesHandler(DatabaseContext dbContext, IBlobUrlProvider blobUrlProvider)
 	{
 		_dbContext = dbContext;
+		_blobUrlProvider = blobUrlProvider;
 	}
 
 	public async Task<PagedResponse<StorageItemInfo>> Handle(GetFilesQuery request, CancellationToken cancellationToken)
@@ -27,7 +30,7 @@ public class GetFilesHandler : IRequestHandler<GetFilesQuery, PagedResponse<Stor
 			.OrderByDescending(b => b.LastModified)
 			.Skip(skip)
 			.Take(request.PageSize)
-			.Select(b => new StorageItemInfo(b.BlobPath, b.Kind.ToStorageItemType(), b.LastModified))
+			.Select(b => new StorageItemInfo(b.BlobPath, _blobUrlProvider.GetUrl(b.Kind, b.BlobPath), b.LastModified))
 			.ToArrayAsync(cancellationToken);
 
 		return new PagedResponse<StorageItemInfo>(items, request.PageNumber, request.PageSize, totalCount);

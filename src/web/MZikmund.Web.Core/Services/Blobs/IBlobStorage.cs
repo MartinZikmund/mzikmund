@@ -1,4 +1,5 @@
 using MZikmund.DataContracts.Blobs;
+using MZikmund.Web.Data.Entities;
 
 namespace MZikmund.Web.Core.Services.Blobs;
 

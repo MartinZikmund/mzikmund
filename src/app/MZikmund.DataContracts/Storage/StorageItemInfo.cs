@@ -2,7 +2,7 @@
 
 namespace MZikmund.DataContracts.Blobs;
 
-public record StorageItemInfo(string BlobPath, StorageItemType StorageItemType, DateTimeOffset? LastModified)
+public record StorageItemInfo(string BlobPath, Uri? Url, DateTimeOffset? LastModified)
 {
 	public string FileName => Path.GetFileName(BlobPath);
 

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using MZikmund.DataContracts.Blobs;
 using MZikmund.Web.Configuration;
 using MZikmund.Web.Configuration.Connections;
+using MZikmund.Web.Data.Entities;
 
 namespace MZikmund.Web.Core.Services.Blobs;
 

@@ -18,14 +18,16 @@ public class UploadImageHandler : IRequestHandler<UploadImageCommand, StorageIte
 
 	private readonly IBlobStorage _blobStorage;
 	private readonly IBlobPathGenerator _blobPathGenerator;
+	private readonly IBlobUrlProvider _blobUrlProvider;
 	private readonly DatabaseContext _dbContext;
 	private readonly FileExtensionContentTypeProvider _contentTypeProvider = new();
 	private static readonly uint[] ResizeWidths = { 1200, 1000, 800, 400 };
 
-	public UploadImageHandler(IBlobStorage blobStorage, IBlobPathGenerator blobPathGenerator, DatabaseContext dbContext)
+	public UploadImageHandler(IBlobStorage blobStorage, IBlobPathGenerator blobPathGenerator, IBlobUrlProvider blobUrlProvider, DatabaseContext dbContext)
 	{
 		_blobStorage = blobStorage;
 		_blobPathGenerator = blobPathGenerator;
+		_blobUrlProvider = blobUrlProvider;
 		_dbContext = dbContext;
 	}
 
@@ -82,8 +84,8 @@ public class UploadImageHandler : IRequestHandler<UploadImageCommand, StorageIte
 
 		_dbContext.BlobMetadata.Add(metadata);
 		await _dbContext.SaveChangesAsync(cancellationToken);
-
-		return new StorageItemInfo(path, StorageItemType.Image, lastModified);
+		var url = _blobUrlProvider.GetUrl(BlobKind.Image, path);
+		return new StorageItemInfo(path, url, lastModified);
 	}
 
 	private string GetPathWithSizeSuffix(string path, uint width)
@@ -110,8 +112,9 @@ public class UploadImageHandler : IRequestHandler<UploadImageCommand, StorageIte
 
 	private async Task<StorageItemInfo> UploadAsnc(Stream stream, string fileName)
 	{
-		var blobItem = await _blobStorage.AddAsync(Services.Blobs.BlobKind.Image, fileName, stream);
-		return new StorageItemInfo(blobItem.BlobPath, StorageItemType.Image, blobItem.LastModified);
+		var blobItem = await _blobStorage.AddAsync(BlobKind.Image, fileName, stream);
+		var url = _blobUrlProvider.GetUrl(BlobKind.Image, blobItem.BlobPath);
+		return new StorageItemInfo(blobItem.BlobPath, url, blobItem.LastModified);
 	}
 
 	private static async Task<Stream> ResizeGif(Stream sourceStream, uint width, CancellationToken cancellationToken)

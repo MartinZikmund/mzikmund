@@ -25,5 +25,5 @@ public class StorageItemInfoViewModel
 
 	public string BlobPath => _info.BlobPath;
 
-	public Uri Url => new Uri(new Uri(_appConfig.CdnUrl), BlobPath);
+	public Uri? Url => _info.Url;
 }

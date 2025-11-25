@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MZikmund.DataContracts;
 using MZikmund.DataContracts.Blobs;
 using MZikmund.DataContracts.Storage;
+using MZikmund.Web.Core.Services.Blobs;
 using MZikmund.Web.Data;
 using MZikmund.Web.Data.Entities;
 using MZikmund.Web.Data.Extensions;
@@ -12,10 +13,12 @@ namespace MZikmund.Web.Core.Features.Blobs;
 public class GetMediaHandler : IRequestHandler<GetMediaQuery, PagedResponse<StorageItemInfo>>
 {
 	private readonly DatabaseContext _dbContext;
+	private readonly IBlobUrlProvider _blobUrlProvider;
 
-	public GetMediaHandler(DatabaseContext dbContext)
+	public GetMediaHandler(DatabaseContext dbContext, IBlobUrlProvider blobUrlProvider)
 	{
 		_dbContext = dbContext;
+		_blobUrlProvider = blobUrlProvider;
 	}
 
 	public async Task<PagedResponse<StorageItemInfo>> Handle(GetMediaQuery request, CancellationToken cancellationToken)
@@ -44,7 +47,7 @@ public class GetMediaHandler : IRequestHandler<GetMediaQuery, PagedResponse<Stor
 			.OrderByDescending(b => b.LastModified)
 			.Skip(skip)
 			.Take(request.PageSize)
-			.Select(b => new StorageItemInfo(b.BlobPath, b.Kind.ToStorageItemType(), b.LastModified))
+			.Select(b => new StorageItemInfo(b.BlobPath, _blobUrlProvider.GetUrl(b.Kind, b.Kind != BlobKind.Image ? b.BlobPath : $"thumbnail/{b.BlobPath}"), b.LastModified))
 			.ToArrayAsync(cancellationToken);
 
 		return new PagedResponse<StorageItemInfo>(items, request.PageNumber, request.PageSize, totalCount);

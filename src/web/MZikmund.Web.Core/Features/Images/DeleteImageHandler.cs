@@ -1,8 +1,8 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using MZikmund.DataContracts.Blobs;
 using MZikmund.Web.Core.Services.Blobs;
 using MZikmund.Web.Data;
+using MZikmund.Web.Data.Entities;
 
 namespace MZikmund.Web.Core.Features.Images;
 
@@ -20,21 +20,21 @@ public class DeleteImageHandler : IRequestHandler<DeleteImageCommand>
 	public async Task Handle(DeleteImageCommand request, CancellationToken cancellationToken)
 	{
 		// Delete all variants from blob storage (original, resized, thumbnail)
-		await _blobStorage.DeleteAsync(Services.Blobs.BlobKind.Image, Path.Combine("original", request.Path));
-		await _blobStorage.DeleteAsync(Services.Blobs.BlobKind.Image, Path.Combine("thumbnail", request.Path));
-		
+		await _blobStorage.DeleteAsync(BlobKind.Image, Path.Combine("original", request.Path));
+		await _blobStorage.DeleteAsync(BlobKind.Image, Path.Combine("thumbnail", request.Path));
+
 		// Delete resized variants
 		var resizeWidths = new uint[] { 1200, 1000, 800, 400 };
 		foreach (var width in resizeWidths)
 		{
 			var resizedPath = GetPathWithSizeSuffix(request.Path, width);
-			await _blobStorage.DeleteAsync(Services.Blobs.BlobKind.Image, Path.Combine("resized", resizedPath));
+			await _blobStorage.DeleteAsync(BlobKind.Image, Path.Combine("resized", resizedPath));
 		}
 
 		// Delete metadata from database
 		var metadata = await _dbContext.BlobMetadata
 			.FirstOrDefaultAsync(b => b.BlobPath == request.Path && b.Kind == MZikmund.Web.Data.Entities.BlobKind.Image, cancellationToken);
-		
+
 		if (metadata != null)
 		{
 			_dbContext.BlobMetadata.Remove(metadata);
