@@ -111,13 +111,11 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 	[ObservableProperty]
 	public partial bool IsLoadingMore { get; set; }
 
-	public List<StorageItemInfo> FilteredFiles => string.IsNullOrEmpty(SearchFilter)
-		? MediaFiles
-		: MediaFiles.Where(f => f.FileName.Contains(SearchFilter, StringComparison.OrdinalIgnoreCase)).ToList();
+	public List<StorageItemInfo> FilteredFiles => MediaFiles;
 
-	partial void OnSearchFilterChanged(string value)
+	private BlobKindFilter? GetBlobKindFilter()
 	{
-		OnPropertyChanged(nameof(FilteredFiles));
+		return _isImageMode ? BlobKindFilter.Images : BlobKindFilter.Files;
 	}
 
 	[RelayCommand]
@@ -129,15 +127,15 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 			_currentPage = 1;
 			_hasMoreItems = true;
 
-			var response = _isImageMode
-				? await _api.GetImagesAsync(_currentPage, PageSize)
-				: await _api.GetFilesAsync(_currentPage, PageSize);
+			var search = string.IsNullOrWhiteSpace(SearchFilter) ? null : SearchFilter;
+			var response = await _api.GetMediaAsync(_currentPage, PageSize, GetBlobKindFilter(), search);
 
 			if (response.IsSuccessStatusCode && response.Content != null)
 			{
 				MediaFiles = response.Content.Data.ToList();
 				_hasMoreItems = response.Content.PageNumber * response.Content.PageSize < response.Content.TotalCount;
 				HasMoreItems = _hasMoreItems;
+				OnPropertyChanged(nameof(FilteredFiles));
 			}
 		}
 		catch (Exception)
@@ -148,6 +146,12 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 		{
 			IsLoading = false;
 		}
+	}
+
+	[RelayCommand]
+	private async Task SearchAsync()
+	{
+		await LoadFilesAsync();
 	}
 
 	[RelayCommand]
@@ -162,9 +166,8 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 		try
 		{
 			_currentPage++;
-			var response = _isImageMode
-				? await _api.GetImagesAsync(_currentPage, PageSize)
-				: await _api.GetFilesAsync(_currentPage, PageSize);
+			var search = string.IsNullOrWhiteSpace(SearchFilter) ? null : SearchFilter;
+			var response = await _api.GetMediaAsync(_currentPage, PageSize, GetBlobKindFilter(), search);
 
 			if (response.IsSuccessStatusCode && response.Content != null)
 			{
