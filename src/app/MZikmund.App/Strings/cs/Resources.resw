@@ -180,4 +180,13 @@
   <data name="LoadMore" xml:space="preserve">
     <value>Načíst další</value>
   </data>
+  <data name="ViewVariants" xml:space="preserve">
+    <value>Zobrazit varianty</value>
+  </data>
+  <data name="AvailableVariants" xml:space="preserve">
+    <value>Dostupné varianty</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Zavřít</value>
+  </data>
 </root>

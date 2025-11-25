@@ -243,4 +243,13 @@
   <data name="LoadMore" xml:space="preserve">
     <value>Load More</value>
   </data>
+  <data name="ViewVariants" xml:space="preserve">
+    <value>View Variants</value>
+  </data>
+  <data name="AvailableVariants" xml:space="preserve">
+    <value>Available Variants</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
 </root>

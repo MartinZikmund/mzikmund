@@ -105,21 +105,24 @@
                                     Spacing="4">
                                     <Button
                                         Padding="8,4"
+                                        Command="{Binding ElementName=Root, Path=ViewModel.ShowVariantsCommand}"
+                                        CommandParameter="{x:Bind}"
+                                        ToolTipService.ToolTip="{xaml:Localize Key=ViewVariants}">
+                                        <SymbolIcon Symbol="Pictures" />
+                                    </Button>
+                                    <Button
+                                        Padding="8,4"
                                         Command="{Binding ElementName=Root, Path=ViewModel.DeleteFileCommand}"
-                                        CommandParameter="{x:Bind}">
-                                        <StackPanel Orientation="Horizontal" Spacing="4">
-                                            <SymbolIcon Symbol="Delete" />
-                                            <TextBlock FontSize="12" Text="{xaml:Localize Key=Delete}" />
-                                        </StackPanel>
+                                        CommandParameter="{x:Bind}"
+                                        ToolTipService.ToolTip="{xaml:Localize Key=Delete}">
+                                        <SymbolIcon Symbol="Delete" />
                                     </Button>
                                     <Button
                                         Padding="8,4"
                                         Click="CopyUrl_Click"
-                                        Tag="{x:Bind Url}">
-                                        <StackPanel Orientation="Horizontal" Spacing="4">
-                                            <SymbolIcon Symbol="Copy" />
-                                            <TextBlock FontSize="12" Text="{xaml:Localize Key=CopyUrl}" />
-                                        </StackPanel>
+                                        Tag="{x:Bind Url}"
+                                        ToolTipService.ToolTip="{xaml:Localize Key=CopyUrl}">
+                                        <SymbolIcon Symbol="Copy" />
                                     </Button>
                                 </StackPanel>
                             </Grid>
