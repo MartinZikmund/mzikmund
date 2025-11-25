@@ -2,6 +2,7 @@ using ImageMagick;
 using MediatR;
 using Microsoft.AspNetCore.StaticFiles;
 using MZikmund.DataContracts.Blobs;
+using MZikmund.DataContracts.Storage;
 using MZikmund.Web.Core.Services.Blobs;
 using MZikmund.Web.Data;
 using MZikmund.Web.Data.Entities;
@@ -67,7 +68,7 @@ public class UploadImageHandler : IRequestHandler<UploadImageCommand, StorageIte
 		// Save metadata to database (one entry for the logical image, not per variant)
 		var fileName = Path.GetFileName(path);
 		_contentTypeProvider.TryGetContentType(request.FileName, out var contentType);
-		
+
 		var metadata = new BlobMetadataEntity
 		{
 			Id = Guid.NewGuid(),
@@ -82,7 +83,7 @@ public class UploadImageHandler : IRequestHandler<UploadImageCommand, StorageIte
 		_dbContext.BlobMetadata.Add(metadata);
 		await _dbContext.SaveChangesAsync(cancellationToken);
 
-		return new StorageItemInfo(path, lastModified);
+		return new StorageItemInfo(path, StorageItemType.Image, lastModified);
 	}
 
 	private string GetPathWithSizeSuffix(string path, uint width)
@@ -107,7 +108,11 @@ public class UploadImageHandler : IRequestHandler<UploadImageCommand, StorageIte
 		}
 	}
 
-	private async Task<StorageItemInfo> UploadAsnc(Stream stream, string fileName) => await _blobStorage.AddAsync(Services.Blobs.BlobKind.Image, fileName, stream);
+	private async Task<StorageItemInfo> UploadAsnc(Stream stream, string fileName)
+	{
+		var blobItem = await _blobStorage.AddAsync(Services.Blobs.BlobKind.Image, fileName, stream);
+		return new StorageItemInfo(blobItem.BlobPath, StorageItemType.Image, blobItem.LastModified);
+	}
 
 	private static async Task<Stream> ResizeGif(Stream sourceStream, uint width, CancellationToken cancellationToken)
 	{

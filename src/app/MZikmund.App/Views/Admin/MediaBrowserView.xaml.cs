@@ -13,10 +13,10 @@ public sealed partial class MediaBrowserView : MediaBrowserViewBase
 
 	private void CopyUrl_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
 	{
-		if (sender is Button button && button.Tag is string url)
+		if (sender is Button button && button.Tag is Uri url)
 		{
 			var dataPackage = new DataPackage();
-			dataPackage.SetText(url);
+			dataPackage.SetUri(url);
 			Clipboard.SetContent(dataPackage);
 		}
 	}

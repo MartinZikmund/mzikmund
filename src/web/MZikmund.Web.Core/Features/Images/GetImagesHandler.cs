@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MZikmund.DataContracts;
 using MZikmund.DataContracts.Blobs;
 using MZikmund.Web.Data;
+using MZikmund.Web.Data.Extensions;
 
 namespace MZikmund.Web.Core.Features.Images;
 
@@ -26,7 +27,7 @@ public class GetImagesHandler : IRequestHandler<GetImagesQuery, PagedResponse<St
 			.OrderByDescending(b => b.LastModified)
 			.Skip(skip)
 			.Take(request.PageSize)
-			.Select(b => new StorageItemInfo(b.BlobPath, b.LastModified))
+			.Select(b => new StorageItemInfo(b.BlobPath, b.Kind.ToStorageItemType(), b.LastModified))
 			.ToArrayAsync(cancellationToken);
 
 		return new PagedResponse<StorageItemInfo>(items, request.PageNumber, request.PageSize, totalCount);

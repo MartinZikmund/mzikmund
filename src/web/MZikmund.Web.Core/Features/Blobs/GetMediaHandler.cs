@@ -2,8 +2,10 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using MZikmund.DataContracts;
 using MZikmund.DataContracts.Blobs;
+using MZikmund.DataContracts.Storage;
 using MZikmund.Web.Data;
 using MZikmund.Web.Data.Entities;
+using MZikmund.Web.Data.Extensions;
 
 namespace MZikmund.Web.Core.Features.Blobs;
 
@@ -42,7 +44,7 @@ public class GetMediaHandler : IRequestHandler<GetMediaQuery, PagedResponse<Stor
 			.OrderByDescending(b => b.LastModified)
 			.Skip(skip)
 			.Take(request.PageSize)
-			.Select(b => new StorageItemInfo(b.BlobPath, b.LastModified))
+			.Select(b => new StorageItemInfo(b.BlobPath, b.Kind.ToStorageItemType(), b.LastModified))
 			.ToArrayAsync(cancellationToken);
 
 		return new PagedResponse<StorageItemInfo>(items, request.PageNumber, request.PageSize, totalCount);

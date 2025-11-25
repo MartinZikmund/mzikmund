@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.StaticFiles;
 using MZikmund.DataContracts.Blobs;
+using MZikmund.DataContracts.Storage;
 using MZikmund.Web.Core.Services.Blobs;
 using MZikmund.Web.Data;
 using MZikmund.Web.Data.Entities;
@@ -36,7 +37,7 @@ public class UploadFileHandler : IRequestHandler<UploadFileCommand, StorageItemI
 		// Save metadata to database
 		var fileName = Path.GetFileName(path);
 		_contentTypeProvider.TryGetContentType(request.FileName, out var contentType);
-		
+
 		var metadata = new BlobMetadataEntity
 		{
 			Id = Guid.NewGuid(),
@@ -51,6 +52,6 @@ public class UploadFileHandler : IRequestHandler<UploadFileCommand, StorageItemI
 		_dbContext.BlobMetadata.Add(metadata);
 		await _dbContext.SaveChangesAsync(cancellationToken);
 
-		return result;
+		return new StorageItemInfo(path, StorageItemType.File, result.LastModified);
 	}
 }

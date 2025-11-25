@@ -59,7 +59,7 @@ public partial class MediaBrowserViewModel : PageViewModel
 	[ObservableProperty]
 	public partial bool IsLoadingMore { get; set; }
 
-	public StorageItemInfo[] FilteredFiles => MediaFiles.ToArray();
+	public StorageItemInfoViewModel[] FilteredFiles => MediaFiles.ToArray();
 
 	partial void OnFilterModeChanged(MediaFilterMode value)
 	{
@@ -97,12 +97,13 @@ public partial class MediaBrowserViewModel : PageViewModel
 
 			var search = string.IsNullOrWhiteSpace(SearchFilter) ? null : SearchFilter;
 			var response = await _api.GetMediaAsync(_currentPage, PageSize, GetBlobKindFilter(), search);
+			await response.EnsureSuccessfulAsync();
 
 			MediaFiles.Clear();
 
 			if (response.IsSuccessStatusCode && response.Content != null)
 			{
-				MediaFiles.AddRange(response.Content.Data);
+				MediaFiles.AddRange(response.Content.Data.Select(i => new StorageItemInfoViewModel(i, _appConfig.Value)));
 				_hasMoreItems = response.Content.PageNumber * response.Content.PageSize < response.Content.TotalCount;
 			}
 
@@ -132,10 +133,11 @@ public partial class MediaBrowserViewModel : PageViewModel
 			_currentPage++;
 			var search = string.IsNullOrWhiteSpace(SearchFilter) ? null : SearchFilter;
 			var response = await _api.GetMediaAsync(_currentPage, PageSize, GetBlobKindFilter(), search);
+			await response.EnsureSuccessfulAsync();
 
-			if (response.IsSuccessStatusCode && response.Content != null)
+			if (response.Content != null)
 			{
-				MediaFiles.AddRange(response.Content.Data);
+				MediaFiles.AddRange(response.Content.Data.Select(i => new StorageItemInfoViewModel(i, _appConfig.Value)));
 				_hasMoreItems = response.Content.PageNumber * response.Content.PageSize < response.Content.TotalCount;
 			}
 
@@ -230,11 +232,8 @@ public partial class MediaBrowserViewModel : PageViewModel
 			var response = isImage
 				? await _api.DeleteImageAsync(file.FileName)
 				: await _api.DeleteFileAsync(file.FileName);
-
-			if (response.IsSuccessStatusCode)
-			{
-				await RefreshListAsync();
-			}
+			await response.EnsureSuccessfulAsync();
+			await RefreshListAsync();
 		}
 		catch (Exception ex)
 		{
