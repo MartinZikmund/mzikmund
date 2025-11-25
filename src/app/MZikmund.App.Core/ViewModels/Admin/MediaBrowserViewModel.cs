@@ -244,6 +244,18 @@ public partial class MediaBrowserViewModel : PageViewModel
 		}
 	}
 
+	[RelayCommand]
+	private async Task ShowVariantsAsync(StorageItemInfoViewModel? file)
+	{
+		if (file == null || !IsImageFile(file.FileName))
+		{
+			return;
+		}
+
+		var viewModel = new ImageVariantsDialogViewModel(_api, file);
+		await _dialogService.ShowAsync(viewModel);
+	}
+
 	private static bool IsImageFile(string fileName)
 	{
 		var extension = Path.GetExtension(fileName).ToLowerInvariant();
