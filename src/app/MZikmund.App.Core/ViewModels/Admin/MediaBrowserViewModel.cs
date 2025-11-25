@@ -34,15 +34,14 @@ public partial class MediaBrowserViewModel : PageViewModel
 	public override string Title => Localizer.Instance.GetString("Media");
 
 	private const int PageSize = 50;
-	private int _currentImagesPage = 1;
-	private int _currentFilesPage = 1;
-	private bool _hasMoreImages = true;
-	private bool _hasMoreFiles = true;
+	private int _currentPage = 1;
+	private bool _hasMoreItems = true;
 
 	[ObservableProperty]
 	public partial ObservableCollection<StorageItemInfo> MediaFiles { get; set; } = new ObservableCollection<StorageItemInfo>();
 
 	[ObservableProperty]
+	[NotifyPropertyChangedFor(nameof(FilteredFiles))]
 	public partial string SearchFilter { get; set; } = "";
 
 	[ObservableProperty]
@@ -54,40 +53,11 @@ public partial class MediaBrowserViewModel : PageViewModel
 	[ObservableProperty]
 	public partial bool IsLoadingMore { get; set; }
 
-	public StorageItemInfo[] FilteredFiles
-	{
-		get
-		{
-			var files = MediaFiles.AsEnumerable();
-
-			// Apply filter mode
-			if (FilterMode == MediaFilterMode.Images)
-			{
-				files = files.Where(f => IsImageFile(f.FileName));
-			}
-			else if (FilterMode == MediaFilterMode.Files)
-			{
-				files = files.Where(f => !IsImageFile(f.FileName));
-			}
-
-			// Apply search filter
-			if (!string.IsNullOrEmpty(SearchFilter))
-			{
-				files = files.Where(f => f.FileName.Contains(SearchFilter, StringComparison.OrdinalIgnoreCase));
-			}
-
-			return files.ToArray();
-		}
-	}
-
-	partial void OnSearchFilterChanged(string value)
-	{
-		OnPropertyChanged(nameof(FilteredFiles));
-	}
+	public StorageItemInfo[] FilteredFiles => MediaFiles.ToArray();
 
 	partial void OnFilterModeChanged(MediaFilterMode value)
 	{
-		OnPropertyChanged(nameof(FilteredFiles));
+		_ = RefreshListAsync();
 	}
 
 	public override async void ViewLoaded()
@@ -95,34 +65,42 @@ public partial class MediaBrowserViewModel : PageViewModel
 		await RefreshListAsync();
 	}
 
+	[RelayCommand]
+	private async Task SearchAsync()
+	{
+		await RefreshListAsync();
+	}
+
+	private BlobKindFilter? GetBlobKindFilter()
+	{
+		return FilterMode switch
+		{
+			MediaFilterMode.Images => BlobKindFilter.Images,
+			MediaFilterMode.Files => BlobKindFilter.Files,
+			_ => null
+		};
+	}
+
 	private async Task RefreshListAsync()
 	{
 		using var loadingScope = _loadingIndicator.BeginLoading();
 		try
 		{
-			_currentImagesPage = 1;
-			_currentFilesPage = 1;
-			_hasMoreImages = true;
-			_hasMoreFiles = true;
+			_currentPage = 1;
+			_hasMoreItems = true;
 
-			var imagesResponse = await _api.GetImagesAsync(_currentImagesPage, PageSize);
-			var filesResponse = await _api.GetFilesAsync(_currentFilesPage, PageSize);
+			var search = string.IsNullOrWhiteSpace(SearchFilter) ? null : SearchFilter;
+			var response = await _api.GetMediaAsync(_currentPage, PageSize, GetBlobKindFilter(), search);
 
 			MediaFiles.Clear();
 
-			if (imagesResponse.IsSuccessStatusCode && imagesResponse.Content != null)
+			if (response.IsSuccessStatusCode && response.Content != null)
 			{
-				MediaFiles.AddRange(imagesResponse.Content.Data);
-				_hasMoreImages = imagesResponse.Content.PageNumber * imagesResponse.Content.PageSize < imagesResponse.Content.TotalCount;
+				MediaFiles.AddRange(response.Content.Data);
+				_hasMoreItems = response.Content.PageNumber * response.Content.PageSize < response.Content.TotalCount;
 			}
 
-			if (filesResponse.IsSuccessStatusCode && filesResponse.Content != null)
-			{
-				MediaFiles.AddRange(filesResponse.Content.Data);
-				_hasMoreFiles = filesResponse.Content.PageNumber * filesResponse.Content.PageSize < filesResponse.Content.TotalCount;
-			}
-
-			HasMoreItems = _hasMoreImages || _hasMoreFiles;
+			HasMoreItems = _hasMoreItems;
 			OnPropertyChanged(nameof(FilteredFiles));
 		}
 		catch (Exception ex)
@@ -145,31 +123,17 @@ public partial class MediaBrowserViewModel : PageViewModel
 		IsLoadingMore = true;
 		try
 		{
-			if (_hasMoreImages)
-			{
-				_currentImagesPage++;
-				var imagesResponse = await _api.GetImagesAsync(_currentImagesPage, PageSize);
+			_currentPage++;
+			var search = string.IsNullOrWhiteSpace(SearchFilter) ? null : SearchFilter;
+			var response = await _api.GetMediaAsync(_currentPage, PageSize, GetBlobKindFilter(), search);
 
-				if (imagesResponse.IsSuccessStatusCode && imagesResponse.Content != null)
-				{
-					MediaFiles.AddRange(imagesResponse.Content.Data);
-					_hasMoreImages = imagesResponse.Content.PageNumber * imagesResponse.Content.PageSize < imagesResponse.Content.TotalCount;
-				}
+			if (response.IsSuccessStatusCode && response.Content != null)
+			{
+				MediaFiles.AddRange(response.Content.Data);
+				_hasMoreItems = response.Content.PageNumber * response.Content.PageSize < response.Content.TotalCount;
 			}
 
-			if (_hasMoreFiles)
-			{
-				_currentFilesPage++;
-				var filesResponse = await _api.GetFilesAsync(_currentFilesPage, PageSize);
-
-				if (filesResponse.IsSuccessStatusCode && filesResponse.Content != null)
-				{
-					MediaFiles.AddRange(filesResponse.Content.Data);
-					_hasMoreFiles = filesResponse.Content.PageNumber * filesResponse.Content.PageSize < filesResponse.Content.TotalCount;
-				}
-			}
-
-			HasMoreItems = _hasMoreImages || _hasMoreFiles;
+			HasMoreItems = _hasMoreItems;
 			OnPropertyChanged(nameof(FilteredFiles));
 		}
 		catch (Exception ex)
