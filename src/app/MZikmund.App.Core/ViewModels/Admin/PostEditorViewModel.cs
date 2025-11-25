@@ -11,6 +11,8 @@ using MZikmund.Web.Core.Services;
 using MZikmund.ViewModels.Admin;
 using Newtonsoft.Json;
 using MZikmund.Services.Navigation;
+using Microsoft.Extensions.Options;
+using MZikmund.Business.Models;
 
 namespace MZikmund.ViewModels.Admin;
 
@@ -22,11 +24,12 @@ public partial class PostEditorViewModel : PageViewModel
 	private readonly ILoadingIndicator _loadingIndicator;
 	private readonly IPostContentProcessor _postContentProcessor;
 	private readonly ITimerFactory _timerFactory;
+	private readonly IOptions<AppConfig> _appConfig;
 	private DispatcherQueueTimer? _previewTimer;
 	private DispatcherQueueTimer? _draftTimer;
 	private bool _isPreviewDirty = true;
 
-	public PostEditorViewModel(IMZikmundApi api, IWindowShellProvider windowShellProvider, IDialogService dialogService, ILoadingIndicator loadingIndicator, IPostContentProcessor postContentProcessor, ITimerFactory timerFactory)
+	public PostEditorViewModel(IMZikmundApi api, IWindowShellProvider windowShellProvider, IDialogService dialogService, ILoadingIndicator loadingIndicator, IPostContentProcessor postContentProcessor, ITimerFactory timerFactory, IOptions<AppConfig> appConfig)
 	{
 		_api = api;
 		_windowShellProvider = windowShellProvider;
@@ -34,6 +37,7 @@ public partial class PostEditorViewModel : PageViewModel
 		_loadingIndicator = loadingIndicator;
 		_postContentProcessor = postContentProcessor;
 		_timerFactory = timerFactory;
+		_appConfig = appConfig;
 	}
 
 	public override string Title => Post?.Title ?? "";
@@ -140,7 +144,7 @@ public partial class PostEditorViewModel : PageViewModel
 	[RelayCommand]
 	private async Task BrowseImagesAsync()
 	{
-		var dialogViewModel = new MediaBrowserDialogViewModel(_api, _windowShellProvider, isImageMode: true);
+		var dialogViewModel = new MediaBrowserDialogViewModel(_api, _windowShellProvider, _appConfig, isImageMode: true);
 		var result = await _dialogService.ShowAsync(dialogViewModel);
 
 		if (result == ContentDialogResult.Primary && dialogViewModel.SelectedUrl != null)
@@ -155,7 +159,7 @@ public partial class PostEditorViewModel : PageViewModel
 	[RelayCommand]
 	private async Task InsertImageAsync()
 	{
-		var dialogViewModel = new MediaBrowserDialogViewModel(_api, _windowShellProvider, isImageMode: true);
+		var dialogViewModel = new MediaBrowserDialogViewModel(_api, _windowShellProvider, _appConfig, isImageMode: true);
 		var result = await _dialogService.ShowAsync(dialogViewModel);
 
 		if (result == ContentDialogResult.Primary && dialogViewModel.SelectedFile != null && dialogViewModel.SelectedUrl != null)
@@ -168,7 +172,7 @@ public partial class PostEditorViewModel : PageViewModel
 	[RelayCommand]
 	private async Task InsertFileAsync()
 	{
-		var dialogViewModel = new MediaBrowserDialogViewModel(_api, _windowShellProvider, isImageMode: false);
+		var dialogViewModel = new MediaBrowserDialogViewModel(_api, _windowShellProvider, _appConfig, isImageMode: false);
 		var result = await _dialogService.ShowAsync(dialogViewModel);
 
 		if (result == ContentDialogResult.Primary && dialogViewModel.SelectedFile != null)

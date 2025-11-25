@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:dto="using:MZikmund.DataContracts.Blobs"
+    xmlns:items="using:MZikmund.ViewModels.Items"
     xmlns:local="using:MZikmund.Views.Admin"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="using:MZikmund.ViewModels.Admin"
@@ -59,7 +60,7 @@
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
-                        <DataTemplate x:DataType="dto:StorageItemInfo">
+                        <DataTemplate x:DataType="items:StorageItemInfoViewModel">
                             <Grid
                                 Width="200"
                                 Height="200"

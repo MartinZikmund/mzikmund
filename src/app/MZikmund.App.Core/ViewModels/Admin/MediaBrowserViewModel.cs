@@ -1,5 +1,8 @@
 using System.Collections.ObjectModel;
+using Microsoft.Extensions.Options;
 using MZikmund.Api.Client;
+using MZikmund.ViewModels.Items;
+using MZikmund.Business.Models;
 using MZikmund.DataContracts.Blobs;
 using MZikmund.Extensions;
 using MZikmund.Models.Dialogs;
@@ -18,17 +21,20 @@ public partial class MediaBrowserViewModel : PageViewModel
 	private readonly ILoadingIndicator _loadingIndicator;
 	private readonly IMZikmundApi _api;
 	private readonly IWindowShellProvider _windowShellProvider;
+	private readonly IOptions<AppConfig> _appConfig;
 
 	public MediaBrowserViewModel(
 		IMZikmundApi api,
 		IDialogService dialogService,
 		ILoadingIndicator loadingIndicator,
-		IWindowShellProvider windowShellProvider)
+		IWindowShellProvider windowShellProvider,
+		IOptions<AppConfig> appConfig)
 	{
 		_dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
 		_loadingIndicator = loadingIndicator ?? throw new ArgumentNullException(nameof(loadingIndicator));
 		_api = api ?? throw new ArgumentNullException(nameof(api));
 		_windowShellProvider = windowShellProvider ?? throw new ArgumentNullException(nameof(windowShellProvider));
+		_appConfig = appConfig;
 	}
 
 	public override string Title => Localizer.Instance.GetString("Media");
@@ -38,7 +44,7 @@ public partial class MediaBrowserViewModel : PageViewModel
 	private bool _hasMoreItems = true;
 
 	[ObservableProperty]
-	public partial ObservableCollection<StorageItemInfo> MediaFiles { get; set; } = new ObservableCollection<StorageItemInfo>();
+	public partial ObservableCollection<StorageItemInfoViewModel> MediaFiles { get; set; } = new();
 
 	[ObservableProperty]
 	[NotifyPropertyChangedFor(nameof(FilteredFiles))]
@@ -199,7 +205,7 @@ public partial class MediaBrowserViewModel : PageViewModel
 	}
 
 	[RelayCommand]
-	private async Task DeleteFileAsync(StorageItemInfo? file)
+	private async Task DeleteFileAsync(StorageItemInfoViewModel? file)
 	{
 		if (file == null)
 		{

@@ -10,6 +10,9 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MZikmund.DataContracts.Blobs;
 using MZikmund.Services.Navigation;
+using Microsoft.Extensions.Options;
+using MZikmund.Business.Models;
+using MZikmund.ViewModels.Items;
 
 namespace MZikmund.ViewModels.Admin;
 
@@ -17,15 +20,18 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 {
 	private readonly IMZikmundApi _api;
 	private readonly IWindowShellProvider _windowShellProvider;
+	private readonly IOptions<AppConfig> _appConfig;
 	private readonly bool _isImageMode;
 
 	public MediaBrowserDialogViewModel(
 		IMZikmundApi api,
 		IWindowShellProvider windowShellProvider,
+		IOptions<AppConfig> appConfig,
 		bool isImageMode = true)
 	{
 		_api = api;
 		_windowShellProvider = windowShellProvider;
+		_appConfig = appConfig;
 		_isImageMode = isImageMode;
 	}
 
@@ -34,10 +40,10 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 	private bool _hasMoreItems = true;
 
 	[ObservableProperty]
-	public partial List<StorageItemInfo> MediaFiles { get; set; } = new List<StorageItemInfo>();
+	public partial List<StorageItemInfoViewModel> MediaFiles { get; set; } = new List<StorageItemInfoViewModel>();
 
 	[ObservableProperty]
-	public partial StorageItemInfo? SelectedFile { get; set; }
+	public partial StorageItemInfoViewModel? SelectedFile { get; set; }
 
 	[ObservableProperty]
 	public partial List<ImageVariant> AvailableVariants { get; set; } = new List<ImageVariant>();
@@ -45,11 +51,11 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 	[ObservableProperty]
 	public partial ImageVariant? SelectedVariant { get; set; }
 
-	public string? SelectedUrl => _isImageMode && SelectedVariant != null 
-		? SelectedVariant.Url 
+	public string? SelectedUrl => _isImageMode && SelectedVariant != null
+		? SelectedVariant.Url
 		: (SelectedFile != null ? GetPublicUrl(SelectedFile.BlobPath) : null);
 
-	partial void OnSelectedFileChanged(StorageItemInfo? value)
+	partial void OnSelectedFileChanged(StorageItemInfoViewModel? value)
 	{
 		if (value != null && _isImageMode)
 		{
@@ -132,7 +138,7 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 
 			if (response.IsSuccessStatusCode && response.Content != null)
 			{
-				MediaFiles = response.Content.Data.ToList();
+				MediaFiles = response.Content.Data.Select(i => new StorageItemInfoViewModel(i, _appConfig.Value)).ToList();
 				_hasMoreItems = response.Content.PageNumber * response.Content.PageSize < response.Content.TotalCount;
 				HasMoreItems = _hasMoreItems;
 				OnPropertyChanged(nameof(FilteredFiles));
