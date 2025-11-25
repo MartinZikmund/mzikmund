@@ -43,9 +43,9 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 	[ObservableProperty]
 	public partial ImageVariant? SelectedVariant { get; set; }
 
-	public string? SelectedUrl => _isImageMode && SelectedVariant != null
+	public Uri? SelectedUrl => _isImageMode && SelectedVariant != null
 		? SelectedVariant.Url
-		: (SelectedFile != null ? GetPublicUrl(SelectedFile.BlobPath) : null);
+		: SelectedFile?.Url;
 
 	partial void OnSelectedFileChanged(StorageItemInfoViewModel? value)
 	{
@@ -90,11 +90,6 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 	partial void OnSelectedVariantChanged(ImageVariant? value)
 	{
 		OnPropertyChanged(nameof(SelectedUrl));
-	}
-
-	private string GetPublicUrl(string blobPath)
-	{
-		return $"https://mzikmund.blob.core.windows.net/media/{blobPath}";
 	}
 
 	[ObservableProperty]

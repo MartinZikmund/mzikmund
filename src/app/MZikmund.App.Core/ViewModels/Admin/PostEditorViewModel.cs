@@ -151,7 +151,7 @@ public partial class PostEditorViewModel : PageViewModel
 		{
 			if (Post != null)
 			{
-				Post.HeroImageUrl = dialogViewModel.SelectedUrl;
+				Post.HeroImageUrl = dialogViewModel.SelectedUrl.AbsoluteUri;
 			}
 		}
 	}
