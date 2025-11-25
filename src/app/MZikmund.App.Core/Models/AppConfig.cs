@@ -7,4 +7,6 @@ public record AppConfig
 	public string? ApiUrl { get; init; }
 
 	public string? WebUrl { get; init; }
+
+	public string CdnUrl { get; init; } = null!;
 }

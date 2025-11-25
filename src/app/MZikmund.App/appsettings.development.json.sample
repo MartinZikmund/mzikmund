@@ -2,7 +2,8 @@
 	"AppConfig": {
 		"Environment": "Development",
 		"ApiUrl": "https://localhost:7007/api",
-		"WebUrl": "https://localhost:7007/"
+		"WebUrl": "https://localhost:7007/",
+        "CdnUrl": "AZURE_STORAGE_OR_CDN_URL"
 	},
 	"AuthConfig": {
 		"ClientId": "your-auth0-client-id"
