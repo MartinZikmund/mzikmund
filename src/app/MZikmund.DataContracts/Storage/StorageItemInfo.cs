@@ -5,9 +5,4 @@ public record StorageItemInfo(string BlobPath, DateTimeOffset? LastModified)
 	public string FileName => Path.GetFileName(BlobPath);
 
 	public string Extension => Path.GetExtension(BlobPath);
-
-	/// <summary>
-	/// Gets the full CDN URL for the blob.
-	/// </summary>
-	public string Url => $"https://cdn.mzikmund.dev/{BlobPath}";
 }

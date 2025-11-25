@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 using MZikmund.DataContracts;
+using MZikmund.DataContracts.Blobs;
 using MZikmund.DataContracts.Blog;
 using Refit;
 
@@ -64,6 +65,9 @@ namespace MZikmund.Api.Serialization;
 [JsonSerializable(typeof(IEnumerable<TagWithPostCount>))]
 [JsonSerializable(typeof(IImmutableList<TagWithPostCount>))]
 [JsonSerializable(typeof(ImmutableList<TagWithPostCount>))]
+
+// Storage items
+[JsonSerializable(typeof(StorageItemInfo))]
 
 // Common types
 [JsonSerializable(typeof(ApiResponse<object?>))]
