@@ -1,13 +1,5 @@
 using MZikmund.Api.Client;
-using MZikmund.App.Core.ViewModels.Admin;
-using MZikmund.Services.Dialogs;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml;
-using MZikmund.App;
-using MZikmund.ViewModels;
 using Refit;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using MZikmund.DataContracts.Blobs;
 using MZikmund.Services.Navigation;
 using Microsoft.Extensions.Options;
@@ -117,7 +109,7 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 	[ObservableProperty]
 	public partial bool IsLoadingMore { get; set; }
 
-	public List<StorageItemInfo> FilteredFiles => MediaFiles;
+	public List<StorageItemInfoViewModel> FilteredFiles => MediaFiles;
 
 	private BlobKindFilter? GetBlobKindFilter()
 	{
@@ -135,7 +127,7 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 
 			var search = string.IsNullOrWhiteSpace(SearchFilter) ? null : SearchFilter;
 			var response = await _api.GetMediaAsync(_currentPage, PageSize, GetBlobKindFilter(), search);
-
+			await response.EnsureSuccessfulAsync();
 			if (response.IsSuccessStatusCode && response.Content != null)
 			{
 				MediaFiles = response.Content.Data.Select(i => new StorageItemInfoViewModel(i, _appConfig.Value)).ToList();
@@ -174,7 +166,7 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 			_currentPage++;
 			var search = string.IsNullOrWhiteSpace(SearchFilter) ? null : SearchFilter;
 			var response = await _api.GetMediaAsync(_currentPage, PageSize, GetBlobKindFilter(), search);
-
+			await response.EnsureSuccessfulAsync();
 			if (response.IsSuccessStatusCode && response.Content != null)
 			{
 				MediaFiles.AddRange(response.Content.Data);
@@ -231,7 +223,7 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 					var response = _isImageMode
 						? await _api.UploadImageAsync(streamPart, file.Name)
 						: await _api.UploadFileAsync(streamPart, file.Name);
-
+					await response.EnsureSuccessfulAsync();
 					if (response.IsSuccessStatusCode)
 					{
 						await LoadFilesAsync();

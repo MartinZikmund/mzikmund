@@ -80,10 +80,11 @@
                                     Grid.Row="0"
                                     Background="{ThemeResource LayerFillColorDefaultBrush}"
                                     CornerRadius="4,4,0,0">
-                                    <Image
-                                        Margin="8"
-                                        Source="{x:Bind Url}"
-                                        Stretch="Uniform" />
+                                    <Image Margin="8" Stretch="Uniform">
+                                        <Image.Source>
+                                            <BitmapImage UriSource="{x:Bind Url}" />
+                                        </Image.Source>
+                                    </Image>
                                 </Border>
 
                                 <!--  File Name  -->

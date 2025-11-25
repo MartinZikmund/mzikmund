@@ -18,8 +18,8 @@ public class BlobStorage : IBlobStorage
 	private readonly FileExtensionContentTypeProvider _fileExtensionContentTypeProvider = new();
 
 	public BlobStorage(
-		ISiteConfiguration siteConfiguration, 
-		IConnectionStringProvider connectionStringProvider, 
+		ISiteConfiguration siteConfiguration,
+		IConnectionStringProvider connectionStringProvider,
 		ILogger<BlobStorage> logger)
 	{
 		_logger = logger;
@@ -36,13 +36,13 @@ public class BlobStorage : IBlobStorage
 		await _filesContainer.SetAccessPolicyAsync(PublicAccessType.Blob);
 	}
 
-	public async Task<StorageItemInfo> AddAsync(BlobKind blobKind, string blobPath, byte[] imageBytes)
+	public async Task<BlobStorageItem> AddAsync(BlobKind blobKind, string blobPath, byte[] imageBytes)
 	{
 		await using var stream = new MemoryStream(imageBytes);
 		return await AddAsync(blobKind, blobPath, stream);
 	}
 
-	public async Task<StorageItemInfo> AddAsync(BlobKind blobKind, string blobPath, Stream stream)
+	public async Task<BlobStorageItem> AddAsync(BlobKind blobKind, string blobPath, Stream stream)
 	{
 		if (string.IsNullOrWhiteSpace(blobPath))
 		{
@@ -83,10 +83,10 @@ public class BlobStorage : IBlobStorage
 		await containerClient.DeleteBlobIfExistsAsync(fileName);
 	}
 
-	public async Task<StorageItemInfo[]> ListAsync(BlobKind blobKind, string? prefix = null)
+	public async Task<BlobStorageItem[]> ListAsync(BlobKind blobKind, string? prefix = null)
 	{
 		var containerClient = GetBlobContainerClient(blobKind);
-		var blobs = new List<StorageItemInfo>();
+		var blobs = new List<BlobStorageItem>();
 		await foreach (var blob in containerClient.GetBlobsAsync(prefix: prefix))
 		{
 			var blobName = blob.Name;

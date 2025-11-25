@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using MZikmund.DataContracts;
 using MZikmund.DataContracts.Blobs;
 using MZikmund.DataContracts.Blog;
+using MZikmund.DataContracts.Storage;
 using Refit;
 
 namespace MZikmund.Api.Serialization;
@@ -67,7 +68,10 @@ namespace MZikmund.Api.Serialization;
 [JsonSerializable(typeof(ImmutableList<TagWithPostCount>))]
 
 // Storage items
+[JsonSerializable(typeof(StorageItemType))]
 [JsonSerializable(typeof(StorageItemInfo))]
+[JsonSerializable(typeof(PagedResponse<StorageItemInfo>))]
+[JsonSerializable(typeof(ApiResponse<PagedResponse<StorageItemInfo>>))]
 
 // Common types
 [JsonSerializable(typeof(ApiResponse<object?>))]
@@ -78,6 +82,7 @@ namespace MZikmund.Api.Serialization;
 [JsonSourceGenerationOptions(
 	PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
 	DefaultIgnoreCondition = JsonIgnoreCondition.Never,
+	UseStringEnumConverter = true,
 	WriteIndented = false)]
 public partial class MZikmundApiSerializerContext : JsonSerializerContext
 {

@@ -6,11 +6,11 @@ public interface IBlobStorage
 {
 	Task InitializeAsync();
 
-	Task<StorageItemInfo> AddAsync(BlobKind blobKind, string blobPath, byte[] fileBytes);
+	Task<BlobStorageItem> AddAsync(BlobKind blobKind, string blobPath, byte[] fileBytes);
 
-	Task<StorageItemInfo> AddAsync(BlobKind blobKind, string blobPath, Stream stream);
+	Task<BlobStorageItem> AddAsync(BlobKind blobKind, string blobPath, Stream stream);
 
 	Task DeleteAsync(BlobKind blobKind, string blobPath);
 
-	Task<StorageItemInfo[]> ListAsync(BlobKind blobKind, string? prefix = null);
+	Task<BlobStorageItem[]> ListAsync(BlobKind blobKind, string? prefix = null);
 }
