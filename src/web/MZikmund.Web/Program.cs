@@ -113,6 +113,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 	});
 
 	services.AddSingleton<IDateProvider, DateProvider>();
+	services.AddSingleton<IVersionInfoProvider, VersionInfoProvider>();
 	services.AddSingleton<IBlobPathGenerator, BlobPathGenerator>();
 	services.AddSingleton<IBlobStorage, BlobStorage>();
 

@@ -1,4 +1,6 @@
-﻿@using System.Runtime.InteropServices
+@using System.Runtime.InteropServices
+@using MZikmund.Web.Core.Services
+@inject IVersionInfoProvider VersionInfo
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
 <head>
@@ -76,7 +78,13 @@
                 <li class="nav-item"><a href="https://github.com/MartinZikmund/mzikmund" target="_blank" class="nav-link px-2 text-muted">Contribute</a></li>
             </ul>
 
-            <p class="col-12 text-center text-muted">Proudly running @RuntimeInformation.FrameworkDescription</p>
+            <p class="col-12 text-center text-muted">
+                Proudly running @RuntimeInformation.FrameworkDescription
+                @if (!string.IsNullOrEmpty(VersionInfo.CommitUrl))
+                {
+                    <text> | </text><a href="@VersionInfo.CommitUrl" target="_blank" class="text-muted">Version @VersionInfo.Version+@(VersionInfo.CommitSha?.Substring(0, 7))</a>
+                }
+            </p>
         </footer>
     </div>
     <partial name="_CookieConsentPartial" />

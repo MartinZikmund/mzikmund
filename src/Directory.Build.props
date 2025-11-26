@@ -13,6 +13,16 @@
 		
 		<DebugType>portable</DebugType>
 		<DebugSymbols>True</DebugSymbols>
+		
+		<!-- Version information with Git commit SHA -->
+		<Version>1.0.0</Version>
+		<InformationalVersion>$(Version)+$(SourceRevisionId)</InformationalVersion>
+		<SourceRevisionId Condition="'$(SourceRevisionId)' == ''">local-dev</SourceRevisionId>
+		
+		<!-- Enable SourceLink to embed Git commit SHA -->
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<IncludeSourceRevisionInInformationalVersion>true</IncludeSourceRevisionInInformationalVersion>
 
 		<!--
 			Adding NoWarn to remove build warnings
@@ -33,4 +43,9 @@
 			GenerateUnoWasmAssets;
 		</UnoGenerateAssetsManifestDependsOn>
 	</PropertyGroup>
+	
+	<ItemGroup>
+		<!-- Add SourceLink support for embedding Git commit info -->
+		<PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
+	</ItemGroup>
 </Project>
