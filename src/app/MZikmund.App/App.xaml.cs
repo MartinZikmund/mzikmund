@@ -131,11 +131,11 @@ public partial class MZikmundApp : Application, IApplication
 		services.AddScoped<AddOrUpdateCategoryDialogViewModel>();
 		services.AddScoped<AddOrUpdateTagDialogViewModel>();
 		services.AddScoped<PostsManagerViewModel>();
-		services.AddScoped<MediaBrowserDialogViewModel>();
 		services.AddScoped<MediaBrowserViewModel>();
-		services.AddScoped<PostEditorViewModel>();
 		services.AddScoped<PostViewModel>();
 		services.AddScoped<WindowShellViewModel>();
+		services.AddTransient<PostEditorViewModel>();
+		services.AddTransient<MediaBrowserDialogViewModel>();
 
 		services.AddSingleton<IApplication>(this);
 		services.AddSingleton<IThemeManager, ThemeManager>();
