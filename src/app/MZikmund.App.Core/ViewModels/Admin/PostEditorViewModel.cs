@@ -218,15 +218,27 @@ public partial class PostEditorViewModel : PageViewModel
 	public override void ViewLoaded()
 	{
 		base.ViewLoaded();
-		_previewTimer ??= _timerFactory.CreateTimer();
-		_previewTimer.Interval = TimeSpan.FromMilliseconds(500);
-		_previewTimer.Tick += PreviewTimerOnTick;
+		_previewTimer ??= CreatePreviewTimer();
 		_previewTimer.Start();
 
-		_draftTimer ??= _timerFactory.CreateTimer();
-		_draftTimer.Interval = TimeSpan.FromSeconds(30);
-		_draftTimer.Tick += DraftTimerOnTick;
+		_draftTimer ??= CreateDraftTimer();
 		_draftTimer.Start();
+	}
+
+	private DispatcherQueueTimer CreatePreviewTimer()
+	{
+		var timer = _timerFactory.CreateTimer();
+		timer.Interval = TimeSpan.FromMilliseconds(500);
+		timer.Tick += PreviewTimerOnTick;
+		return timer;
+	}
+
+	private DispatcherQueueTimer CreateDraftTimer()
+	{
+		var timer = _timerFactory.CreateTimer();
+		timer.Interval = TimeSpan.FromSeconds(30);
+		timer.Tick += DraftTimerOnTick;
+		return timer;
 	}
 
 	private async void DraftTimerOnTick(DispatcherQueueTimer sender, object args)
