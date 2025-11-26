@@ -82,7 +82,8 @@
                 Proudly running @RuntimeInformation.FrameworkDescription
                 @if (!string.IsNullOrEmpty(VersionInfo.CommitUrl))
                 {
-                    <text> | </text><a href="@VersionInfo.CommitUrl" target="_blank" class="text-muted">Version @VersionInfo.Version+@(VersionInfo.CommitSha?.Substring(0, 7))</a>
+                    var shortSha = VersionInfo.CommitSha?.Length >= 7 ? VersionInfo.CommitSha.Substring(0, 7) : VersionInfo.CommitSha;
+                    <text> | </text><a href="@VersionInfo.CommitUrl" target="_blank" class="text-muted">Version @VersionInfo.Version+@shortSha</a>
                 }
             </p>
         </footer>

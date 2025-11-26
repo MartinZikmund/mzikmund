@@ -5,6 +5,7 @@ namespace MZikmund.Web.Core.Services;
 public class VersionInfoProvider : IVersionInfoProvider
 {
 	private const string RepositoryUrl = "https://github.com/MartinZikmund/mzikmund";
+	private const string DefaultVersion = "1.0.0";
 	
 	public string Version { get; }
 	public string? CommitSha { get; }
@@ -29,7 +30,7 @@ public class VersionInfoProvider : IVersionInfoProvider
 		}
 		else
 		{
-			Version = "1.0.0";
+			Version = DefaultVersion;
 		}
 	}
 }
