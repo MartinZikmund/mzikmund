@@ -1,7 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/dotnet/Nerdbank.GitVersioning/main/src/Nerdbank.GitVersioning/version.schema.json",
   "version": "1.0",
-  "versionHeightOffset": 0,
   "nuGetPackageVersion": {
     "semVer": 2.0
   },
@@ -12,5 +11,9 @@
     "buildNumber": {
       "enabled": true
     }
+  },
+  "release": {
+    "branchName": "release/v{version}",
+    "firstUnstableTag": "beta"
   }
 }
