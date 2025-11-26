@@ -19,9 +19,7 @@
 		<InformationalVersion>$(Version)+$(SourceRevisionId)</InformationalVersion>
 		<SourceRevisionId Condition="'$(SourceRevisionId)' == ''">local-dev</SourceRevisionId>
 		
-		<!-- Enable SourceLink to embed Git commit SHA -->
-		<PublishRepositoryUrl>true</PublishRepositoryUrl>
-		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<!-- Enable embedding Git commit SHA in InformationalVersion -->
 		<IncludeSourceRevisionInInformationalVersion>true</IncludeSourceRevisionInInformationalVersion>
 
 		<!--
@@ -43,9 +41,4 @@
 			GenerateUnoWasmAssets;
 		</UnoGenerateAssetsManifestDependsOn>
 	</PropertyGroup>
-	
-	<ItemGroup>
-		<!-- Add SourceLink support for embedding Git commit info -->
-		<PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
-	</ItemGroup>
 </Project>

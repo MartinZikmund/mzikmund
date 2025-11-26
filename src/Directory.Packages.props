@@ -62,7 +62,6 @@
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0" />
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.0" />
-    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="10.0.1" />
     <!-- Uno -->
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="10.0.0" />
