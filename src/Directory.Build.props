@@ -33,4 +33,10 @@
 			GenerateUnoWasmAssets;
 		</UnoGenerateAssetsManifestDependsOn>
 	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Nerdbank.GitVersioning" Condition="!Exists('packages.config')">
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+	</ItemGroup>
 </Project>
