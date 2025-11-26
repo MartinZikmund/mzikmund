@@ -13,14 +13,6 @@
 		
 		<DebugType>portable</DebugType>
 		<DebugSymbols>True</DebugSymbols>
-		
-		<!-- Version information with Git commit SHA -->
-		<Version>1.0.0</Version>
-		<InformationalVersion>$(Version)+$(SourceRevisionId)</InformationalVersion>
-		<SourceRevisionId Condition="'$(SourceRevisionId)' == ''">local-dev</SourceRevisionId>
-		
-		<!-- Enable embedding Git commit SHA in InformationalVersion -->
-		<IncludeSourceRevisionInInformationalVersion>true</IncludeSourceRevisionInInformationalVersion>
 
 		<!--
 			Adding NoWarn to remove build warnings
