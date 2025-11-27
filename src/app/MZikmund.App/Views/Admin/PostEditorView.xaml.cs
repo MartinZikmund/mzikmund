@@ -51,6 +51,18 @@ public sealed partial class PostEditorView : PostEditorViewBase
 		{
 			UpdatePreview();
 		}
+		else if (e.PropertyName == nameof(ViewModel.SelectionStart) || e.PropertyName == nameof(ViewModel.SelectionLength))
+		{
+			// Restore cursor position after inserting text
+			ContentTextBox.Select(ViewModel!.SelectionStart, ViewModel.SelectionLength);
+		}
+	}
+
+	private void ContentTextBox_SelectionChanged(object sender, RoutedEventArgs e)
+	{
+		// Update ViewModel with current cursor position and selection
+		ViewModel!.SelectionStart = ContentTextBox.SelectionStart;
+		ViewModel.SelectionLength = ContentTextBox.SelectionLength;
 	}
 
 	private void UpdatePreview()
