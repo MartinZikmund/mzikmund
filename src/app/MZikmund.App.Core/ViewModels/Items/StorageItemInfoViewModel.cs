@@ -28,7 +28,7 @@ public class StorageItemInfoViewModel
 
 	public Uri? Url => _info.Url;
 
-	public long? Size => _info.Size;
+	public long Size => _info.Size;
 
 	public string FormattedSize => Size.ToFileSizeString();
 }

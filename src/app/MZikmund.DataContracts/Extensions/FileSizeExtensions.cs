@@ -22,15 +22,4 @@ public static class FileSizeExtensions
 		}
 		return $"{len:0.##} {sizes[order]}";
 	}
-
-	/// <summary>
-	/// Formats a nullable file size in bytes to a human-readable string (B, KB, MB, GB).
-	/// Returns "Unknown" if the size is null.
-	/// </summary>
-	/// <param name="bytes">The file size in bytes, or null if unknown.</param>
-	/// <returns>A formatted string representation of the file size, or "Unknown".</returns>
-	public static string ToFileSizeString(this long? bytes)
-	{
-		return bytes.HasValue ? bytes.Value.ToFileSizeString() : "Unknown";
-	}
 }

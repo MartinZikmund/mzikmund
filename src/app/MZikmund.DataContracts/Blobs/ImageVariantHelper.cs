@@ -10,17 +10,17 @@ public static class ImageVariantHelper
 		var variants = new List<ImageVariant>();
 
 		// Original
-		variants.Add(new ImageVariant("Original", new Uri($"{baseUrl}/original/{basePath}")));
+		variants.Add(new ImageVariant("Original", new Uri($"{baseUrl}/original/{basePath}"), null, 0));
 
 		// Resized variants
 		foreach (var width in ResizeWidths)
 		{
 			var resizedPath = GetPathWithSizeSuffix(basePath, width);
-			variants.Add(new ImageVariant($"Resized", new Uri($"{baseUrl}/resized/{resizedPath}"), width));
+			variants.Add(new ImageVariant($"Resized", new Uri($"{baseUrl}/resized/{resizedPath}"), width, 0));
 		}
 
 		// Thumbnail
-		variants.Add(new ImageVariant("Thumbnail", new Uri($"{baseUrl}/thumbnail/{basePath}"), ThumbnailWidth));
+		variants.Add(new ImageVariant("Thumbnail", new Uri($"{baseUrl}/thumbnail/{basePath}"), ThumbnailWidth, 0));
 
 		return variants;
 	}
