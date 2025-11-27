@@ -114,7 +114,7 @@ public class UploadImageHandler : IRequestHandler<UploadImageCommand, StorageIte
 	{
 		var blobItem = await _blobStorage.AddAsync(BlobKind.Image, fileName, stream);
 		var url = _blobUrlProvider.GetUrl(BlobKind.Image, blobItem.BlobPath);
-		return new StorageItemInfo(blobItem.BlobPath, url, blobItem.LastModified);
+		return new StorageItemInfo(blobItem.BlobPath, url, blobItem.LastModified, blobItem.Size);
 	}
 
 	private static async Task<Stream> ResizeGif(Stream sourceStream, uint width, CancellationToken cancellationToken)

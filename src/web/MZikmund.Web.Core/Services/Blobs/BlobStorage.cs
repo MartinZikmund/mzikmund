@@ -65,7 +65,11 @@ public class BlobStorage : IBlobStorage
 		_logger.LogInformation($"Uploaded blob '{blobPath}' to Azure Blob Storage, ETag '{uploadedBlob.Value.ETag}'");
 		var modified = uploadedBlob.Value.LastModified;
 
-		return new(blobPath, modified);
+		// Get the blob properties to retrieve the size
+		var properties = await blobClient.GetPropertiesAsync();
+		var size = properties.Value.ContentLength;
+
+		return new(blobPath, modified, size);
 	}
 
 	private string GetContentType(string path)
@@ -92,7 +96,7 @@ public class BlobStorage : IBlobStorage
 		{
 			var blobName = blob.Name;
 			var modified = blob.Properties.LastModified;
-			var size = blob.Properties.ContentLength;
+			var size = blob.Properties.ContentLength ?? 0;
 			blobs.Add(new(blobName, modified, size));
 		}
 
