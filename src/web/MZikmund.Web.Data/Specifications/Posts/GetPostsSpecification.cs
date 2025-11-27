@@ -22,7 +22,11 @@ public sealed class GetPostsSpecification : BaseSpecification<PostEntity>
 		if (!string.IsNullOrWhiteSpace(searchTerm))
 		{
 			// EF Core translates Contains to database query, which is case-insensitive by default in SQL Server
-			AddCriteria(p => p.Title.Contains(searchTerm) || p.Content.Contains(searchTerm) || p.Abstract.Contains(searchTerm));
+			AddCriteria(p => p.Title.Contains(searchTerm) || 
+				p.Content.Contains(searchTerm) || 
+				p.Abstract.Contains(searchTerm) ||
+				p.Tags.Any(t => t.DisplayName.Contains(searchTerm)) ||
+				p.Categories.Any(c => c.DisplayName.Contains(searchTerm)));
 		}
 
 		AddInclude(p => p.Include(post => post.Tags));
