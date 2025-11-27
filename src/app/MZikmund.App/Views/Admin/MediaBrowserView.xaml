@@ -76,16 +76,29 @@
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
 
-                                <!--  Image Preview  -->
+                                <!--  Preview Area  -->
                                 <Border
                                     Grid.Row="0"
                                     Background="{ThemeResource LayerFillColorDefaultBrush}"
                                     CornerRadius="4,4,0,0">
-                                    <Image Margin="8" Stretch="Uniform">
-                                        <Image.Source>
-                                            <BitmapImage UriSource="{x:Bind Url}" />
-                                        </Image.Source>
-                                    </Image>
+                                    <Grid>
+                                        <!--  Image Preview (for images)  -->
+                                        <Image
+                                            Margin="8"
+                                            Stretch="Uniform"
+                                            Visibility="{x:Bind IsImage}">
+                                            <Image.Source>
+                                                <BitmapImage UriSource="{x:Bind Url}" />
+                                            </Image.Source>
+                                        </Image>
+
+                                        <!--  File Icon (for non-images)  -->
+                                        <FontIcon
+                                            FontSize="64"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                            Glyph="&#xE7C3;"
+                                            Visibility="{x:Bind IsImage, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
+                                    </Grid>
                                 </Border>
 
                                 <!--  File Name  -->
@@ -117,7 +130,8 @@
                                         Padding="8,4"
                                         Command="{Binding ElementName=Root, Path=ViewModel.ShowVariantsCommand}"
                                         CommandParameter="{x:Bind}"
-                                        ToolTipService.ToolTip="{xaml:Localize Key=ViewVariants}">
+                                        ToolTipService.ToolTip="{xaml:Localize Key=ViewVariants}"
+                                        Visibility="{x:Bind IsImage}">
                                         <SymbolIcon Symbol="Pictures" />
                                     </Button>
                                     <Button

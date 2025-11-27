@@ -31,4 +31,13 @@ public class StorageItemInfoViewModel
 	public long Size => _info.Size;
 
 	public string FormattedSize => Size.ToFileSizeString();
+
+	public bool IsImage
+	{
+		get
+		{
+			var extension = Extension.ToLowerInvariant();
+			return extension is ".jpg" or ".jpeg" or ".png" or ".gif" or ".webp" or ".bmp" or ".svg";
+		}
+	}
 }
