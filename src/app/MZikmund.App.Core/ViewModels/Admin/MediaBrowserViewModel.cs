@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
 using Microsoft.Extensions.Options;
+using Microsoft.UI.Dispatching;
 using MZikmund.Api.Client;
-using MZikmund.ViewModels.Items;
 using MZikmund.Business.Models;
 using MZikmund.DataContracts.Blobs;
 using MZikmund.Extensions;
@@ -10,6 +10,7 @@ using MZikmund.Services.Dialogs;
 using MZikmund.Services.Loading;
 using MZikmund.Services.Localization;
 using MZikmund.Services.Navigation;
+using MZikmund.ViewModels.Items;
 using Refit;
 using Windows.Storage.Pickers;
 
@@ -22,6 +23,11 @@ public partial class MediaBrowserViewModel : PageViewModel
 	private readonly IMZikmundApi _api;
 	private readonly IWindowShellProvider _windowShellProvider;
 	private readonly IOptions<AppConfig> _appConfig;
+	private readonly DispatcherQueueTimer _debounceTimer;
+
+	private const int PageSize = 50;
+	private int _currentPage = 1;
+	private bool _hasMoreItems = true;
 
 	public MediaBrowserViewModel(
 		IMZikmundApi api,
@@ -35,20 +41,31 @@ public partial class MediaBrowserViewModel : PageViewModel
 		_api = api ?? throw new ArgumentNullException(nameof(api));
 		_windowShellProvider = windowShellProvider ?? throw new ArgumentNullException(nameof(windowShellProvider));
 		_appConfig = appConfig;
+
+		_debounceTimer = DispatcherQueue.GetForCurrentThread().CreateTimer();
+		_debounceTimer.Interval = TimeSpan.FromMilliseconds(300);
+		_debounceTimer.Tick += async (s, e) =>
+		{
+			_debounceTimer.Stop();
+			await SearchAsync();
+		};
 	}
 
 	public override string Title => Localizer.Instance.GetString("Media");
 
-	private const int PageSize = 50;
-	private int _currentPage = 1;
-	private bool _hasMoreItems = true;
+
 
 	[ObservableProperty]
 	public partial ObservableCollection<StorageItemInfoViewModel> MediaFiles { get; set; } = new();
 
 	[ObservableProperty]
-	[NotifyPropertyChangedFor(nameof(FilteredFiles))]
 	public partial string SearchFilter { get; set; } = "";
+
+	partial void OnSearchFilterChanged(string value)
+	{
+		_debounceTimer.Stop();
+		_debounceTimer.Start();
+	}
 
 	[ObservableProperty]
 	public partial MediaFilterMode FilterMode { get; set; } = MediaFilterMode.All;

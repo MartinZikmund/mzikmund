@@ -39,7 +39,7 @@
             <TextBox Text="{x:Bind ViewModel.Tags, Mode=TwoWay}" />
             <TextBlock Text="Hero image URL" />
             <Grid ColumnDefinitions="*, Auto">
-                <TextBox Grid.Column="0" Text="{x:Bind ViewModel.Post.HeroImageUrl, Mode=TwoWay}" />
+                <TextBox Grid.Column="0" Text="{x:Bind ViewModel.HeroImageUrl, Mode=TwoWay}" />
                 <Button
                     Grid.Column="1"
                     Margin="4,0,0,0"

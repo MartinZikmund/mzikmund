@@ -10,6 +10,7 @@
     <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
     <converters:EnumToIntConverter x:Key="EnumToIntConverter" />
     <converters:EmptyCollectionToVisibilityConverter x:Key="EmptyCollectionToVisibilityConverter" />
+    <converters:EmptyCollectionToVisibilityConverter x:Key="InverseEmptyCollectionToVisibilityConverter" Invert="True" />
     <cconverters:BoolToVisibilityConverter
         x:Key="InverseBoolToVisibilityConverter"
         FalseValue="Visible"
