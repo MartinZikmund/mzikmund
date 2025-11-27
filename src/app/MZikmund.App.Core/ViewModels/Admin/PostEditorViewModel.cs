@@ -175,7 +175,7 @@ public partial class PostEditorViewModel : PageViewModel
 				altText = dialogViewModel.SelectedFile.FileName;
 			}
 
-			var markdownImage = $"![{altText}]({dialogViewModel.SelectedUrl})";
+			var markdownImage = $"\r\r![{altText}]({dialogViewModel.SelectedUrl})\r^^^{altText}\r\r";
 			InsertTextAtCursor(markdownImage);
 		}
 	}
