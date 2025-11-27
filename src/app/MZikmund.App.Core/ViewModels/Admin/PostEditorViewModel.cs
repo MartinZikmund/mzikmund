@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using Microsoft.UI.Dispatching;
 using MZikmund.Api.Client;
 using MZikmund.DataContracts.Blog;
@@ -155,7 +155,14 @@ public partial class PostEditorViewModel : PageViewModel
 
 		if (result == ContentDialogResult.Primary && dialogViewModel.SelectedFile != null && dialogViewModel.SelectedUrl != null)
 		{
-			var markdownImage = $"![{dialogViewModel.SelectedFile.FileName}]({dialogViewModel.SelectedUrl})";
+			// Use selected text as alt text if available, otherwise use filename
+			var altText = GetSelectedText();
+			if (string.IsNullOrWhiteSpace(altText))
+			{
+				altText = dialogViewModel.SelectedFile.FileName;
+			}
+
+			var markdownImage = $"![{altText}]({dialogViewModel.SelectedUrl})";
 			InsertTextAtCursor(markdownImage);
 		}
 	}
@@ -169,7 +176,15 @@ public partial class PostEditorViewModel : PageViewModel
 		if (result == ContentDialogResult.Primary && dialogViewModel.SelectedFile != null)
 		{
 			var fileUrl = GetPublicUrl(dialogViewModel.SelectedFile.BlobPath);
-			var markdownLink = $"[{dialogViewModel.SelectedFile.FileName}]({fileUrl})";
+
+			// Use selected text as link text if available, otherwise use filename
+			var linkText = GetSelectedText();
+			if (string.IsNullOrWhiteSpace(linkText))
+			{
+				linkText = dialogViewModel.SelectedFile.FileName;
+			}
+
+			var markdownLink = $"[{linkText}]({fileUrl})";
 			InsertTextAtCursor(markdownLink);
 		}
 	}
@@ -197,6 +212,24 @@ public partial class PostEditorViewModel : PageViewModel
 		// Update cursor position to be after the inserted text
 		SelectionStart = insertPosition + text.Length;
 		SelectionLength = 0;
+	}
+
+	private string GetSelectedText()
+	{
+		if (string.IsNullOrEmpty(PostContent) || SelectionLength == 0)
+		{
+			return string.Empty;
+		}
+
+		var insertPosition = Math.Max(0, Math.Min(SelectionStart, PostContent.Length));
+		var selectionLength = Math.Max(0, Math.Min(SelectionLength, PostContent.Length - insertPosition));
+
+		if (selectionLength == 0)
+		{
+			return string.Empty;
+		}
+
+		return PostContent.Substring(insertPosition, selectionLength);
 	}
 
 	private string GetPublicUrl(string blobPath)

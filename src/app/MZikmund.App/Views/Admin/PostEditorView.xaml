@@ -91,7 +91,8 @@
                 AcceptsReturn="True"
                 FontFamily="{StaticResource CodeFont}"
                 Text="{x:Bind ViewModel.PostContent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                TextWrapping="Wrap" />
+                TextWrapping="Wrap"
+                SelectionChanged="ContentTextBox_SelectionChanged" />
         </Grid>
 
         <Grid
