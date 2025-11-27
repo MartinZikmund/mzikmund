@@ -9,34 +9,39 @@
     xmlns:local="using:MZikmund.App.Dialogs.Admin"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:xaml="using:MZikmund.Extensions.Xaml"
+    CloseButtonText="{xaml:Localize Key=Cancel}"
+    DefaultButton="Primary"
+    IsPrimaryButtonEnabled="{x:Bind ViewModel.CanSelect, Mode=OneWay}"
+    PrimaryButtonText="{xaml:Localize Key=Select}"
+    Style="{ThemeResource DefaultContentDialogStyle}"
     mc:Ignorable="d">
 
     <Grid
-        Width="600"
-        Height="500"
+        Width="400"
         Padding="16"
-        RowDefinitions="Auto, Auto, *, Auto">
+        RowDefinitions="Auto,Auto,300,Auto">
         <TextBlock
             Grid.Row="0"
-            Margin="0,0,0,16"
-            FontSize="20"
-            Text="Media Browser" />
+            Margin="0,0,0,12"
+            Style="{ThemeResource TitleTextBlockStyle}"
+            Text="{xaml:Localize Key=MediaBrowser}" />
 
         <Grid
             Grid.Row="1"
-            Margin="0,0,0,16"
-            ColumnDefinitions="*, Auto"
+            Margin="0,0,0,12"
+            ColumnDefinitions="Auto, *, Auto"
             ColumnSpacing="8">
-            <TextBox
-                Grid.Column="0"
-                PlaceholderText="Search files..."
-                Text="{x:Bind ViewModel.SearchFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-            <Button Grid.Column="1" Command="{x:Bind ViewModel.UploadFileCommand}">
+            <Button Grid.Column="0" Command="{x:Bind ViewModel.UploadFileCommand}">
                 <StackPanel Orientation="Horizontal" Spacing="4">
                     <SymbolIcon Symbol="Upload" />
-                    <TextBlock Text="Upload" />
+                    <TextBlock Text="{xaml:Localize Key=Upload}" />
                 </StackPanel>
             </Button>
+
+            <TextBox
+                Grid.Column="1"
+                PlaceholderText="{xaml:Localize Key=Search}"
+                Text="{x:Bind ViewModel.SearchFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
         </Grid>
 
         <Grid Grid.Row="2">
@@ -46,35 +51,92 @@
                 VerticalAlignment="Center"
                 IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" />
 
-            <ScrollViewer>
+            <ScrollViewer Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                 <StackPanel>
-                    <ListView
-                        x:Name="FilesListView"
-                        ItemsSource="{x:Bind ViewModel.FilteredFiles, Mode=OneWay}"
-                        SelectedItem="{x:Bind ViewModel.SelectedFile, Mode=TwoWay}">
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.FilteredFiles, Mode=OneWay}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <ItemsWrapGrid Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="items:StorageItemInfoViewModel">
                                 <Grid
-                                    Padding="8"
-                                    ColumnDefinitions="Auto, *"
-                                    ColumnSpacing="8">
-                                    <SymbolIcon Grid.Column="0" Symbol="Document" />
-                                    <StackPanel Grid.Column="1">
-                                        <TextBlock FontWeight="SemiBold" Text="{Binding FileName}" />
+                                    Width="160"
+                                    Height="180"
+                                    Margin="8"
+                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="4"
+                                    Tag="{x:Bind}"
+                                    Tapped="FileCard_Tapped">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <!--  Preview Area  -->
+                                    <Border
+                                        Grid.Row="0"
+                                        Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                        CornerRadius="4,4,0,0">
+                                        <Grid>
+                                            <!--  Image Preview (for images)  -->
+                                            <Image
+                                                Margin="4"
+                                                Stretch="Uniform"
+                                                Visibility="{x:Bind IsImage}">
+                                                <Image.Source>
+                                                    <BitmapImage UriSource="{x:Bind Url}" />
+                                                </Image.Source>
+                                            </Image>
+
+                                            <!--  File Icon (for non-images)  -->
+                                            <FontIcon
+                                                FontSize="48"
+                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                Glyph="&#xE7C3;"
+                                                Visibility="{x:Bind IsImage, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
+                                        </Grid>
+                                    </Border>
+
+                                    <!--  File Info  -->
+                                    <StackPanel Grid.Row="1" Padding="8,4,8,8">
                                         <TextBlock
                                             FontSize="12"
-                                            Opacity="0.7"
-                                            Text="{Binding BlobPath}" />
+                                            FontWeight="SemiBold"
+                                            Text="{x:Bind FileName}"
+                                            TextTrimming="CharacterEllipsis"
+                                            ToolTipService.ToolTip="{x:Bind FileName}" />
                                         <TextBlock
-                                            FontSize="12"
-                                            Opacity="0.7"
-                                            Text="{Binding LastModified}" />
+                                            FontSize="11"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                            Text="{x:Bind FormattedSize}"
+                                            TextTrimming="CharacterEllipsis" />
                                     </StackPanel>
+
+                                    <VisualStateManager.VisualStateGroups>
+                                        <VisualStateGroup x:Name="SelectionStates">
+                                            <VisualState x:Name="Selected">
+                                                <VisualState.Setters>
+                                                    <Setter Target="(Border.BorderBrush)">
+                                                        <Setter.Value>
+                                                            <SolidColorBrush Color="{ThemeResource SystemAccentColor}" />
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                    <Setter Target="(Border.BorderThickness)" Value="2" />
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                            <VisualState x:Name="Unselected" />
+                                        </VisualStateGroup>
+                                    </VisualStateManager.VisualStateGroups>
                                 </Grid>
                             </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
 
+                    <!--  Load More Button  -->
                     <Button
                         Margin="8"
                         HorizontalAlignment="Center"
@@ -91,13 +153,26 @@
                             <TextBlock Text="{xaml:Localize Key=LoadMore}" />
                         </StackPanel>
                     </Button>
+
+                    <!--  Empty State  -->
+                    <StackPanel
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Spacing="8"
+                        Visibility="{x:Bind ViewModel.FilteredFiles, Mode=OneWay, Converter={StaticResource EmptyCollectionToVisibilityConverter}}">
+                        <SymbolIcon Foreground="{ThemeResource TextFillColorTertiaryBrush}" Symbol="Document" />
+                        <TextBlock
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            Text="{xaml:Localize Key=NoFilesFound}"
+                            TextAlignment="Center" />
+                    </StackPanel>
                 </StackPanel>
             </ScrollViewer>
         </Grid>
 
         <Grid
             Grid.Row="3"
-            Margin="0,16,0,0"
+            Margin="0,12,0,0"
             ColumnDefinitions="*, Auto"
             ColumnSpacing="8">
             <!--  Image Variant Selector  -->
@@ -109,30 +184,18 @@
                 <TextBlock
                     VerticalAlignment="Center"
                     FontWeight="SemiBold"
-                    Text="Size:" />
+                    Text="{xaml:Localize Key=Size}" />
                 <ComboBox
                     MinWidth="200"
                     ItemsSource="{x:Bind ViewModel.AvailableVariants, Mode=OneWay}"
-                    SelectedItem="{x:Bind ViewModel.SelectedVariant, Mode=TwoWay}">
+                    SelectedItem="{x:Bind ViewModel.SelectedVariant, Mode=TwoWay}"
+                    Visibility="{x:Bind ViewModel.AvailableVariants, Mode=OneWay, Converter={StaticResource InverseEmptyCollectionToVisibilityConverter}}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate x:DataType="blobs:ImageVariant">
                             <TextBlock Text="{x:Bind DisplayText}" />
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
-            </StackPanel>
-
-            <StackPanel
-                Grid.Column="1"
-                HorizontalAlignment="Right"
-                Orientation="Horizontal"
-                Spacing="8">
-                <Button Click="CancelButton_Click" Content="Cancel" />
-                <Button
-                    x:Name="SelectButton"
-                    Click="SelectButton_Click"
-                    Content="Select"
-                    Style="{StaticResource AccentButtonStyle}" />
             </StackPanel>
         </Grid>
     </Grid>

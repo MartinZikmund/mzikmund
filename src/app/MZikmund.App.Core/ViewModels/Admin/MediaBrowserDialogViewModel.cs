@@ -5,6 +5,7 @@ using MZikmund.Services.Navigation;
 using Microsoft.Extensions.Options;
 using MZikmund.Business.Models;
 using MZikmund.ViewModels.Items;
+using Microsoft.UI.Dispatching;
 
 namespace MZikmund.ViewModels.Admin;
 
@@ -14,6 +15,11 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 	private readonly IWindowShellProvider _windowShellProvider;
 	private readonly IOptions<AppConfig> _appConfig;
 	private readonly bool _isImageMode;
+	private readonly DispatcherQueueTimer _debounceTimer;
+
+	private const int PageSize = 50;
+	private int _currentPage = 1;
+	private bool _hasMoreItems = true;
 
 	public MediaBrowserDialogViewModel(
 		IMZikmundApi api,
@@ -25,23 +31,31 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 		_windowShellProvider = windowShellProvider;
 		_appConfig = appConfig;
 		_isImageMode = isImageMode;
-	}
 
-	private const int PageSize = 50;
-	private int _currentPage = 1;
-	private bool _hasMoreItems = true;
+		_debounceTimer = DispatcherQueue.GetForCurrentThread().CreateTimer();
+		_debounceTimer.Interval = TimeSpan.FromMilliseconds(300);
+		_debounceTimer.Tick += async (s, e) =>
+		{
+			_debounceTimer.Stop();
+			await SearchAsync();
+		};
+	}
 
 	[ObservableProperty]
 	public partial List<StorageItemInfoViewModel> MediaFiles { get; set; } = new List<StorageItemInfoViewModel>();
 
 	[ObservableProperty]
+	[NotifyPropertyChangedFor(nameof(CanSelect))]
 	public partial StorageItemInfoViewModel? SelectedFile { get; set; }
 
 	[ObservableProperty]
 	public partial ImageVariant[] AvailableVariants { get; set; } = Array.Empty<ImageVariant>();
 
 	[ObservableProperty]
+	[NotifyPropertyChangedFor(nameof(CanSelect))]
 	public partial ImageVariant? SelectedVariant { get; set; }
+
+	public bool CanSelect => SelectedUrl != null;
 
 	public Uri? SelectedUrl => _isImageMode && SelectedVariant != null
 		? SelectedVariant.Url
@@ -94,6 +108,12 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 
 	[ObservableProperty]
 	public partial string SearchFilter { get; set; } = "";
+
+	partial void OnSearchFilterChanged(string value)
+	{
+		_debounceTimer.Stop();
+		_debounceTimer.Start();
+	}
 
 	[ObservableProperty]
 	public partial bool IsLoading { get; set; }

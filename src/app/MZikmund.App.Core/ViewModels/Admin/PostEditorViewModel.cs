@@ -73,6 +73,9 @@ public partial class PostEditorViewModel : PageViewModel
 	[ObservableProperty]
 	public partial int SelectionLength { get; set; }
 
+	[ObservableProperty]
+	public partial string? HeroImageUrl { get; set; }
+
 	partial void OnPostTitleChanged(string value)
 	{
 		PostRouteName = value.GenerateRouteName();
@@ -117,6 +120,7 @@ public partial class PostEditorViewModel : PageViewModel
 		Post.IsPublished = IsPublished;
 		Post.PublishedDate = Post.PublishedDate ?? DateTimeOffset.UtcNow;
 		Post.Content = PostContent;
+		Post.HeroImageUrl = HeroImageUrl;
 
 		if (Post.Id == Guid.Empty)
 		{
@@ -138,7 +142,7 @@ public partial class PostEditorViewModel : PageViewModel
 		{
 			if (Post != null)
 			{
-				Post.HeroImageUrl = dialogViewModel.SelectedUrl.AbsoluteUri;
+				HeroImageUrl = dialogViewModel.SelectedUrl.AbsoluteUri;
 			}
 		}
 	}
@@ -247,7 +251,9 @@ public partial class PostEditorViewModel : PageViewModel
 				.ToArray(),
 			Categories = Categories,
 			IsPublished = IsPublished,
-			PublishedDate = Post.PublishedDate ?? DateTimeOffset.UtcNow
+			PublishedDate = Post.PublishedDate ?? DateTimeOffset.UtcNow,
+			HeroImageUrl = Post.HeroImageUrl,
+			HeroImageAlt = Post.HeroImageAlt
 		};
 
 		var serialized = JsonConvert.SerializeObject(draft, Formatting.Indented);
@@ -311,5 +317,6 @@ public partial class PostEditorViewModel : PageViewModel
 		PostRouteName = post.RouteName;
 		PostContent = post.Content;
 		IsPublished = post.PublishedDate is not null; // TODO: This logic is wrong, we should work with post status!
+		HeroImageUrl = post.HeroImageUrl;
 	}
 }
