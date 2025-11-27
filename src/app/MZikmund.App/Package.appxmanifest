@@ -9,7 +9,7 @@
 	<Identity
 		Name="5143MartinZikmund.MartinZikmund"
 		Publisher="CN=5EDFBB6C-AD5D-4B76-B479-1C5F44017714"
-		Version="1.0.0.0" />
+		Version="0.0.0.0" />
 
 	<Properties>
 		<DisplayName>Martin Zikmund</DisplayName>

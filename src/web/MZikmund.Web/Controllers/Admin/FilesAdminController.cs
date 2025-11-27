@@ -28,7 +28,8 @@ public class FilesAdminController : Controller
 	[Route("{path}")]
 	public async Task<IActionResult> Delete(string path)
 	{
-		await _mediator.Send(new DeleteFileCommand(path));
+		var decodedPath = Uri.UnescapeDataString(path);
+		await _mediator.Send(new DeleteFileCommand(decodedPath));
 		return NoContent();
 	}
 

@@ -17,5 +17,5 @@ public partial interface IMZikmundApi
 
 	[Delete("/v1/admin/files/{path}")]
 	[Headers("Authorization: Bearer")]
-	Task<ApiResponse<object?>> DeleteFileAsync(string path);
+	Task<HttpResponseMessage> DeleteFileAsync(string path);
 }
