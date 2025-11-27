@@ -48,7 +48,7 @@ jobs:
         Write-Host "Version: $version"
         $manifestPath = "${{ env.App_Project_Path }}/Package.appxmanifest"
         $content = Get-Content $manifestPath -Raw
-        $content = $content -replace 'Version="1\.0\.0\.0"', "Version=`"$version.0`""
+        $content = $content -replace 'Version="\d+\.\d+\.\d+\.\d+"', "Version=`"$version.0`""
         Set-Content $manifestPath -Value $content
         Write-Host "Updated Package.appxmanifest with version $version.0"
 
