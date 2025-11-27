@@ -85,7 +85,7 @@ public class UploadImageHandler : IRequestHandler<UploadImageCommand, StorageIte
 		_dbContext.BlobMetadata.Add(metadata);
 		await _dbContext.SaveChangesAsync(cancellationToken);
 		var url = _blobUrlProvider.GetUrl(BlobKind.Image, path);
-		return new StorageItemInfo(path, url, lastModified);
+		return new StorageItemInfo(path, url, lastModified, fileSize);
 	}
 
 	private string GetPathWithSizeSuffix(string path, uint width)

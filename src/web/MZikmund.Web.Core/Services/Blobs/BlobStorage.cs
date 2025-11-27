@@ -92,7 +92,8 @@ public class BlobStorage : IBlobStorage
 		{
 			var blobName = blob.Name;
 			var modified = blob.Properties.LastModified;
-			blobs.Add(new(blobName, modified));
+			var size = blob.Properties.ContentLength;
+			blobs.Add(new(blobName, modified, size));
 		}
 
 		return blobs.ToArray();

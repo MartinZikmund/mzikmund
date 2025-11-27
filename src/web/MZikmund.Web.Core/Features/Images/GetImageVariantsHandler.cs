@@ -31,9 +31,10 @@ public class GetImageVariantsHandler : IRequestHandler<GetImageVariantsQuery, Li
 		// Check for original
 		var originalPath = Path.Combine("original", request.ImagePath).Replace("\\", "/");
 		var originalBlobs = await _blobStorage.ListAsync(BlobKind.Image, originalPath);
-		if (originalBlobs.Any(b => b.BlobPath == originalPath))
+		var originalBlob = originalBlobs.FirstOrDefault(b => b.BlobPath == originalPath);
+		if (originalBlob != null)
 		{
-			variants.Add(new ImageVariant("Original", new Uri($"{baseUrl}/{originalPath}")));
+			variants.Add(new ImageVariant("Original", new Uri($"{baseUrl}/{originalPath}"), null, originalBlob.Size));
 		}
 
 		// Use prefix search for resized variants - get all blobs starting with the filename
@@ -48,16 +49,17 @@ public class GetImageVariantsHandler : IRequestHandler<GetImageVariantsQuery, Li
 			var parts = blobFileName.Split('-');
 			if (parts.Length >= 2 && uint.TryParse(parts[^1], out var width))
 			{
-				variants.Add(new ImageVariant("Resized", new Uri($"{baseUrl}/{blob.BlobPath}"), width));
+				variants.Add(new ImageVariant("Resized", new Uri($"{baseUrl}/{blob.BlobPath}"), width, blob.Size));
 			}
 		}
 
 		// Check for thumbnail
 		var thumbnailPath = Path.Combine("thumbnail", request.ImagePath).Replace("\\", "/");
 		var thumbnailBlobs = await _blobStorage.ListAsync(BlobKind.Image, thumbnailPath);
-		if (thumbnailBlobs.Any(b => b.BlobPath == thumbnailPath))
+		var thumbnailBlob = thumbnailBlobs.FirstOrDefault(b => b.BlobPath == thumbnailPath);
+		if (thumbnailBlob != null)
 		{
-			variants.Add(new ImageVariant("Thumbnail", new Uri($"{baseUrl}/{thumbnailPath}"), ThumbnailWidth));
+			variants.Add(new ImageVariant("Thumbnail", new Uri($"{baseUrl}/{thumbnailPath}"), ThumbnailWidth, thumbnailBlob.Size));
 		}
 
 		return variants;
