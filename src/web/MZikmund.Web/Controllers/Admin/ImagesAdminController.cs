@@ -45,8 +45,8 @@ public class ImagesAdminController : Controller
 		{
 			return BadRequest("Path cannot be empty");
 		}
-
-		await _mediator.Send(new DeleteImageCommand(path));
+		var decodedPath = Uri.UnescapeDataString(path);
+		await _mediator.Send(new DeleteImageCommand(decodedPath));
 		return NoContent();
 	}
 

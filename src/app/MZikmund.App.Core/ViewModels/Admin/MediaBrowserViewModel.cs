@@ -215,8 +215,7 @@ public partial class MediaBrowserViewModel : PageViewModel
 		}
 
 		// Show confirmation dialog
-		var confirmResult = await _dialogService.ShowStatusMessageAsync(
-			StatusMessageDialogType.Warning,
+		var confirmResult = await _dialogService.ShowConfirmationDialogAsync(
 			Localizer.Instance.GetString("DeleteFile"),
 			Localizer.Instance.GetString("ConfirmDeleteFile"));
 
@@ -230,9 +229,9 @@ public partial class MediaBrowserViewModel : PageViewModel
 		{
 			var isImage = IsImageFile(file.FileName);
 			var response = isImage
-				? await _api.DeleteImageAsync(file.FileName)
-				: await _api.DeleteFileAsync(file.FileName);
-			await response.EnsureSuccessfulAsync();
+				? await _api.DeleteImageAsync(file.BlobPath)
+				: await _api.DeleteFileAsync(file.BlobPath);
+			response.EnsureSuccessStatusCode();
 			await RefreshListAsync();
 		}
 		catch (Exception ex)
