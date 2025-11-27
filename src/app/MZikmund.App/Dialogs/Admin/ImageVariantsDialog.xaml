@@ -43,12 +43,10 @@
             Grid.Row="2"
             Margin="0,0,0,16"
             Spacing="8"
-            Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseNullToVisibilityConverter}}">
-            <TextBlock
-                FontWeight="SemiBold"
-                Text="{xaml:Localize Key=AvailableVariants}" />
+            Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+            <TextBlock FontWeight="SemiBold" Text="{xaml:Localize Key=AvailableVariants}" />
             <ListView
-                MaxHeight="200"
+                Height="150"
                 ItemsSource="{x:Bind ViewModel.AvailableVariants, Mode=OneWay}"
                 SelectedItem="{x:Bind ViewModel.SelectedVariant, Mode=TwoWay}">
                 <ListView.ItemTemplate>
