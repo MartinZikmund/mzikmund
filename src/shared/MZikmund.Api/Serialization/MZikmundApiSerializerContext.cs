@@ -73,6 +73,12 @@ namespace MZikmund.Api.Serialization;
 [JsonSerializable(typeof(PagedResponse<StorageItemInfo>))]
 [JsonSerializable(typeof(ApiResponse<PagedResponse<StorageItemInfo>>))]
 
+// ImageVariants
+[JsonSerializable(typeof(ImageVariant))]
+[JsonSerializable(typeof(ImageVariant[]))]
+[JsonSerializable(typeof(IEnumerable<ImageVariant>))]
+[JsonSerializable(typeof(ApiResponse<ImageVariant[]>))]
+
 // Common types
 [JsonSerializable(typeof(ApiResponse<object?>))]
 [JsonSerializable(typeof(Guid))]

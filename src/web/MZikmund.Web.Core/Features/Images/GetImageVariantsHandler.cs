@@ -21,8 +21,7 @@ public class GetImageVariantsHandler : IRequestHandler<GetImageVariantsQuery, Li
 	public async Task<List<ImageVariant>> Handle(GetImageVariantsQuery request, CancellationToken cancellationToken)
 	{
 		var variants = new List<ImageVariant>();
-		// TODO: Get account name from configuration or parse from connection string
-		var baseUrl = $"https://mzikmund.blob.core.windows.net/{_siteConfiguration.BlobStorage.MediaContainerName}";
+		var baseUrl = new Uri(_siteConfiguration.General.CdnUrl, _siteConfiguration.BlobStorage.MediaContainerName);
 
 		// Get file name without extension for prefix search
 		var fileNameWithoutExt = Path.GetFileNameWithoutExtension(request.ImagePath);
@@ -30,7 +29,7 @@ public class GetImageVariantsHandler : IRequestHandler<GetImageVariantsQuery, Li
 		var directory = Path.GetDirectoryName(request.ImagePath) ?? "";
 
 		// Check for original
-		var originalPath = Path.Combine("original", request.ImagePath);
+		var originalPath = Path.Combine("original", request.ImagePath).Replace("\\", "/");
 		var originalBlobs = await _blobStorage.ListAsync(BlobKind.Image, originalPath);
 		if (originalBlobs.Any(b => b.BlobPath == originalPath))
 		{
@@ -54,7 +53,7 @@ public class GetImageVariantsHandler : IRequestHandler<GetImageVariantsQuery, Li
 		}
 
 		// Check for thumbnail
-		var thumbnailPath = Path.Combine("thumbnail", request.ImagePath);
+		var thumbnailPath = Path.Combine("thumbnail", request.ImagePath).Replace("\\", "/");
 		var thumbnailBlobs = await _blobStorage.ListAsync(BlobKind.Image, thumbnailPath);
 		if (thumbnailBlobs.Any(b => b.BlobPath == thumbnailPath))
 		{
