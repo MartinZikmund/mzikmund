@@ -2,5 +2,5 @@
 
 public interface IPostContentProcessor
 {
-	Task<string> ProcessAsync(string postContent);
+	Task<string> ProcessAsync(string postContent, int caretPosition = 0);
 }

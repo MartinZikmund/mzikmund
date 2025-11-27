@@ -9,7 +9,7 @@ public class MarkdownConverter : IMarkdownConverter
 {
 	private readonly MarkdownPipeline _pipeline;
 
-	public MarkdownConverter()
+	public MarkdownConverter(bool includeSourceInformation)
 	{
 		_pipeline = new MarkdownPipelineBuilder()
 			.UseAbbreviations()

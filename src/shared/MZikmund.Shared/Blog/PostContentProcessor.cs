@@ -12,9 +12,17 @@ public class PostContentProcessor : IPostContentProcessor
 		_markdownConverter = markdownConverter;
 	}
 
-	public Task<string> ProcessAsync(string postContent)
+	public Task<string> ProcessAsync(string postContent, int caretPosition = 0)
 	{
 		var content = ReplaceGistUrlsWithEmbedScripts(postContent);
+		
+		// Inject an invisible marker at the caret position before converting to HTML
+		if (caretPosition > 0 && caretPosition <= content.Length)
+		{
+			const string marker = "<div id=\"caret-marker\" style=\"display:none;\"></div>";
+			content = content.Insert(caretPosition, marker);
+		}
+		
 		content = _markdownConverter.ToHtml(content);
 		return Task.FromResult(content);
 	}

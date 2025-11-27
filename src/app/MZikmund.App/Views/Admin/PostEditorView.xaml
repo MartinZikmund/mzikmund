@@ -50,6 +50,7 @@
             Text="{x:Bind ViewModel.Post.Abstract, Mode=TwoWay}"
             TextWrapping="Wrap" />
 		<TextBox
+            x:Name="ContentTextBox"
             Grid.Row="2"
             AcceptsReturn="True"
             FontFamily="{StaticResource CodeFont}"
