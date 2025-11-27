@@ -1,17 +1,2 @@
 <Project>
-	<!-- Set the version for APPX packages from Nerdbank.GitVersioning -->
-	<Target Name="SetAppxPackageVersion" BeforeTargets="_GenerateCurrentProjectAppxManifest" DependsOnTargets="GetBuildVersion">
-		<PropertyGroup>
-			<!-- Parse version components from VersionPrefix using Regex (format: Major.Minor.Patch) -->
-			<!-- Default to 1.0 if VersionPrefix is not set or invalid -->
-			<_VersionMajor Condition="'$(VersionPrefix)' != ''">$([System.Text.RegularExpressions.Regex]::Match('$(VersionPrefix)', '^(\d+)').Groups[1].Value)</_VersionMajor>
-			<_VersionMajor Condition="'$(_VersionMajor)' == ''">1</_VersionMajor>
-			<_VersionMinor Condition="'$(VersionPrefix)' != ''">$([System.Text.RegularExpressions.Regex]::Match('$(VersionPrefix)', '^\d+\.(\d+)').Groups[1].Value)</_VersionMinor>
-			<_VersionMinor Condition="'$(_VersionMinor)' == ''">0</_VersionMinor>
-			<!-- Convert semantic version to AppX format (Major.Minor.Build.Revision) -->
-			<!-- AppX requires 4-part version, so we use GitVersionHeight as the third part -->
-			<_AppxPackageVersion>$(_VersionMajor).$(_VersionMinor).$(GitVersionHeight).0</_AppxPackageVersion>
-		</PropertyGroup>
-		<Message Importance="high" Text="Setting APPX package version to: $(_AppxPackageVersion)" />
-	</Target>
 </Project>
