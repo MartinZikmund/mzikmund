@@ -38,6 +38,20 @@ jobs:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v1.3.1
 
+    - name: Install nbgv tool
+      run: dotnet tool install -g nbgv
+
+    - name: Set Package Version
+      id: version
+      run: |
+        $version = nbgv get-version -v SimpleVersion
+        Write-Host "Version: $version"
+        $manifestPath = "${{ env.App_Project_Path }}/Package.appxmanifest"
+        $content = Get-Content $manifestPath -Raw
+        $content = $content -replace 'Version="1\.0\.0\.0"', "Version=`"$version.0`""
+        Set-Content $manifestPath -Value $content
+        Write-Host "Updated Package.appxmanifest with version $version.0"
+
     # Restore the application to populate the obj folder with RuntimeIdentifiers
     - name: Restore the application
       run: msbuild $env:App_Project_Fullname /t:Restore /p:Configuration=$env:Configuration /p:PublishReadyToRun=true
