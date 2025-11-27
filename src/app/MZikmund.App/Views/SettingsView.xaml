@@ -14,10 +14,12 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <TextBlock TextLineBounds="Tight" Margin="0" Padding="0" Text="{extensions:Localize Key=Settings}" Style="{ThemeResource TitleTextBlockStyle}" />
         <mux:RadioButtons Grid.Row="1" ItemsSource="{x:Bind ViewModel.Themes, Mode=OneWay}" SelectedItem="{x:Bind ViewModel.SelectedTheme, Mode=TwoWay}">
             
         </mux:RadioButtons>
+        <TextBlock Grid.Row="2" Text="{x:Bind ViewModel.Version, Mode=OneWay}" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
     </Grid>
 </local:SettingsViewBase>
