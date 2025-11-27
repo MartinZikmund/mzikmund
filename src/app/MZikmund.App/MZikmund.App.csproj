@@ -15,9 +15,6 @@
 		<ApplicationTitle>Martin Zikmund</ApplicationTitle>
 		<!-- App Identifier -->
 		<ApplicationId>dev.mzikmund.MZikmund.App</ApplicationId>
-		<!-- Versions -->
-		<ApplicationDisplayVersion>$(GitAssemblyInformationalVersion)</ApplicationDisplayVersion>
-		<ApplicationVersion>$(GitVersionHeight)</ApplicationVersion>
 		<!-- Package Publisher -->
 		<ApplicationPublisher>Martin Zikmund</ApplicationPublisher>
 		<!-- Package Description -->

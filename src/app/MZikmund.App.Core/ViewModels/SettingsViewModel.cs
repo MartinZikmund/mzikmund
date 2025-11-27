@@ -5,6 +5,7 @@ using System.Linq;
 using MZikmund.ViewModels;
 using MZikmund.Services.Localization;
 using Windows.ApplicationModel;
+using System.Reflection;
 
 namespace MZikmund.ViewModels;
 
@@ -27,8 +28,19 @@ public class SettingsViewModel : PageViewModel
 	{
 		get
 		{
-			var packageVersion = Package.Current.Id.Version;
-			return $"{packageVersion.Major}.{packageVersion.Minor}.{packageVersion.Build}.{packageVersion.Revision}";
+			// Get the assembly informational version
+			var assembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
+			var informationalVersion = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+
+			if (string.IsNullOrEmpty(informationalVersion))
+			{
+				var version = assembly.GetName().Version;
+				return version?.ToString() ?? "1.0.0";
+			}
+			else
+			{
+				return informationalVersion;
+			}
 		}
 	}
 
