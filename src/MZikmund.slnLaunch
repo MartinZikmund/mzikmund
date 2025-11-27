@@ -4,7 +4,7 @@
     "Projects": [
       {
         "Path": "web\\MZikmund.Web\\MZikmund.Web.csproj",
-        "Action": "StartWithoutDebugging",
+        "Action": "Start",
         "DebugTarget": "https"
       },
       {

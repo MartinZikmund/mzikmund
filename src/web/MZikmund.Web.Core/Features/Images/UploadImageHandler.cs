@@ -1,10 +1,15 @@
 using ImageMagick;
 using MediatR;
+using Microsoft.AspNetCore.StaticFiles;
+using MZikmund.DataContracts.Blobs;
+using MZikmund.DataContracts.Storage;
 using MZikmund.Web.Core.Services.Blobs;
+using MZikmund.Web.Data;
+using MZikmund.Web.Data.Entities;
 
 namespace MZikmund.Web.Core.Features.Images;
 
-public class UploadImageHandler : IRequestHandler<UploadImageCommand, BlobInfo>
+public class UploadImageHandler : IRequestHandler<UploadImageCommand, StorageItemInfo>
 {
 	private const string OriginalPathPrefix = "original";
 	private const string ResizedPathPrefix = "resized";
@@ -13,27 +18,34 @@ public class UploadImageHandler : IRequestHandler<UploadImageCommand, BlobInfo>
 
 	private readonly IBlobStorage _blobStorage;
 	private readonly IBlobPathGenerator _blobPathGenerator;
+	private readonly IBlobUrlProvider _blobUrlProvider;
+	private readonly DatabaseContext _dbContext;
+	private readonly FileExtensionContentTypeProvider _contentTypeProvider = new();
 	private static readonly uint[] ResizeWidths = { 1200, 1000, 800, 400 };
 
-	public UploadImageHandler(IBlobStorage blobStorage, IBlobPathGenerator blobPathGenerator)
+	public UploadImageHandler(IBlobStorage blobStorage, IBlobPathGenerator blobPathGenerator, IBlobUrlProvider blobUrlProvider, DatabaseContext dbContext)
 	{
 		_blobStorage = blobStorage;
 		_blobPathGenerator = blobPathGenerator;
+		_blobUrlProvider = blobUrlProvider;
+		_dbContext = dbContext;
 	}
 
-	public async Task<BlobInfo> Handle(UploadImageCommand request, CancellationToken cancellationToken)
+	public async Task<StorageItemInfo> Handle(UploadImageCommand request, CancellationToken cancellationToken)
 	{
 		var path = _blobPathGenerator.GenerateBlobPath(request.FileName);
 
-		var uploadedBlobs = new List<BlobInfo>();
+		var uploadedBlobs = new List<StorageItemInfo>();
 		var isGif = request.FileName.EndsWith(".gif", StringComparison.OrdinalIgnoreCase);
 
 		var stream = new MemoryStream();
-		await request.Stream.CopyToAsync(stream);
+		await request.Stream.CopyToAsync(stream, cancellationToken);
 
 		stream.Position = 0;
 		var originalWidth = GetOriginalWidth(stream, isGif);
+		var fileSize = stream.Length;
 
+		stream.Position = 0;
 		uploadedBlobs.Add(await UploadAsnc(stream, Path.Combine(OriginalPathPrefix, path))); // Original size
 
 		foreach (var resizeWidth in ResizeWidths)
@@ -53,7 +65,27 @@ public class UploadImageHandler : IRequestHandler<UploadImageCommand, BlobInfo>
 		var thumbnailFileName = Path.Combine(ThumbnailPathPrefix, path);
 		uploadedBlobs.Add(await UploadAsnc(thumbnailStream, thumbnailFileName));
 
-		return new BlobInfo(path, uploadedBlobs.Last().LastModified);
+		var lastModified = uploadedBlobs.Last().LastModified ?? DateTimeOffset.UtcNow;
+
+		// Save metadata to database (one entry for the logical image, not per variant)
+		var fileName = Path.GetFileName(path);
+		_contentTypeProvider.TryGetContentType(request.FileName, out var contentType);
+
+		var metadata = new BlobMetadataEntity
+		{
+			Id = Guid.NewGuid(),
+			Kind = MZikmund.Web.Data.Entities.BlobKind.Image,
+			BlobPath = path,
+			FileName = fileName,
+			LastModified = lastModified,
+			Size = fileSize,
+			ContentType = contentType ?? "application/octet-stream"
+		};
+
+		_dbContext.BlobMetadata.Add(metadata);
+		await _dbContext.SaveChangesAsync(cancellationToken);
+		var url = _blobUrlProvider.GetUrl(BlobKind.Image, path);
+		return new StorageItemInfo(path, url, lastModified, fileSize);
 	}
 
 	private string GetPathWithSizeSuffix(string path, uint width)
@@ -78,7 +110,12 @@ public class UploadImageHandler : IRequestHandler<UploadImageCommand, BlobInfo>
 		}
 	}
 
-	private async Task<BlobInfo> UploadAsnc(Stream stream, string fileName) => await _blobStorage.AddAsync(BlobKind.Image, fileName, stream);
+	private async Task<StorageItemInfo> UploadAsnc(Stream stream, string fileName)
+	{
+		var blobItem = await _blobStorage.AddAsync(BlobKind.Image, fileName, stream);
+		var url = _blobUrlProvider.GetUrl(BlobKind.Image, blobItem.BlobPath);
+		return new StorageItemInfo(blobItem.BlobPath, url, blobItem.LastModified, blobItem.Size);
+	}
 
 	private static async Task<Stream> ResizeGif(Stream sourceStream, uint width, CancellationToken cancellationToken)
 	{

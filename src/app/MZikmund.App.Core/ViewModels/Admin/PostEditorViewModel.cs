@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using Microsoft.UI.Dispatching;
 using MZikmund.Api.Client;
 using MZikmund.DataContracts.Blog;
@@ -8,28 +8,36 @@ using MZikmund.Services.Localization;
 using MZikmund.Services.Timers;
 using MZikmund.Shared.Extensions;
 using MZikmund.Web.Core.Services;
+using MZikmund.ViewModels.Admin;
 using Newtonsoft.Json;
+using MZikmund.Services.Navigation;
+using Microsoft.Extensions.Options;
+using MZikmund.Business.Models;
 
 namespace MZikmund.ViewModels.Admin;
 
 public partial class PostEditorViewModel : PageViewModel
 {
 	private readonly IMZikmundApi _api;
+	private readonly IWindowShellProvider _windowShellProvider;
 	private readonly IDialogService _dialogService;
 	private readonly ILoadingIndicator _loadingIndicator;
 	private readonly IPostContentProcessor _postContentProcessor;
 	private readonly ITimerFactory _timerFactory;
+	private readonly IOptions<AppConfig> _appConfig;
 	private DispatcherQueueTimer? _previewTimer;
 	private DispatcherQueueTimer? _draftTimer;
 	private bool _isPreviewDirty = true;
 
-	public PostEditorViewModel(IMZikmundApi api, IDialogService dialogService, ILoadingIndicator loadingIndicator, IPostContentProcessor postContentProcessor, ITimerFactory timerFactory)
+	public PostEditorViewModel(IMZikmundApi api, IWindowShellProvider windowShellProvider, IDialogService dialogService, ILoadingIndicator loadingIndicator, IPostContentProcessor postContentProcessor, ITimerFactory timerFactory, IOptions<AppConfig> appConfig)
 	{
 		_api = api;
+		_windowShellProvider = windowShellProvider;
 		_dialogService = dialogService;
 		_loadingIndicator = loadingIndicator;
 		_postContentProcessor = postContentProcessor;
 		_timerFactory = timerFactory;
+		_appConfig = appConfig;
 	}
 
 	public override string Title => Post?.Title ?? "";
@@ -58,6 +66,15 @@ public partial class PostEditorViewModel : PageViewModel
 
 	[ObservableProperty]
 	public partial bool IsPublished { get; set; }
+
+	[ObservableProperty]
+	public partial int SelectionStart { get; set; }
+
+	[ObservableProperty]
+	public partial int SelectionLength { get; set; }
+
+	[ObservableProperty]
+	public partial string? HeroImageUrl { get; set; }
 
 	partial void OnPostTitleChanged(string value)
 	{
@@ -103,6 +120,7 @@ public partial class PostEditorViewModel : PageViewModel
 		Post.IsPublished = IsPublished;
 		Post.PublishedDate = Post.PublishedDate ?? DateTimeOffset.UtcNow;
 		Post.Content = PostContent;
+		Post.HeroImageUrl = HeroImageUrl;
 
 		if (Post.Id == Guid.Empty)
 		{
@@ -114,18 +132,137 @@ public partial class PostEditorViewModel : PageViewModel
 		}
 	}
 
+	[RelayCommand]
+	private async Task BrowseImagesAsync()
+	{
+		var dialogViewModel = new MediaBrowserDialogViewModel(_api, _windowShellProvider, _appConfig, isImageMode: true);
+		var result = await _dialogService.ShowAsync(dialogViewModel);
+
+		if (result == ContentDialogResult.Primary && dialogViewModel.SelectedUrl != null)
+		{
+			if (Post != null)
+			{
+				HeroImageUrl = dialogViewModel.SelectedUrl.AbsoluteUri;
+			}
+		}
+	}
+
+	[RelayCommand]
+	private async Task InsertImageAsync()
+	{
+		var dialogViewModel = new MediaBrowserDialogViewModel(_api, _windowShellProvider, _appConfig, isImageMode: true);
+		var result = await _dialogService.ShowAsync(dialogViewModel);
+
+		if (result == ContentDialogResult.Primary && dialogViewModel.SelectedFile != null && dialogViewModel.SelectedUrl != null)
+		{
+			// Use selected text as alt text if available, otherwise use filename
+			var altText = GetSelectedText();
+			if (string.IsNullOrWhiteSpace(altText))
+			{
+				altText = dialogViewModel.SelectedFile.FileName;
+			}
+
+			var markdownImage = $"\r\r![{altText}]({dialogViewModel.SelectedUrl})\r^^^{altText}\r\r";
+			InsertTextAtCursor(markdownImage);
+		}
+	}
+
+	[RelayCommand]
+	private async Task InsertFileAsync()
+	{
+		var dialogViewModel = new MediaBrowserDialogViewModel(_api, _windowShellProvider, _appConfig, isImageMode: false);
+		var result = await _dialogService.ShowAsync(dialogViewModel);
+
+		if (result == ContentDialogResult.Primary && dialogViewModel.SelectedFile != null)
+		{
+			var fileUrl = GetPublicUrl(dialogViewModel.SelectedFile.BlobPath);
+
+			// Use selected text as link text if available, otherwise use filename
+			var linkText = GetSelectedText();
+			if (string.IsNullOrWhiteSpace(linkText))
+			{
+				linkText = dialogViewModel.SelectedFile.FileName;
+			}
+
+			var markdownLink = $"[{linkText}]({fileUrl})";
+			InsertTextAtCursor(markdownLink);
+		}
+	}
+
+	private void InsertTextAtCursor(string text)
+	{
+		if (string.IsNullOrEmpty(PostContent))
+		{
+			PostContent = text;
+			SelectionStart = text.Length;
+			SelectionLength = 0;
+			return;
+		}
+
+		// Ensure selection start is within bounds
+		var insertPosition = Math.Max(0, Math.Min(SelectionStart, PostContent.Length));
+		var selectionLength = Math.Max(0, Math.Min(SelectionLength, PostContent.Length - insertPosition));
+
+		// Insert text at cursor position, replacing any selected text
+		var beforeText = PostContent.Substring(0, insertPosition);
+		var afterText = PostContent.Substring(insertPosition + selectionLength);
+
+		PostContent = beforeText + text + afterText;
+
+		// Update cursor position to be after the inserted text
+		SelectionStart = insertPosition + text.Length;
+		SelectionLength = 0;
+	}
+
+	private string GetSelectedText()
+	{
+		if (string.IsNullOrEmpty(PostContent) || SelectionLength == 0)
+		{
+			return string.Empty;
+		}
+
+		var insertPosition = Math.Max(0, Math.Min(SelectionStart, PostContent.Length));
+		var selectionLength = Math.Max(0, Math.Min(SelectionLength, PostContent.Length - insertPosition));
+
+		if (selectionLength == 0)
+		{
+			return string.Empty;
+		}
+
+		return PostContent.Substring(insertPosition, selectionLength);
+	}
+
+	private string GetPublicUrl(string blobPath)
+	{
+		// This would typically be configured based on your blob storage setup
+		// For now, return a relative path
+		return "/" + blobPath.TrimStart('/');
+	}
+
 	public override void ViewLoaded()
 	{
 		base.ViewLoaded();
-		_previewTimer ??= _timerFactory.CreateTimer();
-		_previewTimer.Interval = TimeSpan.FromMilliseconds(500);
-		_previewTimer.Tick += PreviewTimerOnTick;
+		_previewTimer ??= CreatePreviewTimer();
 		_previewTimer.Start();
 
-		_draftTimer ??= _timerFactory.CreateTimer();
-		_draftTimer.Interval = TimeSpan.FromSeconds(30);
-		_draftTimer.Tick += DraftTimerOnTick;
+		_draftTimer ??= CreateDraftTimer();
 		_draftTimer.Start();
+	}
+
+	private DispatcherQueueTimer CreatePreviewTimer()
+	{
+		var timer = _timerFactory.CreateTimer();
+		timer.Interval = TimeSpan.FromMilliseconds(500);
+		timer.Tick += PreviewTimerOnTick;
+		return timer;
+	}
+
+	private DispatcherQueueTimer CreateDraftTimer()
+	{
+		var timer = _timerFactory.CreateTimer();
+		timer.Interval = TimeSpan.FromSeconds(30);
+		timer.Tick += DraftTimerOnTick;
+		return timer;
 	}
 
 	private async void DraftTimerOnTick(DispatcherQueueTimer sender, object args)
@@ -147,7 +284,9 @@ public partial class PostEditorViewModel : PageViewModel
 				.ToArray(),
 			Categories = Categories,
 			IsPublished = IsPublished,
-			PublishedDate = Post.PublishedDate ?? DateTimeOffset.UtcNow
+			PublishedDate = Post.PublishedDate ?? DateTimeOffset.UtcNow,
+			HeroImageUrl = Post.HeroImageUrl,
+			HeroImageAlt = Post.HeroImageAlt
 		};
 
 		var serialized = JsonConvert.SerializeObject(draft, Formatting.Indented);
@@ -211,5 +350,6 @@ public partial class PostEditorViewModel : PageViewModel
 		PostRouteName = post.RouteName;
 		PostContent = post.Content;
 		IsPublished = post.PublishedDate is not null; // TODO: This logic is wrong, we should work with post status!
+		HeroImageUrl = post.HeroImageUrl;
 	}
 }

@@ -1,23 +1,38 @@
 ﻿using MediatR;
-using MZikmund.Web.Core.Features.Images;
+using Microsoft.EntityFrameworkCore;
+using MZikmund.DataContracts;
+using MZikmund.DataContracts.Blobs;
 using MZikmund.Web.Core.Services.Blobs;
+using MZikmund.Web.Data;
+using MZikmund.Web.Data.Extensions;
 
-namespace MZikmund.Web.Core.Features.Files;
+namespace MZikmund.Web.Core.Features.Images;
 
-public class GetImagesHandler : IRequestHandler<GetImagesQuery, IEnumerable<BlobInfo>>
+public class GetImagesHandler : IRequestHandler<GetImagesQuery, PagedResponse<StorageItemInfo>>
 {
-	private readonly IBlobStorage _blobStorage;
+	private readonly DatabaseContext _dbContext;
+	private readonly IBlobUrlProvider _blobUrlProvider;
 
-	public GetImagesHandler(IBlobStorage blobStorage)
+	public GetImagesHandler(DatabaseContext dbContext, IBlobUrlProvider blobUrlProvider)
 	{
-		_blobStorage = blobStorage;
+		_dbContext = dbContext;
+		_blobUrlProvider = blobUrlProvider;
 	}
 
-	public async Task<IEnumerable<BlobInfo>> Handle(GetImagesQuery request, CancellationToken cancellationToken)
+	public async Task<PagedResponse<StorageItemInfo>> Handle(GetImagesQuery request, CancellationToken cancellationToken)
 	{
-		var thumbnails = await _blobStorage.ListAsync(BlobKind.Image, "thumbnail");
-		// Remove the prefix "thumbnail/" from the blob names
-		var images = thumbnails.Select(blob => new BlobInfo(blob.BlobPath.Replace("thumbnail/", string.Empty), blob.LastModified));
-		return images;
+		var query = _dbContext.BlobMetadata.Where(b => b.Kind == MZikmund.Web.Data.Entities.BlobKind.Image);
+
+		var totalCount = await query.CountAsync(cancellationToken);
+
+		var skip = (request.PageNumber - 1) * request.PageSize;
+		var items = await query
+			.OrderByDescending(b => b.LastModified)
+			.Skip(skip)
+			.Take(request.PageSize)
+			.Select(b => new StorageItemInfo(b.BlobPath, _blobUrlProvider.GetUrl(b.Kind, b.BlobPath), b.LastModified, b.Size))
+			.ToArrayAsync(cancellationToken);
+
+		return new PagedResponse<StorageItemInfo>(items, request.PageNumber, request.PageSize, totalCount);
 	}
 }

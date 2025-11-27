@@ -2,8 +2,10 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Logging;
+using MZikmund.DataContracts.Blobs;
 using MZikmund.Web.Configuration;
 using MZikmund.Web.Configuration.Connections;
+using MZikmund.Web.Data.Entities;
 
 namespace MZikmund.Web.Core.Services.Blobs;
 
@@ -16,7 +18,10 @@ public class BlobStorage : IBlobStorage
 
 	private readonly FileExtensionContentTypeProvider _fileExtensionContentTypeProvider = new();
 
-	public BlobStorage(ISiteConfiguration siteConfiguration, IConnectionStringProvider connectionStringProvider, ILogger<BlobStorage> logger)
+	public BlobStorage(
+		ISiteConfiguration siteConfiguration,
+		IConnectionStringProvider connectionStringProvider,
+		ILogger<BlobStorage> logger)
 	{
 		_logger = logger;
 
@@ -32,13 +37,13 @@ public class BlobStorage : IBlobStorage
 		await _filesContainer.SetAccessPolicyAsync(PublicAccessType.Blob);
 	}
 
-	public async Task<BlobInfo> AddAsync(BlobKind blobKind, string blobPath, byte[] imageBytes)
+	public async Task<BlobStorageItem> AddAsync(BlobKind blobKind, string blobPath, byte[] imageBytes)
 	{
 		await using var stream = new MemoryStream(imageBytes);
 		return await AddAsync(blobKind, blobPath, stream);
 	}
 
-	public async Task<BlobInfo> AddAsync(BlobKind blobKind, string blobPath, Stream stream)
+	public async Task<BlobStorageItem> AddAsync(BlobKind blobKind, string blobPath, Stream stream)
 	{
 		if (string.IsNullOrWhiteSpace(blobPath))
 		{
@@ -49,16 +54,22 @@ public class BlobStorage : IBlobStorage
 
 		var containerClient = GetBlobContainerClient(blobKind);
 		var blobClient = containerClient.GetBlobClient(blobPath);
+		var contentType = GetContentType(blobPath);
 		var blobHttpHeader = new BlobHttpHeaders
 		{
-			ContentType = GetContentType(blobPath)
+			ContentType = contentType
 		};
 
 		var uploadedBlob = await blobClient.UploadAsync(stream, blobHttpHeader);
 
 		_logger.LogInformation($"Uploaded blob '{blobPath}' to Azure Blob Storage, ETag '{uploadedBlob.Value.ETag}'");
 		var modified = uploadedBlob.Value.LastModified;
-		return new(blobPath, modified);
+
+		// Get the blob properties to retrieve the size
+		var properties = await blobClient.GetPropertiesAsync();
+		var size = properties.Value.ContentLength;
+
+		return new(blobPath, modified, size);
 	}
 
 	private string GetContentType(string path)
@@ -77,19 +88,22 @@ public class BlobStorage : IBlobStorage
 		await containerClient.DeleteBlobIfExistsAsync(fileName);
 	}
 
-	public async Task<BlobInfo[]> ListAsync(BlobKind blobKind, string? prefix = null)
+	public async Task<BlobStorageItem[]> ListAsync(BlobKind blobKind, string? prefix = null)
 	{
 		var containerClient = GetBlobContainerClient(blobKind);
-		var blobs = new List<BlobInfo>();
+		var blobs = new List<BlobStorageItem>();
 		await foreach (var blob in containerClient.GetBlobsAsync(prefix: prefix))
 		{
 			var blobName = blob.Name;
 			var modified = blob.Properties.LastModified;
-			blobs.Add(new(blobName, modified));
+			var size = blob.Properties.ContentLength ?? 0;
+			blobs.Add(new(blobName, modified, size));
 		}
 
 		return blobs.ToArray();
 	}
+
+
 
 	private BlobContainerClient GetBlobContainerClient(BlobKind blobKind)
 	{

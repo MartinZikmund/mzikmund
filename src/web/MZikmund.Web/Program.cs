@@ -33,6 +33,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 	services.AddSingleton<IConnectionStringProvider, ConnectionStringProvider>();
 	services.AddSingleton<IMarkdownConverter, MarkdownConverter>();
 	services.AddSingleton<IPostContentProcessor, PostContentProcessor>();
+	services.AddSingleton<IBlobUrlProvider, BlobUrlProvider>();
 	services.AddSingleton<IFeedGenerator, FeedGenerator>();
 	services.AddScoped<ISyndicationDataSource, SyndicationDataSource>();
 	services.AddHttpContextAccessor();
@@ -133,10 +134,7 @@ async Task Configure(WebApplication app)
 	using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
 	{
 		var context = serviceScope.ServiceProvider.GetRequiredService<DatabaseContext>();
-		if (!await context.Database.CanConnectAsync())
-		{
-			context.Database.Migrate();
-		}
+		context.Database.Migrate();
 	}
 
 	// Configure the HTTP request pipeline.
