@@ -2,7 +2,7 @@
 
 namespace MZikmund.DataContracts.Blobs;
 
-public record BlobStorageItem(string BlobPath, DateTimeOffset? LastModified)
+public record BlobStorageItem(string BlobPath, DateTimeOffset? LastModified, long? Size = null)
 {
 	public string FileName => Path.GetFileName(BlobPath);
 

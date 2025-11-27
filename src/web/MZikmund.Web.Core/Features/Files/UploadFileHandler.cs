@@ -53,6 +53,6 @@ public class UploadFileHandler : IRequestHandler<UploadFileCommand, StorageItemI
 		_dbContext.BlobMetadata.Add(metadata);
 		await _dbContext.SaveChangesAsync(cancellationToken);
 		var url = _blobUrlProvider.GetUrl(BlobKind.File, result.BlobPath);
-		return new StorageItemInfo(path, url, result.LastModified);
+		return new StorageItemInfo(path, url, result.LastModified, fileSize);
 	}
 }

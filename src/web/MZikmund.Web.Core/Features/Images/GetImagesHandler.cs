@@ -30,7 +30,7 @@ public class GetImagesHandler : IRequestHandler<GetImagesQuery, PagedResponse<St
 			.OrderByDescending(b => b.LastModified)
 			.Skip(skip)
 			.Take(request.PageSize)
-			.Select(b => new StorageItemInfo(b.BlobPath, _blobUrlProvider.GetUrl(b.Kind, b.BlobPath), b.LastModified))
+			.Select(b => new StorageItemInfo(b.BlobPath, _blobUrlProvider.GetUrl(b.Kind, b.BlobPath), b.LastModified, b.Size))
 			.ToArrayAsync(cancellationToken);
 
 		return new PagedResponse<StorageItemInfo>(items, request.PageNumber, request.PageSize, totalCount);

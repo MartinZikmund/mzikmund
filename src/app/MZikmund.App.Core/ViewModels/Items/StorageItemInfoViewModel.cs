@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using MZikmund.Business.Models;
 using MZikmund.DataContracts.Blobs;
+using MZikmund.DataContracts.Extensions;
 
 namespace MZikmund.ViewModels.Items;
 
@@ -26,4 +27,8 @@ public class StorageItemInfoViewModel
 	public string BlobPath => _info.BlobPath;
 
 	public Uri? Url => _info.Url;
+
+	public long? Size => _info.Size;
+
+	public string FormattedSize => Size.ToFileSizeString();
 }

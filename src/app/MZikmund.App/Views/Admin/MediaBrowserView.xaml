@@ -73,6 +73,7 @@
                                     <RowDefinition Height="*" />
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
 
                                 <!--  Image Preview  -->
@@ -90,16 +91,25 @@
                                 <!--  File Name  -->
                                 <TextBlock
                                     Grid.Row="1"
-                                    Margin="8,4"
+                                    Margin="8,4,8,0"
                                     FontWeight="SemiBold"
                                     Text="{x:Bind FileName}"
                                     TextTrimming="CharacterEllipsis"
                                     TextWrapping="NoWrap"
                                     ToolTipService.ToolTip="{x:Bind FileName}" />
 
+                                <!--  File Size  -->
+                                <TextBlock
+                                    Grid.Row="2"
+                                    Margin="8,0,8,4"
+                                    FontSize="12"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                    Text="{x:Bind FormattedSize}"
+                                    TextTrimming="CharacterEllipsis" />
+
                                 <!--  Actions  -->
                                 <StackPanel
-                                    Grid.Row="2"
+                                    Grid.Row="3"
                                     Margin="8,0,8,8"
                                     Orientation="Horizontal"
                                     Spacing="4">
