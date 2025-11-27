@@ -51,7 +51,6 @@
 		<Compile Include="..\MZikmund.App\GlobalUsings.cs" Link="GlobalUsings.cs" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Newtonsoft.Json" />
 		<PackageReference Include="Humanizer" />
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" />
 	</ItemGroup>

@@ -1,20 +1,20 @@
 ﻿#nullable disable
 
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace MZikmund.LegacyMigration.Json;
 
 internal sealed class PostMeta
 {
-	[JsonProperty("meta_id")]
+	[JsonPropertyName("meta_id")]
 	public long MetaId { get; set; }
 
-	[JsonProperty("post_id")]
+	[JsonPropertyName("post_id")]
 	public long PostId { get; set; }
 
-	[JsonProperty("meta_key")]
+	[JsonPropertyName("meta_key")]
 	public string MetaKey { get; set; } = null!;
 
-	[JsonProperty("meta_value")]
+	[JsonPropertyName("meta_value")]
 	public string MetaValue { get; set; } = null!;
 }

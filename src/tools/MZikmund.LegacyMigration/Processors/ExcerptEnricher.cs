@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
+using System.Text.Json;
 using MZikmund.LegacyMigration.Json;
 using MZikmund.Web.Data.Entities;
-using Newtonsoft.Json;
 using OpenAI;
 using OpenAI.Managers;
 using OpenAI.ObjectModels;
@@ -39,7 +39,7 @@ public class ExcerptEnricher
 			}
 			await EnrichAsync(post, language);
 
-			File.WriteAllText(tempFile, JsonConvert.SerializeObject(posts));
+			File.WriteAllText(tempFile, JsonSerializer.Serialize(posts));
 		}
 	}
 

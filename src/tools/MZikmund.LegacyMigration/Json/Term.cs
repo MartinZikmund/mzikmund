@@ -1,20 +1,20 @@
 ﻿#nullable disable
 
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace MZikmund.LegacyMigration.Json;
 
 internal sealed class Term
 {
-	[JsonProperty("term_id")]
+	[JsonPropertyName("term_id")]
 	public long TermId { get; set; }
 
-	[JsonProperty("name")]
+	[JsonPropertyName("name")]
 	public string Name { get; set; } = null!;
 
-	[JsonProperty("slug")]
+	[JsonPropertyName("slug")]
 	public string Slug { get; set; } = null!;
 
-	[JsonProperty("term_group")]
+	[JsonPropertyName("term_group")]
 	public long TermGroup { get; set; }
 }
