@@ -22,7 +22,7 @@ public class ImagesAdminController : Controller
 	}
 
 	[HttpGet]
-	public async Task<IActionResult> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50) => 
+	public async Task<IActionResult> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50) =>
 		Ok(await _mediator.Send(new GetImagesQuery(pageNumber, pageSize)));
 
 	[HttpGet("variants/{*imagePath}")]
@@ -32,9 +32,9 @@ public class ImagesAdminController : Controller
 		{
 			return BadRequest("Image path cannot be empty");
 		}
-
-		var variants = await _mediator.Send(new GetImageVariantsQuery(imagePath));
-		return Ok(variants);
+		var decodedPath = Uri.UnescapeDataString(imagePath);
+		var variants = await _mediator.Send(new GetImageVariantsQuery(decodedPath));
+		return Ok(variants.ToArray());
 	}
 
 	[HttpDelete]

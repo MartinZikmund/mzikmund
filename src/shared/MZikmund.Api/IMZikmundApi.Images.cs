@@ -21,5 +21,5 @@ public partial interface IMZikmundApi
 
 	[Get("/v1/admin/images/variants/{imagePath}")]
 	[Headers("Authorization: Bearer")]
-	Task<ApiResponse<List<ImageVariant>>> GetImageVariantsAsync(string imagePath);
+	Task<ApiResponse<ImageVariant[]>> GetImageVariantsAsync(string imagePath);
 }

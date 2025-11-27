@@ -38,7 +38,7 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 	public partial StorageItemInfoViewModel? SelectedFile { get; set; }
 
 	[ObservableProperty]
-	public partial List<ImageVariant> AvailableVariants { get; set; } = new List<ImageVariant>();
+	public partial ImageVariant[] AvailableVariants { get; set; } = Array.Empty<ImageVariant>();
 
 	[ObservableProperty]
 	public partial ImageVariant? SelectedVariant { get; set; }
@@ -56,7 +56,7 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 		}
 		else
 		{
-			AvailableVariants = new List<ImageVariant>();
+			AvailableVariants = Array.Empty<ImageVariant>();
 			SelectedVariant = null;
 		}
 		OnPropertyChanged(nameof(SelectedUrl));
@@ -75,14 +75,14 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 			else
 			{
 				// Fallback to empty list if API call fails
-				AvailableVariants = new List<ImageVariant>();
+				AvailableVariants = Array.Empty<ImageVariant>();
 				SelectedVariant = null;
 			}
 		}
 		catch (Exception)
 		{
 			// Fallback to empty list on error
-			AvailableVariants = new List<ImageVariant>();
+			AvailableVariants = Array.Empty<ImageVariant>();
 			SelectedVariant = null;
 		}
 	}

@@ -21,7 +21,7 @@ public partial class ImageVariantsDialogViewModel : DialogViewModel
 	public string FileName => _selectedFile.FileName;
 
 	[ObservableProperty]
-	public partial List<ImageVariant> AvailableVariants { get; set; } = new List<ImageVariant>();
+	public partial ImageVariant[] AvailableVariants { get; set; } = Array.Empty<ImageVariant>();
 
 	[ObservableProperty]
 	public partial ImageVariant? SelectedVariant { get; set; }
@@ -58,13 +58,13 @@ public partial class ImageVariantsDialogViewModel : DialogViewModel
 			}
 			else
 			{
-				AvailableVariants = new List<ImageVariant>();
+				AvailableVariants = Array.Empty<ImageVariant>();
 				SelectedVariant = null;
 			}
 		}
 		catch (Exception)
 		{
-			AvailableVariants = new List<ImageVariant>();
+			AvailableVariants = Array.Empty<ImageVariant>();
 			SelectedVariant = null;
 		}
 		finally
