@@ -31,8 +31,8 @@ internal sealed class GetPostsHandler : IRequestHandler<GetPostsQuery, PagedResp
 
 	public async Task<PagedResponse<PostListItem>> Handle(GetPostsQuery request, CancellationToken cancellationToken)
 	{
-		var specification = new GetPostsSpecification(request.Page, request.PageSize, request.CategoryId, request.TagId);
-		var postCount = await _mediator.Send(new CountPostsQuery(request.CategoryId, request.TagId), cancellationToken);
+		var specification = new GetPostsSpecification(request.Page, request.PageSize, request.CategoryId, request.TagId, request.SearchTerm);
+		var postCount = await _mediator.Send(new CountPostsQuery(request.CategoryId, request.TagId, request.SearchTerm), cancellationToken);
 
 		var posts = await _postsRepository.SelectAsync(specification, post => new PostListItem
 		{

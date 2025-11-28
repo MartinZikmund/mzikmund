@@ -4,11 +4,11 @@
     ViewData["Title"] = "Home page";
 }
 
-<div class="text-center">
+<div class="mt-3 text-center mb-3">
     <h1 class="display-2">Hi, my name is Martin!</h1>
+    <h2 class="display-4 text-center text-primary">@Localizer["Latest posts"]</h2>
 </div>
 
 <div class="row">
-    <h2 class="display-4 text-center text-primary">@Localizer["Latest posts"]</h2>
     <partial name="_PostList" model="Model.BlogPosts" />
 </div>
