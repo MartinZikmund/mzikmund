@@ -16,7 +16,7 @@
                            value="@Model.SearchTerm" 
                            placeholder="@Localizer["Search posts..."]" 
                            aria-label="Search posts">
-                    <button class="btn btn-primary" type="submit">
+                    <button class="btn btn-primary" type="submit" aria-label="@Localizer["Search posts"]">
                         <i class="fas fa-search"></i> @Localizer["Search"]
                     </button>
                     @if (!string.IsNullOrWhiteSpace(Model.SearchTerm))
