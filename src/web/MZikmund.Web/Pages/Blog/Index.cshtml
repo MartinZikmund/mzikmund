@@ -21,7 +21,7 @@
                     </button>
                     @if (!string.IsNullOrWhiteSpace(Model.SearchTerm))
                     {
-                        <a href="/Blog" class="btn btn-outline-secondary">@Localizer["Clear"]</a>
+                        <a href="/Blog" class="btn btn-outline-secondary" aria-label="@Localizer["Clear search"]">@Localizer["Clear"]</a>
                     }
                 </div>
             </form>
