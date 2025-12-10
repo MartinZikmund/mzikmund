@@ -7,13 +7,13 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using MZikmund.DataContracts.Blog;
 using MZikmund.Web.Core.Features.Categories;
 
-namespace MZikmund.Web.Pages.Blog.Category;
+namespace MZikmund.Web.Pages.Blog;
 
-public class IndexModel : PageModel
+public class CategoryListModel : PageModel
 {
 	private readonly IMediator _mediator;
 
-	public IndexModel(IMediator mediator)
+	public CategoryListModel(IMediator mediator)
 	{
 		_mediator = mediator;
 	}

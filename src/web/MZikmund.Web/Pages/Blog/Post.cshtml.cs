@@ -35,7 +35,7 @@ public class PostModel : PageModel
 		BlogPost = await _mediator.Send(new GetPostByRouteNameQuery(routeName));
 		HtmlContent = await _postContentProcessor.ProcessAsync(BlogPost.Content);
 		MetaKeywords = string.Join(", ", BlogPost.Tags.Select(t => t.DisplayName));
-		
+
 		// Validate and sanitize hero image URL
 		// Only allow http:// and https:// URLs for security
 		if (!string.IsNullOrWhiteSpace(BlogPost.HeroImageUrl) &&
