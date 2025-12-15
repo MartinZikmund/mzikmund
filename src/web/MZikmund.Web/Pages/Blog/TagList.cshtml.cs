@@ -1,4 +1,4 @@
-// <copyright file="Index.cshtml.cs" company="Martin Zikmund">
+// <copyright file="TagList.cshtml.cs" company="Martin Zikmund">
 // Copyright (c) Martin Zikmund. All rights reserved.
 // </copyright>
 
