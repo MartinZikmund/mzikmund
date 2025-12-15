@@ -32,15 +32,6 @@ public class TagsController : Controller
 		Ok(await _mediator.Send(new GetTagsQuery()));
 
 	/// <summary>
-	/// Gets all tags with post counts.
-	/// </summary>
-	/// <returns>All blog tags with post counts.</returns>
-	[HttpGet]
-	[Route("with-post-count")]
-	public async Task<IActionResult> GetAllWithPostCount() =>
-		Ok(await _mediator.Send(new GetTagsWithPostCountQuery()));
-
-	/// <summary>
 	/// Creates a blog tag.
 	/// </summary>
 	/// <param name="newTag">Blog tag to create.</param>
