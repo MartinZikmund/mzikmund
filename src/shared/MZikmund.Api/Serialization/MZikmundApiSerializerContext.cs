@@ -64,6 +64,7 @@ namespace MZikmund.Api.Serialization;
 [JsonSerializable(typeof(IEnumerable<TagWithPostCount>))]
 [JsonSerializable(typeof(IImmutableList<TagWithPostCount>))]
 [JsonSerializable(typeof(ImmutableList<TagWithPostCount>))]
+[JsonSerializable(typeof(ApiResponse<TagWithPostCount[]>))]
 
 // Common types
 [JsonSerializable(typeof(ApiResponse<object?>))]

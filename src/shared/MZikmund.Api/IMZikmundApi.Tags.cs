@@ -8,6 +8,9 @@ public partial interface IMZikmundApi
 	[Get("/v1/tags")]
 	Task<ApiResponse<Tag[]>> GetTagsAsync();
 
+	[Get("/v1/tags/with-post-count")]
+	Task<ApiResponse<TagWithPostCount[]>> GetTagsWithPostCountAsync();
+
 	[Post("/v1/admin/tags")]
 	[Headers("Authorization: Bearer")]
 	Task<ApiResponse<Tag>> AddTagAsync([Body] Tag tag); // TODO: Should be EditTag
