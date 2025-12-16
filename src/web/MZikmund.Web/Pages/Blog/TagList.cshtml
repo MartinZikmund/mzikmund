@@ -1,0 +1,40 @@
+@page "/Blog/Tags"
+@model MZikmund.Web.Pages.Blog.TagListModel;
+
+@{
+    MetaTags.Title = "Blog Tags";
+}
+
+<div class="blog-header text-center mb-3">
+    <h1 class="display-4 text-primary">Blog Tags</h1>
+    <p class="lead text-muted">Browse posts by tag</p>
+    <div class="mt-3">
+        <a asp-page="/Blog/Index" class="btn btn-outline-secondary btn-sm">← Back to Blog</a>
+    </div>
+</div>
+
+<div class="row">
+    @foreach (var tag in Model.Tags)
+    {
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <a asp-page="/Blog/TagPostList" asp-route-tagName="@tag.RouteName" class="text-decoration-none">
+                            #@tag.DisplayName
+                        </a>
+                    </h5>
+                    @if (!string.IsNullOrEmpty(tag.Description))
+                    {
+                        <p class="card-text text-muted">@tag.Description</p>
+                    }
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">
+                        @tag.PostCount @(tag.PostCount == 1 ? "post" : "posts")
+                    </small>
+                </div>
+            </div>
+        </div>
+    }
+</div>
