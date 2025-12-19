@@ -76,8 +76,6 @@ public partial class PostsManagerViewModel : PageViewModel
 
 	public override async void ViewLoaded()
 	{
-		Posts.Clear();
-		CurrentPage = 1;
 		await RefreshListAsync();
 	}
 
@@ -86,6 +84,8 @@ public partial class PostsManagerViewModel : PageViewModel
 		using var loadingScope = _loadingIndicator.BeginLoading();
 		try
 		{
+			Posts.Clear();
+			CurrentPage = 1;
 			await LoadPostsAsync(1);
 		}
 		catch (Exception ex)
