@@ -50,12 +50,14 @@
             Text="{x:Bind ViewModel.Post.Abstract, Mode=TwoWay}"
             TextWrapping="Wrap" />
 		<TextBox
+            x:Name="ContentTextBox"
             Grid.Row="2"
             AcceptsReturn="True"
             FontFamily="{StaticResource CodeFont}"
             Header="Content"
             Text="{x:Bind ViewModel.PostContent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-            TextWrapping="Wrap" />
+            TextWrapping="Wrap"
+            SelectionChanged="ContentTextBox_SelectionChanged" />
 
 		<Grid
             Grid.Row="2"
