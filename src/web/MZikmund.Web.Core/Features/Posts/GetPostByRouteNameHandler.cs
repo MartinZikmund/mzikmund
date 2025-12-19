@@ -28,7 +28,7 @@ public class GetPostByRouteNameHandler : IRequestHandler<GetPostByRouteNameQuery
 			.Where(PostEntityExtensions.IsPublishedAndVisible(DateTimeOffset.UtcNow))
 			.Include(nameof(PostEntity.Tags))
 			.Include(nameof(PostEntity.Categories))
-			.FirstOrDefaultAsync();
+			.FirstOrDefaultAsync(cancellationToken);
 		return _mapper.Map<Post>(post);
 	}
 }
