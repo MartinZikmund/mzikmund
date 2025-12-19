@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using MZikmund.DataContracts.Blog;
 using MZikmund.Web.Data.Entities;
+using MZikmund.Web.Data.Extensions;
 using MZikmund.Web.Data.Infrastructure;
 
 namespace MZikmund.Web.Core.Features.Posts;
@@ -22,11 +23,11 @@ public class GetPostByIdHandler : IRequestHandler<GetPostByIdQuery, Post>
 
 	public async Task<Post> Handle(GetPostByIdQuery request, CancellationToken cancellationToken)
 	{
-		var now = DateTimeOffset.UtcNow;
 		var post = await _postsRepository.AsQueryable()
 			.Include(nameof(PostEntity.Tags))
 			.Include(nameof(PostEntity.Categories))
-			.SingleOrDefaultAsync(p => p.Id.Equals(request.Id) && p.Status == PostStatus.Published && p.PublishedDate != null && p.PublishedDate <= now);
+			.Where(PostEntityExtensions.IsPublishedAndVisible(DateTimeOffset.UtcNow))
+			.SingleOrDefaultAsync(p => p.Id.Equals(request.Id));
 		return _mapper.Map<Post>(post);
 	}
 }

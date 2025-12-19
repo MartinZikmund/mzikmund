@@ -1,4 +1,5 @@
 ﻿using MZikmund.Web.Data.Entities;
+using MZikmund.Web.Data.Extensions;
 using MZikmund.Web.Data.Infrastructure;
 
 namespace MZikmund.Web.Data.Specifications.Posts;
@@ -8,11 +9,9 @@ public sealed class GetPostsSpecification : BaseSpecification<PostEntity>
 	public GetPostsSpecification(int pageNumber, int pageSize, Guid? categoryId = null, Guid? tagId = null)
 	{
 		var startRow = (pageNumber - 1) * pageSize;
-		var now = DateTimeOffset.UtcNow;
 
 		// Only show published posts with published date in the past or present
-		AddCriteria(p => p.Status == PostStatus.Published);
-		AddCriteria(p => p.PublishedDate != null && p.PublishedDate <= now);
+		AddCriteria(PostEntityExtensions.IsPublishedAndVisible(DateTimeOffset.UtcNow));
 
 		if (categoryId is not null)
 		{

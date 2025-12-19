@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using MZikmund.DataContracts.Blog;
 using MZikmund.Web.Data.Entities;
+using MZikmund.Web.Data.Extensions;
 using MZikmund.Web.Data.Infrastructure;
 
 namespace MZikmund.Web.Core.Features.Tags;
@@ -26,7 +27,7 @@ public class GetTagsWithPostCountHandler : IRequestHandler<GetTagsWithPostCountQ
 				DisplayName = t.DisplayName,
 				Description = t.Description,
 				RouteName = t.RouteName,
-				PostCount = t.Posts.Count(p => p.Status == PostStatus.Published && p.PublishedDate != null && p.PublishedDate <= now)
+				PostCount = t.Posts.AsQueryable().Count(PostEntityExtensions.IsPublishedAndVisible(now))
 			})
 			.OrderBy(t => t.DisplayName)
 			.ToListAsync(cancellationToken);

@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using MZikmund.DataContracts.Blog;
 using MZikmund.Web.Data.Entities;
+using MZikmund.Web.Data.Extensions;
 using MZikmund.Web.Data.Infrastructure;
 
 namespace MZikmund.Web.Core.Features.Posts;
@@ -22,9 +23,9 @@ public class GetPostByRouteNameHandler : IRequestHandler<GetPostByRouteNameQuery
 
 	public async Task<Post> Handle(GetPostByRouteNameQuery request, CancellationToken cancellationToken)
 	{
-		var now = DateTimeOffset.UtcNow;
 		var post = await _postsRepository.AsQueryable()
-			.Where(p => p.RouteName.Equals(request.RouteName) && p.Status == PostStatus.Published && p.PublishedDate != null && p.PublishedDate <= now)
+			.Where(p => p.RouteName.Equals(request.RouteName))
+			.Where(PostEntityExtensions.IsPublishedAndVisible(DateTimeOffset.UtcNow))
 			.Include(nameof(PostEntity.Tags))
 			.Include(nameof(PostEntity.Categories))
 			.FirstOrDefaultAsync();
