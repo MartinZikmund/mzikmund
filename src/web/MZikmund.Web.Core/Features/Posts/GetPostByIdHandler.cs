@@ -27,7 +27,7 @@ public class GetPostByIdHandler : IRequestHandler<GetPostByIdQuery, Post>
 			.Include(nameof(PostEntity.Tags))
 			.Include(nameof(PostEntity.Categories))
 			.Where(PostEntityExtensions.IsPublishedAndVisible(DateTimeOffset.UtcNow))
-			.SingleOrDefaultAsync(p => p.Id.Equals(request.Id));
+			.SingleOrDefaultAsync(p => p.Id.Equals(request.Id), cancellationToken);
 		return _mapper.Map<Post>(post);
 	}
 }
