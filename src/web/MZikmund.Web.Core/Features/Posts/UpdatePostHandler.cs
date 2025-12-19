@@ -62,7 +62,16 @@ public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, Post>
 		if (postEditModel.IsPublished && post.Status != PostStatus.Published)
 		{
 			post.Status = PostStatus.Published;
-			post.PublishedDate = _dateProvider.UtcNow;
+			// Use the provided published date, or default to now if not provided
+			post.PublishedDate = postEditModel.PublishedDate ?? _dateProvider.UtcNow;
+		}
+		else if (postEditModel.IsPublished && post.Status == PostStatus.Published)
+		{
+			// If already published, update the published date if provided
+			if (postEditModel.PublishedDate.HasValue)
+			{
+				post.PublishedDate = postEditModel.PublishedDate.Value;
+			}
 		}
 
 		// If the post is already published, we shouldn't change its route name

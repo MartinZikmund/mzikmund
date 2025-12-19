@@ -53,7 +53,7 @@ public class CreatePostHandler : IRequestHandler<CreatePostCommand, Post>
 			RouteName = request.NewPost.RouteName.Trim(),
 			Title = request.NewPost.Title.Trim(),
 			LanguageCode = request.NewPost.LanguageCode,
-			PublishedDate = request.NewPost.IsPublished ? _dateProvider.UtcNow : request.NewPost.PublishedDate,
+			PublishedDate = request.NewPost.IsPublished ? (request.NewPost.PublishedDate ?? _dateProvider.UtcNow) : request.NewPost.PublishedDate,
 			Status = request.NewPost.IsPublished ? PostStatus.Published : PostStatus.Draft,
 			HeroImageUrl = string.IsNullOrWhiteSpace(request.NewPost.HeroImageUrl) ? null : request.NewPost.HeroImageUrl, // TODO: Generate hero image from content via Dall-E
 		};
