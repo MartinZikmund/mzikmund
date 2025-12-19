@@ -35,6 +35,8 @@ public class PostEntity
 
 	public string RouteName { get; set; } = "";
 
+	public Guid? PreviewToken { get; set; }
+
 	public virtual ICollection<CategoryEntity> Categories { get; set; }
 
 	public virtual ICollection<TagEntity> Tags { get; set; }

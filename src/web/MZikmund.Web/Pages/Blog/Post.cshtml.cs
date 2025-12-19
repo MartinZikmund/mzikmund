@@ -6,7 +6,7 @@ using MZikmund.Web.Core.Services;
 
 namespace MZikmund.Web.Pages.Blog;
 
-public class PostModel : PageModel
+public class PostModel : PageModel, IPostPageModel
 {
 	private readonly IHostEnvironment _host;
 	private readonly IMediator _mediator;

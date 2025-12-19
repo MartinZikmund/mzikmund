@@ -1,98 +1,24 @@
 ﻿@page "/Blog/{RouteName}"
 @using System.Linq
-@using Microsoft.AspNetCore.Http.Extensions
 @model MZikmund.Web.Pages.Blog.PostModel
 
 @{
-    MetaTags.Title = Model.BlogPost?.Title ?? "";
-    MetaTags.Description = Model.BlogPost?.Abstract ?? "";
-    MetaTags.Keywords = Model.MetaKeywords;
-    if (Model.BlogPost?.HeroImageUrl is { } url)
-    {
-        MetaTags.Image = url;
-    }
-    if (Model.BlogPost?.HeroImageAlt is { } alt)
-    {
-        MetaTags.ImageAlt = alt;
-    }
+	MetaTags.Title = Model.BlogPost?.Title ?? "";
+	MetaTags.Description = Model.BlogPost?.Abstract ?? "";
+	MetaTags.Keywords = Model.MetaKeywords;
+	if (Model.BlogPost?.HeroImageUrl is { } url)
+	{
+		MetaTags.Image = url;
+	}
+	if (Model.BlogPost?.HeroImageAlt is { } alt)
+	{
+		MetaTags.ImageAlt = alt;
+	}
 }
 
-@if (Model.SafeHeroImageUrl is not null)
+@section AboveMain
 {
-    @section AboveMain
-    {
-        <div class="blog-post-hero" data-hero-url="@Model.SafeHeroImageUrl">
-            <div class="blog-post-hero-overlay">
-                <div class="container">
-                    <div class="blog-post-hero-content">
-                        <h1 class="display-3 text-white mb-3">@Model.BlogPost.Title</h1>
-                        <div class="blog-post-hero-meta">
-                            <p class="lead mb-2">
-                                @foreach (var category in Model.BlogPost.Categories)
-                                {
-                                    <a class="badge bg-light text-dark text-decoration-none" asp-page="/Blog/CategoryPostList" asp-route-categoryName="@category.RouteName">@category.DisplayName</a>
-                                }
-                            </p>
-                            <p class="text-white-50 mb-0">@Model.BlogPost.PublishedDate.Humanize()</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <script>
-            (function() {
-                const heroElement = document.querySelector('.blog-post-hero');
-                if (heroElement) {
-                    const url = heroElement.dataset.heroUrl;
-                    if (url) {
-                        // Comprehensive escaping for safe CSS usage
-                        // Only escape quotes for safe CSS url() usage
-                        const escapedUrl = url.replace(/"/g, '\\"').replace(/'/g, "\\'");
-                        heroElement.style.setProperty('--hero-bg-url', 'url("' + escapedUrl + '")');
-                    }
-                }
-            })();
-        </script>
-    }
+    @await Html.PartialAsync("_PostHero", Model)
 }
 
-<article class="blog-post">
-    @if (Model.SafeHeroImageUrl is null)
-    {
-        <header>
-            <h1 class="display-3 text-center text-primary">@Model.BlogPost?.Title</h1>
-            <p class="text-center lead mb-1 mt-2">
-                @foreach (var category in Model.BlogPost!.Categories)
-                {
-                    <a class="badge bg-primary text-decoration-none" asp-page="/Blog/CategoryPostList" asp-route-categoryName="@category.RouteName">@category.DisplayName</a>
-                }
-            </p>
-            <p class="text-center text-secondary">@Model.BlogPost.PublishedDate.Humanize()</p>
-        </header>
-    }
-    <div class="post-content">
-        @Html.Raw(Model.HtmlContent)
-    </div>
-    <footer>
-        <div>
-            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7501232789626725"
-                 crossorigin="anonymous"></script>
-            <!-- ArticleBottom -->
-            <ins class="adsbygoogle"
-                 style="display:block"
-                 data-ad-client="ca-pub-7501232789626725"
-                 data-ad-slot="4418669923"
-                 data-ad-format="auto"
-                 data-full-width-responsive="true"></ins>
-            <script>
-                 (adsbygoogle = window.adsbygoogle || []).push({});
-            </script>
-        </div>
-        <p class="text-center">
-            @foreach (var tag in Model.BlogPost!.Tags)
-            {
-                <a class="badge rounded-pill bg-secondary text-decoration-none" asp-page="/Blog/TagPostList" asp-route-tagName="@tag.RouteName">#@tag.DisplayName</a>
-            }
-        </p>
-    </footer>
-</article>
+@await Html.PartialAsync("_PostContent", Model)

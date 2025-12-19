@@ -1,0 +1,27 @@
+@page "/Blog/Preview/{PreviewToken:guid}"
+@model MZikmund.Web.Pages.Blog.PostPreviewModel
+
+@{
+    MetaTags.Title = Model.BlogPost?.Title ?? "";
+    MetaTags.Description = Model.BlogPost?.Abstract ?? "";
+    MetaTags.Keywords = Model.MetaKeywords;
+    if (Model.BlogPost?.HeroImageUrl is { } url)
+    {
+        MetaTags.Image = url;
+    }
+    if (Model.BlogPost?.HeroImageAlt is { } alt)
+    {
+        MetaTags.ImageAlt = alt;
+    }
+}
+
+@section AboveMain
+{
+    @await Html.PartialAsync("_PostHero", Model)
+}
+
+<div class="alert alert-info mb-4" role="alert">
+    <strong>Preview Mode:</strong> You are viewing a preview of this blog post. This preview URL is for sharing purposes only.
+</div>
+
+@await Html.PartialAsync("_PostContent", Model)
