@@ -224,7 +224,7 @@ public partial class PostEditorViewModel : PageViewModel
 		PostRouteName = post.RouteName;
 		PostContent = post.Content;
 		IsPublished = post.IsPublished;
-		
+
 		// Load existing publish date and time or use current date/time
 		if (post.PublishedDate.HasValue)
 		{
