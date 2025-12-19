@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using MZikmund.Models.Dialogs;
+using MZikmund.Services.Localization;
 using MZikmund.ViewModels.Dialogs;
 
 namespace MZikmund.Services.Dialogs;
@@ -21,6 +22,17 @@ public class DialogService : IDialogService
 	{
 		var statusMessageViewModel = new StatusMessageDialogViewModel(type, title, text);
 		return await ShowAsync(statusMessageViewModel);
+	}
+
+	public Task<ContentDialogResult> ShowConfirmationDialogAsync(string title, string text)
+	{
+		var confirmationDialog = new ContentDialog();
+		confirmationDialog.Title = title;
+		confirmationDialog.Content = text;
+		confirmationDialog.PrimaryButtonText = Localizer.Instance.GetString("Ok");
+		confirmationDialog.CloseButtonText = Localizer.Instance.GetString("Cancel");
+		confirmationDialog.DefaultButton = ContentDialogButton.Close;
+		return _dialogCoordinator.ShowAsync(confirmationDialog);
 	}
 
 	public async Task<ContentDialogResult> ShowAsync<TViewModel>(TViewModel viewModel)

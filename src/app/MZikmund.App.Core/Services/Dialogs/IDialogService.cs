@@ -10,6 +10,10 @@ public interface IDialogService
 		string title,
 		string text);
 
+	Task<ContentDialogResult> ShowConfirmationDialogAsync(
+		string title,
+		string text);
+
 	Task<ContentDialogResult> ShowAsync<TViewModel>(TViewModel viewModel);
 
 	void RegisterDialogsFromAssembly(Assembly assembly);

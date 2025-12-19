@@ -18,7 +18,7 @@ public partial interface IMZikmundApi
 
 	[Get("/v1/admin/posts/{postId}")]
 	[Headers("Authorization: Bearer")]
-	Task<ApiResponse<Post>> GetPostForAdminAsync(Guid postId);
+	Task<ApiResponse<PostAdmin>> GetPostForAdminAsync(Guid postId);
 
 	[Post("/v1/admin/posts")]
 	[Headers("Authorization: Bearer")]

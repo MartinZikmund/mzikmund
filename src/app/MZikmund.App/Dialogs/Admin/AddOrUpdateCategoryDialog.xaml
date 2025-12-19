@@ -6,10 +6,10 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:xaml="using:MZikmund.Extensions.Xaml"
     Title="{x:Bind ViewModel.Title}"
+    CloseButtonText="{xaml:Localize Key=Cancel}"
     DefaultButton="Primary"
     PrimaryButtonText="{xaml:Localize Key=Ok}"
     SecondaryButtonText="{x:Bind ViewModel.SecondaryButtonText, Mode=OneWay}"
-    CloseButtonText="{xaml:Localize Key=Cancel}"
     Style="{ThemeResource DefaultContentDialogStyle}">
 
     <StackPanel Spacing="8">
@@ -17,8 +17,8 @@
             Header="Id"
             IsEnabled="False"
             IsReadOnly="True"
-			Visibility="{x:Bind ViewModel.IsEditing}"
-            Text="{x:Bind ViewModel.Category.Id, Mode=OneWay}" />
+            Text="{x:Bind ViewModel.Category.Id, Mode=OneWay}"
+            Visibility="{x:Bind ViewModel.IsEditing}" />
         <TextBox Header="{xaml:Localize Key=DisplayName}" Text="{x:Bind ViewModel.Category.DisplayName, Mode=TwoWay}" />
         <TextBox Header="{xaml:Localize Key=RouteName}" Text="{x:Bind ViewModel.Category.RouteName, Mode=TwoWay}" />
     </StackPanel>
