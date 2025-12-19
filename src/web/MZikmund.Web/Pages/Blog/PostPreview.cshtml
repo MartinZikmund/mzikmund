@@ -15,12 +15,9 @@
     }
 }
 
-@if (Model.SafeHeroImageUrl is not null)
+@section AboveMain
 {
-    @section AboveMain
-    {
-        @await Html.PartialAsync("_PostHero", Model)
-    }
+    @await Html.PartialAsync("_PostHero", Model)
 }
 
 <div class="alert alert-info mb-4" role="alert">

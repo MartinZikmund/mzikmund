@@ -1,6 +1,6 @@
 @model MZikmund.Web.Pages.Blog.IPostPageModel
 
-<div class="blog-post-hero" data-hero-url="@Model.SafeHeroImageUrl">
+<div class="blog-post-hero" @(Model.SafeHeroImageUrl != null ? $"data-hero-url=\"{Model.SafeHeroImageUrl}\"" : "")>
     <div class="blog-post-hero-overlay">
         <div class="container">
             <div class="blog-post-hero-content">
@@ -27,17 +27,20 @@
         </div>
     </div>
 </div>
-<script>
-    (function() {
-        const heroElement = document.querySelector('.blog-post-hero');
-        if (heroElement) {
-            const url = heroElement.dataset.heroUrl;
-            if (url) {
-                // Comprehensive escaping for safe CSS usage
-                // Only escape quotes for safe CSS url() usage
-                const escapedUrl = url.replace(/"/g, '\\"').replace(/'/g, "\\'");
-                heroElement.style.setProperty('--hero-bg-url', 'url("' + escapedUrl + '")');
+@if (Model.SafeHeroImageUrl != null)
+{
+    <script>
+        (function() {
+            const heroElement = document.querySelector('.blog-post-hero');
+            if (heroElement) {
+                const url = heroElement.dataset.heroUrl;
+                if (url) {
+                    // Comprehensive escaping for safe CSS usage
+                    // Only escape quotes for safe CSS url() usage
+                    const escapedUrl = url.replace(/"/g, '\\"').replace(/'/g, "\\'");
+                    heroElement.style.setProperty('--hero-bg-url', 'url("' + escapedUrl + '")');
+                }
             }
-        }
-    })();
-</script>
+        })();
+    </script>
+}

@@ -2,28 +2,6 @@
 @using System.Linq
 
 <article class="blog-post">
-    @if (Model.SafeHeroImageUrl is null)
-    {
-        <header>
-            <h1 class="display-3 text-center text-primary">@Model.BlogPost?.Title</h1>
-            <p class="text-center lead mb-1 mt-2">
-                @foreach (var category in Model.BlogPost!.Categories)
-                {
-                    <a class="badge bg-primary text-decoration-none" asp-page="/Blog/CategoryPostList" asp-route-categoryName="@category.RouteName">@category.DisplayName</a>
-                }
-            </p>
-            <p class="text-center text-secondary">
-                @if (Model.BlogPost.PublishedDate.HasValue)
-                {
-                    @Model.BlogPost.PublishedDate.Value.Humanize()
-                }
-                else
-                {
-                    <text>Draft</text>
-                }
-            </p>
-        </header>
-    }
     <div class="post-content">
         @Html.Raw(Model.HtmlContent)
     </div>
