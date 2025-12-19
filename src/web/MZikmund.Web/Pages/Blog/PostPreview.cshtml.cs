@@ -32,17 +32,25 @@ public class PostPreviewModel : PageModel
 
 	public async Task OnGet(Guid previewToken)
 	{
-		BlogPost = await _mediator.Send(new GetPostByPreviewTokenQuery(previewToken));
-		HtmlContent = await _postContentProcessor.ProcessAsync(BlogPost.Content);
-		MetaKeywords = string.Join(", ", BlogPost.Tags.Select(t => t.DisplayName));
-
-		// Validate and sanitize hero image URL
-		// Only allow http:// and https:// URLs for security
-		if (!string.IsNullOrWhiteSpace(BlogPost.HeroImageUrl) &&
-			Uri.TryCreate(BlogPost.HeroImageUrl, UriKind.Absolute, out var uri) &&
-			(uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
+		try
 		{
-			SafeHeroImageUrl = uri.ToString();
+			BlogPost = await _mediator.Send(new GetPostByPreviewTokenQuery(previewToken));
+			HtmlContent = await _postContentProcessor.ProcessAsync(BlogPost.Content);
+			MetaKeywords = string.Join(", ", BlogPost.Tags.Select(t => t.DisplayName));
+
+			// Validate and sanitize hero image URL
+			// Only allow http:// and https:// URLs for security
+			if (!string.IsNullOrWhiteSpace(BlogPost.HeroImageUrl) &&
+				Uri.TryCreate(BlogPost.HeroImageUrl, UriKind.Absolute, out var uri) &&
+				(uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
+			{
+				SafeHeroImageUrl = uri.ToString();
+			}
+		}
+		catch (InvalidOperationException)
+		{
+			// Post not found - redirect to 404 or blog home
+			Response.Redirect("/Blog");
 		}
 	}
 }

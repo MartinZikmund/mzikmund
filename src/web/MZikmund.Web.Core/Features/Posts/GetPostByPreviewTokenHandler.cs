@@ -27,6 +27,12 @@ public class GetPostByPreviewTokenHandler : IRequestHandler<GetPostByPreviewToke
 			.Include(nameof(PostEntity.Tags))
 			.Include(nameof(PostEntity.Categories))
 			.FirstOrDefaultAsync(cancellationToken);
+
+		if (post == null)
+		{
+			throw new InvalidOperationException($"Post with preview token {request.PreviewToken} not found.");
+		}
+
 		return _mapper.Map<Post>(post);
 	}
 }
