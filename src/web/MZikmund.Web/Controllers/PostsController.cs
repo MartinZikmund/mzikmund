@@ -33,12 +33,22 @@ public class PostsController : Controller
 		Ok(await _mediator.Send(new GetPostsQuery(pageNumber, PageSize)));
 
 	/// <summary>
-	/// Creates a blog post.
+	/// Gets a blog post by ID.
 	/// </summary>
-	/// <param name="newPost">Blog post to create.</param>
-	/// <returns>Created blog post.</returns>
+	/// <param name="id">Post ID.</param>
+	/// <returns>The requested blog post.</returns>
 	[HttpGet]
 	[Route("{id}")]
 	public async Task<IActionResult> GetById(Guid id) =>
 		Ok(await _mediator.Send(new GetPostByIdQuery(id)));
+
+	/// <summary>
+	/// Gets a blog post by preview token (for preview purposes without authentication).
+	/// </summary>
+	/// <param name="previewToken">Preview token.</param>
+	/// <returns>The requested blog post.</returns>
+	[HttpGet]
+	[Route("preview/{previewToken}")]
+	public async Task<IActionResult> GetByPreviewToken(Guid previewToken) =>
+		Ok(await _mediator.Send(new GetPostByPreviewTokenQuery(previewToken)));
 }

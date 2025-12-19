@@ -59,6 +59,12 @@ public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, Post>
 		post.Abstract = postEditModel.Abstract;
 		post.Content = postEditModel.Content;
 
+		// Ensure the post has a preview token
+		if (post.PreviewToken == null)
+		{
+			post.PreviewToken = Guid.NewGuid();
+		}
+
 		if (postEditModel.IsPublished && post.Status != PostStatus.Published)
 		{
 			post.Status = PostStatus.Published;
