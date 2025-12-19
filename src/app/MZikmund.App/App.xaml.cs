@@ -147,7 +147,7 @@ public partial class MZikmundApp : Application, IApplication
 		services.AddScoped<IWindowShellProvider, WindowShellProvider>();
 		services.AddScoped<ITimerFactory, TimerFactory>();
 		services.AddSingleton<IUserService, UserService>();
-		services.AddSingleton<IMarkdownConverter, MarkdownConverter>();
+		services.AddSingleton<IMarkdownConverter>(new MarkdownConverter(true));
 		services.AddSingleton<IPostContentProcessor, PostContentProcessor>();
 
 		services.AddSingleton(CreateApi);
