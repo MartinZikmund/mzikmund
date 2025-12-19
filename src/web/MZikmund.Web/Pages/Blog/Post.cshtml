@@ -3,17 +3,17 @@
 @model MZikmund.Web.Pages.Blog.PostModel
 
 @{
-    MetaTags.Title = Model.BlogPost?.Title ?? "";
-    MetaTags.Description = Model.BlogPost?.Abstract ?? "";
-    MetaTags.Keywords = Model.MetaKeywords;
-    if (Model.BlogPost?.HeroImageUrl is { } url)
-    {
-        MetaTags.Image = url;
-    }
-    if (Model.BlogPost?.HeroImageAlt is { } alt)
-    {
-        MetaTags.ImageAlt = alt;
-    }
+	MetaTags.Title = Model.BlogPost?.Title ?? "";
+	MetaTags.Description = Model.BlogPost?.Abstract ?? "";
+	MetaTags.Keywords = Model.MetaKeywords;
+	if (Model.BlogPost?.HeroImageUrl is { } url)
+	{
+		MetaTags.Image = url;
+	}
+	if (Model.BlogPost?.HeroImageAlt is { } alt)
+	{
+		MetaTags.ImageAlt = alt;
+	}
 }
 
 @section AboveMain
