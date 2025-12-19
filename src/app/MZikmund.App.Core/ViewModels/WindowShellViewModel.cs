@@ -45,6 +45,7 @@ public partial class WindowShellViewModel : ViewModelBase
 	{
 		await _userService.LogoutAsync();
 		UpdateAuthenticationState();
+		_navigationService.Navigate(typeof(BlogViewModel));
 	}
 
 	private void UpdateAuthenticationState()
