@@ -1,0 +1,43 @@
+@model MZikmund.Web.Pages.Blog.IPostPageModel
+
+<div class="blog-post-hero" data-hero-url="@Model.SafeHeroImageUrl">
+    <div class="blog-post-hero-overlay">
+        <div class="container">
+            <div class="blog-post-hero-content">
+                <h1 class="display-3 text-white mb-3">@Model.BlogPost.Title</h1>
+                <div class="blog-post-hero-meta">
+                    <p class="lead mb-2">
+                        @foreach (var category in Model.BlogPost.Categories)
+                        {
+                            <a class="badge bg-light text-dark text-decoration-none" asp-page="/Blog/CategoryPostList" asp-route-categoryName="@category.RouteName">@category.DisplayName</a>
+                        }
+                    </p>
+                    <p class="text-white-50 mb-0">
+                        @if (Model.BlogPost.PublishedDate.HasValue)
+                        {
+                            @Model.BlogPost.PublishedDate.Value.Humanize()
+                        }
+                        else
+                        {
+                            <text>Draft</text>
+                        }
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    (function() {
+        const heroElement = document.querySelector('.blog-post-hero');
+        if (heroElement) {
+            const url = heroElement.dataset.heroUrl;
+            if (url) {
+                // Comprehensive escaping for safe CSS usage
+                // Only escape quotes for safe CSS url() usage
+                const escapedUrl = url.replace(/"/g, '\\"').replace(/'/g, "\\'");
+                heroElement.style.setProperty('--hero-bg-url', 'url("' + escapedUrl + '")');
+            }
+        }
+    })();
+</script>

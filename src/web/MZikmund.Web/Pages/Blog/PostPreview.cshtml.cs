@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MZikmund.DataContracts.Blog;
 using MZikmund.Web.Core.Features.Posts;
@@ -8,16 +9,13 @@ namespace MZikmund.Web.Pages.Blog;
 
 public class PostPreviewModel : PageModel, IPostPageModel
 {
-	private readonly IHostEnvironment _host;
 	private readonly IMediator _mediator;
 	private readonly IPostContentProcessor _postContentProcessor;
 
 	public PostPreviewModel(
-		IHostEnvironment host,
 		IMediator mediator,
 		IPostContentProcessor postContentProcessor)
 	{
-		_host = host;
 		_mediator = mediator;
 		_postContentProcessor = postContentProcessor;
 	}
@@ -30,7 +28,7 @@ public class PostPreviewModel : PageModel, IPostPageModel
 
 	public string? SafeHeroImageUrl { get; set; }
 
-	public async Task OnGet(Guid previewToken)
+	public async Task<IActionResult> OnGet(Guid previewToken)
 	{
 		try
 		{
@@ -46,11 +44,13 @@ public class PostPreviewModel : PageModel, IPostPageModel
 			{
 				SafeHeroImageUrl = uri.ToString();
 			}
+
+			return Page();
 		}
 		catch (InvalidOperationException)
 		{
-			// Post not found - redirect to 404 or blog home
-			Response.Redirect("/Blog");
+			// Post not found or preview not available - redirect to blog home
+			return Redirect("/Blog");
 		}
 	}
 }

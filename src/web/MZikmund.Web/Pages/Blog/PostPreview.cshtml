@@ -1,6 +1,4 @@
 @page "/Blog/Preview/{PreviewToken:guid}"
-@using System.Linq
-@using Microsoft.AspNetCore.Http.Extensions
 @model MZikmund.Web.Pages.Blog.PostPreviewModel
 
 @{
@@ -14,6 +12,14 @@
     if (Model.BlogPost?.HeroImageAlt is { } alt)
     {
         MetaTags.ImageAlt = alt;
+    }
+}
+
+@if (Model.SafeHeroImageUrl is not null)
+{
+    @section AboveMain
+    {
+        @await Html.PartialAsync("_PostHero", Model)
     }
 }
 
