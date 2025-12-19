@@ -79,6 +79,13 @@ public partial class PostEditorViewModel : PageViewModel
 		Localizer.Instance.GetString("NoCategoriesSelected") :
 		string.Join(", ", Categories.Select(c => c.DisplayName));
 
+	private DateTimeOffset GetCombinedPublishDateTime()
+	{
+		// Combine publish date and time into a single DateTimeOffset
+		var publishDateTime = PublishDate.Date.Add(PublishTime);
+		return new DateTimeOffset(publishDateTime, PublishDate.Offset);
+	}
+
 	[RelayCommand]
 	private async Task PickCategoriesAsync()
 	{
@@ -102,16 +109,12 @@ public partial class PostEditorViewModel : PageViewModel
 			.Select(t => new Tag { DisplayName = t.Trim() })
 			.ToArray();
 
-		// Combine publish date and time
-		var publishDateTime = PublishDate.Date.Add(PublishTime);
-		var publishDateTimeOffset = new DateTimeOffset(publishDateTime, PublishDate.Offset);
-
 		Post.Title = PostTitle;
 		Post.RouteName = PostRouteName;
 		Post.Tags = tags;
 		Post.Categories = Categories;
 		Post.IsPublished = IsPublished;
-		Post.PublishedDate = publishDateTimeOffset;
+		Post.PublishedDate = GetCombinedPublishDateTime();
 		Post.Content = PostContent;
 
 		if (Post.Id == Guid.Empty)
@@ -145,10 +148,6 @@ public partial class PostEditorViewModel : PageViewModel
 			return;
 		}
 
-		// Combine publish date and time
-		var publishDateTime = PublishDate.Date.Add(PublishTime);
-		var publishDateTimeOffset = new DateTimeOffset(publishDateTime, PublishDate.Offset);
-
 		// Save to a draft file
 		var draft = new Post
 		{
@@ -161,7 +160,7 @@ public partial class PostEditorViewModel : PageViewModel
 				.ToArray(),
 			Categories = Categories,
 			IsPublished = IsPublished,
-			PublishedDate = publishDateTimeOffset
+			PublishedDate = GetCombinedPublishDateTime()
 		};
 
 		var serialized = JsonConvert.SerializeObject(draft, Formatting.Indented);
