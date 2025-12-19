@@ -5,6 +5,9 @@ namespace MZikmund.DataContracts.Blog;
 /// </summary>
 public class PostAdmin : Post
 {
-	// PreviewToken is already inherited from Post base class
-	// This DTO is used only for admin endpoints to ensure PreviewToken is included
+	/// <summary>
+	/// Preview token used for shareable preview URLs without authentication.
+	/// Only exposed through admin endpoints.
+	/// </summary>
+	public Guid? PreviewToken { get; set; }
 }

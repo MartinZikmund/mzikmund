@@ -8,8 +8,6 @@ public class Post
 
 	public string RouteName { get; set; } = "";
 
-	public Guid? PreviewToken { get; set; }
-
 	public string Title { get; set; } = "";
 
 	public string Content

@@ -8,11 +8,10 @@ public class PostMap : Profile
 {
 	public PostMap()
 	{
-		// Public mapping - excludes PreviewToken
-		CreateMap<PostEntity, Post>()
-			.ForMember(dest => dest.PreviewToken, opt => opt.Ignore());
+		// Public mapping - Post doesn't include PreviewToken
+		CreateMap<PostEntity, Post>();
 		
-		// Admin mapping - includes PreviewToken
+		// Admin mapping - PostAdmin includes PreviewToken
 		CreateMap<PostEntity, PostAdmin>();
 		
 		CreateMap<PostEntity, PostListItem>();
