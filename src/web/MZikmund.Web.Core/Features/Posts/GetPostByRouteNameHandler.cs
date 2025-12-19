@@ -24,8 +24,7 @@ public class GetPostByRouteNameHandler : IRequestHandler<GetPostByRouteNameQuery
 	{
 		var now = DateTimeOffset.UtcNow;
 		var post = await _postsRepository.AsQueryable()
-			.Where(p => p.RouteName.Equals(request.RouteName))
-			.Where(p => p.Status == PostStatus.Published && p.PublishedDate != null && p.PublishedDate <= now)
+			.Where(p => p.RouteName.Equals(request.RouteName) && p.Status == PostStatus.Published && p.PublishedDate != null && p.PublishedDate <= now)
 			.Include(nameof(PostEntity.Tags))
 			.Include(nameof(PostEntity.Categories))
 			.FirstOrDefaultAsync();

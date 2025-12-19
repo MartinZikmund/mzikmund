@@ -26,8 +26,7 @@ public class GetPostByIdHandler : IRequestHandler<GetPostByIdQuery, Post>
 		var post = await _postsRepository.AsQueryable()
 			.Include(nameof(PostEntity.Tags))
 			.Include(nameof(PostEntity.Categories))
-			.Where(p => p.Status == PostStatus.Published && p.PublishedDate != null && p.PublishedDate <= now)
-			.SingleOrDefaultAsync(p => p.Id.Equals(request.Id));
+			.SingleOrDefaultAsync(p => p.Id.Equals(request.Id) && p.Status == PostStatus.Published && p.PublishedDate != null && p.PublishedDate <= now);
 		return _mapper.Map<Post>(post);
 	}
 }
