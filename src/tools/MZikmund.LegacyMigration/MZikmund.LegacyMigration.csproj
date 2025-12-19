@@ -27,7 +27,6 @@
     <PackageReference Include="CommunityToolkit.Mvvm" />
     <PackageReference Include="Microsoft.WindowsAppSDK" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" />
-    <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="ReverseMarkdown" />
     <PackageReference Include="System.Text.Json" />
     <Manifest Include="$(ApplicationManifest)" />

@@ -1,26 +1,26 @@
 ﻿#nullable disable
 
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace MZikmund.LegacyMigration.Json;
 
 internal sealed class TermTaxonomy
 {
-	[JsonProperty("term_taxonomy_id")]
+	[JsonPropertyName("term_taxonomy_id")]
 	public long TermTaxonomyId { get; set; }
 
-	[JsonProperty("term_id")]
+	[JsonPropertyName("term_id")]
 	public long TermId { get; set; }
 
-	[JsonProperty("taxonomy")]
+	[JsonPropertyName("taxonomy")]
 	public string Taxonomy { get; set; } = null!;
 
-	[JsonProperty("description")]
+	[JsonPropertyName("description")]
 	public string Description { get; set; } = null!;
 
-	[JsonProperty("parent")]
+	[JsonPropertyName("parent")]
 	public long Parent { get; set; }
 
-	[JsonProperty("count")]
+	[JsonPropertyName("count")]
 	public long Count { get; set; }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Text.Json;
 using Microsoft.UI.Dispatching;
 using MZikmund.Api.Client;
 using MZikmund.DataContracts.Blog;
@@ -8,7 +9,6 @@ using MZikmund.Services.Localization;
 using MZikmund.Services.Timers;
 using MZikmund.Shared.Extensions;
 using MZikmund.Web.Core.Services;
-using Newtonsoft.Json;
 
 namespace MZikmund.ViewModels.Admin;
 
@@ -163,7 +163,7 @@ public partial class PostEditorViewModel : PageViewModel
 			PublishedDate = GetCombinedPublishDateTime()
 		};
 
-		var serialized = JsonConvert.SerializeObject(draft, Formatting.Indented);
+		var serialized = JsonSerializer.Serialize(draft, new JsonSerializerOptions { WriteIndented = true });
 		// Add time to draft file name
 		var fileName = $"{Post.Id}_{DateTime.UtcNow.ToString("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture)}.txt";
 		var draftFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("Drafts", CreationCollisionOption.OpenIfExists);
