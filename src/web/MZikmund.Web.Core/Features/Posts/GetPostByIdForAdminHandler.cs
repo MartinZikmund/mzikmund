@@ -28,7 +28,7 @@ public class GetPostByIdForAdminHandler : IRequestHandler<GetPostByIdForAdminQue
 		var post = await _postsRepository.AsQueryable()
 			.Include(nameof(PostEntity.Tags))
 			.Include(nameof(PostEntity.Categories))
-			.SingleOrDefaultAsync(p => p.Id.Equals(request.Id));
+			.SingleOrDefaultAsync(p => p.Id.Equals(request.Id), cancellationToken);
 		return _mapper.Map<Post>(post);
 	}
 }
