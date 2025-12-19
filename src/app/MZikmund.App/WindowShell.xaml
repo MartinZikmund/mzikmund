@@ -64,7 +64,7 @@
                         <BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///Assets/Icons/Navigation/Contact.png" />
                     </mux:NavigationViewItem.Icon>
                 </mux:NavigationViewItem>
-                <mux:NavigationViewItem x:Name="AdminNavigationViewItem" Content="{extensions:Localize Key=Admin}">
+                <mux:NavigationViewItem x:Name="AdminNavigationViewItem" Content="{extensions:Localize Key=Admin}" Visibility="{x:Bind ViewModel.IsLoggedIn, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                     <mux:NavigationViewItem.Icon>
                         <BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///Assets/Icons/Navigation/Admin.png" />
                     </mux:NavigationViewItem.Icon>
@@ -87,6 +87,18 @@
                     </mux:NavigationViewItem.MenuItems>
                 </mux:NavigationViewItem>
             </mux:NavigationView.MenuItems>
+            <mux:NavigationView.FooterMenuItems>
+                <mux:NavigationViewItem x:Name="LoginNavigationViewItem" Content="{extensions:Localize Key=Login}" Visibility="{x:Bind ViewModel.IsLoggedIn, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                    <mux:NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Account" />
+                    </mux:NavigationViewItem.Icon>
+                </mux:NavigationViewItem>
+                <mux:NavigationViewItem x:Name="LogoutNavigationViewItem" Content="{extensions:Localize Key=Logout}" Visibility="{x:Bind ViewModel.IsLoggedIn, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <mux:NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="BlockContact" />
+                    </mux:NavigationViewItem.Icon>
+                </mux:NavigationViewItem>
+            </mux:NavigationView.FooterMenuItems>
             <mux:NavigationView.Content>
                 <Grid x:Name="ContentWrapper">
                     <Grid.RowDefinitions>

@@ -1,4 +1,5 @@
 ﻿using Microsoft.UI.Dispatching;
+using MZikmund.Services.Account;
 using MZikmund.Services.Navigation;
 using Uno.Disposables;
 
@@ -8,12 +9,17 @@ public partial class WindowShellViewModel : ViewModelBase
 {
 	private readonly IWindowShellProvider _provider;
 	private readonly INavigationService _navigationService;
+	private readonly IUserService _userService;
 	private RefCountDisposable? _refCountDisposable;
 
-	public WindowShellViewModel(IWindowShellProvider provider, INavigationService navigationService)
+	public WindowShellViewModel(IWindowShellProvider provider, INavigationService navigationService, IUserService userService)
 	{
 		_provider = provider ?? throw new ArgumentNullException(nameof(provider));
 		_navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
+		_userService = userService ?? throw new ArgumentNullException(nameof(userService));
+		
+		// Initialize from cached authentication state
+		UpdateAuthenticationState();
 	}
 
 	public string Title { get; set; } = "Martin Zikmund";
@@ -23,6 +29,29 @@ public partial class WindowShellViewModel : ViewModelBase
 
 	[ObservableProperty]
 	public partial string LoadingStatusMessage { get; set; } = "";
+
+	[ObservableProperty]
+	public partial bool IsLoggedIn { get; set; }
+
+	[RelayCommand]
+	private async Task LoginAsync()
+	{
+		await _userService.AuthenticateAsync();
+		UpdateAuthenticationState();
+	}
+
+	[RelayCommand]
+	private async Task LogoutAsync()
+	{
+		await _userService.LogoutAsync();
+		UpdateAuthenticationState();
+		_navigationService.Navigate(typeof(BlogViewModel));
+	}
+
+	private void UpdateAuthenticationState()
+	{
+		IsLoggedIn = _userService.IsLoggedIn;
+	}
 
 	public IDisposable BeginLoading()
 	{

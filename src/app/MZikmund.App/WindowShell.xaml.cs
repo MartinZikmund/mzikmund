@@ -114,7 +114,7 @@ public sealed partial class WindowShell : Page, IWindowShell
 		//#pragma warning restore CS8618
 	}
 
-	private void MenuItemInvoked(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs args)
+	private async void MenuItemInvoked(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs args)
 	{
 		var navigationService = ServiceProvider.GetRequiredService<INavigationService>();
 
@@ -142,6 +142,16 @@ public sealed partial class WindowShell : Page, IWindowShell
 		else if (args.InvokedItemContainer == AdminCategoriesNavigationViewItem)
 		{
 			navigationService.Navigate<CategoriesManagerViewModel>();
+		}
+		else if (args.InvokedItemContainer == LoginNavigationViewItem)
+		{
+			await ViewModel.LoginCommand.ExecuteAsync(null);
+			return;
+		}
+		else if (args.InvokedItemContainer == LogoutNavigationViewItem)
+		{
+			await ViewModel.LogoutCommand.ExecuteAsync(null);
+			return;
 		}
 
 		navigationService.ClearBackStack();
