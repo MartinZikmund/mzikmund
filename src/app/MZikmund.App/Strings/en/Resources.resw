@@ -177,6 +177,9 @@
   <data name="Tags" xml:space="preserve">
     <value>Tags</value>
   </data>
+  <data name="LoadMore" xml:space="preserve">
+    <value>Load More</value>
+  </data>
   <data name="Login" xml:space="preserve">
     <value>Login</value>
   </data>
