@@ -16,9 +16,10 @@ public sealed class CountPostsHandler : IRequestHandler<CountPostsQuery, int>
 
 	public async Task<int> Handle(CountPostsQuery request, CancellationToken ct)
 	{
+		var now = DateTimeOffset.UtcNow;
 		var posts = _postRepository.AsQueryable();
 
-		posts = posts.Where(p => p.Status == PostStatus.Published);
+		posts = posts.Where(p => p.Status == PostStatus.Published && p.PublishedDate != null && p.PublishedDate <= now);
 
 		if (request.CategoryId is not null)
 		{

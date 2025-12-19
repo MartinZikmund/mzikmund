@@ -18,6 +18,7 @@ public class GetTagsWithPostCountHandler : IRequestHandler<GetTagsWithPostCountQ
 
 	public async Task<IReadOnlyList<TagWithPostCount>> Handle(GetTagsWithPostCountQuery request, CancellationToken cancellationToken)
 	{
+		var now = DateTimeOffset.UtcNow;
 		var tags = await _tagRepository.AsQueryable()
 			.Select(t => new TagWithPostCount
 			{
@@ -25,7 +26,7 @@ public class GetTagsWithPostCountHandler : IRequestHandler<GetTagsWithPostCountQ
 				DisplayName = t.DisplayName,
 				Description = t.Description,
 				RouteName = t.RouteName,
-				PostCount = t.Posts.Count(p => p.Status == PostStatus.Published)
+				PostCount = t.Posts.Count(p => p.Status == PostStatus.Published && p.PublishedDate != null && p.PublishedDate <= now)
 			})
 			.OrderBy(t => t.DisplayName)
 			.ToListAsync(cancellationToken);

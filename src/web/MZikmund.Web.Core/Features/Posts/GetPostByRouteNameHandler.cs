@@ -22,8 +22,10 @@ public class GetPostByRouteNameHandler : IRequestHandler<GetPostByRouteNameQuery
 
 	public async Task<Post> Handle(GetPostByRouteNameQuery request, CancellationToken cancellationToken)
 	{
+		var now = DateTimeOffset.UtcNow;
 		var post = await _postsRepository.AsQueryable()
 			.Where(p => p.RouteName.Equals(request.RouteName))
+			.Where(p => p.Status == PostStatus.Published && p.PublishedDate != null && p.PublishedDate <= now)
 			.Include(nameof(PostEntity.Tags))
 			.Include(nameof(PostEntity.Categories))
 			.FirstOrDefaultAsync();

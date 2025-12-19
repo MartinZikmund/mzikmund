@@ -18,6 +18,7 @@ public class GetCategoriesWithPostCountHandler : IRequestHandler<GetCategoriesWi
 
 	public async Task<IReadOnlyList<CategoryWithPostCount>> Handle(GetCategoriesWithPostCountQuery request, CancellationToken cancellationToken)
 	{
+		var now = DateTimeOffset.UtcNow;
 		var categories = await _categoryRepository.AsQueryable()
 			.Select(c => new CategoryWithPostCount
 			{
@@ -26,7 +27,7 @@ public class GetCategoriesWithPostCountHandler : IRequestHandler<GetCategoriesWi
 				Description = c.Description,
 				Icon = c.Icon,
 				RouteName = c.RouteName,
-				PostCount = c.Posts.Count(p => p.Status == PostStatus.Published)
+				PostCount = c.Posts.Count(p => p.Status == PostStatus.Published && p.PublishedDate != null && p.PublishedDate <= now)
 			})
 			.OrderBy(c => c.DisplayName)
 			.ToListAsync(cancellationToken);
