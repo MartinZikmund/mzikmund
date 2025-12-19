@@ -86,7 +86,7 @@ public partial class PostsManagerViewModel : PageViewModel
 		using var loadingScope = _loadingIndicator.BeginLoading();
 		try
 		{
-			await LoadPostsAsync(CurrentPage);
+			await LoadPostsAsync(1);
 		}
 		catch (Exception ex)
 		{

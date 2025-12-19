@@ -68,7 +68,7 @@
 			<Button
                 HorizontalAlignment="Center"
                 Command="{x:Bind ViewModel.LoadMoreCommand, Mode=OneWay}"
-                Content="Load More"
+                Content="{xaml:Localize Key=LoadMore}"
                 Visibility="{x:Bind ViewModel.CanLoadMore, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" />
 			<ProgressRing
                 HorizontalAlignment="Center"
