@@ -25,6 +25,6 @@ public sealed class GetAllPostsSpecification : BaseSpecification<PostEntity>
 		AddInclude(p => p.Include(post => post.Tags));
 		AddInclude(p => p.Include(post => post.Categories));
 		ApplyPaging(startRow, pageSize);
-		ApplyOrderByDescending(p => p.PublishedDate);
+		ApplyOrderByDescending(p => p.LastModifiedDate);
 	}
 }

@@ -15,6 +15,7 @@
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="*" />
+			<RowDefinition Height="Auto" />
 		</Grid.RowDefinitions>
 		<TextBlock Style="{ThemeResource TitleTextBlockStyle}" Text="{xaml:Localize Key=Posts}" />
 		<StackPanel
@@ -60,5 +61,19 @@
 				</DataTemplate>
 			</ListView.ItemTemplate>
 		</ListView>
+		<StackPanel
+            Grid.Row="3"
+            Margin="0,8,0,0"
+            Spacing="8">
+			<Button
+                HorizontalAlignment="Center"
+                Command="{x:Bind ViewModel.LoadMoreCommand, Mode=OneWay}"
+                Content="Load More"
+                Visibility="{x:Bind ViewModel.CanLoadMore, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" />
+			<ProgressRing
+                HorizontalAlignment="Center"
+                IsActive="{x:Bind ViewModel.IsLoadingMore, Mode=OneWay}"
+                Visibility="{x:Bind ViewModel.IsLoadingMore, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" />
+		</StackPanel>
 	</Grid>
 </local:PostsManagerViewBase>
