@@ -185,7 +185,7 @@ public partial class PostEditorViewModel : PageViewModel
 		}
 		else
 		{
-			Post = (await _api.GetPostAsync(postId)).Content;
+			Post = (await _api.GetPostForAdminAsync(postId)).Content;
 		}
 
 		PopulateInfo(Post!);

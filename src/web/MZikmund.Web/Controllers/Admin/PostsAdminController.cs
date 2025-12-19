@@ -14,6 +14,7 @@ namespace MZikmund.Web.Controllers.Admin;
 [Route("api/v1/admin/posts")]
 public class PostsAdminController : Controller
 {
+	private const int PageSize = 12; // TODO: Make page size configurable.
 	private readonly IMediator _mediator;
 
 	/// <summary>
@@ -22,6 +23,26 @@ public class PostsAdminController : Controller
 	/// <param name="mediator">Mediator.</param>
 	public PostsAdminController(IMediator mediator) =>
 		_mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+
+	/// <summary>
+	/// Gets all posts (including unpublished and future-dated posts).
+	/// </summary>
+	/// <param name="pageNumber">Page number.</param>
+	/// <returns>All blog posts.</returns>
+	[HttpGet]
+	[Route("")]
+	public async Task<IActionResult> GetAll(int pageNumber = 1) =>
+		Ok(await _mediator.Send(new GetAllPostsQuery(pageNumber, PageSize)));
+
+	/// <summary>
+	/// Gets a post by ID (including unpublished and future-dated posts).
+	/// </summary>
+	/// <param name="id">Post ID.</param>
+	/// <returns>The requested blog post.</returns>
+	[HttpGet]
+	[Route("{id}")]
+	public async Task<IActionResult> GetById(Guid id) =>
+		Ok(await _mediator.Send(new GetPostByIdForAdminQuery(id)));
 
 	/// <summary>
 	/// Creates a blog post.

@@ -1,25 +1,25 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using MZikmund.Web.Data.Entities;
-using MZikmund.Web.Data.Extensions;
 using MZikmund.Web.Data.Infrastructure;
 
 namespace MZikmund.Web.Core.Features.Posts;
 
-public sealed class CountPostsHandler : IRequestHandler<CountPostsQuery, int>
+/// <summary>
+/// Handler for counting all posts without filtering by published status (for admin use).
+/// </summary>
+public sealed class CountAllPostsHandler : IRequestHandler<CountAllPostsQuery, int>
 {
 	private readonly IRepository<PostEntity> _postRepository;
 
-	public CountPostsHandler(IRepository<PostEntity> postRepo)
+	public CountAllPostsHandler(IRepository<PostEntity> postRepo)
 	{
 		_postRepository = postRepo;
 	}
 
-	public async Task<int> Handle(CountPostsQuery request, CancellationToken ct)
+	public async Task<int> Handle(CountAllPostsQuery request, CancellationToken ct)
 	{
 		var posts = _postRepository.AsQueryable();
-
-		posts = posts.Where(PostEntityExtensions.IsPublishedAndVisible(DateTimeOffset.UtcNow));
 
 		if (request.CategoryId is not null)
 		{

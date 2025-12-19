@@ -3,17 +3,19 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using MZikmund.DataContracts.Blog;
 using MZikmund.Web.Data.Entities;
-using MZikmund.Web.Data.Extensions;
 using MZikmund.Web.Data.Infrastructure;
 
 namespace MZikmund.Web.Core.Features.Posts;
 
-public class GetPostByRouteNameHandler : IRequestHandler<GetPostByRouteNameQuery, Post>
+/// <summary>
+/// Handler for getting a post by ID without filtering by published status (for admin use).
+/// </summary>
+public class GetPostByIdForAdminHandler : IRequestHandler<GetPostByIdForAdminQuery, Post>
 {
 	private readonly IRepository<PostEntity> _postsRepository;
 	private readonly IMapper _mapper;
 
-	public GetPostByRouteNameHandler(
+	public GetPostByIdForAdminHandler(
 		IRepository<PostEntity> postsRepository,
 		IMapper mapper)
 	{
@@ -21,14 +23,12 @@ public class GetPostByRouteNameHandler : IRequestHandler<GetPostByRouteNameQuery
 		_mapper = mapper;
 	}
 
-	public async Task<Post> Handle(GetPostByRouteNameQuery request, CancellationToken cancellationToken)
+	public async Task<Post> Handle(GetPostByIdForAdminQuery request, CancellationToken cancellationToken)
 	{
 		var post = await _postsRepository.AsQueryable()
-			.Where(p => p.RouteName.Equals(request.RouteName))
-			.Where(PostEntityExtensions.IsPublishedAndVisible(DateTimeOffset.UtcNow))
 			.Include(nameof(PostEntity.Tags))
 			.Include(nameof(PostEntity.Categories))
-			.FirstOrDefaultAsync(cancellationToken);
+			.SingleOrDefaultAsync(p => p.Id.Equals(request.Id), cancellationToken);
 		return _mapper.Map<Post>(post);
 	}
 }
