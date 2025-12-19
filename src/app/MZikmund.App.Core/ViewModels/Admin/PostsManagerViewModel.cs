@@ -46,7 +46,7 @@ public partial class PostsManagerViewModel : PageViewModel
 		try
 		{
 			//TODO: Refresh collection based on IDs
-			var posts = await _api.GetPostsAsync();
+			var posts = await _api.GetAllPostsAsync();
 			await posts.EnsureSuccessfulAsync();
 			Posts.Clear();
 			Posts.AddRange(posts.Content!.Data.OrderByDescending(t => t.LastModifiedDate));

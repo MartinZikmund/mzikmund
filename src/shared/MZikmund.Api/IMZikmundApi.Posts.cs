@@ -12,6 +12,14 @@ public partial interface IMZikmundApi
 	[Get("/v1/posts/{postId}")]
 	Task<ApiResponse<Post>> GetPostAsync(Guid postId);
 
+	[Get("/v1/admin/posts")]
+	[Headers("Authorization: Bearer")]
+	Task<ApiResponse<PagedResponse<PostListItem>>> GetAllPostsAsync(int pageNumber = 1);
+
+	[Get("/v1/admin/posts/{postId}")]
+	[Headers("Authorization: Bearer")]
+	Task<ApiResponse<Post>> GetPostForAdminAsync(Guid postId);
+
 	[Post("/v1/admin/posts")]
 	[Headers("Authorization: Bearer")]
 	Task<ApiResponse<Post>> AddPostAsync([Body] Post post); // TODO: Should be EditPost
