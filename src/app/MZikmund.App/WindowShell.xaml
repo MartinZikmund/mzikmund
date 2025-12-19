@@ -90,12 +90,12 @@
             <mux:NavigationView.FooterMenuItems>
                 <mux:NavigationViewItem x:Name="LoginNavigationViewItem" Content="{extensions:Localize Key=Login}" Visibility="{x:Bind ViewModel.IsLoggedIn, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                     <mux:NavigationViewItem.Icon>
-                        <SymbolIcon Symbol="Contact" />
+                        <SymbolIcon Symbol="Account" />
                     </mux:NavigationViewItem.Icon>
                 </mux:NavigationViewItem>
                 <mux:NavigationViewItem x:Name="LogoutNavigationViewItem" Content="{extensions:Localize Key=Logout}" Visibility="{x:Bind ViewModel.IsLoggedIn, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                     <mux:NavigationViewItem.Icon>
-                        <SymbolIcon Symbol="Contact" />
+                        <SymbolIcon Symbol="BlockContact" />
                     </mux:NavigationViewItem.Icon>
                 </mux:NavigationViewItem>
             </mux:NavigationView.FooterMenuItems>

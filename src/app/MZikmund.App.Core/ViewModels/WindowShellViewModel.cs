@@ -19,7 +19,7 @@ public partial class WindowShellViewModel : ViewModelBase
 		_userService = userService ?? throw new ArgumentNullException(nameof(userService));
 		
 		// Initialize from cached authentication state
-		IsLoggedIn = _userService.IsLoggedIn;
+		UpdateAuthenticationState();
 	}
 
 	public string Title { get; set; } = "Martin Zikmund";
@@ -37,13 +37,18 @@ public partial class WindowShellViewModel : ViewModelBase
 	private async Task LoginAsync()
 	{
 		await _userService.AuthenticateAsync();
-		IsLoggedIn = _userService.IsLoggedIn;
+		UpdateAuthenticationState();
 	}
 
 	[RelayCommand]
 	private async Task LogoutAsync()
 	{
 		await _userService.LogoutAsync();
+		UpdateAuthenticationState();
+	}
+
+	private void UpdateAuthenticationState()
+	{
 		IsLoggedIn = _userService.IsLoggedIn;
 	}
 
