@@ -13,6 +13,7 @@ using Newtonsoft.Json;
 using MZikmund.Services.Navigation;
 using Microsoft.Extensions.Options;
 using MZikmund.Business.Models;
+using Launcher = Windows.System.Launcher;
 
 namespace MZikmund.ViewModels.Admin;
 
@@ -62,7 +63,7 @@ public partial class PostEditorViewModel : PageViewModel
 	public partial Category[] Categories { get; set; } = Array.Empty<Category>();
 
 	[ObservableProperty]
-	public partial Post? Post { get; set; } = null;
+	public partial PostAdmin? Post { get; set; } = null;
 
 	[ObservableProperty]
 	public partial bool IsPublished { get; set; }
@@ -113,6 +114,9 @@ public partial class PostEditorViewModel : PageViewModel
 			Categories = categoyPickerDialogViewModel.SelectedCategories.ToArray();
 		}
 	}
+
+	[RelayCommand]
+	private async Task OpenPreviewAsync() => await Launcher.LaunchUriAsync(new Uri(new Uri(_appConfig.Value.WebUrl!), "blog/preview/" + Post?.PreviewToken.ToString()));
 
 	[RelayCommand]
 	private async Task SaveAsync()
@@ -333,7 +337,7 @@ public partial class PostEditorViewModel : PageViewModel
 		var postId = (Guid)parameter!;
 		if (postId == Guid.Empty)
 		{
-			Post = new Post();
+			Post = new PostAdmin();
 		}
 		else
 		{

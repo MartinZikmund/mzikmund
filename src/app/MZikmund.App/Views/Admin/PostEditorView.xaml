@@ -90,9 +90,9 @@
                 Grid.Row="1"
                 AcceptsReturn="True"
                 FontFamily="{StaticResource CodeFont}"
+                SelectionChanged="ContentTextBox_SelectionChanged"
                 Text="{x:Bind ViewModel.PostContent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                TextWrapping="Wrap"
-                SelectionChanged="ContentTextBox_SelectionChanged" />
+                TextWrapping="Wrap" />
         </Grid>
 
         <Grid
@@ -130,6 +130,7 @@
                 IsChecked="{x:Bind ViewModel.IsPublished, Mode=TwoWay}" />
             <DatePicker Date="{x:Bind ViewModel.PublishDate, Mode=TwoWay}" Header="Publish Date" />
             <TimePicker Header="Publish Time" Time="{x:Bind ViewModel.PublishTime, Mode=TwoWay}" />
+            <HyperlinkButton Command="{x:Bind ViewModel.OpenPreviewCommand}" Content="Open preview" />
         </StackPanel>
     </Grid>
 </local:PostEditorViewBase>

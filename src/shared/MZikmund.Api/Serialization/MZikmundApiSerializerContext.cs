@@ -20,6 +20,7 @@ namespace MZikmund.Api.Serialization;
 /// </remarks>
 // Post types
 [JsonSerializable(typeof(Post))]
+[JsonSerializable(typeof(PostAdmin))]
 [JsonSerializable(typeof(Post[]))]
 [JsonSerializable(typeof(IEnumerable<Post>))]
 [JsonSerializable(typeof(IImmutableList<Post>))]
