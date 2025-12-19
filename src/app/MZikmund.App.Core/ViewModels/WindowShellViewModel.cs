@@ -17,7 +17,7 @@ public partial class WindowShellViewModel : ViewModelBase
 		_provider = provider ?? throw new ArgumentNullException(nameof(provider));
 		_navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
 		_userService = userService ?? throw new ArgumentNullException(nameof(userService));
-		
+
 		// Initialize from cached authentication state
 		UpdateAuthenticationState();
 	}
@@ -45,7 +45,7 @@ public partial class WindowShellViewModel : ViewModelBase
 	{
 		await _userService.LogoutAsync();
 		UpdateAuthenticationState();
-		_navigationService.Navigate(typeof(BlogViewModel));
+		_navigationService.Navigate<BlogViewModel>();
 	}
 
 	private void UpdateAuthenticationState()

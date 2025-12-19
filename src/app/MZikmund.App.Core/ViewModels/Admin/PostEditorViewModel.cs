@@ -59,6 +59,12 @@ public partial class PostEditorViewModel : PageViewModel
 	[ObservableProperty]
 	public partial bool IsPublished { get; set; }
 
+	[ObservableProperty]
+	public partial DateTimeOffset PublishDate { get; set; } = DateTimeOffset.Now;
+
+	[ObservableProperty]
+	public partial TimeSpan PublishTime { get; set; } = DateTimeOffset.Now.TimeOfDay;
+
 	partial void OnPostTitleChanged(string value)
 	{
 		PostRouteName = value.GenerateRouteName();
@@ -72,6 +78,13 @@ public partial class PostEditorViewModel : PageViewModel
 	public string CategoriesText => Categories is null or { Length: 0 } ?
 		Localizer.Instance.GetString("NoCategoriesSelected") :
 		string.Join(", ", Categories.Select(c => c.DisplayName));
+
+	private DateTimeOffset GetCombinedPublishDateTime()
+	{
+		// Combine publish date and time into a single DateTimeOffset
+		var publishDateTime = PublishDate.Date.Add(PublishTime);
+		return new DateTimeOffset(publishDateTime, PublishDate.Offset);
+	}
 
 	[RelayCommand]
 	private async Task PickCategoriesAsync()
@@ -101,7 +114,7 @@ public partial class PostEditorViewModel : PageViewModel
 		Post.Tags = tags;
 		Post.Categories = Categories;
 		Post.IsPublished = IsPublished;
-		Post.PublishedDate = Post.PublishedDate ?? DateTimeOffset.UtcNow;
+		Post.PublishedDate = GetCombinedPublishDateTime();
 		Post.Content = PostContent;
 
 		if (Post.Id == Guid.Empty)
@@ -147,7 +160,7 @@ public partial class PostEditorViewModel : PageViewModel
 				.ToArray(),
 			Categories = Categories,
 			IsPublished = IsPublished,
-			PublishedDate = Post.PublishedDate ?? DateTimeOffset.UtcNow
+			PublishedDate = GetCombinedPublishDateTime()
 		};
 
 		var serialized = JsonConvert.SerializeObject(draft, Formatting.Indented);
@@ -210,6 +223,18 @@ public partial class PostEditorViewModel : PageViewModel
 		PostTitle = post.Title;
 		PostRouteName = post.RouteName;
 		PostContent = post.Content;
-		IsPublished = post.PublishedDate is not null; // TODO: This logic is wrong, we should work with post status!
+		IsPublished = post.IsPublished;
+
+		// Load existing publish date and time or use current date/time
+		if (post.PublishedDate.HasValue)
+		{
+			PublishDate = post.PublishedDate.Value;
+			PublishTime = post.PublishedDate.Value.TimeOfDay;
+		}
+		else
+		{
+			PublishDate = DateTimeOffset.Now;
+			PublishTime = DateTimeOffset.Now.TimeOfDay;
+		}
 	}
 }
