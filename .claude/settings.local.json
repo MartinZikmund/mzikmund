@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet --list-sdks:*)",
+      "Bash(dotnet restore:*)",
+      "Bash(dotnet build:*)",
+      "Bash(dotnet nuget search:*)",
+      "Bash(Select-Object -First 20)",
+      "Bash(curl:*)",
+      "Bash(dotnet list package:*)",
+      "Bash(npm outdated:*)",
+      "Bash(npm install)"
+    ]
+  }
+}

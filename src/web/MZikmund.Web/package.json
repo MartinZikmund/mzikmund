@@ -6,10 +6,10 @@
 		"bootstrap": "5.3.8"
 	},
 	"devDependencies": {
-		"@types/node": "24.10.1",
-		"eslint": "9.39.1",
+		"@types/node": "25.0.3",
+		"eslint": "9.39.2",
 		"ts-loader": "9.5.4",
-		"sass": "1.94.0",
+		"sass": "1.97.1",
 		"sass-loader": "16.0.6"
 	}
 }
