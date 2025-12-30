@@ -1,18 +1,18 @@
 using System.Globalization;
+using Microsoft.Extensions.Options;
 using Microsoft.UI.Dispatching;
 using MZikmund.Api.Client;
+using MZikmund.Business.Models;
 using MZikmund.DataContracts.Blog;
 using MZikmund.Services.Dialogs;
 using MZikmund.Services.Loading;
 using MZikmund.Services.Localization;
+using MZikmund.Services.Navigation;
 using MZikmund.Services.Timers;
 using MZikmund.Shared.Extensions;
-using MZikmund.Web.Core.Services;
 using MZikmund.ViewModels.Admin;
+using MZikmund.Web.Core.Services;
 using Newtonsoft.Json;
-using MZikmund.Services.Navigation;
-using Microsoft.Extensions.Options;
-using MZikmund.Business.Models;
 using Launcher = Windows.System.Launcher;
 
 namespace MZikmund.ViewModels.Admin;
@@ -79,6 +79,8 @@ public partial class PostEditorViewModel : PageViewModel
 
 	[ObservableProperty]
 	public partial int SelectionLength { get; set; }
+
+	public event EventHandler UpdateSelectionRequested;
 
 	[ObservableProperty]
 	public partial string? HeroImageUrl { get; set; }
@@ -213,6 +215,7 @@ public partial class PostEditorViewModel : PageViewModel
 			PostContent = text;
 			SelectionStart = text.Length;
 			SelectionLength = 0;
+			UpdateSelectionRequested?.Invoke(this, EventArgs.Empty);
 			return;
 		}
 
@@ -229,6 +232,7 @@ public partial class PostEditorViewModel : PageViewModel
 		// Update cursor position to be after the inserted text
 		SelectionStart = insertPosition + text.Length;
 		SelectionLength = 0;
+		UpdateSelectionRequested?.Invoke(this, EventArgs.Empty);
 	}
 
 	private string GetSelectedText()
@@ -380,5 +384,11 @@ public partial class PostEditorViewModel : PageViewModel
 			PublishDate = DateTimeOffset.Now;
 			PublishTime = DateTimeOffset.Now.TimeOfDay;
 		}
+	}
+
+	public void SetSelection(int selectionStart, int selectionLength)
+	{
+		SelectionStart = selectionStart;
+		SelectionLength = selectionLength;
 	}
 }

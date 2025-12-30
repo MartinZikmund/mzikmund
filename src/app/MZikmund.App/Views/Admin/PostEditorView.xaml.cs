@@ -23,6 +23,7 @@ public sealed partial class PostEditorView : PostEditorViewBase
 	private void PostEditorView_Unloaded(object sender, RoutedEventArgs e)
 	{
 		ViewModel!.PropertyChanged -= ViewModel_PropertyChanged;
+		ViewModel!.UpdateSelectionRequested -= OnUpdateSelectionRequested;
 	}
 
 	private async void PostEditorView_Loaded(object sender, RoutedEventArgs e)
@@ -32,6 +33,7 @@ public sealed partial class PostEditorView : PostEditorViewBase
 			_previewWebView.CoreWebView2Initialized += OnWebViewInitialized;
 			await _previewWebView.EnsureCoreWebView2Async();
 			ViewModel!.PropertyChanged += ViewModel_PropertyChanged;
+			ViewModel!.UpdateSelectionRequested += OnUpdateSelectionRequested;
 		}
 		catch (Exception ex)
 		{
@@ -43,6 +45,13 @@ public sealed partial class PostEditorView : PostEditorViewBase
 		}
 	}
 
+	private void OnUpdateSelectionRequested(object? sender, EventArgs e)
+	{
+		ContentTextBox.Select(
+			ViewModel!.SelectionStart,
+			ViewModel!.SelectionLength);
+	}
+
 	private void OnWebViewInitialized(WebView2 sender, CoreWebView2InitializedEventArgs args) => UpdatePreview();
 
 	private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -51,18 +60,14 @@ public sealed partial class PostEditorView : PostEditorViewBase
 		{
 			UpdatePreview();
 		}
-		else if (e.PropertyName == nameof(ViewModel.SelectionStart) || e.PropertyName == nameof(ViewModel.SelectionLength))
-		{
-			// Restore cursor position after inserting text
-			ContentTextBox.Select(ViewModel!.SelectionStart, ViewModel.SelectionLength);
-		}
 	}
 
 	private void ContentTextBox_SelectionChanged(object sender, RoutedEventArgs e)
 	{
 		// Update ViewModel with current cursor position and selection
-		ViewModel!.SelectionStart = ContentTextBox.SelectionStart;
-		ViewModel.SelectionLength = ContentTextBox.SelectionLength;
+		ViewModel?.SetSelection(
+			ContentTextBox.SelectionStart,
+			ContentTextBox.SelectionLength);
 	}
 
 	private void UpdatePreview()
