@@ -1,9 +1,9 @@
 {
   "sdk": {
-    "version": "10.0.100",
+    "version": "10.0.101",
     "allowPrerelease": false
   },
   "msbuild-sdks": {
-    "Uno.Sdk": "6.5.0-dev.31"
+    "Uno.Sdk": "6.5.0-dev.100"
   }
 }
