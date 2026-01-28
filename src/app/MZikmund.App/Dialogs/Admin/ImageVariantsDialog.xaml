@@ -27,7 +27,7 @@
             CornerRadius="4">
             <Image Margin="8" Stretch="Uniform">
                 <Image.Source>
-                    <BitmapImage UriSource="{x:Bind ViewModel.SelectedVariant.Url, Mode=OneWay}" />
+                    <BitmapImage UriSource="{x:Bind ViewModel.SelectedVariantUrl, Mode=OneWay}" />
                 </Image.Source>
             </Image>
         </Border>

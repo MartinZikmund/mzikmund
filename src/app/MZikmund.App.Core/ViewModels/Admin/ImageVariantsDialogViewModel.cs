@@ -28,7 +28,10 @@ public partial class ImageVariantsDialogViewModel : DialogViewModel
 	public partial ImageVariant[] AvailableVariants { get; set; } = Array.Empty<ImageVariant>();
 
 	[ObservableProperty]
+	[NotifyPropertyChangedFor(nameof(SelectedVariantUrl))]
 	public partial ImageVariant? SelectedVariant { get; set; }
+
+	public Uri? SelectedVariantUrl => SelectedVariant?.Url;
 
 	[ObservableProperty]
 	public partial bool IsLoading { get; set; }
