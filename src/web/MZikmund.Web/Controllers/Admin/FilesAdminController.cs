@@ -9,7 +9,7 @@ namespace MZikmund.Web.Controllers.Admin;
 /// Represents operations for generic files.
 /// </summary>
 [ApiController]
-[Authorize]
+[Authorize(Policy = "AdminPolicy")]
 [Route("api/v1/admin/files")]
 public class FilesAdminController : Controller
 {
