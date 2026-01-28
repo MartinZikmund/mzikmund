@@ -24,6 +24,7 @@ public sealed partial class PostEditorView : PostEditorViewBase
 	{
 		ViewModel!.PropertyChanged -= ViewModel_PropertyChanged;
 		ViewModel!.UpdateSelectionRequested -= OnUpdateSelectionRequested;
+		_previewWebView.CoreWebView2Initialized -= OnWebViewInitialized;
 	}
 
 	private async void PostEditorView_Loaded(object sender, RoutedEventArgs e)

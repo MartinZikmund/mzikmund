@@ -25,15 +25,14 @@ public class ImagesAdminController : Controller
 	public async Task<IActionResult> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50) =>
 		Ok(await _mediator.Send(new GetImagesQuery(pageNumber, pageSize)));
 
-	[HttpGet("variants/{*imagePath}")]
-	public async Task<IActionResult> GetVariants(string imagePath)
+	[HttpGet("variants")]
+	public async Task<IActionResult> GetVariants([FromQuery] string imagePath)
 	{
 		if (string.IsNullOrEmpty(imagePath))
 		{
 			return BadRequest("Image path cannot be empty");
 		}
-		var decodedPath = Uri.UnescapeDataString(imagePath);
-		var variants = await _mediator.Send(new GetImageVariantsQuery(decodedPath));
+		var variants = await _mediator.Send(new GetImageVariantsQuery(imagePath));
 		return Ok(variants.ToArray());
 	}
 

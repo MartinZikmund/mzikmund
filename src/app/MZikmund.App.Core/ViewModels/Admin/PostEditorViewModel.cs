@@ -258,9 +258,8 @@ public partial class PostEditorViewModel : PageViewModel
 
 	private string GetPublicUrl(string blobPath)
 	{
-		// This would typically be configured based on your blob storage setup
-		// For now, return a relative path
-		return "/" + blobPath.TrimStart('/');
+		var cdnUrl = _appConfig.Value.CdnUrl.TrimEnd('/');
+		return $"{cdnUrl}/files/{blobPath.TrimStart('/')}";
 	}
 
 	public override void ViewLoaded()
