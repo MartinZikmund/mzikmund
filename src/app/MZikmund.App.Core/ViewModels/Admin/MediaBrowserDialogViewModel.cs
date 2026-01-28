@@ -97,9 +97,9 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 				SelectedVariant = null;
 			}
 		}
-		catch (Exception)
+		catch (Exception ex)
 		{
-			// Fallback to empty list on error
+			_logger.LogError(ex, "Failed to load image variants for {ImagePath}", imagePath);
 			AvailableVariants = Array.Empty<ImageVariant>();
 			SelectedVariant = null;
 		}
