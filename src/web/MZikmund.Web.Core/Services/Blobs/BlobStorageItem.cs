@@ -1,6 +1,4 @@
-﻿using MZikmund.DataContracts.Storage;
-
-namespace MZikmund.DataContracts.Blobs;
+namespace MZikmund.Web.Core.Services.Blobs;
 
 public record BlobStorageItem(string BlobPath, DateTimeOffset? LastModified, long Size)
 {

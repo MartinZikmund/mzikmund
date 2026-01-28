@@ -1,7 +1,7 @@
 ﻿using MZikmund.DataContracts.Storage;
 using MZikmund.Web.Data.Entities;
 
-namespace MZikmund.Web.Data.Extensions;
+namespace MZikmund.Web.Core.Extensions;
 
 internal static class BlobKindExtensions
 {
