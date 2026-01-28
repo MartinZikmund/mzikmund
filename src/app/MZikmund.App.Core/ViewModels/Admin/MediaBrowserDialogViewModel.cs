@@ -182,12 +182,13 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 		IsLoadingMore = true;
 		try
 		{
-			_currentPage++;
+			var nextPage = _currentPage + 1;
 			var search = string.IsNullOrWhiteSpace(SearchFilter) ? null : SearchFilter;
-			var response = await _api.GetMediaAsync(_currentPage, PageSize, GetBlobKindFilter(), search);
+			var response = await _api.GetMediaAsync(nextPage, PageSize, GetBlobKindFilter(), search);
 			await response.EnsureSuccessfulAsync();
 			if (response.IsSuccessStatusCode && response.Content != null)
 			{
+				_currentPage = nextPage;
 				MediaFiles.AddRange(response.Content.Data.Select(i => new StorageItemInfoViewModel(i, _appConfig.Value)));
 				_hasMoreItems = response.Content.PageNumber * response.Content.PageSize < response.Content.TotalCount;
 				HasMoreItems = _hasMoreItems;
