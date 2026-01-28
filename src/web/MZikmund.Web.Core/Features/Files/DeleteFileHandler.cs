@@ -19,9 +19,7 @@ public class DeleteFileHandler : IRequestHandler<DeleteFileCommand>
 
 	public async Task Handle(DeleteFileCommand request, CancellationToken cancellationToken)
 	{
-		await _blobStorage.DeleteAsync(BlobKind.File, request.Path);
-
-		// Delete metadata from database
+		// Delete metadata from database first to avoid orphaned metadata if blob deletion fails
 		var metadata = await _dbContext.BlobMetadata
 			.FirstOrDefaultAsync(b => b.BlobPath == request.Path && b.Kind == MZikmund.Web.Data.Entities.BlobKind.File, cancellationToken);
 
@@ -30,5 +28,8 @@ public class DeleteFileHandler : IRequestHandler<DeleteFileCommand>
 			_dbContext.BlobMetadata.Remove(metadata);
 			await _dbContext.SaveChangesAsync(cancellationToken);
 		}
+
+		// Delete blob from storage
+		await _blobStorage.DeleteAsync(BlobKind.File, request.Path);
 	}
 }

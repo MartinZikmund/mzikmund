@@ -20,6 +20,16 @@ public class DeleteImageHandler : IRequestHandler<DeleteImageCommand>
 
 	public async Task Handle(DeleteImageCommand request, CancellationToken cancellationToken)
 	{
+		// Delete metadata from database first to avoid orphaned metadata if blob deletion fails
+		var metadata = await _dbContext.BlobMetadata
+			.FirstOrDefaultAsync(b => b.BlobPath == request.Path && b.Kind == MZikmund.Web.Data.Entities.BlobKind.Image, cancellationToken);
+
+		if (metadata != null)
+		{
+			_dbContext.BlobMetadata.Remove(metadata);
+			await _dbContext.SaveChangesAsync(cancellationToken);
+		}
+
 		// Delete all variants from blob storage (original, resized, thumbnail)
 		await _blobStorage.DeleteAsync(BlobKind.Image, Path.Combine("original", request.Path).Replace("\\", "/"));
 		await _blobStorage.DeleteAsync(BlobKind.Image, Path.Combine("thumbnail", request.Path).Replace("\\", "/"));
@@ -29,16 +39,6 @@ public class DeleteImageHandler : IRequestHandler<DeleteImageCommand>
 		{
 			var resizedPath = GetPathWithSizeSuffix(request.Path, width);
 			await _blobStorage.DeleteAsync(BlobKind.Image, Path.Combine("resized", resizedPath).Replace("\\", "/"));
-		}
-
-		// Delete metadata from database
-		var metadata = await _dbContext.BlobMetadata
-			.FirstOrDefaultAsync(b => b.BlobPath == request.Path && b.Kind == MZikmund.Web.Data.Entities.BlobKind.Image, cancellationToken);
-
-		if (metadata != null)
-		{
-			_dbContext.BlobMetadata.Remove(metadata);
-			await _dbContext.SaveChangesAsync(cancellationToken);
 		}
 	}
 
