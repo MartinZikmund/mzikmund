@@ -23,6 +23,16 @@ public class GetMediaHandler : IRequestHandler<GetMediaQuery, PagedResponse<Stor
 
 	public async Task<PagedResponse<StorageItemInfo>> Handle(GetMediaQuery request, CancellationToken cancellationToken)
 	{
+		if (request.PageNumber < 1)
+		{
+			throw new ArgumentOutOfRangeException(nameof(request.PageNumber), "Page number must be at least 1.");
+		}
+
+		if (request.PageSize < 1)
+		{
+			throw new ArgumentOutOfRangeException(nameof(request.PageSize), "Page size must be at least 1.");
+		}
+
 		var query = _dbContext.BlobMetadata.AsQueryable();
 
 		// Apply kind filter

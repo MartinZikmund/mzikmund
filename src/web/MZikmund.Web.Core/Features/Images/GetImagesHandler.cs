@@ -21,6 +21,16 @@ public class GetImagesHandler : IRequestHandler<GetImagesQuery, PagedResponse<St
 
 	public async Task<PagedResponse<StorageItemInfo>> Handle(GetImagesQuery request, CancellationToken cancellationToken)
 	{
+		if (request.PageNumber < 1)
+		{
+			throw new ArgumentOutOfRangeException(nameof(request.PageNumber), "Page number must be at least 1.");
+		}
+
+		if (request.PageSize < 1)
+		{
+			throw new ArgumentOutOfRangeException(nameof(request.PageSize), "Page size must be at least 1.");
+		}
+
 		var query = _dbContext.BlobMetadata.Where(b => b.Kind == MZikmund.Web.Data.Entities.BlobKind.Image);
 
 		var totalCount = await query.CountAsync(cancellationToken);
