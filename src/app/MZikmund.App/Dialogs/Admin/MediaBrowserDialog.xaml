@@ -144,7 +144,7 @@
                         IsEnabled="{x:Bind ViewModel.HasMoreItems, Mode=OneWay}"
                         Visibility="{x:Bind ViewModel.HasMoreItems, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <SymbolIcon Symbol="Download" Visibility="{x:Bind ViewModel.IsLoadingMore, Mode=OneWay, Converter={StaticResource InverseNullToVisibilityConverter}}" />
+                            <SymbolIcon Symbol="Download" Visibility="{x:Bind ViewModel.IsLoadingMore, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
                             <ProgressRing
                                 Width="16"
                                 Height="16"
