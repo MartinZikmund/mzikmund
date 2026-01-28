@@ -10,6 +10,7 @@ using MZikmund.Services.Localization;
 using MZikmund.Services.Navigation;
 using MZikmund.Services.Timers;
 using MZikmund.Shared.Extensions;
+using Microsoft.Extensions.Logging;
 using MZikmund.ViewModels.Admin;
 using MZikmund.Web.Core.Services;
 using Newtonsoft.Json;
@@ -26,11 +27,12 @@ public partial class PostEditorViewModel : PageViewModel
 	private readonly IPostContentProcessor _postContentProcessor;
 	private readonly ITimerFactory _timerFactory;
 	private readonly IOptions<AppConfig> _appConfig;
+	private readonly ILogger<MediaBrowserDialogViewModel> _mediaBrowserLogger;
 	private DispatcherQueueTimer? _previewTimer;
 	private DispatcherQueueTimer? _draftTimer;
 	private bool _isPreviewDirty = true;
 
-	public PostEditorViewModel(IMZikmundApi api, IWindowShellProvider windowShellProvider, IDialogService dialogService, ILoadingIndicator loadingIndicator, IPostContentProcessor postContentProcessor, ITimerFactory timerFactory, IOptions<AppConfig> appConfig)
+	public PostEditorViewModel(IMZikmundApi api, IWindowShellProvider windowShellProvider, IDialogService dialogService, ILoadingIndicator loadingIndicator, IPostContentProcessor postContentProcessor, ITimerFactory timerFactory, IOptions<AppConfig> appConfig, ILogger<MediaBrowserDialogViewModel> mediaBrowserLogger)
 	{
 		_api = api;
 		_windowShellProvider = windowShellProvider;
@@ -39,6 +41,7 @@ public partial class PostEditorViewModel : PageViewModel
 		_postContentProcessor = postContentProcessor;
 		_timerFactory = timerFactory;
 		_appConfig = appConfig;
+		_mediaBrowserLogger = mediaBrowserLogger;
 	}
 
 	public override string Title => Post?.Title ?? "";
@@ -154,7 +157,7 @@ public partial class PostEditorViewModel : PageViewModel
 	[RelayCommand]
 	private async Task BrowseImagesAsync()
 	{
-		var dialogViewModel = new MediaBrowserDialogViewModel(_api, _windowShellProvider, _appConfig, isImageMode: true);
+		var dialogViewModel = new MediaBrowserDialogViewModel(_api, _windowShellProvider, _appConfig, _mediaBrowserLogger, isImageMode: true);
 		var result = await _dialogService.ShowAsync(dialogViewModel);
 
 		if (result == ContentDialogResult.Primary && dialogViewModel.SelectedUrl != null)
@@ -169,7 +172,7 @@ public partial class PostEditorViewModel : PageViewModel
 	[RelayCommand]
 	private async Task InsertImageAsync()
 	{
-		var dialogViewModel = new MediaBrowserDialogViewModel(_api, _windowShellProvider, _appConfig, isImageMode: true);
+		var dialogViewModel = new MediaBrowserDialogViewModel(_api, _windowShellProvider, _appConfig, _mediaBrowserLogger, isImageMode: true);
 		var result = await _dialogService.ShowAsync(dialogViewModel);
 
 		if (result == ContentDialogResult.Primary && dialogViewModel.SelectedFile != null && dialogViewModel.SelectedUrl != null)
@@ -189,7 +192,7 @@ public partial class PostEditorViewModel : PageViewModel
 	[RelayCommand]
 	private async Task InsertFileAsync()
 	{
-		var dialogViewModel = new MediaBrowserDialogViewModel(_api, _windowShellProvider, _appConfig, isImageMode: false);
+		var dialogViewModel = new MediaBrowserDialogViewModel(_api, _windowShellProvider, _appConfig, _mediaBrowserLogger, isImageMode: false);
 		var result = await _dialogService.ShowAsync(dialogViewModel);
 
 		if (result == ContentDialogResult.Primary && dialogViewModel.SelectedFile != null)

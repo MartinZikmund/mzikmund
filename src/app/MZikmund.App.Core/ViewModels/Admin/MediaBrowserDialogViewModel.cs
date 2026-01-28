@@ -188,7 +188,7 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 			await response.EnsureSuccessfulAsync();
 			if (response.IsSuccessStatusCode && response.Content != null)
 			{
-				MediaFiles.AddRange(response.Content.Data);
+				MediaFiles.AddRange(response.Content.Data.Select(i => new StorageItemInfoViewModel(i, _appConfig.Value)));
 				_hasMoreItems = response.Content.PageNumber * response.Content.PageSize < response.Content.TotalCount;
 				HasMoreItems = _hasMoreItems;
 				OnPropertyChanged(nameof(FilteredFiles));

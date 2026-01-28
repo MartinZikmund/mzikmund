@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.UI.Dispatching;
 using MZikmund.Api.Client;
@@ -23,6 +24,7 @@ public partial class MediaBrowserViewModel : PageViewModel
 	private readonly IMZikmundApi _api;
 	private readonly IWindowShellProvider _windowShellProvider;
 	private readonly IOptions<AppConfig> _appConfig;
+	private readonly ILogger<ImageVariantsDialogViewModel> _imageVariantsLogger;
 	private readonly DispatcherQueueTimer _debounceTimer;
 
 	private const int PageSize = 50;
@@ -34,13 +36,15 @@ public partial class MediaBrowserViewModel : PageViewModel
 		IDialogService dialogService,
 		ILoadingIndicator loadingIndicator,
 		IWindowShellProvider windowShellProvider,
-		IOptions<AppConfig> appConfig)
+		IOptions<AppConfig> appConfig,
+		ILogger<ImageVariantsDialogViewModel> imageVariantsLogger)
 	{
 		_dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
 		_loadingIndicator = loadingIndicator ?? throw new ArgumentNullException(nameof(loadingIndicator));
 		_api = api ?? throw new ArgumentNullException(nameof(api));
 		_windowShellProvider = windowShellProvider ?? throw new ArgumentNullException(nameof(windowShellProvider));
 		_appConfig = appConfig;
+		_imageVariantsLogger = imageVariantsLogger;
 
 		_debounceTimer = DispatcherQueue.GetForCurrentThread().CreateTimer();
 		_debounceTimer.Interval = TimeSpan.FromMilliseconds(300);
@@ -268,7 +272,7 @@ public partial class MediaBrowserViewModel : PageViewModel
 			return;
 		}
 
-		var viewModel = new ImageVariantsDialogViewModel(_api, file);
+		var viewModel = new ImageVariantsDialogViewModel(_api, _imageVariantsLogger, file);
 		await _dialogService.ShowAsync(viewModel);
 	}
 
