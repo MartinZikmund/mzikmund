@@ -177,9 +177,6 @@
   <data name="ErrorDeletingFile" xml:space="preserve">
     <value>Při mazání souboru došlo k chybě.</value>
   </data>
-  <data name="LoadMore" xml:space="preserve">
-    <value>Načíst další</value>
-  </data>
   <data name="ViewVariants" xml:space="preserve">
     <value>Zobrazit varianty</value>
   </data>
@@ -188,5 +185,14 @@
   </data>
   <data name="Close" xml:space="preserve">
     <value>Zavřít</value>
+  </data>
+  <data name="MediaBrowser" xml:space="preserve">
+    <value>Prohlížeč médií</value>
+  </data>
+  <data name="Select" xml:space="preserve">
+    <value>Vybrat</value>
+  </data>
+  <data name="Size" xml:space="preserve">
+    <value>Velikost</value>
   </data>
 </root>
