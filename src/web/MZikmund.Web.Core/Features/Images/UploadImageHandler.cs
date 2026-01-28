@@ -14,14 +14,12 @@ public class UploadImageHandler : IRequestHandler<UploadImageCommand, StorageIte
 	private const string OriginalPathPrefix = "original";
 	private const string ResizedPathPrefix = "resized";
 	private const string ThumbnailPathPrefix = "thumbnail";
-	private const uint ThumbnailWidth = 200;
 
 	private readonly IBlobStorage _blobStorage;
 	private readonly IBlobPathGenerator _blobPathGenerator;
 	private readonly IBlobUrlProvider _blobUrlProvider;
 	private readonly DatabaseContext _dbContext;
 	private readonly FileExtensionContentTypeProvider _contentTypeProvider = new();
-	private static readonly uint[] ResizeWidths = { 1200, 1000, 800, 400 };
 
 	public UploadImageHandler(IBlobStorage blobStorage, IBlobPathGenerator blobPathGenerator, IBlobUrlProvider blobUrlProvider, DatabaseContext dbContext)
 	{
@@ -38,7 +36,7 @@ public class UploadImageHandler : IRequestHandler<UploadImageCommand, StorageIte
 		var uploadedBlobs = new List<StorageItemInfo>();
 		var isGif = request.FileName.EndsWith(".gif", StringComparison.OrdinalIgnoreCase);
 
-		var stream = new MemoryStream();
+		using var stream = new MemoryStream();
 		await request.Stream.CopyToAsync(stream, cancellationToken);
 
 		stream.Position = 0;
@@ -48,7 +46,7 @@ public class UploadImageHandler : IRequestHandler<UploadImageCommand, StorageIte
 		stream.Position = 0;
 		uploadedBlobs.Add(await UploadAsnc(stream, Path.Combine(OriginalPathPrefix, path))); // Original size
 
-		foreach (var resizeWidth in ResizeWidths)
+		foreach (var resizeWidth in ImageVariantHelper.ResizeWidths)
 		{
 			if (originalWidth > resizeWidth && !cancellationToken.IsCancellationRequested)
 			{
@@ -61,7 +59,7 @@ public class UploadImageHandler : IRequestHandler<UploadImageCommand, StorageIte
 
 		// Create thumbnail
 		stream.Position = 0; // Reset stream position
-		using var thumbnailStream = isGif ? await ResizeGif(stream, ThumbnailWidth, cancellationToken) : await ResizeImageAsync(stream, ThumbnailWidth, cancellationToken);
+		using var thumbnailStream = isGif ? await ResizeGif(stream, ImageVariantHelper.ThumbnailWidth, cancellationToken) : await ResizeImageAsync(stream, ImageVariantHelper.ThumbnailWidth, cancellationToken);
 		var thumbnailFileName = Path.Combine(ThumbnailPathPrefix, path);
 		uploadedBlobs.Add(await UploadAsnc(thumbnailStream, thumbnailFileName));
 

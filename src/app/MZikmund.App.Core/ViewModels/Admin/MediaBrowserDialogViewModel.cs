@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using MZikmund.Business.Models;
 using MZikmund.ViewModels.Items;
 using Microsoft.UI.Dispatching;
+using Microsoft.Extensions.Logging;
 
 namespace MZikmund.ViewModels.Admin;
 
@@ -14,6 +15,7 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 	private readonly IMZikmundApi _api;
 	private readonly IWindowShellProvider _windowShellProvider;
 	private readonly IOptions<AppConfig> _appConfig;
+	private readonly ILogger<MediaBrowserDialogViewModel> _logger;
 	private readonly bool _isImageMode;
 	private readonly DispatcherQueueTimer _debounceTimer;
 
@@ -25,11 +27,13 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 		IMZikmundApi api,
 		IWindowShellProvider windowShellProvider,
 		IOptions<AppConfig> appConfig,
+		ILogger<MediaBrowserDialogViewModel> logger,
 		bool isImageMode = true)
 	{
 		_api = api;
 		_windowShellProvider = windowShellProvider;
 		_appConfig = appConfig;
+		_logger = logger;
 		_isImageMode = isImageMode;
 
 		_debounceTimer = DispatcherQueue.GetForCurrentThread().CreateTimer();
@@ -151,9 +155,9 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 				OnPropertyChanged(nameof(FilteredFiles));
 			}
 		}
-		catch (Exception)
+		catch (Exception ex)
 		{
-			// TODO: Handle error
+			_logger.LogError(ex, "Failed to load media files");
 		}
 		finally
 		{
@@ -190,9 +194,9 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 				OnPropertyChanged(nameof(FilteredFiles));
 			}
 		}
-		catch (Exception)
+		catch (Exception ex)
 		{
-			// TODO: Handle error
+			_logger.LogError(ex, "Failed to load more media files");
 		}
 		finally
 		{
@@ -250,9 +254,9 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 				}
 			}
 		}
-		catch (Exception)
+		catch (Exception ex)
 		{
-			// TODO: Handle error
+			_logger.LogError(ex, "Failed to upload file");
 		}
 	}
 

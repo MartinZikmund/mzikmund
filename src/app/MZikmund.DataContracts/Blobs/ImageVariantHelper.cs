@@ -2,8 +2,8 @@ namespace MZikmund.DataContracts.Blobs;
 
 public static class ImageVariantHelper
 {
-	private static readonly uint[] ResizeWidths = { 1200, 1000, 800, 400 };
-	private const uint ThumbnailWidth = 200;
+	public static readonly uint[] ResizeWidths = { 1200, 1000, 800, 400 };
+	public const uint ThumbnailWidth = 200;
 
 	public static List<ImageVariant> GetImageVariants(string basePath, string baseUrl)
 	{
@@ -30,6 +30,6 @@ public static class ImageVariantHelper
 		var extension = Path.GetExtension(path);
 		var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(path);
 		var directory = Path.GetDirectoryName(path) ?? "";
-		return Path.Combine(directory, $"{fileNameWithoutExtension}-{width}{extension}");
+		return Path.Combine(directory, $"{fileNameWithoutExtension}-{width}{extension}").Replace("\\", "/");
 	}
 }

@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using MZikmund.DataContracts.Blobs;
 using MZikmund.Web.Core.Services.Blobs;
 using MZikmund.Web.Data;
 using MZikmund.Web.Data.Entities;
@@ -20,15 +21,14 @@ public class DeleteImageHandler : IRequestHandler<DeleteImageCommand>
 	public async Task Handle(DeleteImageCommand request, CancellationToken cancellationToken)
 	{
 		// Delete all variants from blob storage (original, resized, thumbnail)
-		await _blobStorage.DeleteAsync(BlobKind.Image, Path.Combine("original", request.Path));
-		await _blobStorage.DeleteAsync(BlobKind.Image, Path.Combine("thumbnail", request.Path));
+		await _blobStorage.DeleteAsync(BlobKind.Image, Path.Combine("original", request.Path).Replace("\\", "/"));
+		await _blobStorage.DeleteAsync(BlobKind.Image, Path.Combine("thumbnail", request.Path).Replace("\\", "/"));
 
 		// Delete resized variants
-		var resizeWidths = new uint[] { 1200, 1000, 800, 400 };
-		foreach (var width in resizeWidths)
+		foreach (var width in ImageVariantHelper.ResizeWidths)
 		{
 			var resizedPath = GetPathWithSizeSuffix(request.Path, width);
-			await _blobStorage.DeleteAsync(BlobKind.Image, Path.Combine("resized", resizedPath));
+			await _blobStorage.DeleteAsync(BlobKind.Image, Path.Combine("resized", resizedPath).Replace("\\", "/"));
 		}
 
 		// Delete metadata from database
@@ -47,6 +47,6 @@ public class DeleteImageHandler : IRequestHandler<DeleteImageCommand>
 		var extension = Path.GetExtension(path);
 		var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(path);
 		var directory = Path.GetDirectoryName(path) ?? "";
-		return Path.Combine(directory, $"{fileNameWithoutExtension}-{width}{extension}");
+		return Path.Combine(directory, $"{fileNameWithoutExtension}-{width}{extension}").Replace("\\", "/");
 	}
 }

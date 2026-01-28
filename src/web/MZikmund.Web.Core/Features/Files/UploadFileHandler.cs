@@ -28,7 +28,7 @@ public class UploadFileHandler : IRequestHandler<UploadFileCommand, StorageItemI
 		var path = _blobPathGenerator.GenerateBlobPath(request.FileName);
 
 		// Copy to memory stream to get size
-		var memoryStream = new MemoryStream();
+		using var memoryStream = new MemoryStream();
 		await request.Stream.CopyToAsync(memoryStream, cancellationToken);
 		var fileSize = memoryStream.Length;
 		memoryStream.Position = 0;

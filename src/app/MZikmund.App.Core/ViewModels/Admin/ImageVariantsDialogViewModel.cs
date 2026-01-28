@@ -1,6 +1,7 @@
 using MZikmund.Api.Client;
 using MZikmund.DataContracts.Blobs;
 using MZikmund.ViewModels.Items;
+using Microsoft.Extensions.Logging;
 using Windows.ApplicationModel.DataTransfer;
 
 namespace MZikmund.ViewModels.Admin;
@@ -8,13 +9,16 @@ namespace MZikmund.ViewModels.Admin;
 public partial class ImageVariantsDialogViewModel : DialogViewModel
 {
 	private readonly IMZikmundApi _api;
+	private readonly ILogger<ImageVariantsDialogViewModel> _logger;
 	private readonly StorageItemInfoViewModel _selectedFile;
 
 	public ImageVariantsDialogViewModel(
 		IMZikmundApi api,
+		ILogger<ImageVariantsDialogViewModel> logger,
 		StorageItemInfoViewModel selectedFile)
 	{
 		_api = api;
+		_logger = logger;
 		_selectedFile = selectedFile;
 	}
 
@@ -62,8 +66,9 @@ public partial class ImageVariantsDialogViewModel : DialogViewModel
 				SelectedVariant = null;
 			}
 		}
-		catch (Exception)
+		catch (Exception ex)
 		{
+			_logger.LogError(ex, "Failed to load image variants for {BlobPath}", _selectedFile.BlobPath);
 			AvailableVariants = Array.Empty<ImageVariant>();
 			SelectedVariant = null;
 		}
