@@ -357,8 +357,16 @@ public partial class PostEditorViewModel : PageViewModel
 	public override void ViewUnloaded()
 	{
 		base.ViewUnloaded();
-		_previewTimer?.Stop();
-		_draftTimer?.Stop();
+		if (_previewTimer != null)
+		{
+			_previewTimer.Stop();
+			_previewTimer.Tick -= PreviewTimerOnTick;
+		}
+		if (_draftTimer != null)
+		{
+			_draftTimer.Stop();
+			_draftTimer.Tick -= DraftTimerOnTick;
+		}
 	}
 
 	private void PopulateInfo(Post post)
