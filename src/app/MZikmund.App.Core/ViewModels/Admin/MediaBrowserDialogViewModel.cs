@@ -138,6 +138,11 @@ public partial class MediaBrowserDialogViewModel : DialogViewModel
 	[RelayCommand]
 	private async Task LoadFilesAsync()
 	{
+		if (IsLoading)
+		{
+			return;
+		}
+
 		IsLoading = true;
 		try
 		{

@@ -30,6 +30,7 @@ public partial class MediaBrowserViewModel : PageViewModel
 	private const int PageSize = 50;
 	private int _currentPage = 1;
 	private bool _hasMoreItems = true;
+	private bool _isRefreshing;
 
 	public MediaBrowserViewModel(
 		IMZikmundApi api,
@@ -110,6 +111,12 @@ public partial class MediaBrowserViewModel : PageViewModel
 
 	private async Task RefreshListAsync()
 	{
+		if (_isRefreshing)
+		{
+			return;
+		}
+
+		_isRefreshing = true;
 		using var loadingScope = _loadingIndicator.BeginLoading();
 		try
 		{
@@ -137,6 +144,10 @@ public partial class MediaBrowserViewModel : PageViewModel
 				StatusMessageDialogType.Error,
 				Localizer.Instance.GetString("CouldNotLoadData"),
 				$"{Localizer.Instance.GetString("ErrorLoadingData")} {ex}");
+		}
+		finally
+		{
+			_isRefreshing = false;
 		}
 	}
 
