@@ -83,7 +83,7 @@ public partial class PostEditorViewModel : PageViewModel
 	[ObservableProperty]
 	public partial int SelectionLength { get; set; }
 
-	public event EventHandler UpdateSelectionRequested;
+	public event EventHandler? UpdateSelectionRequested;
 
 	[ObservableProperty]
 	public partial string? HeroImageUrl { get; set; }
