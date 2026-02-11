@@ -4,9 +4,24 @@
     ViewData["Title"] = "Home page";
 }
 
-<div class="text-center">
-    <h1 class="display-2">Hi, my name is Martin!</h1>
-</div>
+@section AboveMain
+{
+    <section class="hero-section">
+        <div class="container">
+            <div class="hero-content text-center">
+                <h1 class="display-2 fw-bold mb-3">Hi, my name is Martin!</h1>
+                <p class="hero-subtitle mb-3">Open-source Developer &amp; Speaker</p>
+                <p class="hero-bio mb-4">I build cross-platform apps with .NET and Uno Platform, contribute to open source, and share what I learn along the way.</p>
+                <div class="hero-cta d-flex justify-content-center gap-3 flex-wrap">
+                    <a asp-page="/Blog/Index" class="btn btn-primary btn-lg px-4">Read the Blog</a>
+                    <a href="https://github.com/MartinZikmund" target="_blank" rel="noopener" class="btn btn-outline-secondary btn-lg px-4">
+                        <i class="bi bi-github me-2"></i>GitHub
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+}
 
 <div class="row">
     <h2 class="display-4 text-center text-primary">@Localizer["Latest posts"]</h2>
