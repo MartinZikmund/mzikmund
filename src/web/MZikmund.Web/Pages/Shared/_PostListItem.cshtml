@@ -1,4 +1,9 @@
 ﻿@model PostListItem
+@{
+    var postDate = Model.PublishedDate ?? Model.LastModifiedDate;
+    var showAbsoluteDate = postDate.HasValue && (DateTimeOffset.UtcNow - postDate.Value).TotalDays > 30;
+    var firstCategory = Model.Categories?.FirstOrDefault();
+}
 <div class="col-md-6 col-lg-4 mb-4 d-flex align-items-stretch">
     <article class="article-card card border-0 shadow-sm h-100 w-100">
         <a asp-page="/Blog/Post" asp-route-routename="@Model.RouteName" class="card-link-wrapper" aria-label="Read blog post: @Model.Title">
@@ -7,12 +12,23 @@
                 {
                     <img class="card-img-top article-card-image" src="@Model.HeroImageUrl" alt="@Model.HeroImageAlt">
                 }
+                @if (firstCategory is not null)
+                {
+                    <span class="article-card-category">@firstCategory.DisplayName</span>
+                }
             </div>
             <div class="card-body d-flex flex-column">
                 <div class="article-meta mb-2">
                     <small class="text-muted">
                         <i class="bi bi-calendar3"></i>
-                        @((Model.PublishedDate ?? Model.LastModifiedDate).Humanize())
+                        @if (showAbsoluteDate && postDate.HasValue)
+                        {
+                            @postDate.Value.ToString("MMM d, yyyy")
+                        }
+                        else
+                        {
+                            @postDate.Humanize()
+                        }
                     </small>
                 </div>
                 <h3 class="article-title h5 mb-3">@Model.Title</h3>
