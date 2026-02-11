@@ -22,3 +22,26 @@
 }
 
 @await Html.PartialAsync("_PostContent", Model)
+
+<button class="back-to-top" id="back-to-top" aria-label="Back to top" title="Back to top">
+    <i class="bi bi-arrow-up"></i>
+</button>
+
+@section Scripts {
+    <script>
+        (function() {
+            var btn = document.getElementById('back-to-top');
+            if (!btn) return;
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 400) {
+                    btn.classList.add('visible');
+                } else {
+                    btn.classList.remove('visible');
+                }
+            }, { passive: true });
+            btn.addEventListener('click', function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        })();
+    </script>
+}
