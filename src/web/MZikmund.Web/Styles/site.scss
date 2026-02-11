@@ -277,6 +277,27 @@ article {
     }
 }
 
+// Taxonomy cards (categories & tags)
+.taxonomy-card {
+    border-radius: 0.75rem !important;
+    border-left: 4px solid var(--bs-primary) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+
+    &:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .card-title a {
+        transition: color 0.2s ease;
+    }
+
+    &:hover .card-title a {
+        color: var(--bs-primary) !important;
+    }
+}
+
 // Reading progress bar
 .reading-progress-bar {
     position: fixed;
