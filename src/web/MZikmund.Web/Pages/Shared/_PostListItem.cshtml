@@ -2,7 +2,7 @@
 @{
     var postDate = Model.PublishedDate ?? Model.LastModifiedDate;
     var showAbsoluteDate = postDate.HasValue && (DateTimeOffset.UtcNow - postDate.Value).TotalDays > 30;
-    var firstCategory = Model.Categories?.FirstOrDefault();
+    var categories = Model.Categories ?? Array.Empty<Category>();
 }
 <div class="col-md-6 col-lg-4 mb-4 d-flex align-items-stretch">
     <article class="article-card card border-0 shadow-sm h-100 w-100">
@@ -12,9 +12,14 @@
                 {
                     <img class="card-img-top article-card-image" src="@Model.HeroImageUrl" alt="@Model.HeroImageAlt">
                 }
-                @if (firstCategory is not null)
+                @if (categories.Length > 0)
                 {
-                    <span class="article-card-category">@firstCategory.DisplayName</span>
+                    <div class="article-card-categories">
+                        @foreach (var category in categories)
+                        {
+                            <span class="article-card-category">@category.DisplayName</span>
+                        }
+                    </div>
                 }
             </div>
             <div class="card-body d-flex flex-column">
