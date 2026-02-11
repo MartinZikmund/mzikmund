@@ -30,6 +30,24 @@ namespace MZikmund.Theming {
 			}
 		}
 
+		private static updateThemeIcon(requestedTheme: RequestedTheme) {
+			var icon = document.getElementById("theme-icon");
+			if (icon) {
+				icon.className = "bi";
+				switch (requestedTheme) {
+					case RequestedTheme.Light:
+						icon.classList.add("bi-sun");
+						break;
+					case RequestedTheme.Dark:
+						icon.classList.add("bi-moon-stars");
+						break;
+					default:
+						icon.classList.add("bi-circle-half");
+						break;
+				}
+			}
+		}
+
 		private static updateTheme(loaded: boolean) {
 			var requestedTheme: RequestedTheme = <RequestedTheme>localStorage.getItem('ui-theme');
 
@@ -42,6 +60,8 @@ namespace MZikmund.Theming {
 				document.querySelectorAll("#theme-dropdown a.dropdown-item").forEach(item => item.classList.remove("selected"));
 				document.querySelectorAll("#theme-dropdown a[data-value='" + requestedTheme.toString().toLowerCase() + "'").forEach(item => item.classList.add("selected"));
 			}
+
+			ThemeSwitchManager.updateThemeIcon(requestedTheme);
 
 			var displayTheme: DisplayTheme;
 

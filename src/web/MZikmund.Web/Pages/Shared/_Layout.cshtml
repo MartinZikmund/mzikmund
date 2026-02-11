@@ -17,6 +17,11 @@
     @await RenderSectionAsync(LayoutSections.Head, required: false)
 </head>
 <body>
+    @{
+        var currentPath = Context.Request.Path.Value?.TrimEnd('/') ?? "";
+        bool isHome = currentPath == "" || currentPath == "/";
+        bool isBlog = currentPath.StartsWith("/Blog", StringComparison.OrdinalIgnoreCase);
+    }
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm shadow-sm">
             <div class="container">
@@ -30,10 +35,10 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link" asp-page="/Index">Home</a>
+                            <a class="nav-link @(isHome ? "active" : "")" asp-page="/Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-page="/Blog/Index">Blog</a>
+                            <a class="nav-link @(isBlog ? "active" : "")" asp-page="/Blog/Index">Blog</a>
                         </li>
                     </ul>
                 </div>
@@ -42,11 +47,14 @@
                     <ul class="navbar-nav">
                         <li class="nav-item">
                             <div class="dropdown" id="theme-dropdown">
-                                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" title="@Localizer["Theme"]">@Localizer["Theme"]</a>
+                                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" title="@Localizer["Theme"]">
+                                    <i class="bi bi-circle-half" id="theme-icon"></i>
+                                    <span class="d-sm-none ms-1">@Localizer["Theme"]</span>
+                                </a>
                                 <div class="dropdown-menu dropdown-menu-right slide-out">
-                                    <a class="dropdown-item selected" data-value="auto" href="#">@Localizer["Auto"]</a>
-                                    <a class="dropdown-item" data-value="light" href="#">@Localizer["Light"]</a>
-                                    <a class="dropdown-item" data-value="dark" href="#">@Localizer["Dark"]</a>
+                                    <a class="dropdown-item selected" data-value="auto" href="#"><i class="bi bi-circle-half me-2"></i>@Localizer["Auto"]</a>
+                                    <a class="dropdown-item" data-value="light" href="#"><i class="bi bi-sun me-2"></i>@Localizer["Light"]</a>
+                                    <a class="dropdown-item" data-value="dark" href="#"><i class="bi bi-moon-stars me-2"></i>@Localizer["Dark"]</a>
                                 </div>
                             </div>
                         </li>
@@ -62,32 +70,36 @@
         </main>
     </div>
 
-    <div class="container">
-        <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
-            <p class="col-5 mb-0 justify-content-start text-muted">© @DateTimeOffset.UtcNow.Year Martin Zikmund</p>
+    <footer class="site-footer mt-5">
+        <div class="container">
+            <div class="d-flex flex-wrap justify-content-between align-items-center py-4">
+                <p class="col-md-4 mb-3 mb-md-0 text-muted">© @DateTimeOffset.UtcNow.Year Martin Zikmund</p>
 
-            <a href="/" class="col-2 d-flex align-items-center justify-content-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none">
-                <img src="~/img/logo.png" style="opacity: 0.9" width="24" alt="Martin Zikmund" />
-            </a>
+                <a href="/" class="col-md-4 d-flex align-items-center justify-content-center mb-3 mb-md-0 text-decoration-none">
+                    <img src="~/img/logo.png" style="opacity: 0.9" width="24" alt="Martin Zikmund" />
+                </a>
 
-            <ul class="nav col-5 justify-content-end">
-                <li class="nav-item"><a href="https://github.com/MartinZikmund/" class="nav-link px-2 text-muted">GitHub</a></li>
-                <li class="nav-item"><a href="https://x.com/mzikmunddev/" class="nav-link px-2 text-muted">Twitter</a></li>
-                <li class="nav-item"><a href="https://www.youtube.com/@@mzikmund" class="nav-link px-2 text-muted">YouTube</a></li>
-                <li class="nav-item"><a href="https://facebook.com/mzikmunddev/" class="nav-link px-2 text-muted">Facebook</a></li>
-                <li class="nav-item"><a href="https://github.com/MartinZikmund/mzikmund" target="_blank" class="nav-link px-2 text-muted">Contribute</a></li>
-            </ul>
+                <ul class="nav col-md-4 justify-content-end">
+                    <li class="nav-item"><a href="https://github.com/MartinZikmund/" class="nav-link px-2 text-muted" title="GitHub" target="_blank" rel="noopener"><i class="bi bi-github fs-5"></i></a></li>
+                    <li class="nav-item"><a href="https://x.com/mzikmunddev/" class="nav-link px-2 text-muted" title="X" target="_blank" rel="noopener"><i class="bi bi-twitter-x fs-5"></i></a></li>
+                    <li class="nav-item"><a href="https://www.youtube.com/@@mzikmund" class="nav-link px-2 text-muted" title="YouTube" target="_blank" rel="noopener"><i class="bi bi-youtube fs-5"></i></a></li>
+                    <li class="nav-item"><a href="https://facebook.com/mzikmunddev/" class="nav-link px-2 text-muted" title="Facebook" target="_blank" rel="noopener"><i class="bi bi-facebook fs-5"></i></a></li>
+                    <li class="nav-item"><a href="https://github.com/MartinZikmund/mzikmund" target="_blank" rel="noopener" class="nav-link px-2 text-muted" title="Contribute"><i class="bi bi-code-slash fs-5"></i></a></li>
+                </ul>
+            </div>
 
-            <p class="col-12 text-center text-muted">
-                Proudly running @RuntimeInformation.FrameworkDescription
-                @if (!string.IsNullOrEmpty(VersionInfo.CommitUrl))
-                {
-                    var shortSha = VersionInfo.CommitSha?.Length >= 7 ? VersionInfo.CommitSha.Substring(0, 7) : VersionInfo.CommitSha;
-                    <text> | </text><a href="@VersionInfo.CommitUrl" target="_blank" class="text-muted">Version @VersionInfo.Version+@shortSha</a>
-                }
-            </p>
-        </footer>
-    </div>
+            <div class="text-center pb-3">
+                <small class="text-muted" style="font-size: 0.75rem;">
+                    Proudly running @RuntimeInformation.FrameworkDescription
+                    @if (!string.IsNullOrEmpty(VersionInfo.CommitUrl))
+                    {
+                        var shortSha = VersionInfo.CommitSha?.Length >= 7 ? VersionInfo.CommitSha.Substring(0, 7) : VersionInfo.CommitSha;
+                        <text> | </text><a href="@VersionInfo.CommitUrl" target="_blank" class="text-muted">@VersionInfo.Version+@shortSha</a>
+                    }
+                </small>
+            </div>
+        </div>
+    </footer>
     <partial name="_CookieConsentPartial" />
 
     @await RenderSectionAsync(LayoutSections.BodyEnd, required: false)
