@@ -121,7 +121,7 @@ public partial class PostEditorViewModel : PageViewModel
 	}
 
 	[RelayCommand]
-	private async Task OpenPreviewAsync() => await Launcher.LaunchUriAsync(new Uri(new Uri(_appConfig.Value.WebUrl!), "/blog/preview/" + Post?.PreviewToken.ToString()));
+	private async Task OpenPreviewAsync() => await Launcher.LaunchUriAsync(new Uri(new Uri(_appConfig.Value.WebUrl!), "/blog/preview/" + Post?.PreviewToken));
 
 	[RelayCommand]
 	private async Task SaveAsync()
