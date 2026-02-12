@@ -27,6 +27,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\MZikmund.Web.Core\MZikmund.Web.Core.csproj" />
+		<ProjectReference Include="..\MZikmund.Web.Data\MZikmund.Web.Data.csproj" />
 	</ItemGroup>
 
 </Project>
