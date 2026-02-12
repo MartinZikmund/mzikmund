@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Uno.Sdk">
 	<PropertyGroup>
 		<TargetFrameworks>
+			net10.0-windows10.0.26100;
 			net10.0-android;
 			net10.0-ios;
 			net10.0-browserwasm;
 			net10.0-desktop;
-			net10.0-windows10.0.26100;
 		</TargetFrameworks>
 
 		<OutputType>Exe</OutputType>
@@ -15,9 +15,6 @@
 		<ApplicationTitle>Martin Zikmund</ApplicationTitle>
 		<!-- App Identifier -->
 		<ApplicationId>dev.mzikmund.MZikmund.App</ApplicationId>
-		<!-- Versions -->
-		<ApplicationDisplayVersion>$(GitAssemblyInformationalVersion)</ApplicationDisplayVersion>
-		<ApplicationVersion>$(GitVersionHeight)</ApplicationVersion>
 		<!-- Package Publisher -->
 		<ApplicationPublisher>Martin Zikmund</ApplicationPublisher>
 		<!-- Package Description -->
@@ -53,6 +50,9 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<EmbeddedResource Include="Templates\PostPreviewTemplate.html" />
+	</ItemGroup>
+	<ItemGroup>
+	  <PackageReference Include="CommunityToolkit.WinUI.Converters" />
 	</ItemGroup>
 
 	<ItemGroup>

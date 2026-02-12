@@ -135,6 +135,10 @@ public sealed partial class WindowShell : Page, IWindowShell
 		{
 			navigationService.Navigate<PostsManagerViewModel>();
 		}
+		else if (args.InvokedItemContainer == AdminMediaNavigationViewItem)
+		{
+			navigationService.Navigate<MediaBrowserViewModel>();
+		}
 		else if (args.InvokedItemContainer == AdminTagsNavigationViewItem)
 		{
 			navigationService.Navigate<TagsManagerViewModel>();

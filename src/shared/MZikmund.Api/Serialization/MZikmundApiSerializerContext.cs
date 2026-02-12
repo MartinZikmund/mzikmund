@@ -1,7 +1,9 @@
 using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 using MZikmund.DataContracts;
+using MZikmund.DataContracts.Blobs;
 using MZikmund.DataContracts.Blog;
+using MZikmund.DataContracts.Storage;
 using Refit;
 
 namespace MZikmund.Api.Serialization;
@@ -18,6 +20,7 @@ namespace MZikmund.Api.Serialization;
 /// </remarks>
 // Post types
 [JsonSerializable(typeof(Post))]
+[JsonSerializable(typeof(PostAdmin))]
 [JsonSerializable(typeof(Post[]))]
 [JsonSerializable(typeof(IEnumerable<Post>))]
 [JsonSerializable(typeof(IImmutableList<Post>))]
@@ -65,6 +68,18 @@ namespace MZikmund.Api.Serialization;
 [JsonSerializable(typeof(IImmutableList<TagWithPostCount>))]
 [JsonSerializable(typeof(ImmutableList<TagWithPostCount>))]
 
+// Storage items
+[JsonSerializable(typeof(StorageItemType))]
+[JsonSerializable(typeof(StorageItemInfo))]
+[JsonSerializable(typeof(PagedResponse<StorageItemInfo>))]
+[JsonSerializable(typeof(ApiResponse<PagedResponse<StorageItemInfo>>))]
+
+// ImageVariants
+[JsonSerializable(typeof(ImageVariant))]
+[JsonSerializable(typeof(ImageVariant[]))]
+[JsonSerializable(typeof(IEnumerable<ImageVariant>))]
+[JsonSerializable(typeof(ApiResponse<ImageVariant[]>))]
+
 // Common types
 [JsonSerializable(typeof(ApiResponse<object?>))]
 [JsonSerializable(typeof(Guid))]
@@ -74,6 +89,7 @@ namespace MZikmund.Api.Serialization;
 [JsonSourceGenerationOptions(
 	PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
 	DefaultIgnoreCondition = JsonIgnoreCondition.Never,
+	UseStringEnumConverter = true,
 	WriteIndented = false)]
 public partial class MZikmundApiSerializerContext : JsonSerializerContext
 {

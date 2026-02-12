@@ -1,23 +1,53 @@
 ﻿using MediatR;
-using MZikmund.Web.Core.Features.Images;
+using Microsoft.EntityFrameworkCore;
+using MZikmund.DataContracts;
+using MZikmund.DataContracts.Blobs;
 using MZikmund.Web.Core.Services.Blobs;
+using MZikmund.Web.Data;
+using MZikmund.Web.Data.Extensions;
 
-namespace MZikmund.Web.Core.Features.Files;
+namespace MZikmund.Web.Core.Features.Images;
 
-public class GetImagesHandler : IRequestHandler<GetImagesQuery, IEnumerable<BlobInfo>>
+public class GetImagesHandler : IRequestHandler<GetImagesQuery, PagedResponse<StorageItemInfo>>
 {
-	private readonly IBlobStorage _blobStorage;
+	private readonly DatabaseContext _dbContext;
+	private readonly IBlobUrlProvider _blobUrlProvider;
 
-	public GetImagesHandler(IBlobStorage blobStorage)
+	public GetImagesHandler(DatabaseContext dbContext, IBlobUrlProvider blobUrlProvider)
 	{
-		_blobStorage = blobStorage;
+		_dbContext = dbContext;
+		_blobUrlProvider = blobUrlProvider;
 	}
 
-	public async Task<IEnumerable<BlobInfo>> Handle(GetImagesQuery request, CancellationToken cancellationToken)
+	public async Task<PagedResponse<StorageItemInfo>> Handle(GetImagesQuery request, CancellationToken cancellationToken)
 	{
-		var thumbnails = await _blobStorage.ListAsync(BlobKind.Image, "thumbnail");
-		// Remove the prefix "thumbnail/" from the blob names
-		var images = thumbnails.Select(blob => new BlobInfo(blob.BlobPath.Replace("thumbnail/", string.Empty), blob.LastModified));
-		return images;
+		if (request.PageNumber < 1)
+		{
+			throw new ArgumentOutOfRangeException(nameof(request.PageNumber), "Page number must be at least 1.");
+		}
+
+		if (request.PageSize < 1)
+		{
+			throw new ArgumentOutOfRangeException(nameof(request.PageSize), "Page size must be at least 1.");
+		}
+
+		var query = _dbContext.BlobMetadata.Where(b => b.Kind == MZikmund.Web.Data.Entities.BlobKind.Image);
+
+		var totalCount = await query.CountAsync(cancellationToken);
+
+		var skip = (request.PageNumber - 1) * request.PageSize;
+		var entities = await query
+			.OrderByDescending(b => b.LastModified)
+			.Skip(skip)
+			.Take(request.PageSize)
+			.ToArrayAsync(cancellationToken);
+
+		var items = entities.Select(b => new StorageItemInfo(
+			b.BlobPath,
+			_blobUrlProvider.GetUrl(b.Kind, b.BlobPath),
+			b.LastModified,
+			b.Size)).ToArray();
+
+		return new PagedResponse<StorageItemInfo>(items, request.PageNumber, request.PageSize, totalCount);
 	}
 }

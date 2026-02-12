@@ -9,7 +9,7 @@ namespace MZikmund.Web.Controllers.Admin;
 /// Represents operations for generic files.
 /// </summary>
 [ApiController]
-[Authorize]
+[Authorize(Policy = "AdminPolicy")]
 [Route("api/v1/admin/files")]
 public class FilesAdminController : Controller
 {
@@ -21,13 +21,15 @@ public class FilesAdminController : Controller
 	}
 
 	[HttpGet]
-	public async Task<IActionResult> GetAll() => Ok(await _mediator.Send(new GetFilesQuery()));
+	public async Task<IActionResult> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50) => 
+		Ok(await _mediator.Send(new GetFilesQuery(pageNumber, pageSize)));
 
 	[HttpDelete]
 	[Route("{path}")]
 	public async Task<IActionResult> Delete(string path)
 	{
-		await _mediator.Send(new DeleteFileCommand(path));
+		var decodedPath = Uri.UnescapeDataString(path);
+		await _mediator.Send(new DeleteFileCommand(decodedPath));
 		return NoContent();
 	}
 

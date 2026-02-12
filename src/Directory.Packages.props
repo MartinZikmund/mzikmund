@@ -1,6 +1,7 @@
 <Project ToolsVersion="15.0">
   <ItemGroup>
     <!-- Build Tools -->
+    <PackageVersion Include="CommunityToolkit.WinUI.Converters" Version="8.2.250402" />
     <PackageVersion Include="Nerdbank.GitVersioning" Version="3.7.112" />
     <!-- Web -->
     <PackageVersion Include="Auth0.OidcClient.MAUI" Version="1.4.0" />
