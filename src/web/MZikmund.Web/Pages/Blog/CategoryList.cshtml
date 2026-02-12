@@ -17,7 +17,7 @@
     @foreach (var category in Model.Categories)
     {
         <div class="col-md-6 col-lg-4 mb-4">
-            <div class="card h-100 shadow-sm">
+            <div class="card h-100 shadow-sm taxonomy-card">
                 <div class="card-body">
                     @if (!string.IsNullOrEmpty(category.Icon))
                     {
@@ -35,7 +35,7 @@
                         <p class="card-text text-muted">@category.Description</p>
                     }
                 </div>
-                <div class="card-footer">
+                <div class="card-footer bg-transparent">
                     <small class="text-muted">
                         @category.PostCount @(category.PostCount == 1 ? "post" : "posts")
                     </small>

@@ -17,7 +17,7 @@
     @foreach (var tag in Model.Tags)
     {
         <div class="col-md-6 col-lg-4 mb-4">
-            <div class="card h-100 shadow-sm">
+            <div class="card h-100 shadow-sm taxonomy-card">
                 <div class="card-body">
                     <h5 class="card-title">
                         <a asp-page="/Blog/TagPostList" asp-route-tagName="@tag.RouteName" class="text-decoration-none">
@@ -29,7 +29,7 @@
                         <p class="card-text text-muted">@tag.Description</p>
                     }
                 </div>
-                <div class="card-footer">
+                <div class="card-footer bg-transparent">
                     <small class="text-muted">
                         @tag.PostCount @(tag.PostCount == 1 ? "post" : "posts")
                     </small>

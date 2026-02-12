@@ -6,24 +6,15 @@
 		<UserSecretsId>bd1e8e97-122b-43d8-95ca-784bd84a83d9</UserSecretsId>
 	</PropertyGroup>
 
-	<ItemGroup>
-	  <Content Remove="compilerconfig.json" />
-	</ItemGroup>
+	<Target Name="NpmBuild" BeforeTargets="Build">
+		<Exec Command="npm run build" WorkingDirectory="$(MSBuildProjectDirectory)" />
+	</Target>
 
 	<ItemGroup>
-	  <None Include="compilerconfig.json" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<PackageReference Include="BuildWebCompiler2022" />
 		<PackageReference Include="Humanizer" />
 		<PackageReference Include="MediatR" />
 		<PackageReference Include="AutoMapper" />
 		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" />
-		<PackageReference Include="Microsoft.TypeScript.MSBuild">
-		  <PrivateAssets>all</PrivateAssets>
-		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
 		<PackageReference Include="Newtonsoft.Json" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
 		<PackageReference Include="Auth0.AspNetCore.Authentication" />
@@ -41,6 +32,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Folder Include="wwwroot\css\" />
 	  <Folder Include="wwwroot\js\" />
 	</ItemGroup>
 

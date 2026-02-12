@@ -2,14 +2,22 @@
 	"version": "1.0.0",
 	"name": "asp.net",
 	"private": true,
+	"scripts": {
+		"build:css": "sass Styles/site.scss wwwroot/css/site.css --style=expanded --source-map",
+		"build:css:prod": "sass Styles/site.scss wwwroot/css/site.min.css --style=compressed --no-source-map",
+		"build:ts": "tsc",
+		"build": "npm run build:css && npm run build:css:prod && npm run build:ts",
+		"watch:css": "sass Styles/site.scss wwwroot/css/site.css --style=expanded --source-map --watch",
+		"watch:ts": "tsc --watch",
+		"watch": "npm run watch:css & npm run watch:ts"
+	},
 	"dependencies": {
 		"bootstrap": "5.3.8"
 	},
 	"devDependencies": {
 		"@types/node": "24.10.1",
 		"eslint": "9.39.1",
-		"ts-loader": "9.5.4",
 		"sass": "1.94.0",
-		"sass-loader": "16.0.6"
+		"typescript": "5.9.3"
 	}
 }

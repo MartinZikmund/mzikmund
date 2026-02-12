@@ -20,11 +20,27 @@
                  (adsbygoogle = window.adsbygoogle || []).push({});
             </script>
         </div>
-        <p class="text-center">
+        <div class="text-center my-4">
             @foreach (var tag in Model.BlogPost!.Tags)
             {
-                <a class="badge rounded-pill bg-secondary text-decoration-none" asp-page="/Blog/TagPostList" asp-route-tagName="@tag.RouteName">#@tag.DisplayName</a>
+                <a class="badge rounded-pill border border-primary text-primary text-decoration-none me-1 mb-1 post-tag-badge" asp-page="/Blog/TagPostList" asp-route-tagName="@tag.RouteName">#@tag.DisplayName</a>
             }
-        </p>
+        </div>
+
+        <hr class="my-4" />
+
+        <div class="author-bio d-flex align-items-center gap-3 p-3 rounded-3 mb-4">
+            <img src="~/img/logo.png" alt="Martin Zikmund" class="rounded-circle" width="64" height="64" />
+            <div>
+                <h4 class="mb-1 fs-6 fw-semibold">Martin Zikmund</h4>
+                <p class="text-muted mb-0 small">Open-source developer, speaker, and .NET enthusiast building cross-platform apps with Uno Platform.</p>
+            </div>
+        </div>
+
+        <div class="text-center mb-3">
+            <a asp-page="/Blog/Index" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Back to Blog
+            </a>
+        </div>
     </footer>
 </article>
