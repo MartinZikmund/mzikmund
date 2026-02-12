@@ -14,12 +14,12 @@ public class EmptyCollectionToVisibilityConverter : IValueConverter
 		var emptyVisibility = Invert ? Visibility.Visible : Visibility.Collapsed;
 		if (value is ICollection collection)
 		{
-			return collection.Count == 0 ? notEmptyVisibility : emptyVisibility;
+			return collection.Count == 0 ? emptyVisibility : notEmptyVisibility;
 		}
 
 		if (value is int count)
 		{
-			return count == 0 ? notEmptyVisibility : emptyVisibility;
+			return count == 0 ? emptyVisibility : notEmptyVisibility;
 		}
 
 		return emptyVisibility;
