@@ -53,12 +53,17 @@ public class GetMediaHandler : IRequestHandler<GetMediaQuery, PagedResponse<Stor
 		var totalCount = await query.CountAsync(cancellationToken);
 
 		var skip = (request.PageNumber - 1) * request.PageSize;
-		var items = await query
+		var entities = await query
 			.OrderByDescending(b => b.LastModified)
 			.Skip(skip)
 			.Take(request.PageSize)
-			.Select(b => new StorageItemInfo(b.BlobPath, _blobUrlProvider.GetUrl(b.Kind, b.Kind != BlobKind.Image ? b.BlobPath : $"thumbnail/{b.BlobPath}"), b.LastModified, b.Size))
 			.ToArrayAsync(cancellationToken);
+
+		var items = entities.Select(b => new StorageItemInfo(
+			b.BlobPath,
+			_blobUrlProvider.GetUrl(b.Kind, b.Kind != BlobKind.Image ? b.BlobPath : $"thumbnail/{b.BlobPath}"),
+			b.LastModified,
+			b.Size)).ToArray();
 
 		return new PagedResponse<StorageItemInfo>(items, request.PageNumber, request.PageSize, totalCount);
 	}

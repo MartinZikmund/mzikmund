@@ -36,12 +36,17 @@ public class GetFilesHandler : IRequestHandler<GetFilesQuery, PagedResponse<Stor
 		var totalCount = await query.CountAsync(cancellationToken);
 
 		var skip = (request.PageNumber - 1) * request.PageSize;
-		var items = await query
+		var entities = await query
 			.OrderByDescending(b => b.LastModified)
 			.Skip(skip)
 			.Take(request.PageSize)
-			.Select(b => new StorageItemInfo(b.BlobPath, _blobUrlProvider.GetUrl(b.Kind, b.BlobPath), b.LastModified, b.Size))
 			.ToArrayAsync(cancellationToken);
+
+		var items = entities.Select(b => new StorageItemInfo(
+			b.BlobPath,
+			_blobUrlProvider.GetUrl(b.Kind, b.BlobPath),
+			b.LastModified,
+			b.Size)).ToArray();
 
 		return new PagedResponse<StorageItemInfo>(items, request.PageNumber, request.PageSize, totalCount);
 	}

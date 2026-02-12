@@ -48,13 +48,17 @@ private async Task<int> SyncContainer(BlobContainerClient containerClient, MZikm
 {
 var added = 0;
 
+// Load all existing paths for this kind upfront to avoid N+1 queries
+var existingPaths = new HashSet<string>(
+await _dbContext.BlobMetadata
+	.Where(b => b.Kind == kind)
+	.Select(b => b.BlobPath)
+	.ToListAsync(cancellationToken));
+
 await foreach (var blobItem in containerClient.GetBlobsAsync(cancellationToken: cancellationToken))
 {
 // Check if metadata already exists
-var exists = await _dbContext.BlobMetadata
-.AnyAsync(b => b.BlobPath == blobItem.Name && b.Kind == kind, cancellationToken);
-
-if (!exists)
+if (!existingPaths.Contains(blobItem.Name))
 {
 var fileName = Path.GetFileName(blobItem.Name);
 var metadata = new BlobMetadataEntity

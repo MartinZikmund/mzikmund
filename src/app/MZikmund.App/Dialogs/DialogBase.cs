@@ -23,7 +23,7 @@ public abstract partial class DialogBase<TDialogViewModel> : ContentDialog
 		ViewModel?.OnPrimaryButtonClick(sender, args);
 
 	private void OnSecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args) =>
-		ViewModel?.OnPrimaryButtonClick(sender, args);
+		ViewModel?.OnSecondaryButtonClick(sender, args);
 
 	private void OnCloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args) =>
 		ViewModel?.OnCloseButtonClick(sender, args);

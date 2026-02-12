@@ -23,9 +23,7 @@ public class GetImageVariantsHandler : IRequestHandler<GetImageVariantsQuery, Li
 		var variants = new List<ImageVariant>();
 		var baseUrl = new Uri(_siteConfiguration.General.CdnUrl, _siteConfiguration.BlobStorage.MediaContainerName);
 
-		// Get file name without extension for prefix search
 		var fileNameWithoutExt = Path.GetFileNameWithoutExtension(request.ImagePath);
-		var extension = Path.GetExtension(request.ImagePath);
 		var directory = Path.GetDirectoryName(request.ImagePath) ?? "";
 
 		// Check for original
