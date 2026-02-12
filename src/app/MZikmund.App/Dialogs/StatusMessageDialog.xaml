@@ -6,7 +6,6 @@
     xmlns:xaml="using:MZikmund.Extensions.Xaml"
     Title="{x:Bind ViewModel.Title}"
     PrimaryButtonText="{xaml:Localize Key=Ok}"
-    SecondaryButtonText="{xaml:Localize Key=Cancel}"
     Style="{ThemeResource DefaultContentDialogStyle}">
     <Grid ColumnSpacing="16">
         <Grid.ColumnDefinitions>
