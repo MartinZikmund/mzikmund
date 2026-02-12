@@ -160,12 +160,11 @@ public partial class PostEditorViewModel : PageViewModel
 		var dialogViewModel = new MediaBrowserDialogViewModel(_api, _windowShellProvider, _appConfig, _mediaBrowserLogger, isImageMode: true);
 		var result = await _dialogService.ShowAsync(dialogViewModel);
 
-		if (result == ContentDialogResult.Primary && dialogViewModel.SelectedUrl != null)
+		if (result == ContentDialogResult.Primary &&
+			dialogViewModel.SelectedUrl != null &&
+			Post != null)
 		{
-			if (Post != null)
-			{
-				HeroImageUrl = dialogViewModel.SelectedUrl.AbsoluteUri;
-			}
+			HeroImageUrl = dialogViewModel.SelectedUrl.AbsoluteUri;
 		}
 	}
 
