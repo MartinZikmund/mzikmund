@@ -21,6 +21,7 @@
         var currentPath = Context.Request.Path.Value?.TrimEnd('/') ?? "";
         bool isHome = currentPath == "" || currentPath == "/";
         bool isBlog = currentPath.StartsWith("/Blog", StringComparison.OrdinalIgnoreCase);
+        bool isVideos = currentPath.StartsWith("/Videos", StringComparison.OrdinalIgnoreCase);
     }
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm shadow-sm">
@@ -41,7 +42,7 @@
                             <a class="nav-link @(isBlog ? "active" : "")" asp-page="/Blog/Index">Blog</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-page="/Videos">Videos</a>
+                            <a class="nav-link @(isVideos ? "active" : "")" asp-page="/Videos">Videos</a>
                         </li>
                     </ul>
                 </div>
