@@ -3,11 +3,11 @@
 	"name": "asp.net",
 	"private": true,
 	"scripts": {
-		"build:css": "sass Styles/site.scss wwwroot/css/site.css --style=expanded --source-map",
-		"build:css:prod": "sass Styles/site.scss wwwroot/css/site.min.css --style=compressed --no-source-map",
+		"build:css": "sass Styles/site.scss wwwroot/css/site.css --style=expanded --source-map --load-path=node_modules --quiet-deps --silence-deprecation=import",
+		"build:css:prod": "sass Styles/site.scss wwwroot/css/site.min.css --style=compressed --no-source-map --load-path=node_modules --quiet-deps --silence-deprecation=import",
 		"build:ts": "tsc",
 		"build": "npm run build:css && npm run build:css:prod && npm run build:ts",
-		"watch:css": "sass Styles/site.scss wwwroot/css/site.css --style=expanded --source-map --watch",
+		"watch:css": "sass Styles/site.scss wwwroot/css/site.css --style=expanded --source-map --watch --load-path=node_modules --quiet-deps --silence-deprecation=import",
 		"watch:ts": "tsc --watch",
 		"watch": "npm run watch:css & npm run watch:ts"
 	},
