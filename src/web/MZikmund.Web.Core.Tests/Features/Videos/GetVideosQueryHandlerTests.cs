@@ -24,8 +24,10 @@ public class GetVideosQueryHandlerTests
 				<link rel="alternate" href="https://www.youtube.com/watch?v=abc123"/>
 				<author><name>TestChannel</name></author>
 				<published>2024-06-15T10:00:00+00:00</published>
-				<media:description>Description 1</media:description>
-				<media:thumbnail url="https://i.ytimg.com/vi/abc123/maxresdefault.jpg" width="480" height="360"/>
+				<media:group>
+					<media:description>Description 1</media:description>
+					<media:thumbnail url="https://i.ytimg.com/vi/abc123/maxresdefault.jpg" width="480" height="360"/>
+				</media:group>
 			</entry>
 			<entry>
 				<id>yt:video:def456</id>
@@ -34,8 +36,10 @@ public class GetVideosQueryHandlerTests
 				<link rel="alternate" href="https://www.youtube.com/watch?v=def456"/>
 				<author><name>TestChannel</name></author>
 				<published>2024-06-14T10:00:00+00:00</published>
-				<media:description>Description 2</media:description>
-				<media:thumbnail url="https://i.ytimg.com/vi/def456/maxresdefault.jpg" width="480" height="360"/>
+				<media:group>
+					<media:description>Description 2</media:description>
+					<media:thumbnail url="https://i.ytimg.com/vi/def456/maxresdefault.jpg" width="480" height="360"/>
+				</media:group>
 			</entry>
 			<entry>
 				<id>yt:video:ghi789</id>
@@ -44,8 +48,10 @@ public class GetVideosQueryHandlerTests
 				<link rel="alternate" href="https://www.youtube.com/watch?v=ghi789"/>
 				<author><name>TestChannel</name></author>
 				<published>2024-06-13T10:00:00+00:00</published>
-				<media:description>Description 3</media:description>
-				<media:thumbnail url="https://i.ytimg.com/vi/ghi789/maxresdefault.jpg" width="480" height="360"/>
+				<media:group>
+					<media:description>Description 3</media:description>
+					<media:thumbnail url="https://i.ytimg.com/vi/ghi789/maxresdefault.jpg" width="480" height="360"/>
+				</media:group>
 			</entry>
 		</feed>
 		""";

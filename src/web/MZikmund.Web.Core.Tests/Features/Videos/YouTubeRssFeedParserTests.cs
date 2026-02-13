@@ -22,8 +22,10 @@ public class YouTubeRssFeedParserTests
 					<name>TestChannel</name>
 				</author>
 				<published>2024-06-15T10:00:00+00:00</published>
-				<media:description>Description of first video</media:description>
-				<media:thumbnail url="https://i.ytimg.com/vi/abc123/maxresdefault.jpg" width="480" height="360"/>
+				<media:group>
+					<media:description>Description of first video</media:description>
+					<media:thumbnail url="https://i.ytimg.com/vi/abc123/maxresdefault.jpg" width="480" height="360"/>
+				</media:group>
 			</entry>
 			<entry>
 				<id>yt:video:def456</id>
@@ -35,8 +37,10 @@ public class YouTubeRssFeedParserTests
 					<name>TestChannel</name>
 				</author>
 				<published>2024-06-14T10:00:00+00:00</published>
-				<media:description>Description of second video</media:description>
-				<media:thumbnail url="https://i.ytimg.com/vi/def456/maxresdefault.jpg" width="480" height="360"/>
+				<media:group>
+					<media:description>Description of second video</media:description>
+					<media:thumbnail url="https://i.ytimg.com/vi/def456/maxresdefault.jpg" width="480" height="360"/>
+				</media:group>
 			</entry>
 		</feed>
 		""";
@@ -65,8 +69,10 @@ public class YouTubeRssFeedParserTests
 					<name>TestChannel</name>
 				</author>
 				<published>2024-06-10T10:00:00+00:00</published>
-				<media:description>Good description</media:description>
-				<media:thumbnail url="https://i.ytimg.com/vi/good789/maxresdefault.jpg" width="480" height="360"/>
+				<media:group>
+					<media:description>Good description</media:description>
+					<media:thumbnail url="https://i.ytimg.com/vi/good789/maxresdefault.jpg" width="480" height="360"/>
+				</media:group>
 			</entry>
 		</feed>
 		""";

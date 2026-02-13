@@ -1,6 +1,7 @@
 using System.ServiceModel.Syndication;
 using System.Web;
 using System.Xml;
+using System.Xml.Linq;
 using MZikmund.DataContracts.Videos;
 using Microsoft.Extensions.Logging;
 
@@ -75,6 +76,8 @@ public class YouTubeRssFeedParser
 		}
 	}
 
+	private static readonly XNamespace MediaNs = "http://search.yahoo.com/mrss/";
+
 	/// <summary>
 	/// Parses a single SyndicationItem from YouTube RSS feed.
 	/// </summary>
@@ -89,18 +92,24 @@ public class YouTubeRssFeedParser
 		if (string.IsNullOrEmpty(videoId))
 			return null;
 
-		// Extract thumbnail from media content
-		var thumbnailUrl = item.ElementExtensions
-			.FirstOrDefault(e => e.OuterName == "thumbnail")
-			?.GetReader()
-			?.GetAttribute("url") ?? "https://via.placeholder.com/640x360?text=Video";
+		// Try to find media:group element (YouTube nests media:thumbnail and media:description inside it)
+		XElement? mediaGroup = null;
+		var groupExt = item.ElementExtensions.FirstOrDefault(e => e.OuterName == "group" && e.OuterNamespace == MediaNs.NamespaceName);
+		if (groupExt is not null)
+		{
+			using var reader = groupExt.GetReader();
+			mediaGroup = (XElement)XNode.ReadFrom(reader);
+		}
 
-		// Extract description from media:description element extension
-		var description = item.ElementExtensions
-			.FirstOrDefault(e => e.OuterName == "description")
-			?.GetReader()
-			?.ReadElementContentAsString() ??
-			(item.Summary is TextSyndicationContent textSummary ? textSummary.Text : item.Summary?.Text) ?? "";
+		// Extract thumbnail: media:group → direct extension → video-ID-based fallback
+		var thumbnailUrl = mediaGroup?.Element(MediaNs + "thumbnail")?.Attribute("url")?.Value
+			?? item.ElementExtensions.FirstOrDefault(e => e.OuterName == "thumbnail")?.GetReader()?.GetAttribute("url")
+			?? $"https://i.ytimg.com/vi/{videoId}/mqdefault.jpg";
+
+		// Extract description: media:group → direct extension → summary → empty
+		var description = mediaGroup?.Element(MediaNs + "description")?.Value
+			?? item.ElementExtensions.FirstOrDefault(e => e.OuterName == "description")?.GetReader()?.ReadElementContentAsString()
+			?? (item.Summary is TextSyndicationContent textSummary ? textSummary.Text : item.Summary?.Text) ?? "";
 
 		description = System.Net.WebUtility.HtmlDecode(description);
 		description = TrimDescription(description, 3);  // Trim to 3-4 lines
@@ -109,7 +118,7 @@ public class YouTubeRssFeedParser
 		if (!Uri.TryCreate(thumbnailUrl, UriKind.Absolute, out var thumbnailUri) ||
 			thumbnailUri.Scheme != "https")
 		{
-			thumbnailUrl = "https://via.placeholder.com/640x360?text=Video";
+			thumbnailUrl = $"https://i.ytimg.com/vi/{videoId}/mqdefault.jpg";
 		}
 
 		return new VideoDto
