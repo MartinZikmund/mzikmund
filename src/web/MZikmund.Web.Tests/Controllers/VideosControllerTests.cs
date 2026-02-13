@@ -6,7 +6,7 @@ using MZikmund.DataContracts.Videos;
 using MZikmund.Web.Controllers;
 using MZikmund.Web.Core.Features.Videos.Queries;
 
-namespace MZikmund.Web.Core.Tests.Controllers;
+namespace MZikmund.Web.Tests.Controllers;
 
 public class VideosControllerTests
 {
