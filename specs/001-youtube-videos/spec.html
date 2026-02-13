@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Feature Specification&colon; YouTube Videos Integration</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="feature-specification-youtube-videos-integration">Feature Specification: YouTube Videos Integration</h1>
+<p><strong>Feature Branch</strong>: <code>001-youtube-videos</code>
+<strong>Created</strong>: February 12, 2025
+<strong>Status</strong>: Draft
+<strong>Input</strong>: User description: &quot;Add a videos tab to website which will display the latest videos from my YouTube channel&quot;</p>
+<h2 id="user-scenarios--testing-mandatory">User Scenarios &amp; Testing <em>(mandatory)</em></h2>
+<h3 id="user-story-1---browse-latest-videos-priority-p1">User Story 1 - Browse Latest Videos (Priority: P1)</h3>
+<p>Website visitors discover the Videos tab in the main navigation and view the latest published videos from the YouTube channel. Each video is presented as a card showing the thumbnail, title, trimmed description, and publication date, similar to blog cards. This allows visitors to quickly scan available video content without leaving the website.</p>
+<p><strong>Why this priority</strong>: This is the core value proposition of the feature. Without this, the feature provides no value to visitors.</p>
+<p><strong>Independent Test</strong>: Can be fully tested by navigating to the Videos tab, verifying that video cards load and display all required information, and confirms visitors can see the latest content at a glance.</p>
+<p><strong>Acceptance Scenarios</strong>:</p>
+<ol>
+<li><strong>Given</strong> a visitor on the website, <strong>When</strong> they click the Videos navigation tab, <strong>Then</strong> they see a list of video cards displaying the latest videos from the channel</li>
+<li><strong>Given</strong> the Videos tab is loaded, <strong>When</strong> a visitor views a video card, <strong>Then</strong> they see thumbnail, title, trimmed description, and publication date for each video</li>
+<li><strong>Given</strong> multiple videos are available, <strong>When</strong> the page loads, <strong>Then</strong> the videos are displayed in reverse chronological order (newest first)</li>
+</ol>
+<hr>
+<h3 id="user-story-2---watch-videos-on-youtube-priority-p1">User Story 2 - Watch Videos on YouTube (Priority: P1)</h3>
+<p>Visitors can click on a video card to watch the full video on YouTube. Each video card links directly to the corresponding YouTube video URL, allowing viewers to engage with the full content, leave comments, and subscribe if interested.</p>
+<p><strong>Why this priority</strong>: This is essential functionality—without links to YouTube, visitors cannot watch the videos, making the feature incomplete.</p>
+<p><strong>Independent Test</strong>: Can be fully tested by clicking multiple video cards and verifying they navigate to the correct YouTube video URLs.</p>
+<p><strong>Acceptance Scenarios</strong>:</p>
+<ol>
+<li><strong>Given</strong> a visitor viewing the Videos tab, <strong>When</strong> they click on a video card, <strong>Then</strong> they are directed to the video on YouTube</li>
+<li><strong>Given</strong> a visitor is on a video card, <strong>When</strong> they hover over the card, <strong>Then</strong> visual feedback indicates the card is clickable (e.g., cursor change, opacity change)</li>
+</ol>
+<hr>
+<h3 id="user-story-3---visit-channel-for-more-content-priority-p2">User Story 3 - Visit Channel for More Content (Priority: P2)</h3>
+<p>Visitors can easily navigate to the full YouTube channel to see all videos, subscribe, and engage with additional channel features. A prominent link to the channel is displayed on the Videos tab, guiding interested viewers to more content.</p>
+<p><strong>Why this priority</strong>: This drives viewers to the YouTube channel where they can subscribe and become regular audience members. Important for channel growth but secondary to viewing individual videos.</p>
+<p><strong>Independent Test</strong>: Can be fully tested by locating the channel link and verifying it navigates to the YouTube channel.</p>
+<p><strong>Acceptance Scenarios</strong>:</p>
+<ol>
+<li><strong>Given</strong> a visitor on the Videos tab, <strong>When</strong> they look for more options, <strong>Then</strong> they find a clear link to the YouTube channel (e.g., &quot;View all videos on YouTube&quot; or &quot;Subscribe to the channel&quot;)</li>
+<li><strong>Given</strong> a visitor clicks the channel link, <strong>When</strong> the link is activated, <strong>Then</strong> they are directed to the YouTube channel page</li>
+</ol>
+<hr>
+<h3 id="edge-cases">Edge Cases</h3>
+<ul>
+<li>What happens when the YouTube RSS feed is temporarily unavailable or unreachable? → Graceful error handling with user-friendly message (FR-006); last cached videos may be displayed if available</li>
+<li>How does the system handle malformed or incomplete video data from the RSS feed? → Parse safely and skip malformed entries; display complete entries only</li>
+<li>What occurs if a video has no thumbnail or very long titles/descriptions? → Display placeholder thumbnail if missing; trim descriptions to 3-4 lines maximum (FR-007)</li>
+<li>What if the RSS feed returns zero videos? → Display empty state message with channel link (FR-010)</li>
+</ul>
+<h2 id="requirements-mandatory">Requirements <em>(mandatory)</em></h2>
+<h3 id="functional-requirements">Functional Requirements</h3>
+<ul>
+<li><strong>FR-001</strong>: System backend MUST fetch the latest videos from the YouTube RSS feed at <code>https://www.youtube.com/feeds/videos.xml?channel_id=UCB6Td35bzTvcJN_HG6TLtwA</code>, caching the results for 30 minutes before fetching fresh data from the feed (server-side operation)</li>
+<li><strong>FR-002</strong>: System MUST display all available video cards from the RSS feed, containing: video thumbnail, title, trimmed description (3-4 lines max, similar to blog card formatting), publication date, and clickable link to YouTube video</li>
+<li><strong>FR-003</strong>: System MUST display videos in reverse chronological order (newest first)</li>
+<li><strong>FR-004</strong>: System MUST parse RSS feed data to extract video title, description, thumbnail URL, publication date, and link to the YouTube video</li>
+<li><strong>FR-005</strong>: System MUST provide a prominent, clear link to the YouTube channel (<code>https://www.youtube.com/@mzikmund</code>) on the Videos tab</li>
+<li><strong>FR-006</strong>: System MUST handle RSS feed errors gracefully and display a user-friendly message if the feed cannot be fetched</li>
+<li><strong>FR-010</strong>: System MUST display a user-friendly empty state message (e.g., &quot;No videos available yet. Check back soon!&quot;) with a link to the YouTube channel if no videos are returned from the RSS feed</li>
+<li><strong>FR-011</strong>: System MUST include YouTube branding and attribution on the Videos tab to comply with YouTube Terms of Service (e.g., &quot;Powered by YouTube&quot; or official YouTube logo/link)</li>
+<li><strong>FR-007</strong>: System MUST trim video descriptions to 3-4 lines maximum (consistent with blog card description length) to maintain consistent card appearance</li>
+<li><strong>FR-008</strong>: System MUST add a &quot;Videos&quot; tab to the main website navigation</li>
+<li><strong>FR-009</strong>: System MUST automatically refresh the cached video data after 30 minutes have elapsed since the last successful fetch from the YouTube RSS feed</li>
+</ul>
+<h3 id="key-entities-include-if-feature-involves-data">Key Entities <em>(include if feature involves data)</em></h3>
+<ul>
+<li><strong>Video</strong>: Represents a single YouTube video entry parsed from the RSS feed. Attributes include: title, description, thumbnail URL, publication date, YouTube video URL, channel reference. These are read-only, fetched real-time from YouTube RSS feed.</li>
+</ul>
+<h2 id="success-criteria-mandatory">Success Criteria <em>(mandatory)</em></h2>
+<h3 id="measurable-outcomes">Measurable Outcomes</h3>
+<ul>
+<li><strong>SC-001</strong>: Videos load and display on the page without errors in 95% of page visits</li>
+<li><strong>SC-002</strong>: Video cards display consistently with blog cards in terms of layout, spacing, and visual hierarchy</li>
+<li><strong>SC-003</strong>: Visitors can successfully navigate from a video card to the YouTube video URL without broken links</li>
+<li><strong>SC-004</strong>: The Videos tab is discoverable and accessible from the main website navigation</li>
+<li><strong>SC-005</strong>: RSS feed data is fetched and rendered within 1 second of page load when served from cache (95% of requests); fresh fetch within 3 seconds under normal network conditions</li>
+<li><strong>SC-006</strong>: The YouTube channel link is clearly visible and easy to locate on the Videos tab</li>
+</ul>
+<h2 id="clarifications">Clarifications</h2>
+<h3 id="session-2025-02-12">Session 2025-02-12</h3>
+<ul>
+<li>Q: What should be the maximum character count or line count for trimmed video descriptions? → A: 3-4 lines max</li>
+<li>Q: How many videos should be displayed when the Videos tab loads? → A: All videos from the RSS feed</li>
+<li>Q: What should be displayed if there are no videos available in the RSS feed? → A: Display a friendly message like &quot;No videos available yet. Check back soon!&quot; with a link to the YouTube channel</li>
+<li>Q: What type of loading indicator should display while fetching videos? → A: Server-side fetching; no client-side loading indicator needed</li>
+<li>Q: Should the Videos tab include YouTube attribution, brand requirements, or ToS compliance measures? → A: Include YouTube branding (e.g., &quot;Powered by YouTube&quot;) and ensure YouTube ToS compliance</li>
+</ul>
+<h2 id="assumptions">Assumptions</h2>
+<ul>
+<li>YouTube RSS feed URL remains accessible and stable</li>
+<li>Video descriptions from YouTube RSS are suitable for trimming and display as-is (no additional sanitization beyond what's standard for blog cards)</li>
+<li>The website already has established card component styling that can be reused for video cards</li>
+<li>The main website navigation structure supports adding a new &quot;Videos&quot; tab</li>
+<li>Network requests to YouTube RSS feed are the responsibility of the backend, not the client</li>
+<li>Video thumbnails are provided by YouTube and are HTTPS-accessible</li>
+</ul>
+
+            
+            
+        </body>
+        </html>
