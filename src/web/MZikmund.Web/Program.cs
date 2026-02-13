@@ -121,7 +121,12 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 	services.AddEndpointsApiExplorer();
 	services.AddSwaggerGen();
 
-	services.AddApplicationInsightsTelemetry();
+	// Only if APPLICATIONINSIGHTS_CONNECTION_STRING is set
+	if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING")))
+	{
+		services.AddApplicationInsightsTelemetry();
+	}
+
 	services.AddHealthChecks();
 	services.AddRazorPages();
 	services.AddMediatR(config =>

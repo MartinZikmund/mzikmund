@@ -11,7 +11,13 @@
 
     <partial name="_HeadStylesPartial" />
 
-    @Html.Raw(JavaScriptSnippet.FullScript)
+    @{
+        var jsSnippet = Context.RequestServices.GetService<Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet>();
+    }
+    @if (jsSnippet != null)
+    {
+        @Html.Raw(jsSnippet.FullScript)
+    }
     <partial name="_HeadScriptsPartial" />
 
     @await RenderSectionAsync(LayoutSections.Head, required: false)
