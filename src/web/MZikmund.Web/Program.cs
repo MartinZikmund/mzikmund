@@ -28,6 +28,19 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 {
 	var siteConfiguration = new SiteConfiguration(configuration);
 	services.AddSingleton<ISiteConfiguration>(siteConfiguration);
+
+	// Configure YouTube options with validation
+	var youtubeConfig = configuration.GetSection("YouTube");
+	services.Configure<YouTubeOptions>(youtubeConfig);
+
+	var youtubeOptions = youtubeConfig.Get<YouTubeOptions>();
+	if (string.IsNullOrEmpty(youtubeOptions?.FeedUrl) ||
+		!youtubeOptions.FeedUrl.StartsWith("https://www.youtube.com/feeds/videos.xml"))
+	{
+		throw new InvalidOperationException(
+			"YouTube:FeedUrl not configured correctly. Set in appsettings.json: " +
+			"YouTube:FeedUrl=https://www.youtube.com/feeds/videos.xml?channel_id=YOUR_CHANNEL_ID");
+	}
 	services.AddAutoMapper(c => c.AddMaps(typeof(CoreAssemblyMarker)));
 	services.AddSingleton<ICache, Cache>();
 	services.AddSingleton<IConnectionStringProvider, ConnectionStringProvider>();
