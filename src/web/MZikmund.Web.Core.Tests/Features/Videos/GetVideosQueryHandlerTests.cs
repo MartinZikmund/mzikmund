@@ -1,3 +1,5 @@
+using System.Net;
+using System.Text;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -11,6 +13,43 @@ namespace MZikmund.Web.Core.Tests.Features.Videos;
 
 public class GetVideosQueryHandlerTests
 {
+	private const string SampleRssFeed = """
+		<?xml version="1.0" encoding="UTF-8"?>
+		<feed xmlns:yt="http://www.youtube.com/xml/schemas/2015" xmlns:media="http://search.yahoo.com/mrss/" xmlns="http://www.w3.org/2005/Atom">
+			<title>Channel Title</title>
+			<entry>
+				<id>yt:video:abc123</id>
+				<yt:videoId>abc123</yt:videoId>
+				<title>Video 1</title>
+				<link rel="alternate" href="https://www.youtube.com/watch?v=abc123"/>
+				<author><name>TestChannel</name></author>
+				<published>2024-06-15T10:00:00+00:00</published>
+				<media:description>Description 1</media:description>
+				<media:thumbnail url="https://i.ytimg.com/vi/abc123/maxresdefault.jpg" width="480" height="360"/>
+			</entry>
+			<entry>
+				<id>yt:video:def456</id>
+				<yt:videoId>def456</yt:videoId>
+				<title>Video 2</title>
+				<link rel="alternate" href="https://www.youtube.com/watch?v=def456"/>
+				<author><name>TestChannel</name></author>
+				<published>2024-06-14T10:00:00+00:00</published>
+				<media:description>Description 2</media:description>
+				<media:thumbnail url="https://i.ytimg.com/vi/def456/maxresdefault.jpg" width="480" height="360"/>
+			</entry>
+			<entry>
+				<id>yt:video:ghi789</id>
+				<yt:videoId>ghi789</yt:videoId>
+				<title>Video 3</title>
+				<link rel="alternate" href="https://www.youtube.com/watch?v=ghi789"/>
+				<author><name>TestChannel</name></author>
+				<published>2024-06-13T10:00:00+00:00</published>
+				<media:description>Description 3</media:description>
+				<media:thumbnail url="https://i.ytimg.com/vi/ghi789/maxresdefault.jpg" width="480" height="360"/>
+			</entry>
+		</feed>
+		""";
+
 	private readonly Mock<ILogger<GetVideosQueryHandler>> _mockLogger;
 	private readonly Mock<ICache> _mockCache;
 	private readonly YouTubeOptions _youtubeOptions;
@@ -21,9 +60,30 @@ public class GetVideosQueryHandlerTests
 		_mockCache = new Mock<ICache>();
 		_youtubeOptions = new YouTubeOptions
 		{
-			FeedUrl = "https://www.youtube.com/feeds/videos.xml?channel_id=UCB6Td35bzTvcJN_HG6TLtwA",
+			FeedUrl = "https://www.youtube.com/feeds/videos.xml?channel_id=UC123",
 			CacheTtlMinutes = 30
 		};
+	}
+
+	private static IHttpClientFactory CreateMockFactory(string responseContent, HttpStatusCode statusCode = HttpStatusCode.OK)
+	{
+		var handler = new FakeHttpMessageHandler(responseContent, statusCode);
+		var httpClient = new HttpClient(handler);
+		var mockFactory = new Mock<IHttpClientFactory>();
+		mockFactory.Setup(f => f.CreateClient("YouTube")).Returns(httpClient);
+		return mockFactory.Object;
+	}
+
+	private GetVideosQueryHandler CreateHandler(IHttpClientFactory? factory = null)
+	{
+		factory ??= CreateMockFactory(SampleRssFeed);
+		var parserLogger = new Mock<ILogger<YouTubeRssFeedParser>>();
+		var parser = new YouTubeRssFeedParser(parserLogger.Object, factory);
+		return new GetVideosQueryHandler(
+			_mockLogger.Object,
+			_mockCache.Object,
+			parser,
+			Options.Create(_youtubeOptions));
 	}
 
 	[Fact]
@@ -40,15 +100,7 @@ public class GetVideosQueryHandlerTests
 			.Setup(x => x.GetAsync<List<VideoDto>>("cache:videos:all", It.IsAny<CancellationToken>()))
 			.ReturnsAsync(cachedVideos);
 
-		var mockParserLogger = new Mock<ILogger<YouTubeRssFeedParser>>();
-		var mockHttpClient = new HttpClient();
-		var parser = new YouTubeRssFeedParser(mockParserLogger.Object, mockHttpClient);
-		var handler = new GetVideosQueryHandler(
-			_mockLogger.Object,
-			_mockCache.Object,
-			parser,
-			Options.Create(_youtubeOptions));
-
+		var handler = CreateHandler();
 		var query = new GetVideosQuery();
 
 		// Act
@@ -79,15 +131,7 @@ public class GetVideosQueryHandlerTests
 			.Setup(x => x.GetAsync<List<VideoDto>>("cache:videos:latest:2", It.IsAny<CancellationToken>()))
 			.ReturnsAsync(cachedVideos);
 
-		var mockParserLogger = new Mock<ILogger<YouTubeRssFeedParser>>();
-		var mockHttpClient = new HttpClient();
-		var parser = new YouTubeRssFeedParser(mockParserLogger.Object, mockHttpClient);
-		var handler = new GetVideosQueryHandler(
-			_mockLogger.Object,
-			_mockCache.Object,
-			parser,
-			Options.Create(_youtubeOptions));
-
+		var handler = CreateHandler();
 		var query = new GetVideosQuery { Count = 2 };
 
 		// Act
@@ -104,24 +148,58 @@ public class GetVideosQueryHandlerTests
 	}
 
 	[Fact]
-	public async Task Handle_WithCacheMiss_ReturnsNullWhenParserFails()
+	public async Task Handle_WithCacheMiss_FetchesFromParserAndCaches()
 	{
 		// Arrange
 		_mockCache
 			.Setup(x => x.GetAsync<List<VideoDto>>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
 			.ReturnsAsync((List<VideoDto>?)null);
 
-		// Create a parser with a mock HTTP client that will fail
-		var mockParserLogger = new Mock<ILogger<YouTubeRssFeedParser>>();
-		var mockHttpClient = new HttpClient();
-		// We can't easily mock HttpClient, so we rely on the parser throwing when URL is invalid
-		var parser = new YouTubeRssFeedParser(mockParserLogger.Object, mockHttpClient);
-		var handler = new GetVideosQueryHandler(
-			_mockLogger.Object,
-			_mockCache.Object,
-			parser,
-			Options.Create(new YouTubeOptions { FeedUrl = "invalid-url" })); // Invalid URL will cause parser to fail
+		var handler = CreateHandler();
+		var query = new GetVideosQuery();
 
+		// Act
+		var result = await handler.Handle(query, CancellationToken.None);
+
+		// Assert
+		Assert.NotNull(result);
+		Assert.Equal(3, result.Count);
+
+		// Verify result was cached
+		_mockCache.Verify(
+			x => x.SetAsync("cache:videos:all", It.IsAny<List<VideoDto>>(), TimeSpan.FromMinutes(30), It.IsAny<CancellationToken>()),
+			Times.Once);
+	}
+
+	[Fact]
+	public async Task Handle_WithCacheMissAndCount_ReturnsLimitedResults()
+	{
+		// Arrange
+		_mockCache
+			.Setup(x => x.GetAsync<List<VideoDto>>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+			.ReturnsAsync((List<VideoDto>?)null);
+
+		var handler = CreateHandler();
+		var query = new GetVideosQuery { Count = 2 };
+
+		// Act
+		var result = await handler.Handle(query, CancellationToken.None);
+
+		// Assert
+		Assert.NotNull(result);
+		Assert.Equal(2, result.Count);
+	}
+
+	[Fact]
+	public async Task Handle_WhenParserFails_ReturnsNull()
+	{
+		// Arrange
+		_mockCache
+			.Setup(x => x.GetAsync<List<VideoDto>>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+			.ReturnsAsync((List<VideoDto>?)null);
+
+		var factory = CreateMockFactory("Server Error", HttpStatusCode.InternalServerError);
+		var handler = CreateHandler(factory);
 		var query = new GetVideosQuery();
 
 		// Act
@@ -139,34 +217,13 @@ public class GetVideosQueryHandlerTests
 			.Setup(x => x.GetAsync<List<VideoDto>>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
 			.ReturnsAsync((List<VideoDto>?)null);
 
-		var mockParserLogger = new Mock<ILogger<YouTubeRssFeedParser>>();
-		var mockHttpClient = new HttpClient();
-		var parser = new YouTubeRssFeedParser(mockParserLogger.Object, mockHttpClient);
-		var handler = new GetVideosQueryHandler(
-			_mockLogger.Object,
-			_mockCache.Object,
-			parser,
-			Options.Create(new YouTubeOptions { FeedUrl = "https://example.com" }));
+		var handler = CreateHandler();
 
-		// Test that the handler correctly names cache keys
-		var queryAll = new GetVideosQuery();
-		var queryWithCount = new GetVideosQuery { Count = 5 };
+		// Act
+		await handler.Handle(new GetVideosQuery(), CancellationToken.None);
+		await handler.Handle(new GetVideosQuery { Count = 5 }, CancellationToken.None);
 
-		// The handler will attempt to get from cache (and fail because parser also fails)
-		// But we can verify it's using the right cache key format
-		try
-		{
-			await handler.Handle(queryAll, CancellationToken.None);
-		}
-		catch { }
-
-		try
-		{
-			await handler.Handle(queryWithCount, CancellationToken.None);
-		}
-		catch { }
-
-		// Verify cache keys were used correctly
+		// Assert - verify cache keys were used correctly
 		_mockCache.Verify(
 			x => x.GetAsync<List<VideoDto>>("cache:videos:all", It.IsAny<CancellationToken>()),
 			Times.Once);
@@ -186,7 +243,34 @@ public class GetVideosQueryHandlerTests
 			ThumbnailUrl = "https://i.ytimg.com/vi/test/maxresdefault.jpg",
 			PublishedDate = DateTimeOffset.UtcNow,
 			YouTubeUrl = $"https://www.youtube.com/watch?v={id}",
-			ChannelId = "UCB6Td35bzTvcJN_HG6TLtwA"
+			ChannelId = "UC123"
 		};
+	}
+
+	private sealed class FakeHttpMessageHandler : HttpMessageHandler
+	{
+		private readonly string _responseContent;
+		private readonly HttpStatusCode _statusCode;
+
+		public FakeHttpMessageHandler(string responseContent, HttpStatusCode statusCode)
+		{
+			_responseContent = responseContent;
+			_statusCode = statusCode;
+		}
+
+		protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+		{
+			var response = new HttpResponseMessage(_statusCode)
+			{
+				Content = new StringContent(_responseContent, Encoding.UTF8, "application/xml")
+			};
+
+			if (!response.IsSuccessStatusCode)
+			{
+				response.EnsureSuccessStatusCode();
+			}
+
+			return Task.FromResult(response);
+		}
 	}
 }

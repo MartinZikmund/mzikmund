@@ -50,7 +50,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 	services.AddSingleton<IBlobUrlProvider, BlobUrlProvider>();
 	services.AddSingleton<IFeedGenerator, FeedGenerator>();
 	services.AddScoped<ISyndicationDataSource, SyndicationDataSource>();
-	services.AddHttpClient<YouTubeRssFeedParser>();
+	services.AddHttpClient("YouTube");
 	services.AddScoped<YouTubeRssFeedParser>();
 	services.AddHttpContextAccessor();
 	services.AddScoped<MetaTagsInfo>();

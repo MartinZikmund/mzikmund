@@ -8,7 +8,7 @@ namespace MZikmund.Web.Controllers;
 /// API endpoints for YouTube videos.
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/v1/videos")]
 public class VideosController : ControllerBase
 {
 	private readonly IMediator _mediator;

@@ -1,4 +1,5 @@
 using System.ServiceModel.Syndication;
+using System.Web;
 using System.Xml;
 using MZikmund.DataContracts.Videos;
 using Microsoft.Extensions.Logging;
@@ -11,12 +12,12 @@ namespace MZikmund.Web.Core.Features.Videos.RssParsing;
 public class YouTubeRssFeedParser
 {
 	private readonly ILogger<YouTubeRssFeedParser> _logger;
-	private readonly HttpClient _httpClient;
+	private readonly IHttpClientFactory _httpClientFactory;
 
-	public YouTubeRssFeedParser(ILogger<YouTubeRssFeedParser> logger, HttpClient httpClient)
+	public YouTubeRssFeedParser(ILogger<YouTubeRssFeedParser> logger, IHttpClientFactory httpClientFactory)
 	{
 		_logger = logger;
-		_httpClient = httpClient;
+		_httpClientFactory = httpClientFactory;
 	}
 
 	/// <summary>
@@ -31,7 +32,8 @@ public class YouTubeRssFeedParser
 		{
 			var videos = new List<VideoDto>();
 
-			using (var httpStream = await _httpClient.GetStreamAsync(feedUrl, ct))
+			using var httpClient = _httpClientFactory.CreateClient("YouTube");
+			using (var httpStream = await httpClient.GetStreamAsync(feedUrl, ct))
 			using (var xmlReader = XmlReader.Create(httpStream))
 			{
 				var feed = SyndicationFeed.Load(xmlReader);
@@ -48,7 +50,7 @@ public class YouTubeRssFeedParser
 					}
 					catch (Exception ex)
 					{
-						_logger.LogWarning($"Skipping malformed video entry: {ex.Message}");
+						_logger.LogWarning(ex, "Skipping malformed video entry");
 					}
 				}
 
@@ -57,18 +59,18 @@ public class YouTubeRssFeedParser
 					.OrderByDescending(v => v.PublishedDate)
 					.ToList();
 
-				_logger.LogInformation($"Successfully parsed {videos.Count} videos from YouTube RSS feed");
+				_logger.LogInformation("Successfully parsed {Count} videos from YouTube RSS feed", videos.Count);
 				return videos;
 			}
 		}
 		catch (HttpRequestException ex)
 		{
-			_logger.LogError($"Failed to fetch YouTube RSS feed: {ex.Message}");
+			_logger.LogError(ex, "Failed to fetch YouTube RSS feed");
 			throw;
 		}
 		catch (Exception ex)
 		{
-			_logger.LogError($"Error parsing YouTube RSS feed: {ex.Message}");
+			_logger.LogError(ex, "Error parsing YouTube RSS feed");
 			throw;
 		}
 	}
@@ -98,7 +100,7 @@ public class YouTubeRssFeedParser
 			.FirstOrDefault(e => e.OuterName == "description")
 			?.GetReader()
 			?.ReadElementContentAsString() ??
-			(item.Summary is TextSyndicationContent textSummary ? textSummary.Text : item.Summary?.ToString()) ?? "";
+			(item.Summary is TextSyndicationContent textSummary ? textSummary.Text : item.Summary?.Text) ?? "";
 
 		description = System.Net.WebUtility.HtmlDecode(description);
 		description = TrimDescription(description, 3);  // Trim to 3-4 lines
@@ -131,8 +133,7 @@ public class YouTubeRssFeedParser
 		try
 		{
 			var uri = new Uri(youtubeUrl);
-			var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
-			return query["v"];
+			return HttpUtility.ParseQueryString(uri.Query)["v"];
 		}
 		catch
 		{

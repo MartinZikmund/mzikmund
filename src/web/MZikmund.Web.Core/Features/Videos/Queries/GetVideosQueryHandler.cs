@@ -40,7 +40,7 @@ public class GetVideosQueryHandler : IRequestHandler<GetVideosQuery, List<VideoD
 		var cached = await _cache.GetAsync<List<VideoDto>>(cacheKey, cancellationToken);
 		if (cached is not null)
 		{
-			_logger.LogInformation($"Retrieved {cached.Count} videos from cache (key: {cacheKey})");
+			_logger.LogInformation("Retrieved {Count} videos from cache (key: {CacheKey})", cached.Count, cacheKey);
 			return cached;
 		}
 
@@ -59,12 +59,12 @@ public class GetVideosQueryHandler : IRequestHandler<GetVideosQuery, List<VideoD
 			var ttl = TimeSpan.FromMinutes(_options.Value.CacheTtlMinutes);
 			await _cache.SetAsync(cacheKey, result, ttl, cancellationToken);
 
-			_logger.LogInformation($"Cached {result.Count} videos with {_options.Value.CacheTtlMinutes}-minute TTL");
+			_logger.LogInformation("Cached {Count} videos with {TtlMinutes}-minute TTL", result.Count, _options.Value.CacheTtlMinutes);
 			return result;
 		}
 		catch (Exception ex)
 		{
-			_logger.LogError($"Failed to fetch YouTube videos: {ex.Message}");
+			_logger.LogError(ex, "Failed to fetch YouTube videos");
 			return null;  // Let controller convert to 503 error
 		}
 	}

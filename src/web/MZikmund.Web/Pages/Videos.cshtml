@@ -17,7 +17,17 @@
 		</div>
 	</div>
 
-	@if (Model.Videos?.Count > 0)
+	@if (Model.Videos is null)
+	{
+		<div class="alert alert-warning" role="alert">
+			<h4 class="alert-heading">Videos temporarily unavailable</h4>
+			<p>We're having trouble loading videos right now. Please try again later, or visit the channel directly:</p>
+			<a href="@Model.YouTubeChannelUrl" target="_blank" rel="noopener" class="btn btn-outline-danger">
+				Visit my YouTube channel
+			</a>
+		</div>
+	}
+	else if (Model.Videos.Count > 0)
 	{
 		<div class="row">
 			@foreach (var video in Model.Videos)
@@ -39,6 +49,5 @@
 
 	<footer class="mt-5 pt-4 border-top text-center text-muted">
 		<p>Videos powered by <a href="https://www.youtube.com" target="_blank" rel="noopener">YouTube</a></p>
-		<img src="~/images/youtube-logo.svg" alt="YouTube Logo" class="youtube-logo-footer">
 	</footer>
 </div>
