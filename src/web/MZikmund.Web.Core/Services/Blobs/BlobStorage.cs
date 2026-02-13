@@ -92,7 +92,7 @@ public class BlobStorage : IBlobStorage
 	{
 		var containerClient = GetBlobContainerClient(blobKind);
 		var blobs = new List<BlobStorageItem>();
-		await foreach (var blob in containerClient.GetBlobsAsync(prefix: prefix))
+		await foreach (var blob in containerClient.GetBlobsAsync(BlobTraits.None, BlobStates.None, prefix, CancellationToken.None))
 		{
 			var blobName = blob.Name;
 			var modified = blob.Properties.LastModified;
