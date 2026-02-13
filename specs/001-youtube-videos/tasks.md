@@ -67,10 +67,10 @@ Implement data fetching, parsing, and caching infrastructure independent of UI/A
 
 ---
 
-- [ ] T007 Create YouTubeRssFeedParser in `src/web/MZikmund.Web.Core/Features/Videos/RssParsing/YouTubeRssFeedParser.cs` with ParseAsync method
-- [ ] T008 [P] Register HTTPClient and YouTubeRssFeedParser in `src/web/MZikmund.Web/Program.cs`
-- [ ] T009 Create GetVideosQuery in `src/web/MZikmund.Web.Core/Features/Videos/Queries/GetVideosQuery.cs`
-- [ ] T010 Create GetVideosQueryHandler in `src/web/MZikmund.Web.Core/Features/Videos/Queries/GetVideosQueryHandler.cs` with caching logic
+- [x] T007 Create YouTubeRssFeedParser in `src/web/MZikmund.Web.Core/Features/Videos/RssParsing/YouTubeRssFeedParser.cs` with ParseAsync method
+- [x] T008 [P] Register HTTPClient and YouTubeRssFeedParser in `src/web/MZikmund.Web/Program.cs`
+- [x] T009 Create GetVideosQuery in `src/web/MZikmund.Web.Core/Features/Videos/Queries/GetVideosQuery.cs`
+- [x] T010 Create GetVideosQueryHandler in `src/web/MZikmund.Web.Core/Features/Videos/Queries/GetVideosQueryHandler.cs` with caching logic
 
 ---
 
@@ -91,12 +91,12 @@ Website visitors can navigate to Videos tab and see all available videos from Yo
 
 ---
 
-- [ ] T011 Create VideosController in `src/web/MZikmund.Web/Controllers/VideosController.cs` with GetVideos and GetLatestVideos endpoints
-- [ ] T012 [P] Create Videos.cshtml page in `src/web/MZikmund.Web/Pages/Videos.cshtml`
-- [ ] T013 [P] Create Videos.cshtml.cs page model in `src/web/MZikmund.Web/Pages/Videos.cshtml.cs`
-- [ ] T014 Create _VideoListItem.cshtml partial in `src/web/MZikmund.Web/Pages/Shared/_VideoListItem.cshtml`
-- [ ] T015 [P] Add Videos tab to main navigation in `src/web/MZikmund.Web/Pages/Shared/_Layout.cshtml`
-- [ ] T016 [P] Add video card styles to `src/web/MZikmund.Web/wwwroot/scss/site.scss` (overlay, hover effects)
+- [x] T011 Create VideosController in `src/web/MZikmund.Web/Controllers/VideosController.cs` with GetVideos and GetLatestVideos endpoints
+- [x] T012 [P] Create Videos.cshtml page in `src/web/MZikmund.Web/Pages/Videos.cshtml`
+- [x] T013 [P] Create Videos.cshtml.cs page model in `src/web/MZikmund.Web/Pages/Videos.cshtml.cs`
+- [x] T014 Create _VideoListItem.cshtml partial in `src/web/MZikmund.Web/Pages/Shared/_VideoListItem.cshtml`
+- [x] T015 [P] Add Videos tab to main navigation in `src/web/MZikmund.Web/Pages/Shared/_Layout.cshtml`
+- [x] T016 [P] Add video card styles to `src/web/MZikmund.Web/wwwroot/scss/site.scss` (overlay, hover effects)
 
 ---
 
@@ -115,9 +115,9 @@ Visitors can click video cards to watch full videos on YouTube with visual feedb
 
 ---
 
-- [ ] T017 [US1] Verify _VideoListItem partial includes YouTube video URL link and hover styles
-- [ ] T018 [US1] Update _VideoListItem aria-label with dynamic video title
-- [ ] T019 [US1] Add play icon overlay to _VideoListItem image on hover (already in T016 SCSS)
+- [x] T017 [US1] Verify _VideoListItem partial includes YouTube video URL link and hover styles
+- [x] T018 [US1] Update _VideoListItem aria-label with dynamic video title
+- [x] T019 [US1] Add play icon overlay to _VideoListItem image on hover (already in T016 SCSS)
 
 ---
 
@@ -136,9 +136,9 @@ Home page visitors immediately see featured video section with latest content fo
 
 ---
 
-- [ ] T020 Update Index.cshtml.cs page model to fetch featured videos in `src/web/MZikmund.Web/Pages/Index.cshtml.cs`
-- [ ] T021 [P] Add featured videos section to Index.cshtml in `src/web/MZikmund.Web/Pages/Index.cshtml`
-- [ ] T022 [P] Add featured-videos SCSS section to `src/web/MZikmund.Web/wwwroot/scss/site.scss`
+- [x] T020 Update Index.cshtml.cs page model to fetch featured videos in `src/web/MZikmund.Web/Pages/Index.cshtml.cs`
+- [x] T021 [P] Add featured videos section to Index.cshtml in `src/web/MZikmund.Web/Pages/Index.cshtml`
+- [x] T022 [P] Add featured-videos SCSS section to `src/web/MZikmund.Web/wwwroot/scss/site.scss`
 
 ---
 
@@ -156,9 +156,9 @@ Visitors can easily discover and access full YouTube channel from website.
 
 ---
 
-- [ ] T023 Verify Videos.cshtml includes prominent channel link in header and footer
-- [ ] T024 [P] Verify YouTubeOptions.ChannelUrl is used in Videos page model
-- [ ] T025 [US3] Verify Index.cshtml featured videos section includes "View all videos" link to `/Videos`
+- [x] T023 Verify Videos.cshtml includes prominent channel link in header and footer
+- [x] T024 [P] Verify YouTubeOptions.ChannelUrl is used in Videos page model
+- [x] T025 [US3] Verify Index.cshtml featured videos section includes "View all videos" link to `/Videos`
 
 ---
 
@@ -179,15 +179,15 @@ Comprehensive test coverage ensuring all requirements met, caching works, error 
 
 ---
 
-- [ ] T026 Create YouTubeRssFeedParserTests in `src/web/MZikmund.Web.Core.Tests/Features/Videos/YouTubeRssFeedParserTests.cs`
-- [ ] T027 [P] Create GetVideosQueryHandlerTests in `src/web/MZikmund.Web.Core.Tests/Features/Videos/GetVideosQueryHandlerTests.cs`
-- [ ] T028 [P] Create VideosControllerTests in `src/web/MZikmund.Web.Core.Tests/Controllers/VideosControllerTests.cs`
-- [ ] T029 Run all tests: `cd src && dotnet test`
-- [ ] T030 [P] Manual test: Navigate to `/Videos` and verify videos load
-- [ ] T031 [P] Manual test: Navigate to home page and verify featured videos section
-- [ ] T032 [P] Manual test: Verify cache behavior (request twice, second is faster)
-- [ ] T033 [P] Manual test: Change FeedUrl to invalid URL; verify 503 error and friendly message
-- [ ] T034 Verify YouTube attribution footer present on Videos page
+- [x] T026 Create YouTubeRssFeedParserTests in `src/web/MZikmund.Web.Core.Tests/Features/Videos/YouTubeRssFeedParserTests.cs`
+- [x] T027 [P] Create GetVideosQueryHandlerTests in `src/web/MZikmund.Web.Core.Tests/Features/Videos/GetVideosQueryHandlerTests.cs`
+- [x] T028 [P] Create VideosControllerTests in `src/web/MZikmund.Web.Core.Tests/Controllers/VideosControllerTests.cs`
+- [x] T029 Run all tests: `cd src && dotnet test`
+- [x] T030 [P] Manual test: Navigate to `/Videos` and verify videos load
+- [x] T031 [P] Manual test: Navigate to home page and verify featured videos section
+- [x] T032 [P] Manual test: Verify cache behavior (request twice, second is faster)
+- [x] T033 [P] Manual test: Change FeedUrl to invalid URL; verify 503 error and friendly message
+- [x] T034 Verify YouTube attribution footer present on Videos page
 
 ---
 
@@ -208,11 +208,11 @@ Production-ready feature with polished UI, accessibility, and error messages.
 
 ---
 
-- [ ] T035 Verify ARIA labels on video cards for accessibility
-- [ ] T036 [P] Test empty state message when YouTube feed returns no videos
-- [ ] T037 [P] Verify error messages are user-friendly (not JSON dumps)
-- [ ] T038 [P] Performance check: Measure cache hit latency (<500ms) and fresh fetch (<3s)
-- [ ] T039 Commit implementation: `git add . && git commit -m "feat: Add YouTube Videos integration"`
+- [x] T035 Verify ARIA labels on video cards for accessibility
+- [x] T036 [P] Test empty state message when YouTube feed returns no videos
+- [x] T037 [P] Verify error messages are user-friendly (not JSON dumps)
+- [x] T038 [P] Performance check: Measure cache hit latency (<500ms) and fresh fetch (<3s)
+- [x] T039 Commit implementation: `git add . && git commit -m "feat: Add YouTube Videos integration"`
 
 ---
 

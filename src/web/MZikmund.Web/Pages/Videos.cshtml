@@ -1,0 +1,44 @@
+@page
+@model VideoModel
+@{
+	ViewData["Title"] = "Videos";
+}
+
+<div class="container py-5 videos-page">
+	<div class="row mb-5">
+		<div class="col-md-8">
+			<h1 class="display-4">@ViewData["Title"]</h1>
+			<p class="lead text-muted">Latest videos from my YouTube channel covering .NET, C#, and web development.</p>
+		</div>
+		<div class="col-md-4 text-end">
+			<a href="@Model.YouTubeChannelUrl" target="_blank" rel="noopener" class="btn btn-danger btn-lg">
+				<i class="bi bi-youtube"></i> Subscribe on YouTube
+			</a>
+		</div>
+	</div>
+
+	@if (Model.Videos?.Count > 0)
+	{
+		<div class="row">
+			@foreach (var video in Model.Videos)
+			{
+				<partial name="Shared/_VideoListItem" model="video" />
+			}
+		</div>
+	}
+	else
+	{
+		<div class="alert alert-info" role="alert">
+			<h4 class="alert-heading">No videos available yet</h4>
+			<p>Check back soon for new content! In the meantime, you can:</p>
+			<a href="@Model.YouTubeChannelUrl" target="_blank" rel="noopener" class="btn btn-outline-danger">
+				Visit my YouTube channel
+			</a>
+		</div>
+	}
+
+	<footer class="mt-5 pt-4 border-top text-center text-muted">
+		<p>Videos powered by <a href="https://www.youtube.com" target="_blank" rel="noopener">YouTube</a></p>
+		<img src="~/images/youtube-logo.svg" alt="YouTube Logo" class="youtube-logo-footer">
+	</footer>
+</div>

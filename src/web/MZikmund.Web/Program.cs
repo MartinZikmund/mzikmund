@@ -10,6 +10,7 @@ using MZikmund.Web.Core.Content.Meta;
 using MZikmund.Web.Core.Infrastructure;
 using MZikmund.Web.Core.Middleware;
 using MZikmund.Web.Core.Properties;
+using MZikmund.Web.Core.Features.Videos.RssParsing;
 using MZikmund.Web.Core.Services;
 using MZikmund.Web.Core.Services.Blobs;
 using MZikmund.Web.Core.Syndication;
@@ -49,6 +50,8 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 	services.AddSingleton<IBlobUrlProvider, BlobUrlProvider>();
 	services.AddSingleton<IFeedGenerator, FeedGenerator>();
 	services.AddScoped<ISyndicationDataSource, SyndicationDataSource>();
+	services.AddHttpClient<YouTubeRssFeedParser>();
+	services.AddScoped<YouTubeRssFeedParser>();
 	services.AddHttpContextAccessor();
 	services.AddScoped<MetaTagsInfo>();
 	services.AddCors(options =>
