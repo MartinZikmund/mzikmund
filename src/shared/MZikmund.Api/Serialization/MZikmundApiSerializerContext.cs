@@ -87,8 +87,8 @@ namespace MZikmund.Api.Serialization;
 [JsonSerializable(typeof(IEnumerable<VideoDto>))]
 [JsonSerializable(typeof(IImmutableList<VideoDto>))]
 [JsonSerializable(typeof(ImmutableList<VideoDto>))]
-[JsonSerializable(typeof(VideoResponse))]
-[JsonSerializable(typeof(ApiResponse<VideoResponse>))]
+[JsonSerializable(typeof(List<VideoDto>))]
+[JsonSerializable(typeof(ApiResponse<List<VideoDto>>))]
 
 // Common types
 [JsonSerializable(typeof(ApiResponse<object?>))]

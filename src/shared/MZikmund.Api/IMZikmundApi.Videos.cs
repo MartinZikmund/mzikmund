@@ -6,8 +6,8 @@ namespace MZikmund.Api.Client;
 public partial interface IMZikmundApi
 {
 	[Get("/v1/videos")]
-	Task<ApiResponse<VideoResponse>> GetVideosAsync();
+	Task<ApiResponse<List<VideoDto>>> GetVideosAsync();
 
 	[Get("/v1/videos/latest")]
-	Task<ApiResponse<VideoResponse>> GetLatestVideosAsync([AliasAs("count")] int? count = null);
+	Task<ApiResponse<List<VideoDto>>> GetLatestVideosAsync([AliasAs("count")] int? count = null);
 }

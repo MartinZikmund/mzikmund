@@ -43,13 +43,7 @@ public class VideosControllerTests
 		var okResult = Assert.IsType<OkObjectResult>(result);
 		Assert.Equal(200, okResult.StatusCode);
 
-		var returnValue = okResult.Value;
-		Assert.NotNull(returnValue);
-
-		// Verify the data property contains our videos
-		var dataProperty = returnValue.GetType().GetProperty("data");
-		Assert.NotNull(dataProperty);
-		var returnedVideos = dataProperty.GetValue(returnValue) as List<VideoDto>;
+		var returnedVideos = okResult.Value as List<VideoDto>;
 		Assert.NotNull(returnedVideos);
 		Assert.Equal(2, returnedVideos.Count);
 	}
@@ -121,6 +115,10 @@ public class VideosControllerTests
 		var okResult = Assert.IsType<OkObjectResult>(result);
 		Assert.Equal(200, okResult.StatusCode);
 
+		var returnedVideos = okResult.Value as List<VideoDto>;
+		Assert.NotNull(returnedVideos);
+		Assert.Equal(3, returnedVideos.Count);
+
 		// Verify query was sent with default count of 3
 		_mockMediator.Verify(
 			x => x.Send(It.Is<GetVideosQuery>(q => q.Count == 3), It.IsAny<CancellationToken>()),
@@ -148,6 +146,10 @@ public class VideosControllerTests
 		Assert.NotNull(result);
 		var okResult = Assert.IsType<OkObjectResult>(result);
 		Assert.Equal(200, okResult.StatusCode);
+
+		var returnedVideos = okResult.Value as List<VideoDto>;
+		Assert.NotNull(returnedVideos);
+		Assert.Equal(2, returnedVideos.Count);
 
 		// Verify query was sent with custom count
 		_mockMediator.Verify(
@@ -196,17 +198,23 @@ public class VideosControllerTests
 	public async Task GetLatestVideos_WithValidCountRange_Accepts1And10()
 	{
 		// Arrange
+		var testVideo = new List<VideoDto> { CreateTestVideo("video1", "Test") };
 		_mockMediator
 			.Setup(x => x.Send(It.IsAny<GetVideosQuery>(), It.IsAny<CancellationToken>()))
-			.ReturnsAsync(new List<VideoDto> { CreateTestVideo("video1", "Test") });
+			.ReturnsAsync(testVideo);
 
 		// Act - Test boundary values
 		var result1 = await _controller.GetLatestVideos(count: 1);
 		var result10 = await _controller.GetLatestVideos(count: 10);
 
 		// Assert
-		Assert.IsType<OkObjectResult>(result1);
-		Assert.IsType<OkObjectResult>(result10);
+		var okResult1 = Assert.IsType<OkObjectResult>(result1);
+		var okResult10 = Assert.IsType<OkObjectResult>(result10);
+
+		var videos1 = okResult1.Value as List<VideoDto>;
+		var videos10 = okResult10.Value as List<VideoDto>;
+		Assert.NotNull(videos1);
+		Assert.NotNull(videos10);
 
 		// Verify both requests were sent to mediator
 		_mockMediator.Verify(

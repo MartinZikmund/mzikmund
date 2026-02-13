@@ -42,7 +42,7 @@ public class VideosController : ControllerBase
 			});
 		}
 
-		return Ok(new { data = videos });
+		return Ok(videos);
 	}
 
 	/// <summary>
@@ -78,6 +78,6 @@ public class VideosController : ControllerBase
 			});
 		}
 
-		return Ok(new { data = videos });
+		return Ok(videos);
 	}
 }

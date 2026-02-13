@@ -50,10 +50,10 @@ public class VideosViewModel : PageViewModel
 		try
 		{
 			var response = await _api.GetVideosAsync();
-			if (response.Content?.Data != null)
+			if (response.Content != null)
 			{
 				Videos.Clear();
-				foreach (var video in response.Content.Data)
+				foreach (var video in response.Content)
 				{
 					Videos.Add(video);
 				}
