@@ -33,7 +33,7 @@ public class YouTubeRssFeedParser
 		{
 			var videos = new List<VideoDto>();
 
-			using var httpClient = _httpClientFactory.CreateClient("YouTube");
+			var httpClient = _httpClientFactory.CreateClient("YouTube");
 			using (var httpStream = await httpClient.GetStreamAsync(feedUrl, ct))
 			using (var xmlReader = XmlReader.Create(httpStream))
 			{
