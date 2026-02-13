@@ -33,15 +33,8 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 	// Configure YouTube options with validation
 	var youtubeConfig = configuration.GetSection("YouTube");
 	services.Configure<YouTubeOptions>(youtubeConfig);
+	ValidateYouTubeOptions(youtubeConfig);
 
-	var youtubeOptions = youtubeConfig.Get<YouTubeOptions>();
-	if (string.IsNullOrEmpty(youtubeOptions?.FeedUrl) ||
-		!youtubeOptions.FeedUrl.StartsWith("https://www.youtube.com/feeds/videos.xml"))
-	{
-		throw new InvalidOperationException(
-			"YouTube:FeedUrl not configured correctly. Set in appsettings.json: " +
-			"YouTube:FeedUrl=https://www.youtube.com/feeds/videos.xml?channel_id=YOUR_CHANNEL_ID");
-	}
 	services.AddAutoMapper(c => c.AddMaps(typeof(CoreAssemblyMarker)));
 	services.AddSingleton<ICache, Cache>();
 	services.AddSingleton<IConnectionStringProvider, ConnectionStringProvider>();
@@ -189,4 +182,33 @@ async Task Configure(WebApplication app)
 	app.MapRazorPages();
 
 	app.Run();
+}
+
+void ValidateYouTubeOptions(IConfigurationSection section)
+{
+	var options = section.Get<YouTubeOptions>();
+
+	if (string.IsNullOrEmpty(options?.FeedUrl) ||
+		!options.FeedUrl.StartsWith("https://www.youtube.com/feeds/videos.xml"))
+	{
+		throw new InvalidOperationException(
+			"YouTube:FeedUrl not configured correctly. Set in appsettings.json: " +
+			"YouTube:FeedUrl=https://www.youtube.com/feeds/videos.xml?channel_id=YOUR_CHANNEL_ID");
+	}
+
+	if (string.IsNullOrEmpty(options.ChannelUrl) ||
+		!Uri.TryCreate(options.ChannelUrl, UriKind.Absolute, out var channelUri) ||
+		channelUri.Scheme != "https")
+	{
+		throw new InvalidOperationException(
+			"YouTube:ChannelUrl not configured correctly. Set in appsettings.json: " +
+			"YouTube:ChannelUrl=https://www.youtube.com/@YOUR_HANDLE");
+	}
+
+	if (options.CacheTtlMinutes < 30)
+	{
+		throw new InvalidOperationException(
+			"YouTube:CacheTtlMinutes must be at least 30. " +
+			"Set in appsettings.json: YouTube:CacheTtlMinutes=30");
+	}
 }
