@@ -3,11 +3,11 @@
 	"name": "asp.net",
 	"private": true,
 	"scripts": {
-		"build:css": "sass Styles/site.scss wwwroot/css/site.css --style=expanded --source-map",
-		"build:css:prod": "sass Styles/site.scss wwwroot/css/site.min.css --style=compressed --no-source-map",
+		"build:css": "sass Styles/site.scss wwwroot/css/site.css --style=expanded --source-map --load-path=node_modules --quiet-deps --silence-deprecation=import",
+		"build:css:prod": "sass Styles/site.scss wwwroot/css/site.min.css --style=compressed --no-source-map --load-path=node_modules --quiet-deps --silence-deprecation=import",
 		"build:ts": "tsc",
 		"build": "npm run build:css && npm run build:css:prod && npm run build:ts",
-		"watch:css": "sass Styles/site.scss wwwroot/css/site.css --style=expanded --source-map --watch",
+		"watch:css": "sass Styles/site.scss wwwroot/css/site.css --style=expanded --source-map --watch --load-path=node_modules --quiet-deps --silence-deprecation=import",
 		"watch:ts": "tsc --watch",
 		"watch": "npm run watch:css & npm run watch:ts"
 	},
@@ -15,9 +15,9 @@
 		"bootstrap": "5.3.8"
 	},
 	"devDependencies": {
-		"@types/node": "24.10.1",
-		"eslint": "9.39.1",
-		"sass": "1.94.0",
+		"@types/node": "25.2.3",
+		"eslint": "10.0.0",
+		"sass": "1.97.3",
 		"typescript": "5.9.3"
 	}
 }
