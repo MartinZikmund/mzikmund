@@ -273,7 +273,8 @@ public class GetVideosQueryHandlerTests
 
 			if (!response.IsSuccessStatusCode)
 			{
-				response.EnsureSuccessStatusCode();
+				response.Dispose();
+				throw new HttpRequestException($"Response status code does not indicate success: {(int)_statusCode} ({_statusCode}).");
 			}
 
 			return Task.FromResult(response);

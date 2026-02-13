@@ -189,7 +189,8 @@ public class YouTubeRssFeedParserTests
 
 			if (!response.IsSuccessStatusCode)
 			{
-				response.EnsureSuccessStatusCode(); // This will throw
+				response.Dispose();
+				throw new HttpRequestException($"Response status code does not indicate success: {(int)_statusCode} ({_statusCode}).");
 			}
 
 			return Task.FromResult(response);

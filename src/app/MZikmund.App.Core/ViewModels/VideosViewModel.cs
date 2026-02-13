@@ -50,13 +50,17 @@ public class VideosViewModel : PageViewModel
 		try
 		{
 			var response = await _api.GetVideosAsync();
-			if (response.Content != null)
+			if (response.IsSuccessStatusCode && response.Content != null)
 			{
 				Videos.Clear();
 				foreach (var video in response.Content)
 				{
 					Videos.Add(video);
 				}
+			}
+			else
+			{
+				_logger.LogWarning("Failed to load videos. Status: {StatusCode}", response.StatusCode);
 			}
 		}
 		catch (Exception ex)

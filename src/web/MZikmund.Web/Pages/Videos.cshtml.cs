@@ -7,7 +7,7 @@ using MZikmund.Web.Core.Features.Videos.Queries;
 
 namespace MZikmund.Web.Pages;
 
-public class VideoModel : PageModel
+public class VideosModel : PageModel
 {
 	private readonly IMediator _mediator;
 	private readonly IOptions<YouTubeOptions> _options;
@@ -15,7 +15,7 @@ public class VideoModel : PageModel
 	public List<VideoDto>? Videos { get; set; }
 	public string YouTubeChannelUrl { get; set; } = "";
 
-	public VideoModel(IMediator mediator, IOptions<YouTubeOptions> options)
+	public VideosModel(IMediator mediator, IOptions<YouTubeOptions> options)
 	{
 		_mediator = mediator;
 		_options = options;
