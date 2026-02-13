@@ -11,7 +11,13 @@
 
     <partial name="_HeadStylesPartial" />
 
-    @Html.Raw(JavaScriptSnippet.FullScript)
+    @{
+        var jsSnippet = Context.RequestServices.GetService<Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet>();
+    }
+    @if (jsSnippet != null)
+    {
+        @Html.Raw(jsSnippet.FullScript)
+    }
     <partial name="_HeadScriptsPartial" />
 
     @await RenderSectionAsync(LayoutSections.Head, required: false)
@@ -21,6 +27,7 @@
         var currentPath = Context.Request.Path.Value?.TrimEnd('/') ?? "";
         bool isHome = currentPath == "" || currentPath == "/";
         bool isBlog = currentPath.StartsWith("/Blog", StringComparison.OrdinalIgnoreCase);
+        bool isVideos = currentPath.StartsWith("/Videos", StringComparison.OrdinalIgnoreCase);
     }
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm shadow-sm">
@@ -39,6 +46,9 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link @(isBlog ? "active" : "")" asp-page="/Blog/Index">Blog</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(isVideos ? "active" : "")" asp-page="/Videos">Videos</a>
                         </li>
                     </ul>
                 </div>

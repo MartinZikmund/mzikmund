@@ -27,7 +27,7 @@
 		<!-- Temporary workaround for https://github.com/unoplatform/uno/issues/18464 -->
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
-		<UnoWasmBootstrapVersion>10.1.0-dev.24</UnoWasmBootstrapVersion>
+		<UnoWasmBootstrapVersion>10.1.0-dev.54</UnoWasmBootstrapVersion>
 
 		<!-- Temporary workaround for Uno.Wasm.Bootstrap -->
 		<UnoGenerateAssetsManifestDependsOn>

@@ -1,0 +1,47 @@
+@model MZikmund.DataContracts.Videos.VideoDto
+
+<div class="col-md-6 col-lg-4 mb-4 d-flex align-items-stretch">
+	<article class="article-card card border-0 shadow-sm h-100 w-100">
+		<a href="@Model.YouTubeUrl" target="_blank" rel="noopener"
+		   class="card-link-wrapper" aria-label="Watch video on YouTube: @Model.Title">
+
+			<!-- VIDEO THUMBNAIL -->
+			<div class="article-card-image-wrapper">
+				<img class="card-img-top article-card-image"
+					 src="@Model.ThumbnailUrl"
+					 alt="@Model.Title"
+					 loading="lazy">
+				<div class="video-card-overlay">
+					<span class="bi bi-play-circle"></span>
+				</div>
+			</div>
+
+			<!-- CONTENT -->
+			<div class="card-body d-flex flex-column">
+
+				<!-- DATE -->
+				<div class="article-meta mb-2">
+					<small class="text-muted">
+						<i class="bi bi-calendar3"></i>
+						@Model.PublishedDate.ToString("MMM d, yyyy")
+					</small>
+				</div>
+
+				<!-- TITLE -->
+				<h3 class="article-title h5 mb-3">@Model.Title</h3>
+
+				<!-- DESCRIPTION -->
+				<div class="article-abstract text-muted mb-3 flex-grow-1">
+					@Model.Description
+				</div>
+
+				<!-- CTA BUTTON -->
+				<div class="article-read-more mt-auto">
+					<span class="btn btn-sm btn-outline-primary">
+						<i class="bi bi-play-fill"></i> Watch on YouTube →
+					</span>
+				</div>
+			</div>
+		</a>
+	</article>
+</div>

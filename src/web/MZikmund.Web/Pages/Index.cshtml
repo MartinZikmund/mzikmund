@@ -27,3 +27,28 @@
     <h2 class="display-4 text-center text-primary">@Localizer["Latest posts"]</h2>
     <partial name="_PostList" model="Model.BlogPosts" />
 </div>
+
+@if (Model.FeaturedVideos?.Count > 0)
+{
+    <section class="featured-videos py-5">
+        <div class="container">
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <h2 class="display-5">Latest Videos</h2>
+                    <p class="lead text-muted">Check out my latest video content on YouTube</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a asp-page="/Videos" class="btn btn-outline-primary btn-lg">
+                        View all videos →
+                    </a>
+                </div>
+            </div>
+            <div class="row">
+                @foreach (var video in Model.FeaturedVideos)
+                {
+                    <partial name="Shared/_VideoListItem" model="video" />
+                }
+            </div>
+        </div>
+    </section>
+}

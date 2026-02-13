@@ -125,6 +125,7 @@ public partial class MZikmundApp : Application, IApplication
 	private void ConfigureServices(IServiceCollection services)
 	{
 		services.AddScoped<BlogViewModel>();
+		services.AddScoped<VideosViewModel>();
 		services.AddScoped<SettingsViewModel>();
 		services.AddScoped<TagsManagerViewModel>();
 		services.AddScoped<CategoriesManagerViewModel>();

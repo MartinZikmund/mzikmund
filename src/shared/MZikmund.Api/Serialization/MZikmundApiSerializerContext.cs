@@ -4,6 +4,7 @@ using MZikmund.DataContracts;
 using MZikmund.DataContracts.Blobs;
 using MZikmund.DataContracts.Blog;
 using MZikmund.DataContracts.Storage;
+using MZikmund.DataContracts.Videos;
 using Refit;
 
 namespace MZikmund.Api.Serialization;
@@ -79,6 +80,15 @@ namespace MZikmund.Api.Serialization;
 [JsonSerializable(typeof(ImageVariant[]))]
 [JsonSerializable(typeof(IEnumerable<ImageVariant>))]
 [JsonSerializable(typeof(ApiResponse<ImageVariant[]>))]
+
+// Video types
+[JsonSerializable(typeof(VideoDto))]
+[JsonSerializable(typeof(VideoDto[]))]
+[JsonSerializable(typeof(IEnumerable<VideoDto>))]
+[JsonSerializable(typeof(IImmutableList<VideoDto>))]
+[JsonSerializable(typeof(ImmutableList<VideoDto>))]
+[JsonSerializable(typeof(List<VideoDto>))]
+[JsonSerializable(typeof(ApiResponse<List<VideoDto>>))]
 
 // Common types
 [JsonSerializable(typeof(ApiResponse<object?>))]

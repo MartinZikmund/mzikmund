@@ -175,6 +175,25 @@ article figure {
     transition: transform 0.3s ease;
 }
 
+.video-card-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: rgba(255, 255, 255, 0.85);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.article-card:hover .video-card-overlay {
+    opacity: 1;
+}
+
 .article-title {
     font-weight: 600;
     line-height: 1.4;

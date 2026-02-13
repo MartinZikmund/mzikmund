@@ -10,6 +10,7 @@ using MZikmund.Web.Core.Content.Meta;
 using MZikmund.Web.Core.Infrastructure;
 using MZikmund.Web.Core.Middleware;
 using MZikmund.Web.Core.Properties;
+using MZikmund.Web.Core.Features.Videos.RssParsing;
 using MZikmund.Web.Core.Services;
 using MZikmund.Web.Core.Services.Blobs;
 using MZikmund.Web.Core.Syndication;
@@ -28,6 +29,19 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 {
 	var siteConfiguration = new SiteConfiguration(configuration);
 	services.AddSingleton<ISiteConfiguration>(siteConfiguration);
+
+	// Configure YouTube options with validation
+	var youtubeConfig = configuration.GetSection("YouTube");
+	services.Configure<YouTubeOptions>(youtubeConfig);
+
+	var youtubeOptions = youtubeConfig.Get<YouTubeOptions>();
+	if (string.IsNullOrEmpty(youtubeOptions?.FeedUrl) ||
+		!youtubeOptions.FeedUrl.StartsWith("https://www.youtube.com/feeds/videos.xml"))
+	{
+		throw new InvalidOperationException(
+			"YouTube:FeedUrl not configured correctly. Set in appsettings.json: " +
+			"YouTube:FeedUrl=https://www.youtube.com/feeds/videos.xml?channel_id=YOUR_CHANNEL_ID");
+	}
 	services.AddAutoMapper(c => c.AddMaps(typeof(CoreAssemblyMarker)));
 	services.AddSingleton<ICache, Cache>();
 	services.AddSingleton<IConnectionStringProvider, ConnectionStringProvider>();
@@ -36,6 +50,8 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 	services.AddSingleton<IBlobUrlProvider, BlobUrlProvider>();
 	services.AddSingleton<IFeedGenerator, FeedGenerator>();
 	services.AddScoped<ISyndicationDataSource, SyndicationDataSource>();
+	services.AddHttpClient("YouTube");
+	services.AddScoped<YouTubeRssFeedParser>();
 	services.AddHttpContextAccessor();
 	services.AddScoped<MetaTagsInfo>();
 	services.AddCors(options =>
@@ -105,7 +121,12 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 	services.AddEndpointsApiExplorer();
 	services.AddSwaggerGen();
 
-	services.AddApplicationInsightsTelemetry();
+	// Only if APPLICATIONINSIGHTS_CONNECTION_STRING is set
+	if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING")))
+	{
+		services.AddApplicationInsightsTelemetry();
+	}
+
 	services.AddHealthChecks();
 	services.AddRazorPages();
 	services.AddMediatR(config =>

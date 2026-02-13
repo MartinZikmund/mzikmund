@@ -1,7 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MZikmund.DataContracts.Blog;
+using MZikmund.DataContracts.Videos;
 using MZikmund.Web.Core.Features.Posts;
+using MZikmund.Web.Core.Features.Videos.Queries;
 using MZikmund.Web.Core.Services;
 using X.PagedList;
 
@@ -19,6 +21,7 @@ public class IndexModel : PageModel
 	}
 
 	public StaticPagedList<PostListItem> BlogPosts { get; private set; } = null!;
+	public List<VideoDto>? FeaturedVideos { get; private set; }
 
 	public async Task OnGet(int pageNumber = 1)
 	{
@@ -33,5 +36,8 @@ public class IndexModel : PageModel
 		var list = new StaticPagedList<PostListItem>(posts.Data, pageNumber, pageSize, posts.TotalCount);
 
 		BlogPosts = list;
+
+		// Fetch latest 3 videos for featured section
+		FeaturedVideos = await _mediator.Send(new GetVideosQuery { Count = 3 });
 	}
 }

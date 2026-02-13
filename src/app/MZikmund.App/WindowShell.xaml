@@ -59,6 +59,11 @@
                         <BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///Assets/Icons/Navigation/Blog.png" />
                     </mux:NavigationViewItem.Icon>
                 </mux:NavigationViewItem>
+                <mux:NavigationViewItem x:Name="VideosNavigationViewItem" Content="Videos">
+                    <mux:NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Video" />
+                    </mux:NavigationViewItem.Icon>
+                </mux:NavigationViewItem>
                 <mux:NavigationViewItem x:Name="ContactNavigationViewItem" Content="{extensions:Localize Key=Contact}">
                     <mux:NavigationViewItem.Icon>
                         <BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///Assets/Icons/Navigation/Contact.png" />
