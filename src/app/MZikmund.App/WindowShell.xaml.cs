@@ -127,6 +127,10 @@ public sealed partial class WindowShell : Page, IWindowShell
 		{
 			navigationService.Navigate<BlogViewModel>();
 		}
+		else if (args.InvokedItemContainer == VideosNavigationViewItem)
+		{
+			navigationService.Navigate<VideosViewModel>();
+		}
 		else if (args.InvokedItemContainer == ContactNavigationViewItem)
 		{
 
