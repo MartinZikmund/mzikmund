@@ -66,7 +66,6 @@ cd mzikmund
 ### 2. Restore Dependencies
 
 ```bash
-cd src
 dotnet restore
 ```
 
@@ -139,7 +138,6 @@ Alternatively, open the solution in Visual Studio and select the desired target 
 ### Build All Projects
 
 ```bash
-cd src
 dotnet build
 ```
 
@@ -165,7 +163,6 @@ dotnet build -f net10.0-browserwasm -c Release
 The solution includes unit tests for the web core functionality:
 
 ```bash
-cd src
 dotnet test
 ```
 
@@ -195,8 +192,8 @@ mzikmund/
 │   │   ├── MZikmund.Web.Core.Tests/  # Unit tests
 │   │   └── MZikmund.Web.Data/        # Data access layer
 │   ├── Directory.Build.props      # Shared MSBuild properties
-│   ├── Directory.Packages.props   # Central package management
-│   └── MZikmund.slnx             # Solution file
+│   └── Directory.Packages.props   # Central package management
+├── MZikmund.slnx         # Solution file
 ├── .editorconfig         # Code style configuration
 ├── global.json           # .NET SDK version
 ├── LICENSE               # MIT License

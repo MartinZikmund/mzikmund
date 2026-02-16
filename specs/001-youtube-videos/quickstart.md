@@ -10,7 +10,7 @@ This guide walks you through implementing the YouTube Videos feature step-by-ste
 
 - Visual Studio or VS Code with C# extensions
 - .NET 10 SDK (already installed per CLAUDE.md)
-- Access to solution: `src/MZikmund.slnx`
+- Access to solution: `MZikmund.slnx`
 - Verify `Directory.Packages.props` has `System.ServiceModel.Syndication` v10.0.0 (it should)
 
 ---

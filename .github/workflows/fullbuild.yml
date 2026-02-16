@@ -21,7 +21,7 @@ jobs:
     runs-on: windows-latest
     defaults:
       run:
-        working-directory: ./src
+        working-directory: .
     steps:
     - uses: actions/checkout@v3
       with:
@@ -48,7 +48,7 @@ jobs:
         dotnet workload install wasm-tools
     - name: Restore Node.js dependencies
       run: |
-        cd web/MZikmund.Web
+        cd src/web/MZikmund.Web
         npm install
     - name: Build
       run: dotnet build --configuration Release

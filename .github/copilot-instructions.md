@@ -35,7 +35,7 @@ This is Martin Zikmund's personal website and blog, built as a multi-platform so
 - `global.json` - .NET SDK version configuration
 - `Directory.Build.props` - Centralized MSBuild properties
 - `Directory.Packages.props` - Central Package Management (CPM)
-- `MZikmund.slnx` - Solution file (XML format)
+- `MZikmund.slnx` - Solution file (XML format, in repository root)
 
 ## Coding Standards & Conventions
 

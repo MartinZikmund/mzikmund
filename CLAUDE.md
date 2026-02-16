@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Personal website and blog platform built with .NET 10 and Uno Platform. The solution (`src/MZikmund.slnx`, XML solution format) consists of:
+Personal website and blog platform built with .NET 10 and Uno Platform. The solution (`MZikmund.slnx`, XML solution format, in repository root) consists of:
 - **Web Application** (`src/web/`): ASP.NET Core website with blog, API, and admin features
 - **Cross-Platform App** (`src/app/`): Uno Platform mobile/desktop application
 - **Shared Libraries** (`src/shared/`): Refit API client (`MZikmund.Api`), shared utilities (`MZikmund.Shared`), DTOs (`MZikmund.DataContracts`)
@@ -14,7 +14,6 @@ Personal website and blog platform built with .NET 10 and Uno Platform. The solu
 
 ### Build Solution
 ```bash
-cd src
 dotnet restore
 dotnet build
 ```
@@ -39,7 +38,6 @@ dotnet run -f net10.0-ios                  # iOS (requires Mac)
 
 ### Testing
 ```bash
-cd src
 dotnet test                                # All tests
 dotnet test --filter "FullyQualifiedName~ClassName.MethodName"  # Single test
 
@@ -47,6 +45,9 @@ dotnet test --filter "FullyQualifiedName~ClassName.MethodName"  # Single test
 cd src/web/MZikmund.Web.Core.Tests
 dotnet test
 ```
+
+### Verifying Web App Changes
+After making changes to the web application, run the app locally and use the Playwright MCP to verify the changes visually in the browser (navigate to `https://localhost:5001`, take snapshots/screenshots, and confirm the UI renders correctly).
 
 ### Database Migrations
 ```bash
@@ -163,6 +164,10 @@ Enforced via `.editorconfig`:
 2. Add ViewModel in `src/app/MZikmund.App.Core/ViewModels/`
 3. Register ViewModel in `App.xaml.cs` DI container
 4. Configure navigation
+
+## Final Steps
+
+Always run `dotnet format MZikmund.slnx` at the end of your work to ensure consistent code formatting.
 
 ## Important Notes
 
