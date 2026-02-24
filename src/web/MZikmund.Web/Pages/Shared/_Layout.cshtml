@@ -28,6 +28,7 @@
         bool isHome = currentPath == "" || currentPath == "/";
         bool isBlog = currentPath.StartsWith("/Blog", StringComparison.OrdinalIgnoreCase);
         bool isVideos = currentPath.StartsWith("/Videos", StringComparison.OrdinalIgnoreCase);
+        bool isContact = currentPath.StartsWith("/Contact", StringComparison.OrdinalIgnoreCase);
     }
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm shadow-sm">
@@ -49,6 +50,9 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link @(isVideos ? "active" : "")" asp-page="/Videos">Videos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(isContact ? "active" : "")" asp-page="/Contact">Contact</a>
                         </li>
                     </ul>
                 </div>
@@ -106,7 +110,6 @@
                         var shortSha = VersionInfo.CommitSha?.Length >= 7 ? VersionInfo.CommitSha.Substring(0, 7) : VersionInfo.CommitSha;
                         <text> | </text><a href="@VersionInfo.CommitUrl" target="_blank" class="text-muted">@VersionInfo.Version+@shortSha</a>
                     }
-                    <text> | </text><a href="/Elektromobilita" class="text-muted">Elektromobilita</a>
                 </small>
             </div>
         </div>
