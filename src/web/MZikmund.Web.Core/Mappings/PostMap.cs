@@ -10,10 +10,10 @@ public class PostMap : Profile
 	{
 		// Public mapping - Post doesn't include PreviewToken
 		CreateMap<PostEntity, Post>();
-		
+
 		// Admin mapping - PostAdmin includes PreviewToken
 		CreateMap<PostEntity, PostAdmin>();
-		
+
 		CreateMap<PostEntity, PostListItem>();
 	}
 }

@@ -1,8 +1,8 @@
 ﻿
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.UI.Dispatching;
-using MZikmund.ViewModels;
 using MZikmund.App.Core.Infrastructure;
+using MZikmund.ViewModels;
 
 namespace MZikmund.Services.Navigation;
 

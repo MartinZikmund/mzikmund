@@ -28,6 +28,7 @@
         bool isHome = currentPath == "" || currentPath == "/";
         bool isBlog = currentPath.StartsWith("/Blog", StringComparison.OrdinalIgnoreCase);
         bool isVideos = currentPath.StartsWith("/Videos", StringComparison.OrdinalIgnoreCase);
+        bool isContact = currentPath.StartsWith("/Contact", StringComparison.OrdinalIgnoreCase);
     }
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm shadow-sm">
@@ -49,6 +50,9 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link @(isVideos ? "active" : "")" asp-page="/Videos">Videos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(isContact ? "active" : "")" asp-page="/Contact">Contact</a>
                         </li>
                     </ul>
                 </div>

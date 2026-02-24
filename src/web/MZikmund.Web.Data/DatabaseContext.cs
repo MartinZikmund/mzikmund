@@ -1,5 +1,5 @@
-﻿using MZikmund.Web.Data.Entities.Configurations;
-using MZikmund.Web.Data.Entities;
+﻿using MZikmund.Web.Data.Entities;
+using MZikmund.Web.Data.Entities.Configurations;
 
 namespace MZikmund.Web.Data;
 

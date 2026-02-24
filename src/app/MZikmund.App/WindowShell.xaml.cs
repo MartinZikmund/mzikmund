@@ -1,17 +1,17 @@
-﻿using Microsoft.UI;
-using Windows.ApplicationModel.Core;
-using Windows.UI;
-using Windows.UI.Core;
-using Windows.UI.ViewManagement;
+﻿using CommunityToolkit.Mvvm.DependencyInjection;
+using Microsoft.UI;
+using MZikmund.App.Core.Infrastructure;
 using MZikmund.Resources;
-using CommunityToolkit.Mvvm.DependencyInjection;
+using MZikmund.Services.Dialogs;
+using MZikmund.Services.Navigation;
 using MZikmund.Services.Theming;
 using MZikmund.ViewModels;
 using MZikmund.ViewModels.Admin;
-using MZikmund.Services.Navigation;
-using MZikmund.Services.Dialogs;
+using Windows.ApplicationModel.Core;
 using Windows.Foundation.Metadata;
-using MZikmund.App.Core.Infrastructure;
+using Windows.UI;
+using Windows.UI.Core;
+using Windows.UI.ViewManagement;
 
 namespace MZikmund.App;
 

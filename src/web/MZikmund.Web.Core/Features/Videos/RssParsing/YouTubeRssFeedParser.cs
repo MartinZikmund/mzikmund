@@ -2,8 +2,8 @@ using System.ServiceModel.Syndication;
 using System.Web;
 using System.Xml;
 using System.Xml.Linq;
-using MZikmund.DataContracts.Videos;
 using Microsoft.Extensions.Logging;
+using MZikmund.DataContracts.Videos;
 
 namespace MZikmund.Web.Core.Features.Videos.RssParsing;
 

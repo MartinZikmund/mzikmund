@@ -1,11 +1,11 @@
-﻿using MediatR;
-using MZikmund.Web.Configuration;
+﻿using AutoMapper;
+using MediatR;
 using MZikmund.DataContracts.Blog;
+using MZikmund.Shared.Extensions;
+using MZikmund.Web.Configuration;
 using MZikmund.Web.Core.Services;
 using MZikmund.Web.Data.Entities;
 using MZikmund.Web.Data.Infrastructure;
-using MZikmund.Shared.Extensions;
-using AutoMapper;
 
 namespace MZikmund.Web.Core.Features.Posts;
 

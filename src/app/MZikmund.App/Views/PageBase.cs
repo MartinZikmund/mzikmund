@@ -1,9 +1,9 @@
-﻿using Windows.ApplicationModel;
-using MZikmund.ViewModels;
+﻿using System.Runtime.InteropServices.ObjectiveC;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.UI.Xaml.Navigation;
-using System.Runtime.InteropServices.ObjectiveC;
 using MZikmund.App;
+using MZikmund.ViewModels;
+using Windows.ApplicationModel;
 
 namespace MZikmund.Views;
 

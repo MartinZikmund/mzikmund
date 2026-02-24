@@ -13,41 +13,41 @@
     <Platform Name="x86" />
   </Configurations>
   <Folder Name="/App/">
-    <Project Path="app/MZikmund.App.Core/MZikmund.App.Core.csproj">
+    <Project Path="src/app/MZikmund.App.Core/MZikmund.App.Core.csproj">
       <BuildType Solution="Ad-Hoc|*" Project="Debug" />
       <BuildType Solution="AppStore|*" Project="Debug" />
     </Project>
-    <Project Path="app/MZikmund.App/MZikmund.App.csproj">
+    <Project Path="src/app/MZikmund.App/MZikmund.App.csproj">
       <BuildType Solution="Ad-Hoc|*" Project="Debug" />
       <BuildType Solution="AppStore|*" Project="Debug" />
       <Deploy />
     </Project>
   </Folder>
   <Folder Name="/Shared/">
-    <Project Path="app/MZikmund.DataContracts/MZikmund.DataContracts.csproj">
+    <Project Path="src/app/MZikmund.DataContracts/MZikmund.DataContracts.csproj">
       <BuildType Solution="Ad-Hoc|*" Project="Debug" />
       <BuildType Solution="AppStore|*" Project="Debug" />
     </Project>
-    <Project Path="shared/MZikmund.Api/MZikmund.Api.csproj">
+    <Project Path="src/shared/MZikmund.Api/MZikmund.Api.csproj">
       <BuildType Solution="Ad-Hoc|*" Project="Debug" />
       <BuildType Solution="AppStore|*" Project="Debug" />
     </Project>
-    <Project Path="shared/MZikmund.Shared/MZikmund.Shared.csproj">
+    <Project Path="src/shared/MZikmund.Shared/MZikmund.Shared.csproj">
       <BuildType Solution="Ad-Hoc|*" Project="Debug" />
       <BuildType Solution="AppStore|*" Project="Debug" />
     </Project>
   </Folder>
   <Folder Name="/Solution Items/">
-    <File Path="../.editorconfig" />
-    <File Path="../global.json" />
-    <File Path="../version.json" />
-    <File Path="Directory.Build.props" />
-    <File Path="Directory.Build.targets" />
-    <File Path="Directory.Packages.props" />
-    <File Path="solution-config.props.sample" />
+    <File Path=".editorconfig" />
+    <File Path="global.json" />
+    <File Path="version.json" />
+    <File Path="src/Directory.Build.props" />
+    <File Path="src/Directory.Build.targets" />
+    <File Path="src/Directory.Packages.props" />
+    <File Path="src/solution-config.props.sample" />
   </Folder>
   <Folder Name="/Tools/">
-    <Project Path="tools/MZikmund.LegacyMigration/MZikmund.LegacyMigration.csproj">
+    <Project Path="src/tools/MZikmund.LegacyMigration/MZikmund.LegacyMigration.csproj">
       <BuildType Solution="Ad-Hoc|*" Project="Debug" />
       <BuildType Solution="AppStore|*" Project="Debug" />
       <Platform Solution="*|Any CPU" Project="x64" />
@@ -61,27 +61,27 @@
     </Project>
   </Folder>
   <Folder Name="/Web/">
-    <Project Path="web/MZikmund.Web.Configuration/MZikmund.Web.Configuration.csproj">
+    <Project Path="src/web/MZikmund.Web.Configuration/MZikmund.Web.Configuration.csproj">
       <BuildType Solution="Ad-Hoc|*" Project="Debug" />
       <BuildType Solution="AppStore|*" Project="Debug" />
     </Project>
-    <Project Path="web/MZikmund.Web.Core.Tests/MZikmund.Web.Core.Tests.csproj">
+    <Project Path="src/web/MZikmund.Web.Core.Tests/MZikmund.Web.Core.Tests.csproj">
       <BuildType Solution="Ad-Hoc|*" Project="Debug" />
       <BuildType Solution="AppStore|*" Project="Debug" />
     </Project>
-    <Project Path="web/MZikmund.Web.Tests/MZikmund.Web.Tests.csproj">
+    <Project Path="src/web/MZikmund.Web.Tests/MZikmund.Web.Tests.csproj">
       <BuildType Solution="Ad-Hoc|*" Project="Debug" />
       <BuildType Solution="AppStore|*" Project="Debug" />
     </Project>
-    <Project Path="web/MZikmund.Web.Core/MZikmund.Web.Core.csproj">
+    <Project Path="src/web/MZikmund.Web.Core/MZikmund.Web.Core.csproj">
       <BuildType Solution="Ad-Hoc|*" Project="Debug" />
       <BuildType Solution="AppStore|*" Project="Debug" />
     </Project>
-    <Project Path="web/MZikmund.Web.Data/MZikmund.Web.Data.csproj">
+    <Project Path="src/web/MZikmund.Web.Data/MZikmund.Web.Data.csproj">
       <BuildType Solution="Ad-Hoc|*" Project="Debug" />
       <BuildType Solution="AppStore|*" Project="Debug" />
     </Project>
-    <Project Path="web/MZikmund.Web/MZikmund.Web.csproj">
+    <Project Path="src/web/MZikmund.Web/MZikmund.Web.csproj">
       <BuildType Solution="Ad-Hoc|*" Project="Release" />
       <BuildType Solution="AppStore|*" Project="Release" />
     </Project>

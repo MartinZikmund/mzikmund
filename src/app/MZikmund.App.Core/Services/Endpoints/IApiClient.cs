@@ -2,6 +2,7 @@ using MZikmund.DataContracts;
 using Refit;
 
 namespace MZikmund.Services.Endpoints;
+
 [Headers("Content-Type: application/json")]
 public interface IApiClient
 {

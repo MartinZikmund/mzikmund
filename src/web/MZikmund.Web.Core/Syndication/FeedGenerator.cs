@@ -1,19 +1,19 @@
 ﻿// Based on https://github.com/EdiWang/Moonglade/blob/cf5571b0db09c7722b310ca9922cdcd542e93a51/src/Moonglade.Syndication/FeedGenerator.cs
 
-using Edi.SyndicationFeed.ReaderWriter.Atom;
-using Microsoft.AspNetCore.Http;
-using System.ServiceModel.Syndication;
 using System;
+using System.Reflection;
+using System.ServiceModel.Syndication;
 using System.Text;
 using System.Xml;
+using Edi.SyndicationFeed.ReaderWriter.Atom;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
+using MZikmund.Web.Configuration;
+using MZikmund.Web.Configuration.ConfigSections;
+using EwSyndicationCategory = Edi.SyndicationFeed.ReaderWriter.SyndicationCategory;
 using EwSyndicationItem = Edi.SyndicationFeed.ReaderWriter.SyndicationItem;
 using EwSyndicationLink = Edi.SyndicationFeed.ReaderWriter.SyndicationLink;
-using EwSyndicationCategory = Edi.SyndicationFeed.ReaderWriter.SyndicationCategory;
 using EwSyndicationPerson = Edi.SyndicationFeed.ReaderWriter.SyndicationPerson;
-using Microsoft.Extensions.Options;
-using MZikmund.Web.Configuration.ConfigSections;
-using MZikmund.Web.Configuration;
-using System.Reflection;
 
 namespace MZikmund.Web.Core.Syndication;
 

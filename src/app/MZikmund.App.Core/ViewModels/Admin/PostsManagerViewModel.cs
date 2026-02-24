@@ -101,7 +101,7 @@ public partial class PostsManagerViewModel : PageViewModel
 	{
 		var posts = await _api.GetAllPostsAsync(pageNumber);
 		await posts.EnsureSuccessfulAsync();
-		
+
 		if (posts.Content != null)
 		{
 			Posts.AddRange(posts.Content.Data);
