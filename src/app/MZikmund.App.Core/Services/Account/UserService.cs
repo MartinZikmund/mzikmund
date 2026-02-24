@@ -1,11 +1,11 @@
 ﻿using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
-using MZikmund.App.Core.Infrastructure;
-using MZikmund.Services.Preferences;
-using Microsoft.UI;
-using MZikmund.Business.Models;
 using Microsoft.Extensions.Options;
+using Microsoft.UI;
+using MZikmund.App.Core.Infrastructure;
+using MZikmund.Business.Models;
+using MZikmund.Services.Preferences;
 
 #if WINDOWS
 using Microsoft.Security.Authentication.OAuth;

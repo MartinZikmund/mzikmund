@@ -1,6 +1,6 @@
+using System.Collections;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Data;
-using System.Collections;
 
 namespace MZikmund.Converters;
 

@@ -21,7 +21,7 @@ public class FilesAdminController : Controller
 	}
 
 	[HttpGet]
-	public async Task<IActionResult> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50) => 
+	public async Task<IActionResult> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50) =>
 		Ok(await _mediator.Send(new GetFilesQuery(pageNumber, pageSize)));
 
 	[HttpDelete]

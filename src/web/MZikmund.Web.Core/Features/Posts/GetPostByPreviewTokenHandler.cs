@@ -27,7 +27,7 @@ public class GetPostByPreviewTokenHandler : IRequestHandler<GetPostByPreviewToke
 	public async Task<Post> Handle(GetPostByPreviewTokenQuery request, CancellationToken cancellationToken)
 	{
 		var now = _dateProvider.UtcNow;
-		
+
 		var post = await _postsRepository.AsQueryable()
 			.Where(p => p.PreviewToken == request.PreviewToken)
 			.Include(nameof(PostEntity.Tags))
@@ -43,8 +43,8 @@ public class GetPostByPreviewTokenHandler : IRequestHandler<GetPostByPreviewToke
 		// 1. Draft posts (not published yet)
 		// 2. Published posts with future publish date
 		// Once a post is published and the publish date has passed, preview URL is disabled
-		var isPublishedAndLive = post.Status == PostStatus.Published 
-			&& post.PublishedDate.HasValue 
+		var isPublishedAndLive = post.Status == PostStatus.Published
+			&& post.PublishedDate.HasValue
 			&& post.PublishedDate.Value <= now;
 
 		if (isPublishedAndLive)

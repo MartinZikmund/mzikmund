@@ -1,5 +1,5 @@
-﻿using MZikmund.ViewModels;
-using Microsoft.UI.Xaml.Controls;
+﻿using Microsoft.UI.Xaml.Controls;
+using MZikmund.ViewModels;
 
 namespace MZikmund.Views;
 

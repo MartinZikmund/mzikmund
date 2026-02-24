@@ -1,11 +1,11 @@
-using MZikmund.Services.Preferences;
-using MZikmund.Services.Theming;
 using System;
 using System.Linq;
-using MZikmund.ViewModels;
-using MZikmund.Services.Localization;
-using Windows.ApplicationModel;
 using System.Reflection;
+using MZikmund.Services.Localization;
+using MZikmund.Services.Preferences;
+using MZikmund.Services.Theming;
+using MZikmund.ViewModels;
+using Windows.ApplicationModel;
 
 namespace MZikmund.ViewModels;
 

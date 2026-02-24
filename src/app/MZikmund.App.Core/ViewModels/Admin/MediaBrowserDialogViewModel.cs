@@ -1,12 +1,12 @@
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Microsoft.UI.Dispatching;
 using MZikmund.Api.Client;
-using Refit;
+using MZikmund.Business.Models;
 using MZikmund.DataContracts.Blobs;
 using MZikmund.Services.Navigation;
-using Microsoft.Extensions.Options;
-using MZikmund.Business.Models;
 using MZikmund.ViewModels.Items;
-using Microsoft.UI.Dispatching;
-using Microsoft.Extensions.Logging;
+using Refit;
 
 namespace MZikmund.ViewModels.Admin;
 
