@@ -94,10 +94,6 @@ article {
     max-width: none;
 }
 
-// Prevent TOC from causing horizontal scrollbar when it extends beyond container
-.container:has(.blog-post-layout) {
-    overflow-x: clip;
-}
 
 article figure {
     width: 100%;
