@@ -629,7 +629,10 @@ article {
         .toc-nav {
             position: sticky;
             top: 5rem;
-            max-height: calc(100vh - 6rem);
+        }
+
+        .toc-list {
+            max-height: calc(100vh - 10rem);
             overflow-y: auto;
             scrollbar-width: thin;
         }
