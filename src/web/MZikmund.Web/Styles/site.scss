@@ -641,7 +641,18 @@ article {
         order: -1;
         width: 100%;
         max-width: 50em;
-        margin: 0 auto 2rem;
+        margin: 0 auto 1.5rem;
+
+        .toc-nav {
+            padding: 1rem 1.25rem;
+            transition: padding 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+
+            &:has(.toc-title.collapsed) {
+                background-color: transparent;
+                border-color: var(--bs-border-color-translucent);
+                padding: 0.625rem 1rem;
+            }
+        }
 
         .toc-title {
             cursor: pointer;
@@ -649,15 +660,25 @@ article {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--bs-secondary-color);
+            margin-bottom: 0.75rem;
 
             &::after {
                 content: '▼';
-                font-size: 0.8rem;
+                font-size: 0.6rem;
                 transition: transform 0.3s ease;
+                color: var(--bs-secondary-color);
             }
 
-            &.collapsed::after {
-                transform: rotate(-90deg);
+            &.collapsed {
+                margin-bottom: 0;
+                font-size: 0.875rem;
+
+                &::after {
+                    transform: rotate(-90deg);
+                }
             }
         }
 
