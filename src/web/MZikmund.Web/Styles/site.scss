@@ -90,8 +90,13 @@ article {
 }
 
 // Override for blog posts with TOC - remove width constraint
-.blog-post {
+.blog-post-layout .blog-post {
     max-width: none;
+}
+
+// Prevent TOC from causing horizontal scrollbar when it extends beyond container
+.container:has(.blog-post-layout) {
+    overflow-x: clip;
 }
 
 article figure {
@@ -505,31 +510,28 @@ article {
 
 // Table of Contents Styles
 .blog-post-layout {
-    display: flex;
-    gap: 2rem;
     position: relative;
-    max-width: calc(50em + 280px + 2rem); // Content width + TOC width + gap
-    margin: 0 auto; // Center the entire layout
-    padding: 0 1rem; // Add some padding on smaller screens
+    padding: 0 1rem;
+
+    // On mobile/tablet, use flexbox to reorder TOC before content
+    @media (max-width: 1279px) {
+        display: flex;
+        flex-direction: column;
+    }
 }
 
 .blog-post-main {
-    flex: 0 0 50em; // Fixed width matching article max-width
     max-width: 50em;
+    margin: 0 auto;
     min-width: 0;
 }
 
 #toc-container {
-    // Always reserve space but initially invisible to prevent layout shift
-    flex: 0 0 280px;
-    max-width: 280px;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.2s ease, visibility 0.2s ease;
+    // Hidden by default until JS populates it
+    display: none;
 
     &.toc-visible {
-        opacity: 1;
-        visibility: visible;
+        display: block;
     }
 
     .toc-nav {
@@ -610,37 +612,35 @@ article {
     }
 }
 
-// Desktop view - TOC on the right side
-@media (min-width: 1200px) {
+// Desktop/wide view - TOC in the right margin, article stays centered
+@media (min-width: 1280px) {
     #toc-container {
+        position: absolute;
+        top: 0;
+        // Position just right of the centered article
+        left: calc(50% + 25em + 2rem);
+        // Width adapts to available viewport space, capped at 280px
+        width: min(280px, calc(50vw - 25em - 3rem));
+        // Match parent height so sticky works within this column
+        height: 100%;
+
         .toc-nav {
             position: sticky;
             top: 5rem;
             max-height: calc(100vh - 6rem);
             overflow-y: auto;
+            scrollbar-width: thin;
         }
     }
 }
 
-// Tablet/Mobile view - Collapsible TOC at top
-@media (max-width: 1199px) {
+// Tablet/Mobile view - Collapsible TOC above content
+@media (max-width: 1279px) {
     #toc-container {
-        // On mobile, use display to fully hide/show
-        display: none;
+        order: -1;
         width: 100%;
-        margin-bottom: 2rem;
-        opacity: 1;
-        visibility: visible;
-        flex: 1 1 auto;
-        max-width: none;
-
-        &.toc-visible {
-            display: block;
-        }
-
-        .toc-nav {
-            position: relative;
-        }
+        max-width: 50em;
+        margin: 0 auto 2rem;
 
         .toc-title {
             cursor: pointer;
@@ -670,16 +670,5 @@ article {
                 overflow: hidden;
             }
         }
-    }
-
-    // Make TOC sticky when scrolling, but below header
-    .blog-post-layout {
-        flex-direction: column;
-    }
-
-    #toc-container.sticky {
-        position: sticky;
-        top: 1rem;
-        z-index: 100;
     }
 }

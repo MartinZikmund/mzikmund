@@ -56,15 +56,19 @@ namespace MZikmund.Blog {
 			const headings: TocItem[] = [];
 			const headingElements = this.contentContainer.querySelectorAll('h2, h3, h4');
 
+			// First pass: collect all existing IDs to avoid collisions
 			headingElements.forEach((heading) => {
 				const element = heading as HTMLElement;
-				// Markdig's AutoIdentifiers should have created IDs
-				if (!element.id) {
-					// Create an ID if one doesn't exist
-					element.id = this.generateId(element.textContent || '');
-				} else {
-					// Track existing IDs to avoid duplicates
+				if (element.id) {
 					this.usedIds.add(element.id);
+				}
+			});
+
+			// Second pass: assign missing IDs and build items
+			headingElements.forEach((heading) => {
+				const element = heading as HTMLElement;
+				if (!element.id) {
+					element.id = this.generateId(element.textContent || '');
 				}
 
 				headings.push({
@@ -104,6 +108,7 @@ namespace MZikmund.Blog {
 
 			const tocNav = document.createElement('nav');
 			tocNav.className = 'toc-nav';
+			tocNav.setAttribute('aria-label', 'Table of contents');
 
 			const title = document.createElement('h2');
 			title.className = 'toc-title';
@@ -114,7 +119,7 @@ namespace MZikmund.Blog {
 			this.tocList.className = 'toc-list';
 
 			let currentList = this.tocList;
-			let lastLevel = 2; // Start with h2 as base level
+			let lastLevel = headings.length > 0 ? headings[0].level : 2;
 
 			headings.forEach((heading) => {
 				const listItem = document.createElement('li');
@@ -213,7 +218,7 @@ namespace MZikmund.Blog {
 			}
 
 			// Set new active
-			const link = this.tocList.querySelector(`[data-target="${id}"]`);
+			const link = this.tocList.querySelector(`[data-target="${CSS.escape(id)}"]`);
 			if (link) {
 				link.classList.add('active');
 				this.activeItem = link as HTMLElement;
@@ -258,26 +263,35 @@ namespace MZikmund.Blog {
 			}
 
 			const tocList = this.tocList;
+			tocList.id = 'toc-list';
 
 			// Create toggle handler
 			const handleToggleClick = () => {
 				tocList.classList.toggle('collapsed');
 				title.classList.toggle('collapsed');
+				const isExpanded = !tocList.classList.contains('collapsed');
+				title.setAttribute('aria-expanded', String(isExpanded));
 			};
 
 			// Only add toggle functionality on mobile/tablet
-			this.mediaQuery = window.matchMedia('(max-width: 1199px)');
-			
+			this.mediaQuery = window.matchMedia('(max-width: 1279px)');
+
 			this.mediaQueryHandler = () => {
 				if (this.mediaQuery!.matches) {
 					// Start collapsed on mobile
 					tocList.classList.add('collapsed');
 					title.classList.add('collapsed');
+					title.setAttribute('role', 'button');
+					title.setAttribute('aria-expanded', 'false');
+					title.setAttribute('aria-controls', 'toc-list');
 					title.addEventListener('click', handleToggleClick);
 				} else {
 					// Remove collapse classes on desktop
 					tocList.classList.remove('collapsed');
 					title.classList.remove('collapsed');
+					title.removeAttribute('role');
+					title.removeAttribute('aria-expanded');
+					title.removeAttribute('aria-controls');
 					title.removeEventListener('click', handleToggleClick);
 				}
 			};
