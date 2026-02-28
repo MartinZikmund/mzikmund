@@ -650,7 +650,7 @@ article {
             &:has(.toc-title.collapsed) {
                 background-color: transparent;
                 border-color: var(--bs-border-color-translucent);
-                padding: 0.625rem 1rem;
+                padding: 0;
             }
         }
 
@@ -675,6 +675,7 @@ article {
             &.collapsed {
                 margin-bottom: 0;
                 font-size: 0.875rem;
+                padding: 0.625rem 1rem;
 
                 &::after {
                     transform: rotate(-90deg);
