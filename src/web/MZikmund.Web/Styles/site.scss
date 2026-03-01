@@ -642,6 +642,70 @@ article {
     }
 }
 
+// Heading copy-link buttons
+.post-content {
+    h2, h3, h4 {
+        position: relative;
+
+        &:hover .heading-copy-link,
+        &:focus-within .heading-copy-link {
+            opacity: 1;
+        }
+    }
+}
+
+.heading-copy-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.125rem;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+    color: var(--bs-secondary-color);
+    opacity: 0;
+    transition: opacity 0.2s ease, color 0.2s ease;
+    border-radius: 0.25rem;
+    line-height: 1;
+
+    &:hover {
+        color: var(--bs-primary);
+    }
+
+    &:focus-visible {
+        opacity: 1;
+        outline: 2px solid var(--bs-primary);
+        outline-offset: 2px;
+    }
+
+    // "Copied!" feedback via pseudo-element
+    &.copied {
+        opacity: 1;
+        color: var(--bs-success, #198754);
+        pointer-events: none;
+
+        svg {
+            display: none;
+        }
+
+        &::after {
+            content: '\2713 Copied!';
+            font-size: 0.75rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+    }
+}
+
+// Touch devices: keep button subtly visible
+@media (hover: none) {
+    .heading-copy-link {
+        opacity: 0.4;
+    }
+}
+
 // Tablet/Mobile view - Collapsible TOC above content
 @media (max-width: 1279px) {
     #toc-container {
