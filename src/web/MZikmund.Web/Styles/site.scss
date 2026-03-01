@@ -504,6 +504,13 @@ article {
     }
 }
 
+// Scroll margin for post headings so they have breathing room when scrolled to
+.post-content h2,
+.post-content h3,
+.post-content h4 {
+    scroll-margin-top: 1rem;
+}
+
 // Table of Contents Styles
 .blog-post-layout {
     position: relative;

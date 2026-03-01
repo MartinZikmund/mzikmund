@@ -171,10 +171,10 @@ namespace MZikmund.Blog {
 
 		private setupScrollSpy(headings: TocItem[]): void {
 			// The rootMargin values fine-tune when a heading is considered "active":
-			// - Top margin (-80px) offsets fixed header height
+			// - Top margin (0px) allows headings at the very top of the viewport to be detected
 			// - Bottom margin (-80%) reduces intersection area so only topmost visible heading is active
 			const options = {
-				rootMargin: '-80px 0px -80% 0px',
+				rootMargin: '0px 0px -80% 0px',
 				threshold: 0
 			};
 
