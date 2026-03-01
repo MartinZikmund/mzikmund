@@ -21,7 +21,15 @@
     @await Html.PartialAsync("_PostHero", Model)
 }
 
-@await Html.PartialAsync("_PostContent", Model)
+<div class="blog-post-layout">
+    <div class="blog-post-main">
+        @await Html.PartialAsync("_PostContent", Model)
+    </div>
+
+    <aside id="toc-container">
+        <!-- Table of Contents will be generated here by JavaScript -->
+    </aside>
+</div>
 
 <button class="back-to-top" id="back-to-top" aria-label="Back to top" title="Back to top">
     <i class="bi bi-arrow-up"></i>
