@@ -1,4 +1,4 @@
-<script defer src="https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@3.1.0/dist/cookieconsent.umd.js"></script>
+<script defer src="https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@3.1.0/dist/cookieconsent.umd.js" integrity="sha256-vG4vLmOB/AJbJ6awr7Wg4fxonG+fxAp4cIrbIFTvRXU=" crossorigin="anonymous"></script>
 <script>
     function updateGtagConsent() {
         if (typeof CookieConsent === 'undefined') return;
@@ -13,6 +13,10 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
+        if (typeof CookieConsent === 'undefined') {
+            console.warn('CookieConsent library failed to load from CDN.');
+            return;
+        }
         CookieConsent.run({
             guiOptions: {
                 consentModal: {
