@@ -23,10 +23,27 @@
     </section>
 }
 
-<div class="row">
-    <h2 class="display-4 text-center text-primary">@Localizer["Latest posts"]</h2>
-    <partial name="_PostList" model="Model.BlogPosts" />
-</div>
+<section class="featured-posts py-5">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <h2 class="display-5">Latest Posts</h2>
+                <p class="lead text-muted">Thoughts on .NET, Uno Platform, and open source</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a asp-page="/Blog/Index" class="btn btn-outline-primary btn-lg">
+                    View all posts &rarr;
+                </a>
+            </div>
+        </div>
+        <div class="row">
+            @foreach (var post in Model.BlogPosts)
+            {
+                <partial name="_PostListItem" model="post" />
+            }
+        </div>
+    </div>
+</section>
 
 @if (Model.FeaturedVideos?.Count > 0)
 {
