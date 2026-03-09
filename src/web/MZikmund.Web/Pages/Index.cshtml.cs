@@ -26,7 +26,7 @@ public class IndexModel : PageModel
 	public async Task OnGet(int pageNumber = 1)
 	{
 		var pageSize = 3; // TODO: Include in configuration
-						   //var pagesize = _blogConfig.ContentSettings.PostListPageSize;
+						  //var pagesize = _blogConfig.ContentSettings.PostListPageSize;
 		var posts = await _mediator.Send(new GetPostsQuery(pageNumber, pageSize));
 		foreach (var post in posts.Data)
 		{

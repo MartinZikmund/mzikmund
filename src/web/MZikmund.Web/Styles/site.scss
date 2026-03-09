@@ -528,7 +528,6 @@ article {
     width: 100%;
     margin: 0 auto;
     min-width: 0;
-    overflow-x: auto;
 }
 
 #toc-container {
@@ -646,6 +645,11 @@ article {
 
 // Heading copy-link buttons
 .post-content {
+    table, pre, .code-block {
+        overflow-x: auto;
+        max-width: 100%;
+    }
+
     h2, h3, h4 {
         position: relative;
 
