@@ -11,8 +11,6 @@
 
     <partial name="_HeadStylesPartial" />
 
-    <partial name="_ConsentDefaultsPartial" />
-
     @{
         var jsSnippet = Context.RequestServices.GetService<Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet>();
     }
@@ -101,11 +99,6 @@
                     <li class="nav-item"><a href="https://www.youtube.com/@@mzikmund" class="nav-link px-2 text-muted" title="YouTube" target="_blank" rel="noopener"><i class="bi bi-youtube fs-5"></i></a></li>
                     <li class="nav-item"><a href="https://facebook.com/mzikmunddev/" class="nav-link px-2 text-muted" title="Facebook" target="_blank" rel="noopener"><i class="bi bi-facebook fs-5"></i></a></li>
                     <li class="nav-item"><a href="https://github.com/MartinZikmund/mzikmund" target="_blank" rel="noopener" class="nav-link px-2 text-muted" title="Contribute"><i class="bi bi-code-slash fs-5"></i></a></li>
-                    <li class="nav-item">
-                        <button type="button" class="nav-link px-2 text-muted" aria-label="Cookie preferences" data-cc="show-preferencesModal">
-                            <i class="bi bi-shield-lock fs-5"></i>
-                        </button>
-                    </li>
                 </ul>
             </div>
 
@@ -121,8 +114,6 @@
             </div>
         </div>
     </footer>
-    <partial name="_CookieConsentPartial" />
-
     @await RenderSectionAsync(LayoutSections.BodyEnd, required: false)
     @await RenderSectionAsync("Scripts", required: false)
 </body>
