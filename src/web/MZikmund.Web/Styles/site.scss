@@ -712,27 +712,6 @@ article {
     }
 }
 
-// Cookie consent dark theme overrides
-[data-bs-theme="dark"] {
-    --cc-bg: #202020;
-    --cc-primary-color: #d4d4d4;
-    --cc-secondary-color: #a0a0a0;
-    --cc-btn-primary-bg: var(--bs-primary);
-    --cc-btn-primary-color: #fff;
-    --cc-btn-primary-hover-bg: var(--bs-primary);
-    --cc-btn-secondary-bg: #333;
-    --cc-btn-secondary-color: #d4d4d4;
-    --cc-btn-secondary-hover-bg: #444;
-    --cc-separator-border-color: #353535;
-    --cc-cookie-category-block-bg: #2a2a2a;
-    --cc-cookie-category-block-bg-hover: #333;
-    --cc-overlay-bg: rgba(0, 0, 0, 0.65);
-    --cc-toggle-on-bg: var(--bs-primary);
-    --cc-toggle-off-bg: #555;
-    --cc-toggle-readonly-bg: #3a3a3a;
-    --cc-section-border: #353535;
-}
-
 // Tablet/Mobile view - Collapsible TOC above content
 @media (max-width: 1279px) {
     #toc-container {

@@ -1,93 +1,43 @@
-<script defer src="https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@3.1.0/dist/cookieconsent.umd.js" integrity="sha256-vG4vLmOB/AJbJ6awr7Wg4fxonG+fxAp4cIrbIFTvRXU=" crossorigin="anonymous"></script>
-<script>
-    function updateGtagConsent() {
-        if (typeof CookieConsent === 'undefined') return;
-        var hasAnalytics = CookieConsent.acceptedCategory('analytics');
-        var hasAds = CookieConsent.acceptedCategory('advertisement');
-        gtag('consent', 'update', {
-            'analytics_storage': hasAnalytics ? 'granted' : 'denied',
-            'ad_storage': hasAds ? 'granted' : 'denied',
-            'ad_user_data': hasAds ? 'granted' : 'denied',
-            'ad_personalization': hasAds ? 'granted' : 'denied',
-        });
-    }
+﻿@using Microsoft.AspNetCore.Http.Features
 
-    document.addEventListener('DOMContentLoaded', function () {
-        if (typeof CookieConsent === 'undefined') {
-            console.warn('CookieConsent library failed to load from CDN.');
-            return;
-        }
-        CookieConsent.run({
-            guiOptions: {
-                consentModal: {
-                    layout: 'box inline',
-                    position: 'bottom right',
-                },
-            },
-            categories: {
-                necessary: {
-                    enabled: true,
-                    readOnly: true,
-                },
-                analytics: {
-                    autoClear: {
-                        cookies: [{ name: /^_ga/ }, { name: '_gid' }],
-                    },
-                },
-                advertisement: {
-                    autoClear: {
-                        cookies: [{ name: /^_gc/ }, { name: '__gads' }, { name: '__gpi' }],
-                    },
-                },
-            },
-            onFirstConsent: function () { updateGtagConsent(); },
-            onConsent: function () { updateGtagConsent(); },
-            onChange: function () { updateGtagConsent(); },
-            language: {
-                default: 'en',
-                translations: {
-                    en: {
-                        consentModal: {
-                            title: 'Cookie preferences',
-                            description: 'This website uses cookies to enhance your browsing experience, serve personalized ads, and analyze traffic. You can choose which categories to allow.',
-                            acceptAllBtn: 'Accept all',
-                            acceptNecessaryBtn: 'Reject all',
-                            showPreferencesBtn: 'Manage preferences',
-                        },
-                        preferencesModal: {
-                            title: 'Cookie preferences',
-                            acceptAllBtn: 'Accept all',
-                            acceptNecessaryBtn: 'Reject all',
-                            savePreferencesBtn: 'Save preferences',
-                            sections: [
-                                {
-                                    title: 'Cookie usage',
-                                    description: 'This website uses cookies to ensure basic functionality and to improve your online experience. You can choose to opt in or out of each category whenever you want.',
-                                },
-                                {
-                                    title: 'Strictly necessary cookies',
-                                    description: 'These cookies are essential for the website to function properly. They cannot be disabled.',
-                                    linkedCategory: 'necessary',
-                                },
-                                {
-                                    title: 'Analytics cookies',
-                                    description: 'These cookies help me understand how visitors interact with the website, providing information about areas visited, time spent, and any issues encountered.',
-                                    linkedCategory: 'analytics',
-                                },
-                                {
-                                    title: 'Advertisement cookies',
-                                    description: 'These cookies are used to display personalized ads relevant to you. They also help limit the number of times you see an ad and measure the effectiveness of advertising campaigns.',
-                                    linkedCategory: 'advertisement',
-                                },
-                                {
-                                    title: 'More information',
-                                    description: 'For any questions about cookie usage on this website, please <a href="/Contact">contact me</a>.',
-                                },
-                            ],
-                        },
-                    },
-                },
-            },
-        });
-    });
-</script>
+@{
+    var consentFeature = Context.Features.Get<ITrackingConsentFeature>();
+    var showBanner = !consentFeature?.CanTrack ?? false;
+    var cookieString = consentFeature?.CreateConsentCookie();
+}
+
+@if (showBanner)
+{
+    <div class="alert text-center" id="cookie-alert" role="alert">
+        <b>Cookies</b> &#x1F36A; This web needs to use cookies to work great.<a href="https://cookiesandyou.com/" target="_blank">Learn more</a>
+
+        <button type="button" class="btn btn-primary btn-sm acceptcookies" data-cookie-string="@cookieString" aria-label="Close">
+            I agree
+        </button>
+    </div>
+    <script type="text/javascript">
+        /*
+* Bootstrap Cookie Alert by Wruczek
+* https://github.com/Wruczek/Bootstrap-Cookie-Alert
+* Released under MIT license
+*/
+        (function () {
+            "use strict";
+
+            var cookieAlert = document.querySelector("#cookie-alert");
+            var acceptCookies = document.querySelector(".acceptcookies");
+
+            if (!cookieAlert) {
+                return;
+            }
+
+            cookieAlert.offsetHeight; // Force browser to trigger reflow (https://stackoverflow.com/a/39451131)
+            cookieAlert.classList.add("show");
+
+            acceptCookies.addEventListener("click", function () {
+                document.cookie = acceptCookies.dataset.cookieString;
+                cookieAlert.classList.remove("show");
+            });
+        })();
+    </script>
+}
