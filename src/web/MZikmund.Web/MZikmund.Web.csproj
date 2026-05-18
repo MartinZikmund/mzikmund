@@ -15,6 +15,7 @@
 		<PackageReference Include="MediatR" />
 		<PackageReference Include="AutoMapper" />
 		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" />
+		<PackageReference Include="OpenTelemetry.Api" />
 		<PackageReference Include="Newtonsoft.Json" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
 		<PackageReference Include="Auth0.AspNetCore.Authentication" />

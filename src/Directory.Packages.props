@@ -5,16 +5,17 @@
     <PackageVersion Include="Nerdbank.GitVersioning" Version="3.9.50" />
     <!-- Web -->
     <PackageVersion Include="Auth0.OidcClient.MAUI" Version="1.4.0" />
-    <PackageVersion Include="AutoMapper" Version="16.0.0" />
+    <PackageVersion Include="AutoMapper" Version="16.1.1" />
     <PackageVersion Include="Azure.Storage.Blobs" Version="12.27.0" />
     <PackageVersion Include="Betalgo.OpenAI" Version="8.7.2" />
     <PackageVersion Include="Edi.SyndicationFeed.ReaderWriter" Version="2.5.0" />
     <PackageVersion Include="Humanizer" Version="3.0.1" />
     <PackageVersion Include="MediatR" Version="14.0.0" />
     <PackageVersion Include="Markdig" Version="0.45.0" />
-    <PackageVersion Include="Magick.NET-Q16-AnyCPU" Version="14.10.2" />
+    <PackageVersion Include="Magick.NET-Q16-AnyCPU" Version="14.12.0" />
     <PackageVersion Include="Markdown.ColorCode" Version="3.0.1" />
     <PackageVersion Include="Microsoft.ApplicationInsights.AspNetCore" Version="3.0.0" />
+    <PackageVersion Include="OpenTelemetry.Api" Version="1.15.3" />
     <PackageVersion Include="Microsoft.AspNetCore.Rewrite" Version="2.3.0" />
     <PackageVersion Include="Microsoft.AspNetCore.StaticFiles" Version="2.3.0" />
     <PackageVersion Include="Microsoft.AspNetCore.TestHost" Version="10.0.3" />
@@ -70,6 +71,8 @@
     <PackageVersion Include="Microsoft.Windows.Compatibility" Version="10.0.3" />
     <PackageVersion Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.7705" />
     <PackageVersion Include="Microsoft.WindowsAppSDK" Version="1.8.260209005" />
+    <PackageVersion Include="System.Security.Cryptography.Xml" Version="10.0.8" />
+    <PackageVersion Include="Tmds.DBus.Protocol" Version="0.93.0" />
     <PackageVersion Include="SkiaSharp.Skottie" Version="3.119.2" />
     <PackageVersion Include="SkiaSharp.Views.Uno.WinUI" Version="3.119.2" />
     <PackageVersion Include="Xamarin.Google.Android.Material" Version="1.13.0.1" />
