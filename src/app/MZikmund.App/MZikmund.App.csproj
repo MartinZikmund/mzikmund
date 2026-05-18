@@ -53,6 +53,8 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <PackageReference Include="CommunityToolkit.WinUI.Converters" />
+	  <PackageReference Include="System.Security.Cryptography.Xml" />
+	  <PackageReference Include="Tmds.DBus.Protocol" />
 	</ItemGroup>
 
 	<ItemGroup>
