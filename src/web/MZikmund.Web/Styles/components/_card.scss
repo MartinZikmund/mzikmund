@@ -190,60 +190,128 @@
 		opacity: 1;
 	}
 
-	// --- Taxonomy card (categories / tags) -----------------------------------
-	// Fluent's left accent bar instead of a heavy coloured border.
-	.taxonomy-card {
-		position: relative;
-		display: flex;
-		flex-direction: column;
+	// --- Taxonomy list (categories) ------------------------------------------
+	//
+	// These are navigation targets, not content, so they follow the WinUI
+	// NavigationView item shape — a compact single-line row with a hover fill and
+	// an accent bar — rather than the content-card shape they used to borrow.
+	// A card per category cost ~165px each and fitted about five on a phone.
+	// One contiguous content layer holding all the rows — the Fluent "standard
+	// pattern" — rather than a surface per item. Compact rows on the bare base
+	// layer read as floating text with nothing to sit on.
+	.taxonomy-list {
+		display: grid;
 		gap: var(--mz-space-1);
-		padding: var(--mz-space-4) var(--mz-space-4) var(--mz-space-4) var(--mz-space-5);
+		grid-template-columns: repeat(auto-fill, minmax(min(17rem, 100%), 1fr));
+		padding: var(--mz-space-2);
 		background-color: var(--mz-card);
 		border: 1px solid var(--mz-stroke-card);
 		border-radius: var(--mz-radius-card);
-		box-shadow: var(--mz-elev-card);
-		text-decoration: none;
-		color: inherit;
-		overflow: hidden;
-		transition:
-			box-shadow var(--mz-duration-normal) var(--mz-ease-standard),
-			translate var(--mz-duration-normal) var(--mz-ease-standard);
+		box-shadow: var(--mz-elev-layer);
+	}
 
+	.taxonomy-row {
+		position: relative;
+		display: flex;
+		align-items: center;
+		gap: var(--mz-space-3);
+		min-height: 2.75rem;
+		padding: var(--mz-space-2) var(--mz-space-3);
+		border-radius: var(--mz-radius-control);
+		color: var(--mz-text-primary);
+		text-decoration: none;
+		transition:
+			background-color var(--mz-duration-fast) var(--mz-ease-standard),
+			color var(--mz-duration-fast) var(--mz-ease-standard);
+
+		// Fluent selection/hover indicator, grown from the centre.
 		&::before {
 			content: "";
 			position: absolute;
-			inset-block: var(--mz-space-3);
 			inset-inline-start: 0;
+			inset-block: 50%;
 			width: 3px;
 			border-radius: var(--mz-radius-pill);
 			background-color: var(--mz-accent-text);
-			transition: inset-block var(--mz-duration-normal) var(--mz-ease-standard);
+			opacity: 0;
+			transition:
+				inset-block var(--mz-duration-fast) var(--mz-ease-standard),
+				opacity var(--mz-duration-fast) var(--mz-ease-standard);
 		}
 
 		&:hover {
-			translate: 0 -2px;
-			box-shadow: var(--mz-elev-tooltip);
+			background-color: var(--mz-shimmer);
+			color: var(--mz-accent-text);
 
 			&::before {
-				inset-block: 0;
+				inset-block: 22%;
+				opacity: 1;
 			}
+		}
+
+		.icon {
+			color: var(--mz-text-tertiary);
+			flex-shrink: 0;
+		}
+
+		&:hover .icon {
+			color: var(--mz-accent-text);
 		}
 	}
 
-	.taxonomy-card__title {
-		font-size: var(--mz-text-body-large);
-		font-weight: var(--mz-weight-semibold);
-		color: var(--mz-text-primary);
-		transition: color var(--mz-duration-fast) var(--mz-ease-standard);
+	.taxonomy-row__name {
+		flex: 1 1 auto;
+		min-width: 0;
+		font-weight: var(--mz-weight-medium);
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
-	.taxonomy-card:hover .taxonomy-card__title {
+	// Right-aligned so counts form a scannable column.
+	.taxonomy-row__count {
+		flex-shrink: 0;
+		color: var(--mz-text-tertiary);
+		font-size: var(--mz-text-caption);
+		font-variant-numeric: tabular-nums;
+	}
+
+	// --- Tag cloud -----------------------------------------------------------
+	//
+	// There are ~500 tags. Anything taller than a pill makes this page
+	// unusable, so they wrap as chips with the count inline.
+	.tag-cloud {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--mz-space-2);
+		// Same content layer as the taxonomy list, so both taxonomy pages sit on
+		// a recognisable surface instead of directly on the page ground.
+		padding: var(--mz-space-4);
+		background-color: var(--mz-card);
+		border: 1px solid var(--mz-stroke-card);
+		border-radius: var(--mz-radius-card);
+		box-shadow: var(--mz-elev-layer);
+	}
+
+	.tag__count {
+		margin-inline-start: var(--mz-space-2);
+		padding-inline: 0.375rem;
+		border-radius: var(--mz-radius-pill);
+		background-color: var(--mz-shimmer);
+		color: var(--mz-text-tertiary);
+		font-size: 0.6875rem;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.tag:hover .tag__count {
+		background-color: var(--mz-accent-subtle-strong);
 		color: var(--mz-accent-text);
 	}
 
-	.taxonomy-card__count {
-		color: var(--mz-text-tertiary);
-		font-size: var(--mz-text-caption);
+	// Tags with no posts lead to an empty listing — keep them reachable but
+	// stop them competing with tags that go somewhere.
+	.tag--empty {
+		opacity: 0.55;
 	}
 
 	// --- Author bio ----------------------------------------------------------

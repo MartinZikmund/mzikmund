@@ -112,14 +112,18 @@
 	}
 
 	// --- Page header (blog index, categories, tags, videos) ------------------
+	//
+	// No bottom rule: the content below sits on its own layered surface, so a
+	// divider here is a second boundary doing the first one's job.
 	.page-header {
-		padding-block: var(--mz-space-8) var(--mz-space-6);
-		border-block-end: 1px solid var(--mz-stroke-divider);
-		margin-block-end: var(--mz-space-7);
+		padding-block: var(--mz-space-7) var(--mz-space-5);
 	}
 
+	// Page titles use the Title step (28px), not TitleLarge — the Fluent ramp
+	// reserves TitleLarge for hero and feature headings. Only the home hero
+	// goes bigger, via Display.
 	.page-header__title {
-		font-size: var(--mz-text-title-large);
+		font-size: var(--mz-text-title);
 		margin-block-end: var(--mz-space-2);
 	}
 
@@ -129,11 +133,13 @@
 		max-width: 56ch;
 	}
 
+	// Forward actions only ("Browse by category", "Subscribe") — things the
+	// visitor might go on to do, not the way back.
 	.page-header__actions {
 		display: flex;
 		flex-wrap: wrap;
 		gap: var(--mz-space-2);
-		margin-block-start: var(--mz-space-5);
+		margin-block-start: var(--mz-space-4);
 	}
 
 	// --- Blog post hero ------------------------------------------------------

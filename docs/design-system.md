@@ -228,9 +228,18 @@ Sizes: `.icon` (1em), `.icon--lg` (1.25em). Available ids: `i-github`,
 `i-twitter-x`, `i-youtube`, `i-facebook`, `i-code-slash`, `i-calendar3`,
 `i-arrow-left`, `i-arrow-up`, `i-inbox`, `i-circle-half`, `i-sun`,
 `i-moon-stars`, `i-play-circle`, `i-play-fill`, `i-file-earmark-pdf`, `i-list`,
-`i-link-45deg`, `i-check-lg`, `i-image`, `i-rss`, `i-tag`, `i-folder2-open`.
+`i-link-45deg`, `i-check-lg`, `i-image`, `i-rss`, `i-tag`, `i-folder2-open`,
+`i-chevron-right`.
 
-To add one: edit the `ICONS` array in `scripts/gen-sprite.mjs` and re-run it.
+To add one: edit the `ICONS` array in `scripts/build-assets.mjs`, run
+`npm run build:assets`, and **commit the regenerated sprite**.
+
+`build:assets` is deliberately not part of `npm run build`. MSBuild globs
+Content and Razor items at *evaluation* time, before any target runs, so an
+asset regenerated during the build lands one build late — which silently ships
+a stale sprite and a missing icon. Both its outputs (`wwwroot/fonts` and
+`_IconSprite.cshtml`) are committed, so builds always compile what you can see
+in the diff.
 
 ## Utilities
 

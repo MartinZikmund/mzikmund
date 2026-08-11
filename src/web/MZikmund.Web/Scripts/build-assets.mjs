@@ -44,6 +44,7 @@ const ICONS = [
 	'circle-half', 'sun', 'moon-stars',
 	'play-circle', 'play-fill', 'file-earmark-pdf',
 	'list', 'link-45deg', 'check-lg', 'image', 'rss', 'tag', 'folder2-open',
+	'chevron-right',
 ];
 
 const iconDir = join(NM, 'bootstrap-icons', 'icons');

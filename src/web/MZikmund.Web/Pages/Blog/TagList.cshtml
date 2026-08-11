@@ -6,31 +6,29 @@
 }
 
 <div class="page-header">
+    <nav aria-label="Breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb__item">
+                <a class="breadcrumb__link" asp-page="/Blog/Index">Blog</a>
+                <svg class="icon breadcrumb__separator" aria-hidden="true"><use href="#i-chevron-right"></use></svg>
+            </li>
+            <li class="breadcrumb__item">
+                <span class="breadcrumb__current" aria-current="page">Tags</span>
+            </li>
+        </ol>
+    </nav>
     <h1 class="page-header__title">Blog Tags</h1>
     <p class="page-header__lead">Browse posts by tag</p>
-    <div class="page-header__actions">
-        <a asp-page="/Blog/Index" class="btn btn--standard">
-            <svg class="icon" aria-hidden="true"><use href="#i-arrow-left"></use></svg>
-            Back to Blog
-        </a>
-    </div>
 </div>
 
-<div class="card-grid">
+@* ~500 tags, so anything taller than a pill makes this page unusable. *@
+<nav class="tag-cloud" aria-label="Tags">
     @foreach (var tag in Model.Tags)
     {
-        <a class="taxonomy-card" asp-page="/Blog/TagPostList" asp-route-tagName="@tag.RouteName">
-            <span class="taxonomy-card__title">
-                <svg class="icon" aria-hidden="true"><use href="#i-tag"></use></svg>
-                #@tag.DisplayName
-            </span>
-            @if (!string.IsNullOrEmpty(tag.Description))
-            {
-                <span class="text-secondary">@tag.Description</span>
-            }
-            <span class="taxonomy-card__count">
-                @tag.PostCount @(tag.PostCount == 1 ? "post" : "posts")
-            </span>
+        <a class="tag @(tag.PostCount == 0 ? "tag--empty" : "")" asp-page="/Blog/TagPostList" asp-route-tagName="@tag.RouteName"
+           title="@(string.IsNullOrWhiteSpace(tag.Description) ? null : tag.Description)">
+            #@tag.DisplayName
+            <span class="tag__count" aria-label="@tag.PostCount @(tag.PostCount == 1 ? "post" : "posts")">@tag.PostCount</span>
         </a>
     }
-</div>
+</nav>

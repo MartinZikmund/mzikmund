@@ -347,6 +347,59 @@
 		}
 	}
 
+	// --- Breadcrumb ----------------------------------------------------------
+	// Models WinUI's BreadcrumbBar, which is the control Fluent specifies for a
+	// hierarchical trail. It replaces the "Back to Blog" button these pages used
+	// to carry: a back button rendered below the page title reads as the primary
+	// action, and it tells you where you came from rather than where you are.
+	.breadcrumb {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--mz-space-1);
+		list-style: none;
+		padding: 0;
+		margin: 0 0 var(--mz-space-3);
+		font-size: var(--mz-text-caption);
+		font-weight: var(--mz-weight-medium);
+	}
+
+	.breadcrumb__item {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--mz-space-1);
+	}
+
+	.breadcrumb__link {
+		display: inline-flex;
+		align-items: center;
+		padding: var(--mz-space-1) var(--mz-space-2);
+		border-radius: var(--mz-radius-control);
+		color: var(--mz-text-secondary);
+		text-decoration: none;
+		transition:
+			background-color var(--mz-duration-fast) var(--mz-ease-standard),
+			color var(--mz-duration-fast) var(--mz-ease-standard);
+
+		&:hover {
+			background-color: var(--mz-shimmer);
+			color: var(--mz-accent-text);
+		}
+	}
+
+	// The trailing item is where you are, so it is text rather than a link.
+	.breadcrumb__current {
+		padding: var(--mz-space-1) var(--mz-space-2);
+		color: var(--mz-text-primary);
+		font-weight: var(--mz-weight-semibold);
+	}
+
+	.breadcrumb__separator {
+		color: var(--mz-text-tertiary);
+		width: 0.75em;
+		height: 0.75em;
+	}
+
 	// --- Reading progress ----------------------------------------------------
 	.reading-progress {
 		position: fixed;
