@@ -50,6 +50,12 @@
 	<ItemGroup>
 		<EmbeddedResource Include="Templates\PostPreviewTemplate.html" />
 	</ItemGroup>
+
+	<!-- Uno globs Assets/** only on non-WinAppSdk heads, and the WinAppSdk glob is images-only. -->
+	<ItemGroup>
+		<Content Include="Assets\Fonts\*.ttf" />
+	</ItemGroup>
+
 	<ItemGroup>
 	  <PackageReference Include="CommunityToolkit.WinUI.Converters" />
 	  <PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" />

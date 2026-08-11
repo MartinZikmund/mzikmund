@@ -12,6 +12,7 @@
                 <ResourceDictionary Source="ms-appx:///Resources/Colors.xaml" />
                 <ResourceDictionary Source="ms-appx:///Resources/Converters.xaml" />
                 <ResourceDictionary Source="ms-appx:///Resources/Fonts.xaml" />
+                <ResourceDictionary Source="ms-appx:///Theme/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

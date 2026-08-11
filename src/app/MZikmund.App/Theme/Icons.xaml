@@ -1,0 +1,29 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+	<FontFamily x:Key="MzIconFontFamily">ms-appx:///Assets/Fonts/FluentSystemIcons-Resizable.ttf#FluentSystemIcons-Resizable</FontFamily>
+
+	<x:String x:Key="MzGlyphHome">&#xEA32;</x:String>
+	<x:String x:Key="MzGlyphNews">&#xECAA;</x:String>
+	<x:String x:Key="MzGlyphVideoClip">&#xF50B;</x:String>
+	<x:String x:Key="MzGlyphPlayCircle">&#xEE8F;</x:String>
+	<x:String x:Key="MzGlyphMail">&#xEBBC;</x:String>
+	<x:String x:Key="MzGlyphSettings">&#xF00F;</x:String>
+	<x:String x:Key="MzGlyphShield">&#xF04B;</x:String>
+	<x:String x:Key="MzGlyphFolder">&#xE8EB;</x:String>
+	<x:String x:Key="MzGlyphTag">&#xF283;</x:String>
+	<x:String x:Key="MzGlyphImageMultiple">&#xEA6A;</x:String>
+	<x:String x:Key="MzGlyphImageOff">&#xEA6E;</x:String>
+	<x:String x:Key="MzGlyphCalendar">&#xE35E;</x:String>
+	<x:String x:Key="MzGlyphChevronRight">&#xE48E;</x:String>
+	<x:String x:Key="MzGlyphChevronDown">&#xE488;</x:String>
+	<x:String x:Key="MzGlyphArrowClockwise">&#xE0BF;</x:String>
+	<x:String x:Key="MzGlyphWarning">&#xF561;</x:String>
+	<x:String x:Key="MzGlyphSearch">&#xEFD7;</x:String>
+	<x:String x:Key="MzGlyphMore">&#xEC72;</x:String>
+
+	<!-- Required by later redesign tasks; not in the original Task 12 brief. -->
+	<x:String x:Key="MzGlyphError">&#xE876;</x:String>
+	<x:String x:Key="MzGlyphImage">&#xEA52;</x:String>
+	<x:String x:Key="MzGlyphSignOut">&#xF08D;</x:String>
+
+</ResourceDictionary>

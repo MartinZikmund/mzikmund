@@ -1,0 +1,21 @@
+THIRD-PARTY SOFTWARE NOTICES AND INFORMATION
+
+--------------------------------------------------------------------------------
+Inter — https://github.com/rsms/inter — v4.1
+SIL Open Font License 1.1
+Copyright (c) 2016-2024 The Inter Project Authors.
+Shipped as Assets/Fonts/Inter-Regular.ttf, Inter-Medium.ttf, Inter-SemiBold.ttf.
+
+--------------------------------------------------------------------------------
+JetBrains Mono — https://github.com/JetBrains/JetBrainsMono — v2.304
+SIL Open Font License 1.1
+Copyright (c) 2020 The JetBrains Mono Project Authors.
+Shipped as Assets/Fonts/JetBrainsMono-Regular.ttf.
+
+--------------------------------------------------------------------------------
+Fluent System Icons — https://github.com/microsoft/fluentui-system-icons
+Commit b02c6d621e02c05b890d9f03f3e98f888d39a80e
+MIT License
+Copyright (c) Microsoft Corporation.
+Shipped subsetted as Assets/Fonts/FluentSystemIcons-Resizable.ttf; regenerate with
+Assets/Fonts/subset-icons.ps1.
