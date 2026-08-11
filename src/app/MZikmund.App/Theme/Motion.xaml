@@ -1,0 +1,16 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+	<!--  Decelerate: anything arriving.  -->
+	<x:String x:Key="MzEaseEntrance">0,0 0,1</x:String>
+	<!--  Accelerate: anything leaving.  -->
+	<x:String x:Key="MzEaseExit">1,0 1,1</x:String>
+	<!--  Point-to-point, on elements already on screen.  -->
+	<x:String x:Key="MzEaseStandard">0.55,0.55 0,1</x:String>
+
+	<!--  167 fill/colour/border · 250 elevation, travel, flyouts · 333 page transitions, image scale, hero entrance.  -->
+	<x:String x:Key="MzDurationInstant">0</x:String>
+	<x:String x:Key="MzDurationFast">00:00:00.167</x:String>
+	<x:String x:Key="MzDurationNormal">00:00:00.250</x:String>
+	<x:String x:Key="MzDurationSlow">00:00:00.333</x:String>
+
+</ResourceDictionary>

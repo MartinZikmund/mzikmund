@@ -1,0 +1,12 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+	<CornerRadius x:Key="MzControlCornerRadius">4</CornerRadius>
+	<CornerRadius x:Key="MzCardCornerRadius">8</CornerRadius>
+	<CornerRadius x:Key="MzLargeCornerRadius">12</CornerRadius>
+	<CornerRadius x:Key="MzPillCornerRadius">999</CornerRadius>
+	<CornerRadius x:Key="MzCardTopCornerRadius">8,8,0,0</CornerRadius>
+
+	<StaticResource x:Key="ControlCornerRadius" ResourceKey="MzControlCornerRadius" />
+	<StaticResource x:Key="OverlayCornerRadius" ResourceKey="MzCardCornerRadius" />
+
+</ResourceDictionary>
