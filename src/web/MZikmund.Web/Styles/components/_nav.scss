@@ -140,30 +140,43 @@
 		}
 	}
 
-	// Flyout — acrylic surface with overlay radius, per Fluent.
+	// Flyout — true Acrylic, per Fluent: transient, light-dismiss surfaces get
+	// Acrylic; long-lived ones get Mica.
+	//
+	// It is a popover, so it renders in the top layer. That matters for more
+	// than z-order: a backdrop-filter nested inside the header's own filtered
+	// context samples the header's output rather than the page behind it, so
+	// acrylic only actually frosts once the element escapes that context.
 	.theme-menu__list {
-		position: absolute;
-		inset-block-start: calc(100% + var(--mz-space-2));
-		inset-inline-end: 0;
+		position: fixed;
+		// Positioned against the trigger by ThemeSwitchManager on open.
+		inset: auto;
 		z-index: 60;
 		min-width: 10rem;
 		padding: var(--mz-space-1);
 		margin: 0;
-		list-style: none;
-		// Opaque for the same reason as the mobile nav panel: this flyout hangs
-		// below the header, and a backdrop-filter nested inside the header's own
-		// filtered context does not sample the page content behind it.
-		background-color: var(--mz-bg-elevated);
 		border: 1px solid var(--mz-stroke-card);
+		list-style: none;
+		background-color: var(--mz-acrylic);
 		border-radius: var(--mz-radius-overlay);
 		box-shadow: var(--mz-elev-3);
+		overflow: visible;
 
-		&[hidden] {
-			display: none;
+		@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+			-webkit-backdrop-filter: var(--mz-acrylic-blur);
+			backdrop-filter: var(--mz-acrylic-blur);
 		}
 
-		// Fluent flyouts slide in from the edge they're anchored to.
-		animation: mz-flyout var(--mz-duration-normal) var(--mz-ease-entrance);
+		// The UA closed state is `display: none`; only animate the open state.
+		&:popover-open {
+			// Fluent flyouts slide in from the edge they're anchored to.
+			animation: mz-flyout var(--mz-duration-normal) var(--mz-ease-entrance);
+		}
+
+		// No dimming behind a menu — Smoke is for modal surfaces only.
+		&::backdrop {
+			background: transparent;
+		}
 	}
 
 	@keyframes mz-flyout {

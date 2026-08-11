@@ -90,28 +90,70 @@ namespace MZikmund.Theming {
 		}
 
 		// --- Flyout ---------------------------------------------------------
+		//
+		// The menu is a popover, so the platform supplies the top layer (which
+		// is what lets it be real Acrylic), light-dismiss and Escape. Only
+		// positioning, focus handling and arrow keys are left to us.
+
+		private static get supportsPopover(): boolean {
+			return typeof (ThemeSwitchManager.menu as any)?.showPopover === "function";
+		}
 
 		private static get isOpen(): boolean {
-			return !!ThemeSwitchManager.menu && !ThemeSwitchManager.menu.hidden;
+			const menu = ThemeSwitchManager.menu;
+			if (!menu) {
+				return false;
+			}
+			return ThemeSwitchManager.supportsPopover ? menu.matches(":popover-open") : !menu.hidden;
+		}
+
+		/** Anchors the fixed-position menu under the trigger, right edges aligned. */
+		private static position(): void {
+			const { menu, trigger } = ThemeSwitchManager;
+			if (!menu || !trigger) {
+				return;
+			}
+			const r = trigger.getBoundingClientRect();
+			const width = menu.offsetWidth;
+			const gap = 8;
+			// Clamp so the menu can never hang off the left edge on narrow screens.
+			const left = Math.max(gap, Math.min(r.right - width, window.innerWidth - width - gap));
+			menu.style.top = `${Math.round(r.bottom + gap)}px`;
+			menu.style.left = `${Math.round(left)}px`;
 		}
 
 		private static openMenu(): void {
-			if (!ThemeSwitchManager.menu || !ThemeSwitchManager.trigger) {
+			const { menu, trigger } = ThemeSwitchManager;
+			if (!menu || !trigger) {
 				return;
 			}
-			ThemeSwitchManager.menu.hidden = false;
-			ThemeSwitchManager.trigger.setAttribute("aria-expanded", "true");
-			ThemeSwitchManager.menu.querySelector<HTMLElement>('[aria-checked="true"]')?.focus();
+			if (ThemeSwitchManager.supportsPopover) {
+				// Show first so the element has a measurable width, then position.
+				// Both happen in one task, so nothing paints in between.
+				(menu as any).showPopover();
+			} else {
+				menu.hidden = false;
+			}
+			ThemeSwitchManager.position();
+			trigger.setAttribute("aria-expanded", "true");
+			menu.querySelector<HTMLElement>('[aria-checked="true"]')?.focus();
 		}
 
 		private static closeMenu(returnFocus = false): void {
-			if (!ThemeSwitchManager.menu || !ThemeSwitchManager.trigger) {
+			const { menu, trigger } = ThemeSwitchManager;
+			if (!menu || !trigger) {
 				return;
 			}
-			ThemeSwitchManager.menu.hidden = true;
-			ThemeSwitchManager.trigger.setAttribute("aria-expanded", "false");
+			if (ThemeSwitchManager.supportsPopover) {
+				if (menu.matches(":popover-open")) {
+					(menu as any).hidePopover();
+				}
+			} else {
+				menu.hidden = true;
+			}
+			trigger.setAttribute("aria-expanded", "false");
 			if (returnFocus) {
-				ThemeSwitchManager.trigger.focus();
+				trigger.focus();
 			}
 		}
 
@@ -157,9 +199,12 @@ namespace MZikmund.Theming {
 				});
 			});
 
-			root.addEventListener("keydown", e => {
+			// Escape and outside-click are handled by the popover platform; only
+			// arrow-key roving is left. The non-popover fallback still needs
+			// Escape, hence the guard.
+			const onKey = (e: Event) => {
 				const key = (e as KeyboardEvent).key;
-				if (key === "Escape" && ThemeSwitchManager.isOpen) {
+				if (key === "Escape" && ThemeSwitchManager.isOpen && !ThemeSwitchManager.supportsPopover) {
 					e.preventDefault();
 					ThemeSwitchManager.closeMenu(true);
 				} else if (key === "ArrowDown") {
@@ -173,11 +218,33 @@ namespace MZikmund.Theming {
 					e.preventDefault();
 					ThemeSwitchManager.moveFocus(-1);
 				}
-			});
+			};
+			root.addEventListener("keydown", onKey);
+			ThemeSwitchManager.menu?.addEventListener("keydown", onKey);
 
-			document.addEventListener("click", e => {
-				if (ThemeSwitchManager.isOpen && !root.contains(e.target as Node)) {
-					ThemeSwitchManager.closeMenu();
+			if (ThemeSwitchManager.supportsPopover) {
+				// Light-dismiss and Escape close the popover without going through
+				// closeMenu(), so mirror the state back onto the trigger.
+				ThemeSwitchManager.menu?.addEventListener("toggle", e => {
+					const open = (e as ToggleEvent).newState === "open";
+					ThemeSwitchManager.trigger?.setAttribute("aria-expanded", String(open));
+					if (!open && ThemeSwitchManager.menu?.contains(document.activeElement)) {
+						ThemeSwitchManager.trigger?.focus();
+					}
+				});
+			} else {
+				document.addEventListener("click", e => {
+					if (ThemeSwitchManager.isOpen && !root.contains(e.target as Node)) {
+						ThemeSwitchManager.closeMenu();
+					}
+				});
+			}
+
+			// The menu is position: fixed, so it only needs re-anchoring when the
+			// trigger itself moves — i.e. on resize, not on scroll (sticky header).
+			window.addEventListener("resize", () => {
+				if (ThemeSwitchManager.isOpen) {
+					ThemeSwitchManager.position();
 				}
 			});
 

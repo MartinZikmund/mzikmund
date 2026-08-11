@@ -146,6 +146,25 @@ Four mechanisms, each a progressive enhancement that degrades to nothing:
 - **Reveal** — the pointer-tracked radial highlight. `Motion.ts` publishes
   `--mz-reveal-x/y` from one delegated, rAF-coalesced listener.
 
+## Materials
+
+Per the [materials guidance](https://learn.microsoft.com/windows/apps/design/signature-experiences/materials):
+**Mica is opaque and for long-lived surfaces; Acrylic is translucent and for
+transient, light-dismiss ones.**
+
+| Surface | Material | Why |
+|---|---|---|
+| Site header | Acrylic-style translucency | Long-lived, but the web idiom of content scrolling under glass is worth keeping |
+| Theme flyout | True Acrylic | Transient and light-dismiss — textbook Acrylic |
+| Mobile nav panel | Opaque | Full-width surface; legibility over an arbitrary hero beats translucency |
+
+The theme flyout is a **popover**, which matters for more than z-order: a
+`backdrop-filter` nested inside an ancestor that itself has a `backdrop-filter`
+samples that ancestor's output rather than the page behind it, so acrylic on a
+flyout inside the header never actually frosts. The top layer escapes that, and
+also supplies light-dismiss and Escape — `ThemeSwitchManager` only handles
+positioning, focus and arrow keys, and keeps a non-popover fallback path.
+
 ### Two traps
 
 `@view-transition` **must not sit inside `@layer`** — Chrome silently ignores it

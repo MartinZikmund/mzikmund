@@ -86,7 +86,15 @@
                             aria-expanded="false" aria-haspopup="true" aria-label="@Localizer["Theme"]" title="@Localizer["Theme"]">
                         <svg class="icon icon--lg" id="theme-icon" aria-hidden="true"><use href="#i-circle-half"></use></svg>
                     </button>
-                    <ul class="theme-menu__list" data-theme-menu role="menu" aria-label="@Localizer["Theme"]" hidden>
+                    @*
+                        popover puts the menu in the top layer, which escapes the
+                        header's backdrop-filter context — that is what lets it be
+                        real Acrylic (a nested backdrop-filter samples its filtered
+                        ancestor, not the page). It also supplies light-dismiss and
+                        Escape for free.
+                    *@
+                    <ul class="theme-menu__list" data-theme-menu popover="auto" id="theme-menu"
+                        role="menu" aria-label="@Localizer["Theme"]">
                         <li role="none">
                             <a class="theme-menu__item" role="menuitemradio" aria-checked="true" data-value="auto" href="#">
                                 <svg class="icon" aria-hidden="true"><use href="#i-circle-half"></use></svg>@Localizer["Auto"]
