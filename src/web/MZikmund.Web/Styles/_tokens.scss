@@ -73,12 +73,22 @@
 		--mz-radius-pill: 999px;
 
 		// --- Motion --------------------------------------------------------------
-		// Fluent standard easing: decelerate on entry, accelerate on exit.
-		--mz-ease-standard: cubic-bezier(0.8, 0, 0.2, 1);
-		--mz-ease-decel: cubic-bezier(0.1, 0.9, 0.2, 1);
-		--mz-duration-fast: 120ms;
-		--mz-duration-normal: 200ms;
-		--mz-duration-slow: 320ms;
+		// The published Fluent motion values, not approximations.
+		// learn.microsoft.com/windows/apps/design/motion/timing-and-easing
+		//
+		// Entrances decelerate hard ("fast out, slow in") so an element reads as
+		// arriving at speed from off-screen and meeting friction. Exits do the
+		// opposite, accelerating out of the user's way.
+		--mz-ease-entrance: cubic-bezier(0, 0, 0, 1); //       Fast Out, Slow In
+		--mz-ease-exit: cubic-bezier(1, 0, 1, 1); //           Slow Out, Fast In
+		--mz-ease-standard: cubic-bezier(0.55, 0.55, 0, 1); // point-to-point
+
+		// WinUI ControlFaster / ControlFast / ControlNormal, plus the 333ms step
+		// the motion guidance uses for larger travel.
+		--mz-duration-faster: 83ms;
+		--mz-duration-fast: 167ms;
+		--mz-duration-normal: 250ms;
+		--mz-duration-slow: 333ms;
 
 		// --- Accent ramp — Windows accent #0078D4 --------------------------------
 		--mz-accent-light-3: #a6d8ff;

@@ -137,7 +137,7 @@
 
 	// Arrow nudge on hover — the one flourish, kept small.
 	.btn__arrow {
-		transition: translate var(--mz-duration-normal) var(--mz-ease-decel);
+		transition: translate var(--mz-duration-normal) var(--mz-ease-entrance);
 	}
 
 	.btn:hover .btn__arrow {

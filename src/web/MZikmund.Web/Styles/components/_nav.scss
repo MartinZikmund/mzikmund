@@ -94,7 +94,7 @@
 			translate: -50% 0;
 			border-radius: var(--mz-radius-pill);
 			background-color: var(--mz-accent-text);
-			animation: mz-indicator var(--mz-duration-normal) var(--mz-ease-decel);
+			animation: mz-indicator var(--mz-duration-normal) var(--mz-ease-entrance);
 		}
 	}
 
@@ -163,7 +163,7 @@
 		}
 
 		// Fluent flyouts slide in from the edge they're anchored to.
-		animation: mz-flyout var(--mz-duration-normal) var(--mz-ease-decel);
+		animation: mz-flyout var(--mz-duration-normal) var(--mz-ease-entrance);
 	}
 
 	@keyframes mz-flyout {

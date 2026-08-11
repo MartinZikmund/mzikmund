@@ -22,4 +22,8 @@
 @use "components/toc";
 @use "components/footer";
 
+// Motion last among components: it layers page transitions, scroll-driven
+// entrances and the Reveal highlight over the components defined above.
+@use "motion";
+
 @use "utilities";

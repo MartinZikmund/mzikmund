@@ -24,6 +24,7 @@ specificity, and utilities always win. Never write `!important`.
 | `Styles/_layout.scss` | `.container`, `.section`, `.card-grid`, `.article-layout` |
 | `Styles/_code.scss` | ColorCode token colours + GitHub Gist dark theme |
 | `Styles/components/*.scss` | nav, controls, card, hero, article, toc, footer |
+| `Styles/_motion.scss` | Page transitions, connected animation, Reveal, entrances |
 | `Styles/_utilities.scss` | The ~25 utilities actually used |
 
 ## Tokens
@@ -117,6 +118,45 @@ emit — do not add per-element classes in templates.
 ### Other
 `.empty-state`, `.pagination` / `.pagination__link`, `.taxonomy-card`,
 `.author-bio`, `.toc`, `.reading-progress`, `.back-to-top`.
+
+## Motion
+
+Uses the **published Fluent values**, not approximations
+([timing and easing](https://learn.microsoft.com/windows/apps/design/motion/timing-and-easing)):
+
+| Token | Value | Use for |
+|---|---|---|
+| `--mz-ease-entrance` | `cubic-bezier(0, 0, 0, 1)` | Anything arriving — "fast out, slow in" |
+| `--mz-ease-exit` | `cubic-bezier(1, 0, 1, 1)` | Anything leaving |
+| `--mz-ease-standard` | `cubic-bezier(0.55, 0.55, 0, 1)` | Point-to-point on existing elements |
+| `--mz-duration-faster` | 83ms | Opacity-only changes |
+| `--mz-duration-fast` | 167ms | `ControlFastAnimationDuration`; exits |
+| `--mz-duration-normal` | 250ms | `ControlNormalAnimationDuration` |
+| `--mz-duration-slow` | 333ms | Larger travel, page transitions |
+
+Four mechanisms, each a progressive enhancement that degrades to nothing:
+
+- **Page transitions** — cross-document View Transitions (`@view-transition { navigation: auto }`).
+  The header and footer hold still via `view-transition-name`, so only content moves.
+- **Connected animation** — Fluent's card→detail morph. `Motion.ts` assigns
+  `view-transition-name: post-hero-image` to the clicked card's image; the post
+  banner carries the same name, so the image travels between pages.
+- **Entrances** — scroll-driven via `animation-timeline: view()`. No JS, no
+  IntersectionObserver, and they replay as you browse.
+- **Reveal** — the pointer-tracked radial highlight. `Motion.ts` publishes
+  `--mz-reveal-x/y` from one delegated, rAF-coalesced listener.
+
+### Two traps
+
+`@view-transition` **must not sit inside `@layer`** — Chrome silently ignores it
+there, disabling page transitions entirely. It is deliberately un-layered in
+`_motion.scss`.
+
+Raising card content above the Reveal highlight uses `z-index` **without**
+`position: relative`. Cards are flex containers, so `z-index` applies to their
+static flex items; adding `position` would make `.card__body` the containing
+block for `.card__link::after` and shrink the stretched link, making the card
+image un-clickable.
 
 ## Icons
 

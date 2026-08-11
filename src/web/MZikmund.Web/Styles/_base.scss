@@ -209,7 +209,7 @@
 		font-weight: var(--mz-weight-semibold);
 		text-decoration: none;
 		transform: translateY(-200%);
-		transition: transform var(--mz-duration-normal) var(--mz-ease-decel);
+		transition: transform var(--mz-duration-normal) var(--mz-ease-entrance);
 
 		&:focus-visible {
 			transform: translateY(0);
