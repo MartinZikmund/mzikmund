@@ -2,11 +2,12 @@
 @using System.Linq
 
 <article class="blog-post">
-    <div class="post-content">
+    <div class="post-content prose">
         @Html.Raw(Model.HtmlContent)
     </div>
-    <footer>
-        <div>
+
+    <footer class="post-footer">
+        <div class="post-ad">
             <!-- ArticleBottom -->
             <ins class="adsbygoogle"
                  style="display:block"
@@ -18,26 +19,28 @@
                  (adsbygoogle = window.adsbygoogle || []).push({});
             </script>
         </div>
-        <div class="text-center my-4">
-            @foreach (var tag in Model.BlogPost!.Tags)
-            {
-                <a class="badge rounded-pill border border-primary text-primary text-decoration-none me-1 mb-1 post-tag-badge" asp-page="/Blog/TagPostList" asp-route-tagName="@tag.RouteName">#@tag.DisplayName</a>
-            }
-        </div>
 
-        <hr class="my-4" />
+        @if (Model.BlogPost!.Tags.Length > 0)
+        {
+            <div class="post-tags">
+                @foreach (var tag in Model.BlogPost!.Tags)
+                {
+                    <a class="tag" asp-page="/Blog/TagPostList" asp-route-tagName="@tag.RouteName">#@tag.DisplayName</a>
+                }
+            </div>
+        }
 
-        <div class="author-bio d-flex align-items-center gap-3 p-3 rounded-3 mb-4">
-            <img src="~/img/logo.png" alt="Martin Zikmund" class="rounded-circle" width="64" height="64" />
+        <div class="author-bio">
+            <img src="~/img/logo.png" alt="Martin Zikmund" width="64" height="64" />
             <div>
-                <h4 class="mb-1 fs-6 fw-semibold">Martin Zikmund</h4>
-                <p class="text-muted mb-0 small">Open-source developer, speaker, and .NET enthusiast building cross-platform apps with Uno Platform.</p>
+                <p class="author-bio__name">Martin Zikmund</p>
+                <p class="author-bio__text">Open-source developer, speaker, and .NET enthusiast building cross-platform apps with Uno Platform.</p>
             </div>
         </div>
 
-        <div class="text-center mb-3">
-            <a asp-page="/Blog/Index" class="btn btn-outline-secondary btn-sm">
-                <i class="bi bi-arrow-left me-1"></i>Back to Blog
+        <div>
+            <a asp-page="/Blog/Index" class="btn btn--subtle btn--sm">
+                <svg class="icon" aria-hidden="true"><use href="#i-arrow-left"></use></svg>Back to Blog
             </a>
         </div>
     </footer>

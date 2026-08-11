@@ -1,4 +1,4 @@
-﻿@page "/Blog/Categories/{categoryName}"
+@page "/Blog/Categories/{categoryName}"
 @model MZikmund.Web.Pages.Blog.CategoryPostListModel
 
 @{
@@ -6,11 +6,20 @@
 }
 
 @{
-    <div class="blog-header text-center mb-3">
-        <h1 class="display-4 text-primary">@Model.Category.DisplayName</h1>
+    <div class="page-header">
+        <h1 class="page-header__title">@Model.Category.DisplayName</h1>
+        @if (!string.IsNullOrEmpty(Model.Category.Description))
+        {
+            <p class="page-header__lead">@Model.Category.Description</p>
+        }
+        <div class="page-header__actions">
+            <a asp-page="/Blog/CategoryList" class="btn btn--standard">
+                <svg class="icon" aria-hidden="true"><use href="#i-arrow-left"></use></svg>
+                All Categories
+            </a>
+        </div>
     </div>
 
-    <div class="row">
-        <partial name="_PostList" model="Model.BlogPosts" />
-    </div>
+    @* _PostList supplies its own .card-grid. *@
+    <partial name="_PostList" model="Model.BlogPosts" />
 }

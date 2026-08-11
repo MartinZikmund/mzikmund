@@ -1,31 +1,31 @@
-﻿@model X.PagedList.StaticPagedList<PostListItem>
+@model X.PagedList.StaticPagedList<PostListItem>
 
 @if (Model.Count == 0)
 {
-    <div class="col-12">
-        <div class="alert alert-info text-center">
-            <i class="bi bi-inbox"></i>
-            @Localizer["No posts found"]
-        </div>
+    @* No live-region role: this is static server-rendered content that never
+       changes after load, so announcing it as a status is noise. *@
+    <div class="empty-state">
+        <svg class="icon" aria-hidden="true"><use href="#i-inbox"></use></svg>
+        <p>@Localizer["No posts found"]</p>
     </div>
 }
 else
 {
-    foreach (var item in Model)
-    {
-        <partial name="_PostListItem" model="item" />
-    }
-
-    <div class="col-12">
-        <nav aria-label="Blog pagination" class="mt-4">
-            @Html.PagedListPager(Model, page => ViewData["sortBy"] == null ? $"?pageNumber={page}" : $"?pageNumber={page}&sortBy={ViewData["sortBy"]}", new()
-            {
-                LiElementClasses = new[] { "page-item" },
-                PageClasses = new[] { "page-link" },
-                UlElementClasses = new[] { "pagination justify-content-center pagination-modern" },
-                MaximumPageNumbersToDisplay = 5,
-                DisplayEllipsesWhenNotShowingAllPageNumbers = false
-            })
-        </nav>
+    <div class="card-grid">
+        @foreach (var item in Model)
+        {
+            <partial name="_PostListItem" model="item" />
+        }
     </div>
+
+    <nav aria-label="Blog pagination">
+        @Html.PagedListPager(Model, page => ViewData["sortBy"] == null ? $"?pageNumber={page}" : $"?pageNumber={page}&sortBy={ViewData["sortBy"]}", new()
+        {
+            LiElementClasses = new[] { "pagination__item" },
+            PageClasses = new[] { "pagination__link" },
+            UlElementClasses = new[] { "pagination" },
+            MaximumPageNumbersToDisplay = 5,
+            DisplayEllipsesWhenNotShowingAllPageNumbers = false
+        })
+    </nav>
 }

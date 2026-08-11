@@ -6,66 +6,68 @@
 
 @section AboveMain
 {
-    <section class="hero-section">
+    <section class="hero">
         <div class="container">
-            <div class="hero-content text-center">
-                <h1 class="display-2 fw-bold mb-3">Hi, my name is Martin!</h1>
-                <p class="hero-subtitle mb-3">Open-source Developer &amp; Speaker</p>
-                <p class="hero-bio mb-4">I build cross-platform apps with .NET and Uno Platform, contribute to open source, and share what I learn along the way.</p>
-                <div class="hero-cta d-flex justify-content-center gap-3 flex-wrap">
-                    <a asp-page="/Blog/Index" class="btn btn-primary btn-lg px-4">Read the Blog</a>
-                    <a href="https://github.com/MartinZikmund" target="_blank" rel="noopener" class="btn btn-outline-secondary btn-lg px-4">
-                        <i class="bi bi-github me-2"></i>GitHub
+            <div class="hero__inner">
+                <p class="hero__eyebrow">Open-source developer &amp; speaker</p>
+                <h1 class="hero__title">Martin Zikmund</h1>
+                <div class="hero__rule"></div>
+                <p class="hero__lead">I build cross-platform apps with .NET and Uno Platform, contribute to open source, and share what I learn along the way.</p>
+                <div class="hero__actions">
+                    <a asp-page="/Blog/Index" class="btn btn--accent btn--lg">Read the Blog</a>
+                    <a href="https://github.com/MartinZikmund" target="_blank" rel="noopener" class="btn btn--standard btn--lg">
+                        <svg class="icon" aria-hidden="true"><use href="#i-github"></use></svg>GitHub
                     </a>
                 </div>
+                <p class="hero__topics">
+                    <span>.NET</span>
+                    <span class="hero__topic-sep" aria-hidden="true">·</span>
+                    <span>Uno Platform</span>
+                    <span class="hero__topic-sep" aria-hidden="true">·</span>
+                    <span>WinUI</span>
+                    <span class="hero__topic-sep" aria-hidden="true">·</span>
+                    <span>C#</span>
+                </p>
             </div>
         </div>
     </section>
 }
 
-<section class="featured-posts py-5">
-    <div class="container">
-        <div class="row mb-4">
-            <div class="col-md-8">
-                <h2 class="display-5">Latest Posts</h2>
-                <p class="lead text-muted">Thoughts on .NET, Uno Platform, and open source</p>
-            </div>
-            <div class="col-md-4 text-end">
-                <a asp-page="/Blog/Index" class="btn btn-outline-primary btn-lg">
-                    View all posts &rarr;
-                </a>
-            </div>
+<section class="section">
+    <div class="section-head">
+        <div class="section-head__text">
+            <h2 class="section-head__title">Latest Posts</h2>
+            <p class="section-head__subtitle">Thoughts on .NET, Uno Platform, and open source</p>
         </div>
-        <div class="row">
-            @foreach (var post in Model.BlogPosts)
-            {
-                <partial name="_PostListItem" model="post" />
-            }
-        </div>
+        <a asp-page="/Blog/Index" class="btn btn--standard">
+            View all posts<span class="btn__arrow">&rarr;</span>
+        </a>
+    </div>
+    <div class="card-grid">
+        @foreach (var post in Model.BlogPosts)
+        {
+            <partial name="_PostListItem" model="post" />
+        }
     </div>
 </section>
 
 @if (Model.FeaturedVideos?.Count > 0)
 {
-    <section class="featured-videos py-5">
-        <div class="container">
-            <div class="row mb-4">
-                <div class="col-md-8">
-                    <h2 class="display-5">Latest Videos</h2>
-                    <p class="lead text-muted">Check out my latest video content on YouTube</p>
-                </div>
-                <div class="col-md-4 text-end">
-                    <a asp-page="/Videos" class="btn btn-outline-primary btn-lg">
-                        View all videos →
-                    </a>
-                </div>
+    <section class="section">
+        <div class="section-head">
+            <div class="section-head__text">
+                <h2 class="section-head__title">Latest Videos</h2>
+                <p class="section-head__subtitle">Check out my latest video content on YouTube</p>
             </div>
-            <div class="row">
-                @foreach (var video in Model.FeaturedVideos)
-                {
-                    <partial name="Shared/_VideoListItem" model="video" />
-                }
-            </div>
+            <a asp-page="/Videos" class="btn btn--standard">
+                View all videos<span class="btn__arrow">→</span>
+            </a>
+        </div>
+        <div class="card-grid">
+            @foreach (var video in Model.FeaturedVideos)
+            {
+                <partial name="Shared/_VideoListItem" model="video" />
+            }
         </div>
     </section>
 }

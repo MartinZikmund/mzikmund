@@ -1,0 +1,155 @@
+// =============================================================================
+// Page shell and layout primitives.
+//
+// The site needs exactly three layouts, so these are purpose-built rather than
+// a general grid system: centred container, auto-fitting card grid, and the
+// article + table-of-contents split.
+// =============================================================================
+
+@layer layout {
+
+	.container {
+		width: 100%;
+		max-width: calc(var(--mz-container) + var(--mz-gutter) * 2);
+		margin-inline: auto;
+		padding-inline: var(--mz-gutter);
+	}
+
+	.container--narrow {
+		max-width: calc(var(--mz-container-narrow) + var(--mz-gutter) * 2);
+	}
+
+	.container--wide {
+		max-width: calc(1440px + var(--mz-gutter) * 2);
+	}
+
+	// --- Page shell ----------------------------------------------------------
+	.site-main {
+		flex: 1 0 auto;
+		padding-block-end: var(--mz-space-9);
+	}
+
+	// --- Section rhythm ------------------------------------------------------
+	.section {
+		padding-block: var(--mz-space-8);
+
+		@media (min-width: 48rem) {
+			padding-block: var(--mz-space-9);
+		}
+	}
+
+	.section--tight {
+		padding-block: var(--mz-space-6);
+	}
+
+	// Section header: title + subtitle on the left, action on the right.
+	.section-head {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: end;
+		justify-content: space-between;
+		gap: var(--mz-space-4);
+		margin-block-end: var(--mz-space-6);
+	}
+
+	.section-head__text {
+		min-width: 0;
+	}
+
+	.section-head__title {
+		font-size: var(--mz-text-title);
+		margin-block-end: var(--mz-space-1);
+	}
+
+	.section-head__subtitle {
+		color: var(--mz-text-secondary);
+		font-size: var(--mz-text-body);
+		max-width: 52ch;
+	}
+
+	// --- Card grid -----------------------------------------------------------
+	// auto-fit + minmax means no column classes and no breakpoint juggling;
+	// the grid reflows on content width, not viewport width.
+	.card-grid {
+		display: grid;
+		gap: var(--mz-space-5);
+		grid-template-columns: repeat(auto-fill, minmax(min(20rem, 100%), 1fr));
+	}
+
+	.card-grid--wide {
+		grid-template-columns: repeat(auto-fill, minmax(min(24rem, 100%), 1fr));
+	}
+
+	// --- Article + table-of-contents split -----------------------------------
+	// Below 80rem the TOC stacks above the article (source order puts the
+	// article first, so `order` promotes the TOC for small screens only).
+	.article-layout {
+		display: flex;
+		flex-direction: column;
+		gap: var(--mz-space-5);
+	}
+
+	.article-layout__main {
+		min-width: 0;
+		width: 100%;
+		max-width: var(--mz-measure);
+		margin-inline: auto;
+	}
+
+	.article-layout__aside {
+		order: -1;
+		width: 100%;
+		max-width: var(--mz-measure);
+		margin-inline: auto;
+	}
+
+	// Wide screens: article stays optically centred in the viewport and the TOC
+	// occupies the right margin, rather than the article shifting off-centre.
+	@media (min-width: 80rem) {
+		.article-layout {
+			display: grid;
+			grid-template-columns: 1fr minmax(0, var(--mz-measure)) 1fr;
+			align-items: start;
+			gap: 0;
+		}
+
+		.article-layout__main {
+			grid-column: 2;
+			max-width: none;
+		}
+
+		.article-layout__aside {
+			order: 0;
+			grid-column: 3;
+			max-width: 17.5rem;
+			margin-inline: 0;
+			padding-inline-start: var(--mz-space-6);
+			position: sticky;
+			top: calc(var(--mz-header-height) + var(--mz-space-5));
+			max-height: calc(100svh - var(--mz-header-height) - var(--mz-space-8));
+			overflow-y: auto;
+			overscroll-behavior: contain;
+		}
+	}
+
+	// --- Prose container (privacy pages, error page, simple content) ---------
+	.prose-page {
+		max-width: var(--mz-measure);
+		margin-inline: auto;
+		padding-block: var(--mz-space-8);
+	}
+
+	// --- Stack ---------------------------------------------------------------
+	.stack {
+		display: flex;
+		flex-direction: column;
+		gap: var(--mz-space-4);
+	}
+
+	.cluster {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--mz-space-3);
+	}
+}

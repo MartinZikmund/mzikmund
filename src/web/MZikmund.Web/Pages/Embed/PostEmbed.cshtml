@@ -6,77 +6,80 @@
 	Layout = null;
 }
 
+@*
+	Standalone embed document: no site chrome, no layout. Like _Layout it renders
+	no theme attribute on <html> — site.js writes it render-blocking from the
+	stored preference, and without JS the prefers-color-scheme fallback applies.
+	Hard-coding a light theme here forced dark-mode hosts to embed a light card.
+*@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="light">
+<html lang="en">
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<meta name="robots" content="noindex, nofollow" />
 	<title>@Model.BlogPost?.Title</title>
 
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
-	<link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+	@* Same font preload and dev/prod stylesheet switch as _HeadStylesPartial. *@
+	<link rel="preload" href="~/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
+
+	<environment names="Development">
+		<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+	</environment>
+	<environment names="Staging,Production">
+		<link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
+	</environment>
+
+	@* Blocking in <head>: applies the stored colour theme before first paint. *@
+	<script src="~/js/site.js" asp-append-version="true"></script>
 </head>
 <body>
-	@if (Model.SafeHeroImageUrl is not null)
-	{
-		<div class="blog-post-hero" data-hero-url="@Model.SafeHeroImageUrl">
-			<div class="blog-post-hero-overlay">
-				<div class="container">
-					<div class="blog-post-hero-content">
-						<h1 class="display-3 text-white mb-3">@Model.BlogPost.Title</h1>
-						<div class="blog-post-hero-meta">
-							<p class="lead mb-2">
-								@foreach (var category in Model.BlogPost.Categories)
-								{
-									<a class="badge bg-light text-dark text-decoration-none" asp-page="/Blog/CategoryPostList" asp-route-categoryName="@category.RouteName">@category.DisplayName</a>
-								}
-							</p>
-							<p class="text-white-50 mb-0">@Model.BlogPost.PublishedDate.Humanize()</p>
+	<partial name="_IconSprite" />
+
+	@* Mirrors _PostHero: banner image, then the title on a solid surface. *@
+	<div class="post-hero">
+		@if (Model.SafeHeroImageUrl is not null)
+		{
+			<div class="post-hero__banner">
+				<img class="post-hero__image" src="@Model.SafeHeroImageUrl" alt="@(Model.BlogPost?.HeroImageAlt ?? string.Empty)" />
+			</div>
+		}
+		<div class="post-hero__body">
+			<div class="container">
+				<div class="post-hero__inner">
+					@if (Model.BlogPost!.Categories.Length > 0)
+					{
+						<div class="post-hero__categories">
+							@foreach (var category in Model.BlogPost.Categories)
+							{
+								<a class="badge badge--subtle" asp-page="/Blog/CategoryPostList" asp-route-categoryName="@category.RouteName">@category.DisplayName</a>
+							}
 						</div>
+					}
+					<h1 class="post-hero__title">@Model.BlogPost.Title</h1>
+					<div class="post-hero__meta">
+						<span class="meta__item">
+							<svg class="icon" aria-hidden="true"><use href="#i-calendar3"></use></svg>
+							@Model.BlogPost.PublishedDate.Humanize()
+						</span>
 					</div>
 				</div>
 			</div>
 		</div>
-		<script>
-			(function() {
-				const heroElement = document.querySelector('.blog-post-hero');
-				if (heroElement) {
-					const url = heroElement.dataset.heroUrl;
-					if (url) {
-						// Comprehensive escaping for safe CSS usage
-						// Only escape quotes for safe CSS url() usage
-						const escapedUrl = url.replace(/"/g, '\\"').replace(/'/g, "\\'");
-						heroElement.style.setProperty('--hero-bg-url', 'url("' + escapedUrl + '")');
-					}
-				}
-			})();
-		</script>
-	}
-	<div class="container">
-		<main role="main" class="pb-4">
-			<article class="blog-post">
-				@if (Model.SafeHeroImageUrl is null)
-				{
-					<header>
-						<h1 class="display-3 text-center text-primary">@Model.BlogPost?.Title</h1>
-						<p class="text-center lead mb-1 mt-2">
-							@foreach (var category in Model.BlogPost!.Categories)
-							{
-								<a class="badge bg-primary text-decoration-none" asp-page="/Blog/CategoryPostList" asp-route-categoryName="@category.RouteName">@category.DisplayName</a>
-							}
-						</p>
-						<p class="text-center text-secondary">@Model.BlogPost.PublishedDate.Humanize()</p>
-					</header>
-				}
-				<div class="post-content">
-					@Html.Raw(Model.HtmlContent)
-				</div>
-			</article>
-		</main>
 	</div>
-	<script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
-	<script src="~/js/site.js" asp-append-version="true"></script>
+
+	<main role="main" class="site-main">
+		<div class="container">
+			<div class="article-layout">
+				<div class="article-layout__main">
+					<article class="blog-post">
+						<div class="post-content prose">
+							@Html.Raw(Model.HtmlContent)
+						</div>
+					</article>
+				</div>
+			</div>
+		</div>
+	</main>
 </body>
 </html>

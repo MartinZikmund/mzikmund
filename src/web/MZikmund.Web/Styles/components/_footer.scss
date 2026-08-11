@@ -1,0 +1,96 @@
+// =============================================================================
+// Site footer.
+// =============================================================================
+
+@layer components {
+
+	.site-footer {
+		flex-shrink: 0;
+		margin-block-start: auto;
+		background-color: var(--mz-bg-tertiary);
+		border-block-start: 1px solid var(--mz-stroke-divider);
+		padding-block: var(--mz-space-7) var(--mz-space-5);
+	}
+
+	.site-footer__main {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--mz-space-5);
+	}
+
+	.site-footer__brand {
+		display: flex;
+		align-items: center;
+		gap: var(--mz-space-3);
+		color: var(--mz-text-secondary);
+		font-size: var(--mz-text-caption);
+		text-decoration: none;
+
+		img {
+			width: 1.75rem;
+			height: auto;
+			opacity: 0.85;
+		}
+
+		&:hover {
+			color: var(--mz-text-primary);
+		}
+	}
+
+	.site-footer__social {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--mz-space-1);
+		list-style: none;
+		padding: 0;
+		margin: 0;
+	}
+
+	.site-footer__social-link {
+		display: grid;
+		place-items: center;
+		width: 2.25rem;
+		height: 2.25rem;
+		border-radius: var(--mz-radius-control);
+		color: var(--mz-text-secondary);
+		transition:
+			background-color var(--mz-duration-fast) var(--mz-ease-standard),
+			color var(--mz-duration-fast) var(--mz-ease-standard);
+
+		.icon {
+			width: 1.125rem;
+			height: 1.125rem;
+		}
+
+		&:hover {
+			background-color: var(--mz-shimmer);
+			color: var(--mz-accent-text);
+		}
+	}
+
+	.site-footer__meta {
+		margin-block-start: var(--mz-space-5);
+		padding-block-start: var(--mz-space-4);
+		border-block-start: 1px solid var(--mz-stroke-divider);
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--mz-space-3);
+		color: var(--mz-text-tertiary);
+		font-size: 0.75rem;
+
+		a {
+			color: inherit;
+			text-decoration: none;
+
+			&:hover {
+				color: var(--mz-accent-text);
+				text-decoration: underline;
+			}
+		}
+	}
+}

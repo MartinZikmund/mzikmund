@@ -1,0 +1,286 @@
+// =============================================================================
+// Buttons, badges, icons.
+//
+// Reproduces Fluent's ControlElevationBorderBrush — a border whose bottom edge
+// is darker than its sides, which is what gives WinUI buttons their subtly
+// raised look. That single detail does most of the work of "feeling Fluent".
+// =============================================================================
+
+@layer components {
+
+	// --- Icons ---------------------------------------------------------------
+	// The sprite is inlined at the top of <body>; it must never take up space.
+	.icon-sprite {
+		position: absolute;
+		width: 0;
+		height: 0;
+		overflow: hidden;
+	}
+
+	.icon {
+		display: inline-block;
+		width: 1em;
+		height: 1em;
+		flex-shrink: 0;
+		vertical-align: -0.125em;
+		fill: currentColor;
+	}
+
+	.icon--lg {
+		width: 1.25em;
+		height: 1.25em;
+	}
+
+	// --- Buttons -------------------------------------------------------------
+	.btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: var(--mz-space-2);
+		padding: var(--mz-space-2) var(--mz-space-4);
+		min-height: 2rem;
+		border-radius: var(--mz-radius-control);
+		font-size: var(--mz-text-body);
+		font-weight: var(--mz-weight-semibold);
+		line-height: var(--mz-leading-snug);
+		text-decoration: none;
+		white-space: nowrap;
+		cursor: pointer;
+		transition:
+			background-color var(--mz-duration-fast) var(--mz-ease-standard),
+			border-color var(--mz-duration-fast) var(--mz-ease-standard),
+			color var(--mz-duration-fast) var(--mz-ease-standard);
+
+		// Fluent presses controls down by a hair rather than scaling them.
+		&:active {
+			transition-duration: 0s;
+		}
+	}
+
+	.btn--lg {
+		padding: var(--mz-space-3) var(--mz-space-5);
+		min-height: 2.75rem;
+		font-size: var(--mz-text-body-large);
+	}
+
+	.btn--sm {
+		padding: var(--mz-space-1) var(--mz-space-3);
+		min-height: 1.75rem;
+		font-size: var(--mz-text-caption);
+	}
+
+	// Accent — primary action.
+	.btn--accent {
+		background-color: var(--mz-accent-fill);
+		color: var(--mz-text-on-accent);
+		border: 1px solid transparent;
+		// Bottom-weighted highlight: the Fluent accent-control border.
+		box-shadow: inset 0 -1px 0 rgb(0 0 0 / 0.14), inset 0 1px 0 rgb(255 255 255 / 0.08);
+
+		&:hover {
+			background-color: var(--mz-accent-fill-hover);
+			color: var(--mz-text-on-accent);
+		}
+
+		&:active {
+			background-color: var(--mz-accent-fill-active);
+			box-shadow: none;
+		}
+	}
+
+	// Standard — secondary action on a layered surface.
+	.btn--standard {
+		background-color: var(--mz-card);
+		color: var(--mz-text-primary);
+		border: 1px solid var(--mz-stroke-control);
+		box-shadow: inset 0 -1px 0 rgb(0 0 0 / 0.05);
+
+		&:hover {
+			background-color: var(--mz-bg-secondary);
+			color: var(--mz-text-primary);
+		}
+
+		&:active {
+			background-color: var(--mz-bg-secondary);
+			color: var(--mz-text-secondary);
+			box-shadow: none;
+		}
+	}
+
+	// Subtle — tertiary / inline action, no chrome until hovered.
+	.btn--subtle {
+		background-color: transparent;
+		color: var(--mz-text-primary);
+		border: 1px solid transparent;
+
+		&:hover {
+			background-color: var(--mz-shimmer);
+			color: var(--mz-text-primary);
+		}
+
+		&:active {
+			color: var(--mz-text-secondary);
+		}
+	}
+
+	// Accent-tinted subtle — used for "read more" style affordances.
+	.btn--accent-subtle {
+		background-color: var(--mz-accent-subtle);
+		color: var(--mz-accent-text);
+		border: 1px solid transparent;
+
+		&:hover {
+			background-color: var(--mz-accent-subtle-strong);
+			color: var(--mz-accent-text);
+		}
+	}
+
+	// Arrow nudge on hover — the one flourish, kept small.
+	.btn__arrow {
+		transition: translate var(--mz-duration-normal) var(--mz-ease-decel);
+	}
+
+	.btn:hover .btn__arrow {
+		translate: 0.2em 0;
+	}
+
+	// --- Badges --------------------------------------------------------------
+	.badge {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--mz-space-1);
+		padding: 0.1875rem var(--mz-space-2);
+		border-radius: var(--mz-radius-control);
+		font-size: var(--mz-text-caption);
+		font-weight: var(--mz-weight-semibold);
+		line-height: var(--mz-leading-snug);
+		letter-spacing: var(--mz-tracking-wide);
+		text-decoration: none;
+		white-space: nowrap;
+	}
+
+	.badge--accent {
+		background-color: var(--mz-accent-fill);
+		color: var(--mz-text-on-accent);
+	}
+
+	.badge--subtle {
+		background-color: var(--mz-accent-subtle);
+		color: var(--mz-accent-text);
+
+		&:hover {
+			background-color: var(--mz-accent-subtle-strong);
+			color: var(--mz-accent-text);
+		}
+	}
+
+	.badge--neutral {
+		background-color: var(--mz-shimmer);
+		color: var(--mz-text-secondary);
+	}
+
+	// Tag pill — outlined, fills on hover.
+	.tag {
+		display: inline-flex;
+		align-items: center;
+		padding: var(--mz-space-1) var(--mz-space-3);
+		border-radius: var(--mz-radius-pill);
+		border: 1px solid var(--mz-stroke-control-strong);
+		color: var(--mz-text-secondary);
+		font-size: var(--mz-text-caption);
+		font-weight: var(--mz-weight-medium);
+		text-decoration: none;
+		transition:
+			background-color var(--mz-duration-fast) var(--mz-ease-standard),
+			border-color var(--mz-duration-fast) var(--mz-ease-standard),
+			color var(--mz-duration-fast) var(--mz-ease-standard);
+
+		&:hover {
+			background-color: var(--mz-accent-subtle);
+			border-color: var(--mz-accent-text);
+			color: var(--mz-accent-text);
+		}
+	}
+
+	// --- Metadata line -------------------------------------------------------
+	.meta {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--mz-space-1) var(--mz-space-3);
+		color: var(--mz-text-tertiary);
+		font-size: var(--mz-text-caption);
+		font-weight: var(--mz-weight-medium);
+	}
+
+	.meta__item {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--mz-space-1);
+	}
+
+	// --- Empty state ---------------------------------------------------------
+	.empty-state {
+		display: grid;
+		justify-items: center;
+		gap: var(--mz-space-3);
+		padding: var(--mz-space-9) var(--mz-space-4);
+		text-align: center;
+		color: var(--mz-text-secondary);
+
+		.icon {
+			width: 2.5rem;
+			height: 2.5rem;
+			color: var(--mz-text-tertiary);
+		}
+	}
+
+	// --- Pagination ----------------------------------------------------------
+	.pagination {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: var(--mz-space-1);
+		list-style: none;
+		padding: 0;
+		margin-block-start: var(--mz-space-8);
+	}
+
+	.pagination__item {
+		display: flex;
+	}
+
+	.pagination__link {
+		display: grid;
+		place-items: center;
+		min-width: 2.25rem;
+		min-height: 2.25rem;
+		padding-inline: var(--mz-space-2);
+		border-radius: var(--mz-radius-control);
+		color: var(--mz-text-primary);
+		font-size: var(--mz-text-body);
+		font-weight: var(--mz-weight-medium);
+		text-decoration: none;
+		transition: background-color var(--mz-duration-fast) var(--mz-ease-standard);
+
+		&:hover {
+			background-color: var(--mz-shimmer);
+			color: var(--mz-text-primary);
+		}
+	}
+
+	// X.PagedList puts .active / .disabled on the <li>, not on the link, and it
+	// renders the current page as a bare <span>. Style both element shapes.
+	.pagination__item.active .pagination__link,
+	.pagination__link[aria-current="page"] {
+		background-color: var(--mz-accent-fill);
+		color: var(--mz-text-on-accent);
+		font-weight: var(--mz-weight-semibold);
+	}
+
+	.pagination__item.disabled .pagination__link,
+	.pagination__link[aria-disabled="true"] {
+		color: var(--mz-text-disabled);
+		pointer-events: none;
+	}
+}

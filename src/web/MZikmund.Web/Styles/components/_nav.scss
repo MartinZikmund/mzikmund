@@ -1,0 +1,336 @@
+// =============================================================================
+// Site header — modelled on WinUI NavigationView in Top mode.
+//
+// Acrylic-style translucent backdrop, and the Fluent selection indicator: a
+// short rounded accent bar beneath the active item (not a full-width underline).
+// =============================================================================
+
+@layer components {
+
+	.site-header {
+		position: sticky;
+		top: 0;
+		z-index: 50;
+		background-color: var(--mz-acrylic);
+		border-block-end: 1px solid var(--mz-stroke-divider);
+
+		// Acrylic is a progressive enhancement — without backdrop-filter the
+		// header stays legible on a near-opaque fill.
+		@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+			-webkit-backdrop-filter: var(--mz-acrylic-blur);
+			backdrop-filter: var(--mz-acrylic-blur);
+		}
+	}
+
+	.site-header__inner {
+		display: flex;
+		align-items: center;
+		gap: var(--mz-space-4);
+		min-height: var(--mz-header-height);
+	}
+
+	.site-brand {
+		display: flex;
+		align-items: center;
+		flex-shrink: 0;
+		border-radius: var(--mz-radius-control);
+		padding: var(--mz-space-1);
+		margin-inline-start: calc(var(--mz-space-1) * -1);
+		transition: opacity var(--mz-duration-fast) var(--mz-ease-standard);
+
+		img {
+			width: 2.25rem;
+			height: auto;
+		}
+
+		&:hover {
+			opacity: 0.8;
+		}
+	}
+
+	// --- Primary navigation --------------------------------------------------
+	.site-nav {
+		display: flex;
+		align-items: center;
+		flex: 1 1 auto;
+		gap: var(--mz-space-1);
+		list-style: none;
+		padding: 0;
+		margin: 0;
+	}
+
+	.site-nav__link {
+		position: relative;
+		display: block;
+		padding: var(--mz-space-2) var(--mz-space-3);
+		border-radius: var(--mz-radius-control);
+		color: var(--mz-text-secondary);
+		font-size: var(--mz-text-body);
+		font-weight: var(--mz-weight-medium);
+		text-decoration: none;
+		white-space: nowrap;
+		transition:
+			background-color var(--mz-duration-fast) var(--mz-ease-standard),
+			color var(--mz-duration-fast) var(--mz-ease-standard);
+
+		&:hover {
+			background-color: var(--mz-shimmer);
+			color: var(--mz-text-primary);
+		}
+
+		&[aria-current="page"] {
+			color: var(--mz-text-primary);
+			font-weight: var(--mz-weight-semibold);
+		}
+
+		// Fluent selection indicator: short rounded accent bar, animated in.
+		&[aria-current="page"]::after {
+			content: "";
+			position: absolute;
+			inset-block-end: 0.25rem;
+			inset-inline: 50%;
+			width: 1rem;
+			height: 3px;
+			translate: -50% 0;
+			border-radius: var(--mz-radius-pill);
+			background-color: var(--mz-accent-text);
+			animation: mz-indicator var(--mz-duration-normal) var(--mz-ease-decel);
+		}
+	}
+
+	@keyframes mz-indicator {
+		from {
+			width: 0;
+			opacity: 0;
+		}
+
+		to {
+			width: 1rem;
+			opacity: 1;
+		}
+	}
+
+	// --- Header actions ------------------------------------------------------
+	.site-header__actions {
+		display: flex;
+		align-items: center;
+		gap: var(--mz-space-1);
+		margin-inline-start: auto;
+	}
+
+	// --- Theme menu ----------------------------------------------------------
+	.theme-menu {
+		position: relative;
+	}
+
+	.theme-menu__trigger {
+		display: flex;
+		align-items: center;
+		gap: var(--mz-space-2);
+		padding: var(--mz-space-2);
+		border-radius: var(--mz-radius-control);
+		color: var(--mz-text-secondary);
+		transition:
+			background-color var(--mz-duration-fast) var(--mz-ease-standard),
+			color var(--mz-duration-fast) var(--mz-ease-standard);
+
+		&:hover {
+			background-color: var(--mz-shimmer);
+			color: var(--mz-text-primary);
+		}
+	}
+
+	// Flyout — acrylic surface with overlay radius, per Fluent.
+	.theme-menu__list {
+		position: absolute;
+		inset-block-start: calc(100% + var(--mz-space-2));
+		inset-inline-end: 0;
+		z-index: 60;
+		min-width: 10rem;
+		padding: var(--mz-space-1);
+		margin: 0;
+		list-style: none;
+		// Opaque for the same reason as the mobile nav panel: this flyout hangs
+		// below the header, and a backdrop-filter nested inside the header's own
+		// filtered context does not sample the page content behind it.
+		background-color: var(--mz-bg-elevated);
+		border: 1px solid var(--mz-stroke-card);
+		border-radius: var(--mz-radius-overlay);
+		box-shadow: var(--mz-elev-3);
+
+		&[hidden] {
+			display: none;
+		}
+
+		// Fluent flyouts slide in from the edge they're anchored to.
+		animation: mz-flyout var(--mz-duration-normal) var(--mz-ease-decel);
+	}
+
+	@keyframes mz-flyout {
+		from {
+			opacity: 0;
+			translate: 0 -0.5rem;
+		}
+
+		to {
+			opacity: 1;
+			translate: 0 0;
+		}
+	}
+
+	.theme-menu__item {
+		display: flex;
+		align-items: center;
+		gap: var(--mz-space-3);
+		width: 100%;
+		padding: var(--mz-space-2) var(--mz-space-3);
+		border-radius: var(--mz-radius-control);
+		color: var(--mz-text-primary);
+		font-size: var(--mz-text-body);
+		text-align: start;
+		text-decoration: none;
+		transition: background-color var(--mz-duration-fast) var(--mz-ease-standard);
+
+		&:hover {
+			background-color: var(--mz-shimmer);
+		}
+
+		// Selected state uses the Fluent vertical accent bar.
+		&[aria-checked="true"] {
+			font-weight: var(--mz-weight-semibold);
+			background-color: var(--mz-accent-subtle);
+			position: relative;
+
+			&::before {
+				content: "";
+				position: absolute;
+				inset-inline-start: 0;
+				inset-block: 25%;
+				width: 3px;
+				border-radius: var(--mz-radius-pill);
+				background-color: var(--mz-accent-text);
+			}
+		}
+	}
+
+	// --- Mobile ---------------------------------------------------------------
+	.site-header__toggle {
+		display: none;
+		padding: var(--mz-space-2);
+		border-radius: var(--mz-radius-control);
+		color: var(--mz-text-secondary);
+
+		&:hover {
+			background-color: var(--mz-shimmer);
+			color: var(--mz-text-primary);
+		}
+	}
+
+	@media (max-width: 47.99rem) {
+		.site-header__toggle {
+			display: flex;
+			order: -1;
+			margin-inline-start: calc(var(--mz-space-1) * -1);
+		}
+
+		.site-nav {
+			position: absolute;
+			inset-inline: 0;
+			inset-block-start: 100%;
+			flex-direction: column;
+			align-items: stretch;
+			gap: var(--mz-space-1);
+			padding: var(--mz-space-2) var(--mz-gutter) var(--mz-space-4);
+			// Deliberately OPAQUE, unlike the header above it. This panel is
+			// absolutely positioned outside the header's bounds, and a nested
+			// backdrop-filter inside an already-filtered ancestor does not
+			// sample the page behind it — so an acrylic fill here never blurs
+			// and the hero text reads straight through the menu.
+			background-color: var(--mz-bg-elevated);
+			border-block-end: 1px solid var(--mz-stroke-divider);
+			box-shadow: var(--mz-elev-3);
+
+			&[hidden] {
+				display: none;
+			}
+		}
+
+		.site-nav__link {
+			padding: var(--mz-space-3);
+			font-size: var(--mz-text-body-large);
+
+			// The short bar reads as an artifact in a stacked list; use the
+			// vertical accent bar Fluent applies to left-nav instead.
+			&[aria-current="page"] {
+				background-color: var(--mz-accent-subtle);
+			}
+
+			&[aria-current="page"]::after {
+				inset-block: 25%;
+				inset-inline: 0 auto;
+				width: 3px;
+				height: auto;
+				translate: none;
+				animation: none;
+			}
+		}
+	}
+
+	@media (min-width: 48rem) {
+		.site-nav[hidden] {
+			display: flex;
+		}
+	}
+
+	// --- Reading progress ----------------------------------------------------
+	.reading-progress {
+		position: fixed;
+		inset-block-start: 0;
+		inset-inline-start: 0;
+		z-index: 60;
+		height: 2px;
+		width: 0;
+		background: linear-gradient(90deg, var(--mz-accent-text), var(--mz-accent-light-1));
+		transition: width 80ms linear;
+	}
+
+	// --- Back to top ---------------------------------------------------------
+	.back-to-top {
+		position: fixed;
+		inset-block-end: var(--mz-space-5);
+		inset-inline-end: var(--mz-space-5);
+		z-index: 40;
+		display: grid;
+		place-items: center;
+		width: 2.75rem;
+		height: 2.75rem;
+		border-radius: var(--mz-radius-pill);
+		background-color: var(--mz-acrylic);
+		border: 1px solid var(--mz-stroke-card);
+		color: var(--mz-text-primary);
+		box-shadow: var(--mz-elev-3);
+		opacity: 0;
+		visibility: hidden;
+		translate: 0 0.5rem;
+		transition:
+			opacity var(--mz-duration-normal) var(--mz-ease-standard),
+			translate var(--mz-duration-normal) var(--mz-ease-standard),
+			visibility var(--mz-duration-normal);
+
+		@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+			-webkit-backdrop-filter: var(--mz-acrylic-blur);
+			backdrop-filter: var(--mz-acrylic-blur);
+		}
+
+		&.is-visible {
+			opacity: 1;
+			visibility: visible;
+			translate: 0 0;
+		}
+
+		&:hover {
+			background-color: var(--mz-bg-elevated);
+			box-shadow: var(--mz-elev-4);
+		}
+	}
+}

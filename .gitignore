@@ -350,6 +350,12 @@ MigrationBackup/
 .ionide/
 src/web/MZikmund.Web/wwwroot/css
 src/web/MZikmund.Web/wwwroot/js
+# Variable font subsets copied from node_modules by scripts/build-assets.mjs,
+# which `npm run build` runs before every MSBuild (and CI runs npm install first).
+src/web/MZikmund.Web/wwwroot/fonts
+
+# Playwright MCP scratch output
+.playwright-mcp/
 
 # Single Target Config
 solution-config.props

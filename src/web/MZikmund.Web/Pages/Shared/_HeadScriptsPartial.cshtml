@@ -1,3 +1,11 @@
-﻿<script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
-<script src="~/js/site.js" asp-append-version="true"></script> <!--TODO Minify site.js-->
+@*
+	site.js must stay a blocking script in <head>: it applies the stored colour
+	theme before first paint. Adding defer/async reintroduces a flash of the
+	wrong theme.
+
+	Bootstrap's JS bundle was removed along with Bootstrap itself — the navbar
+	toggle and theme flyout are now handled in Scripts/SiteNav.ts and
+	Scripts/ThemeSwitchManager.ts.
+*@
+<script src="~/js/site.js" asp-append-version="true"></script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7501232789626725" crossorigin="anonymous"></script>

@@ -1,4 +1,10 @@
-﻿<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+@*
+	Fonts are self-hosted (see Styles/_fonts.scss). Preload only the Inter latin
+	subset — it is needed for the first paint of every page. Source Serif is
+	article-only and JetBrains Mono is code-only, so both load on demand, and the
+	latin-ext subsets are fetched only when a page actually contains those glyphs.
+*@
+<link rel="preload" href="~/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
 
 <environment names="Development">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />

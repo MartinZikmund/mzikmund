@@ -1,4 +1,4 @@
-﻿@page "/Blog/{RouteName}"
+@page "/Blog/{RouteName}"
 @using System.Linq
 @model MZikmund.Web.Pages.Blog.PostModel
 
@@ -21,35 +21,18 @@
     @await Html.PartialAsync("_PostHero", Model)
 }
 
-<div class="blog-post-layout">
-    <div class="blog-post-main">
+@* .site-main has no top padding and the hero renders above it, so the article
+   needs its own gap below the hero divider. *@
+<div class="article-layout mt-6">
+    <div class="article-layout__main">
         @await Html.PartialAsync("_PostContent", Model)
     </div>
 
-    <aside id="toc-container">
+    <aside id="toc-container" class="toc article-layout__aside">
         <!-- Table of Contents will be generated here by JavaScript -->
     </aside>
 </div>
 
-<button class="back-to-top" id="back-to-top" aria-label="Back to top" title="Back to top">
-    <i class="bi bi-arrow-up"></i>
+<button class="back-to-top" id="back-to-top" type="button" aria-label="Back to top" title="Back to top">
+    <svg class="icon icon--lg" aria-hidden="true"><use href="#i-arrow-up"></use></svg>
 </button>
-
-@section Scripts {
-    <script>
-        (function() {
-            var btn = document.getElementById('back-to-top');
-            if (!btn) return;
-            window.addEventListener('scroll', function() {
-                if (window.scrollY > 400) {
-                    btn.classList.add('visible');
-                } else {
-                    btn.classList.remove('visible');
-                }
-            }, { passive: true });
-            btn.addEventListener('click', function() {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-        })();
-    </script>
-}

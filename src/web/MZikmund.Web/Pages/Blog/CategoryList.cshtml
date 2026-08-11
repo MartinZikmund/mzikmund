@@ -5,42 +5,32 @@
     MetaTags.Title = "Blog Categories";
 }
 
-<div class="blog-header text-center mb-3">
-    <h1 class="display-4 text-primary">Blog Categories</h1>
-    <p class="lead text-muted">Browse posts by category</p>
-    <div class="mt-3">
-        <a asp-page="/Blog/Index" class="btn btn-outline-secondary btn-sm">← Back to Blog</a>
+<div class="page-header">
+    <h1 class="page-header__title">Blog Categories</h1>
+    <p class="page-header__lead">Browse posts by category</p>
+    <div class="page-header__actions">
+        <a asp-page="/Blog/Index" class="btn btn--standard">
+            <svg class="icon" aria-hidden="true"><use href="#i-arrow-left"></use></svg>
+            Back to Blog
+        </a>
     </div>
 </div>
 
-<div class="row">
+<div class="card-grid">
     @foreach (var category in Model.Categories)
     {
-        <div class="col-md-6 col-lg-4 mb-4">
-            <div class="card h-100 shadow-sm taxonomy-card">
-                <div class="card-body">
-                    @if (!string.IsNullOrEmpty(category.Icon))
-                    {
-                        <div class="text-center mb-3">
-                            <i class="@category.Icon fa-3x text-primary"></i>
-                        </div>
-                    }
-                    <h5 class="card-title">
-                        <a asp-page="/Blog/CategoryPostList" asp-route-categoryName="@category.RouteName" class="text-decoration-none">
-                            @category.DisplayName
-                        </a>
-                    </h5>
-                    @if (!string.IsNullOrEmpty(category.Description))
-                    {
-                        <p class="card-text text-muted">@category.Description</p>
-                    }
-                </div>
-                <div class="card-footer bg-transparent">
-                    <small class="text-muted">
-                        @category.PostCount @(category.PostCount == 1 ? "post" : "posts")
-                    </small>
-                </div>
-            </div>
-        </div>
+        <a class="taxonomy-card" asp-page="/Blog/CategoryPostList" asp-route-categoryName="@category.RouteName">
+            <span class="taxonomy-card__title">
+                <svg class="icon" aria-hidden="true"><use href="#i-folder2-open"></use></svg>
+                @category.DisplayName
+            </span>
+            @if (!string.IsNullOrEmpty(category.Description))
+            {
+                <span class="text-secondary">@category.Description</span>
+            }
+            <span class="taxonomy-card__count">
+                @category.PostCount @(category.PostCount == 1 ? "post" : "posts")
+            </span>
+        </a>
     }
 </div>

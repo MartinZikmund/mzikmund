@@ -1,0 +1,268 @@
+// =============================================================================
+// Cards — post, video and taxonomy.
+//
+// Fluent cards sit on a layered surface with a hairline stroke and lift only
+// slightly on hover. The old design translated them -8px with a heavy shadow,
+// which reads as Material rather than Fluent.
+// =============================================================================
+
+@layer components {
+
+	.card {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		background-color: var(--mz-card);
+		border: 1px solid var(--mz-stroke-card);
+		border-radius: var(--mz-radius-card);
+		box-shadow: var(--mz-elev-1);
+		overflow: hidden;
+		transition:
+			box-shadow var(--mz-duration-normal) var(--mz-ease-standard),
+			border-color var(--mz-duration-normal) var(--mz-ease-standard),
+			translate var(--mz-duration-normal) var(--mz-ease-standard);
+
+		&:hover {
+			translate: 0 -2px;
+			box-shadow: var(--mz-elev-3);
+			border-color: var(--mz-stroke-control-strong);
+		}
+
+		// The whole card is clickable via a stretched link, but the focus ring
+		// must appear on the card, not on the invisible link box.
+		&:focus-within {
+			outline: 2px solid var(--mz-stroke-focus);
+			outline-offset: 2px;
+		}
+	}
+
+	// Stretched link: covers the card, keeps the accessible name on the anchor.
+	.card__link {
+		text-decoration: none;
+		color: inherit;
+
+		&::after {
+			content: "";
+			position: absolute;
+			inset: 0;
+		}
+
+		&:focus-visible {
+			outline: none;
+			box-shadow: none;
+		}
+	}
+
+	.card__media {
+		position: relative;
+		aspect-ratio: 16 / 9;
+		background-color: var(--mz-bg-secondary);
+		overflow: hidden;
+	}
+
+	.card__image {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transition: scale var(--mz-duration-slow) var(--mz-ease-standard);
+	}
+
+	.card:hover .card__image {
+		scale: 1.03;
+	}
+
+	// Placeholder when a post has no hero image — a tinted accent field rather
+	// than an empty grey box.
+	.card__media--empty {
+		display: grid;
+		place-items: center;
+		background:
+			linear-gradient(135deg, var(--mz-accent-subtle), transparent 70%),
+			var(--mz-bg-secondary);
+
+		.icon {
+			width: 2rem;
+			height: 2rem;
+			color: var(--mz-text-tertiary);
+		}
+	}
+
+	.card__badges {
+		position: absolute;
+		inset-block-start: var(--mz-space-3);
+		inset-inline-start: var(--mz-space-3);
+		z-index: 1;
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--mz-space-1);
+	}
+
+	// Badges sit on arbitrary photography, so they carry their own scrim.
+	.card__badges .badge {
+		background-color: rgb(0 0 0 / 0.72);
+		color: #fff;
+		box-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
+
+		@supports (backdrop-filter: blur(1px)) {
+			background-color: rgb(0 0 0 / 0.55);
+			backdrop-filter: blur(8px) saturate(140%);
+		}
+	}
+
+	.card__body {
+		display: flex;
+		flex-direction: column;
+		flex: 1 1 auto;
+		gap: var(--mz-space-2);
+		padding: var(--mz-space-4);
+	}
+
+	.card__title {
+		font-size: var(--mz-text-subtitle);
+		line-height: var(--mz-leading-snug);
+		letter-spacing: var(--mz-tracking-normal);
+		transition: color var(--mz-duration-fast) var(--mz-ease-standard);
+	}
+
+	.card:hover .card__title {
+		color: var(--mz-accent-text);
+	}
+
+	// The excerpt is raw post HTML and can contain links. .card__link::after
+	// covers the whole card, so without this any such link is unclickable.
+	.card__excerpt a {
+		position: relative;
+		z-index: 1;
+	}
+
+	.card__excerpt {
+		color: var(--mz-text-secondary);
+		font-size: var(--mz-text-body);
+		line-height: var(--mz-leading-normal);
+		display: -webkit-box;
+		-webkit-line-clamp: 3;
+		line-clamp: 3;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+
+	.card__footer {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--mz-space-3);
+		margin-block-start: auto;
+		padding-block-start: var(--mz-space-2);
+	}
+
+	// --- Video card ----------------------------------------------------------
+	.card__play {
+		position: absolute;
+		inset: 0;
+		display: grid;
+		place-items: center;
+		background-color: rgb(0 0 0 / 0.25);
+		color: #fff;
+		opacity: 0;
+		transition: opacity var(--mz-duration-normal) var(--mz-ease-standard);
+
+		.icon {
+			width: 3.5rem;
+			height: 3.5rem;
+			filter: drop-shadow(0 2px 8px rgb(0 0 0 / 0.5));
+		}
+	}
+
+	.card:hover .card__play,
+	.card:focus-within .card__play {
+		opacity: 1;
+	}
+
+	// --- Taxonomy card (categories / tags) -----------------------------------
+	// Fluent's left accent bar instead of a heavy coloured border.
+	.taxonomy-card {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		gap: var(--mz-space-1);
+		padding: var(--mz-space-4) var(--mz-space-4) var(--mz-space-4) var(--mz-space-5);
+		background-color: var(--mz-card);
+		border: 1px solid var(--mz-stroke-card);
+		border-radius: var(--mz-radius-card);
+		box-shadow: var(--mz-elev-1);
+		text-decoration: none;
+		color: inherit;
+		overflow: hidden;
+		transition:
+			box-shadow var(--mz-duration-normal) var(--mz-ease-standard),
+			translate var(--mz-duration-normal) var(--mz-ease-standard);
+
+		&::before {
+			content: "";
+			position: absolute;
+			inset-block: var(--mz-space-3);
+			inset-inline-start: 0;
+			width: 3px;
+			border-radius: var(--mz-radius-pill);
+			background-color: var(--mz-accent-text);
+			transition: inset-block var(--mz-duration-normal) var(--mz-ease-standard);
+		}
+
+		&:hover {
+			translate: 0 -2px;
+			box-shadow: var(--mz-elev-3);
+
+			&::before {
+				inset-block: 0;
+			}
+		}
+	}
+
+	.taxonomy-card__title {
+		font-size: var(--mz-text-body-large);
+		font-weight: var(--mz-weight-semibold);
+		color: var(--mz-text-primary);
+		transition: color var(--mz-duration-fast) var(--mz-ease-standard);
+	}
+
+	.taxonomy-card:hover .taxonomy-card__title {
+		color: var(--mz-accent-text);
+	}
+
+	.taxonomy-card__count {
+		color: var(--mz-text-tertiary);
+		font-size: var(--mz-text-caption);
+	}
+
+	// --- Author bio ----------------------------------------------------------
+	.author-bio {
+		display: flex;
+		align-items: center;
+		gap: var(--mz-space-4);
+		padding: var(--mz-space-4);
+		background-color: var(--mz-card);
+		border: 1px solid var(--mz-stroke-card);
+		border-radius: var(--mz-radius-card);
+
+		img {
+			width: 3.5rem;
+			height: 3.5rem;
+			border-radius: var(--mz-radius-pill);
+			background-color: var(--mz-bg-secondary);
+			flex-shrink: 0;
+		}
+	}
+
+	.author-bio__name {
+		font-size: var(--mz-text-body);
+		font-weight: var(--mz-weight-semibold);
+		margin-block-end: var(--mz-space-1);
+	}
+
+	.author-bio__text {
+		color: var(--mz-text-secondary);
+		font-size: var(--mz-text-caption);
+		line-height: var(--mz-leading-normal);
+	}
+}

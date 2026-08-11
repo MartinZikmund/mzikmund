@@ -1,0 +1,291 @@
+// =============================================================================
+// Design tokens — Fluent Design translated to the web.
+//
+// Colour values are the real WinUI 3 Fluent theme resources (SolidBackgroundFill,
+// CardBackgroundFill, TextFillColor, ...) rather than approximations, so light
+// and dark match the Windows design language exactly.
+// =============================================================================
+
+// Cascade order, declared once and up front. A component rule can then never be
+// beaten by a base rule regardless of selector specificity, and utilities always
+// win. Must be the first @layer statement the browser sees.
+@layer tokens, base, layout, components, utilities;
+
+@layer tokens {
+
+	:root {
+		// --- Typeface ------------------------------------------------------------
+		// Segoe UI Variable leads on Windows 11 (the native Fluent face); Inter is
+		// the self-hosted fallback so every other platform gets the same design.
+		// Emoji families are appended to every stack: posts use emoji in prose,
+		// and none of the three text faces carries emoji glyphs, so without a
+		// fallback they render as tofu boxes.
+		--mz-emoji: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Segoe UI Symbol";
+		--mz-font-sans: "Inter Variable", "Segoe UI Variable Text", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif, var(--mz-emoji);
+		--mz-font-serif: "Source Serif 4 Variable", Georgia, Cambria, "Times New Roman", serif, var(--mz-emoji);
+		--mz-font-mono: "JetBrains Mono Variable", ui-monospace, "Cascadia Mono", Consolas, monospace, var(--mz-emoji);
+
+		// --- Type ramp -----------------------------------------------------------
+		// Mirrors the Fluent ramp (Caption/Body/BodyLarge/Subtitle/Title/Display),
+		// scaled up for web reading distance. Fluid via clamp() at the top end.
+		--mz-text-caption: 0.8125rem; // 13px — metadata, timestamps
+		--mz-text-body: 1.0625rem; //    17px — UI copy
+		--mz-text-body-large: 1.1875rem; // 19px — article body, lead-in
+		--mz-text-subtitle: clamp(1.25rem, 0.6vw + 1.1rem, 1.375rem); //  20→22
+		--mz-text-title: clamp(1.5rem, 1.4vw + 1.15rem, 1.875rem); //     24→30
+		--mz-text-title-large: clamp(1.875rem, 3vw + 1.1rem, 2.75rem); // 30→44
+		--mz-text-display: clamp(2.5rem, 6vw + 0.8rem, 4.5rem); //        40→72
+
+		--mz-leading-tight: 1.15;
+		--mz-leading-snug: 1.3;
+		--mz-leading-normal: 1.5;
+		--mz-leading-relaxed: 1.7; // long-form article body
+
+		// Fluent uses SemiBold, never Bold, for hierarchy.
+		--mz-weight-regular: 400;
+		--mz-weight-medium: 500;
+		--mz-weight-semibold: 600;
+
+		--mz-tracking-tight: -0.022em; // large display sizes
+		--mz-tracking-normal: 0;
+		--mz-tracking-wide: 0.02em; // small caps-ish metadata
+
+		// Optimal measure for long-form reading.
+		--mz-measure: 68ch;
+
+		// --- Spacing — Fluent 4px grid ------------------------------------------
+		--mz-space-1: 0.25rem; //  4
+		--mz-space-2: 0.5rem; //   8
+		--mz-space-3: 0.75rem; //  12
+		--mz-space-4: 1rem; //     16
+		--mz-space-5: 1.5rem; //   24
+		--mz-space-6: 2rem; //     32
+		--mz-space-7: 2.25rem; //  36 — Fluent page padding
+		--mz-space-8: 3rem; //     48
+		--mz-space-9: 4rem; //     64
+		--mz-space-10: 6rem; //    96
+
+		// --- Radius — Fluent corner radii ---------------------------------------
+		--mz-radius-control: 4px; // ControlCornerRadius
+		--mz-radius-card: 8px; // OverlayCornerRadius
+		--mz-radius-overlay: 8px;
+		--mz-radius-large: 12px;
+		--mz-radius-pill: 999px;
+
+		// --- Motion --------------------------------------------------------------
+		// Fluent standard easing: decelerate on entry, accelerate on exit.
+		--mz-ease-standard: cubic-bezier(0.8, 0, 0.2, 1);
+		--mz-ease-decel: cubic-bezier(0.1, 0.9, 0.2, 1);
+		--mz-duration-fast: 120ms;
+		--mz-duration-normal: 200ms;
+		--mz-duration-slow: 320ms;
+
+		// --- Accent ramp — Windows accent #0078D4 --------------------------------
+		--mz-accent-light-3: #a6d8ff;
+		--mz-accent-light-2: #76b9ed;
+		--mz-accent-light-1: #429ce3;
+		--mz-accent: #0078d4;
+		--mz-accent-dark-1: #005a9e;
+		--mz-accent-dark-2: #004275;
+		--mz-accent-dark-3: #002642;
+
+		--mz-container: 1200px;
+		--mz-container-narrow: 780px;
+		--mz-header-height: 3.5rem; // 56px
+		--mz-gutter: var(--mz-space-4);
+
+		@media (min-width: 48rem) {
+			--mz-gutter: var(--mz-space-7); // Fluent 36px page padding
+		}
+	}
+
+	// =========================================================================
+	// Light theme (default)
+	// =========================================================================
+	:root,
+	:root[data-theme="light"] {
+		color-scheme: light;
+
+		// Layered surfaces, base → elevated. Fluent layers content upward.
+		--mz-bg-base: #f3f3f3; //          SolidBackgroundFillColorBase
+		--mz-bg-secondary: #eeeeee; //     SolidBackgroundFillColorSecondary
+		--mz-bg-tertiary: #f9f9f9; //      SolidBackgroundFillColorTertiary
+		--mz-bg-elevated: #ffffff; //      SolidBackgroundFillColorQuarternary
+
+		--mz-layer: rgb(255 255 255 / 0.5); //   LayerFillColorDefault
+		--mz-card: #ffffff; //                   CardBackgroundFillColorDefault (opaque)
+		--mz-card-secondary: rgb(246 246 246 / 0.5);
+
+		// Acrylic stand-in — backdrop-filter over a tinted translucent fill.
+		--mz-acrylic: rgb(252 252 252 / 0.85);
+		--mz-acrylic-blur: saturate(180%) blur(20px);
+
+		// Text
+		--mz-text-primary: rgb(0 0 0 / 0.8956); //   TextFillColorPrimary
+		--mz-text-secondary: rgb(0 0 0 / 0.6063); // TextFillColorSecondary
+		--mz-text-tertiary: rgb(0 0 0 / 0.4458); //  TextFillColorTertiary
+		--mz-text-disabled: rgb(0 0 0 / 0.3614);
+		--mz-text-on-accent: #ffffff;
+
+		// Strokes
+		--mz-stroke-card: rgb(0 0 0 / 0.0578); //    CardStrokeColorDefault
+		--mz-stroke-control: rgb(0 0 0 / 0.0578);
+		--mz-stroke-control-strong: rgb(0 0 0 / 0.4458);
+		--mz-stroke-divider: rgb(0 0 0 / 0.0803); // DividerStrokeColorDefault
+		--mz-stroke-focus: rgb(0 0 0 / 0.8956);
+
+		// Accent applied — link/text accent must clear 4.5:1 on --mz-bg-base,
+		// so light theme steps down the ramp to Dark1.
+		--mz-accent-text: var(--mz-accent-dark-1); //  #005A9E → 6.4:1
+		--mz-accent-fill: var(--mz-accent-dark-1); //  white on it → 6.9:1
+		--mz-accent-fill-hover: var(--mz-accent-dark-2);
+		--mz-accent-fill-active: var(--mz-accent-dark-3);
+		--mz-accent-subtle: rgb(0 120 212 / 0.08);
+		--mz-accent-subtle-strong: rgb(0 120 212 / 0.16);
+
+		// Fluent elevation — tight ambient + soft directional.
+		--mz-elev-1: 0 1px 2px rgb(0 0 0 / 0.05), 0 0 1px rgb(0 0 0 / 0.06);
+		--mz-elev-2: 0 2px 4px rgb(0 0 0 / 0.06), 0 0 2px rgb(0 0 0 / 0.06);
+		--mz-elev-3: 0 8px 16px rgb(0 0 0 / 0.10), 0 0 2px rgb(0 0 0 / 0.08);
+		--mz-elev-4: 0 16px 32px rgb(0 0 0 / 0.14), 0 0 4px rgb(0 0 0 / 0.10);
+
+		--mz-shimmer: rgb(0 0 0 / 0.04);
+	}
+
+	// =========================================================================
+	// Dark theme — explicit selection
+	// =========================================================================
+	:root[data-theme="dark"] {
+		color-scheme: dark;
+
+		--mz-bg-base: #202020; //          SolidBackgroundFillColorBase
+		--mz-bg-secondary: #1c1c1c;
+		--mz-bg-tertiary: #282828;
+		--mz-bg-elevated: #2c2c2c;
+
+		--mz-layer: rgb(58 58 58 / 0.3); //  LayerFillColorDefault
+		--mz-card: #2b2b2b; //               CardBackgroundFillColorDefault (opaque)
+		--mz-card-secondary: rgb(255 255 255 / 0.0326);
+
+		--mz-acrylic: rgb(44 44 44 / 0.85);
+		--mz-acrylic-blur: saturate(150%) blur(20px);
+
+		--mz-text-primary: #ffffff;
+		--mz-text-secondary: rgb(255 255 255 / 0.786);
+		--mz-text-tertiary: rgb(255 255 255 / 0.5442);
+		--mz-text-disabled: rgb(255 255 255 / 0.3628);
+		--mz-text-on-accent: #ffffff;
+
+		--mz-stroke-card: rgb(0 0 0 / 0.1);
+		--mz-stroke-control: rgb(255 255 255 / 0.0698);
+		--mz-stroke-control-strong: rgb(255 255 255 / 0.5442);
+		--mz-stroke-divider: rgb(255 255 255 / 0.0837);
+		--mz-stroke-focus: #ffffff;
+
+		// Dark theme steps UP the ramp so accent text stays legible on #202020.
+		--mz-accent-text: var(--mz-accent-light-2); // #76B9ED → 8.2:1
+		--mz-accent-fill: var(--mz-accent); //        #0078D4, white text → 4.6:1
+		--mz-accent-fill-hover: var(--mz-accent-light-1);
+		--mz-accent-fill-active: var(--mz-accent-light-2);
+		--mz-accent-subtle: rgb(118 185 237 / 0.1);
+		--mz-accent-subtle-strong: rgb(118 185 237 / 0.2);
+
+		// Shadows carry less information on dark; deepen and tighten them.
+		--mz-elev-1: 0 1px 2px rgb(0 0 0 / 0.24), 0 0 1px rgb(0 0 0 / 0.3);
+		--mz-elev-2: 0 2px 4px rgb(0 0 0 / 0.28), 0 0 2px rgb(0 0 0 / 0.3);
+		--mz-elev-3: 0 8px 16px rgb(0 0 0 / 0.36), 0 0 2px rgb(0 0 0 / 0.32);
+		--mz-elev-4: 0 16px 32px rgb(0 0 0 / 0.44), 0 0 4px rgb(0 0 0 / 0.36);
+
+		--mz-shimmer: rgb(255 255 255 / 0.05);
+	}
+
+	// =========================================================================
+	// Dark theme — "auto", following the OS. Duplicated rather than shared
+	// because :root[data-theme="light"] must be able to override it.
+	// =========================================================================
+	@media (prefers-color-scheme: dark) {
+		:root:not([data-theme="light"]) {
+			color-scheme: dark;
+
+			--mz-bg-base: #202020;
+			--mz-bg-secondary: #1c1c1c;
+			--mz-bg-tertiary: #282828;
+			--mz-bg-elevated: #2c2c2c;
+
+			--mz-layer: rgb(58 58 58 / 0.3);
+			--mz-card: #2b2b2b;
+			--mz-card-secondary: rgb(255 255 255 / 0.0326);
+
+			--mz-acrylic: rgb(44 44 44 / 0.85);
+			--mz-acrylic-blur: saturate(150%) blur(20px);
+
+			--mz-text-primary: #ffffff;
+			--mz-text-secondary: rgb(255 255 255 / 0.786);
+			--mz-text-tertiary: rgb(255 255 255 / 0.5442);
+			--mz-text-disabled: rgb(255 255 255 / 0.3628);
+			--mz-text-on-accent: #ffffff;
+
+			--mz-stroke-card: rgb(0 0 0 / 0.1);
+			--mz-stroke-control: rgb(255 255 255 / 0.0698);
+			--mz-stroke-control-strong: rgb(255 255 255 / 0.5442);
+			--mz-stroke-divider: rgb(255 255 255 / 0.0837);
+			--mz-stroke-focus: #ffffff;
+
+			--mz-accent-text: var(--mz-accent-light-2);
+			--mz-accent-fill: var(--mz-accent);
+			--mz-accent-fill-hover: var(--mz-accent-light-1);
+			--mz-accent-fill-active: var(--mz-accent-light-2);
+			--mz-accent-subtle: rgb(118 185 237 / 0.1);
+			--mz-accent-subtle-strong: rgb(118 185 237 / 0.2);
+
+			--mz-elev-1: 0 1px 2px rgb(0 0 0 / 0.24), 0 0 1px rgb(0 0 0 / 0.3);
+			--mz-elev-2: 0 2px 4px rgb(0 0 0 / 0.28), 0 0 2px rgb(0 0 0 / 0.3);
+			--mz-elev-3: 0 8px 16px rgb(0 0 0 / 0.36), 0 0 2px rgb(0 0 0 / 0.32);
+			--mz-elev-4: 0 16px 32px rgb(0 0 0 / 0.44), 0 0 4px rgb(0 0 0 / 0.36);
+
+			--mz-shimmer: rgb(255 255 255 / 0.05);
+		}
+	}
+
+	// =========================================================================
+	// High contrast — Fluent forbids opacity, custom colour and accent here.
+	// Hand everything to the system palette.
+	// =========================================================================
+	@media (forced-colors: active) {
+		:root {
+			--mz-bg-base: Canvas;
+			--mz-bg-secondary: Canvas;
+			--mz-bg-tertiary: Canvas;
+			--mz-bg-elevated: Canvas;
+			--mz-layer: Canvas;
+			--mz-card: Canvas;
+			--mz-card-secondary: Canvas;
+			--mz-acrylic: Canvas;
+			--mz-acrylic-blur: none;
+
+			--mz-text-primary: CanvasText;
+			--mz-text-secondary: CanvasText;
+			--mz-text-tertiary: GrayText;
+			--mz-text-disabled: GrayText;
+			--mz-text-on-accent: HighlightText;
+
+			--mz-stroke-card: CanvasText;
+			--mz-stroke-control: CanvasText;
+			--mz-stroke-control-strong: CanvasText;
+			--mz-stroke-divider: CanvasText;
+			--mz-stroke-focus: CanvasText;
+
+			--mz-accent-text: LinkText;
+			--mz-accent-fill: Highlight;
+			--mz-accent-fill-hover: Highlight;
+			--mz-accent-fill-active: Highlight;
+			--mz-accent-subtle: Canvas;
+			--mz-accent-subtle-strong: Canvas;
+
+			--mz-elev-1: none;
+			--mz-elev-2: none;
+			--mz-elev-3: none;
+			--mz-elev-4: none;
+		}
+	}
+}
