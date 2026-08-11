@@ -7,17 +7,26 @@
 
 @{
     <div class="page-header">
+        <nav aria-label="Breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb__item">
+                    <a class="breadcrumb__link" asp-page="/Blog/Index">Blog</a>
+                    <svg class="icon breadcrumb__separator" aria-hidden="true"><use href="#i-chevron-right"></use></svg>
+                </li>
+                <li class="breadcrumb__item">
+                    <a class="breadcrumb__link" asp-page="/Blog/TagList">Tags</a>
+                    <svg class="icon breadcrumb__separator" aria-hidden="true"><use href="#i-chevron-right"></use></svg>
+                </li>
+                <li class="breadcrumb__item">
+                    <span class="breadcrumb__current" aria-current="page">#@Model.Tag.DisplayName</span>
+                </li>
+            </ol>
+        </nav>
         <h1 class="page-header__title">#@Model.Tag.DisplayName</h1>
         @if (!string.IsNullOrEmpty(Model.Tag.Description))
         {
             <p class="page-header__lead">@Model.Tag.Description</p>
         }
-        <div class="page-header__actions">
-            <a asp-page="/Blog/TagList" class="btn btn--standard">
-                <svg class="icon" aria-hidden="true"><use href="#i-arrow-left"></use></svg>
-                All Tags
-            </a>
-        </div>
     </div>
 
     @* _PostList supplies its own .card-grid. *@

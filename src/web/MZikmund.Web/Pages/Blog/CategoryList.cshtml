@@ -6,31 +6,34 @@
 }
 
 <div class="page-header">
+    <nav aria-label="Breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb__item">
+                <a class="breadcrumb__link" asp-page="/Blog/Index">Blog</a>
+                <svg class="icon breadcrumb__separator" aria-hidden="true"><use href="#i-chevron-right"></use></svg>
+            </li>
+            <li class="breadcrumb__item">
+                <span class="breadcrumb__current" aria-current="page">Categories</span>
+            </li>
+        </ol>
+    </nav>
     <h1 class="page-header__title">Blog Categories</h1>
     <p class="page-header__lead">Browse posts by category</p>
-    <div class="page-header__actions">
-        <a asp-page="/Blog/Index" class="btn btn--standard">
-            <svg class="icon" aria-hidden="true"><use href="#i-arrow-left"></use></svg>
-            Back to Blog
-        </a>
-    </div>
 </div>
 
-<div class="card-grid">
+@* Compact navigation rows rather than content cards — see .taxonomy-list. *@
+<nav class="taxonomy-list" aria-label="Categories">
     @foreach (var category in Model.Categories)
     {
-        <a class="taxonomy-card" asp-page="/Blog/CategoryPostList" asp-route-categoryName="@category.RouteName">
-            <span class="taxonomy-card__title">
-                <svg class="icon" aria-hidden="true"><use href="#i-folder2-open"></use></svg>
-                @category.DisplayName
-            </span>
-            @if (!string.IsNullOrEmpty(category.Description))
-            {
-                <span class="text-secondary">@category.Description</span>
-            }
-            <span class="taxonomy-card__count">
-                @category.PostCount @(category.PostCount == 1 ? "post" : "posts")
+        <a class="taxonomy-row" asp-page="/Blog/CategoryPostList" asp-route-categoryName="@category.RouteName"
+           title="@(string.IsNullOrWhiteSpace(category.Description) ? null : category.Description)">
+            <svg class="icon" aria-hidden="true"><use href="#i-folder2-open"></use></svg>
+            <span class="taxonomy-row__name">@category.DisplayName</span>
+            @* The visible count is a bare number so the column stays scannable;
+               the unit lives in the accessible name instead. *@
+            <span class="taxonomy-row__count" aria-label="@category.PostCount @(category.PostCount == 1 ? "post" : "posts")">
+                @category.PostCount
             </span>
         </a>
     }
-</div>
+</nav>

@@ -37,7 +37,7 @@ Never hard-code a colour, size, radius or duration. Everything is a
 - **Weight**: `--mz-weight-regular|medium|semibold` — Fluent uses SemiBold, never Bold
 - **Space**: `--mz-space-1..10` on a strict 4px grid (4, 8, 12, 16, 24, 32, 36, 48, 64, 96)
 - **Radius**: `--mz-radius-control` (4px), `--mz-radius-card` / `--mz-radius-overlay` (8px), `--mz-radius-pill`
-- **Elevation**: `--mz-elev-1..4`
+- **Elevation**: named after the Fluent levels — see below
 - **Surfaces**: `--mz-bg-base|secondary|tertiary|elevated`, `--mz-card`, `--mz-layer`, `--mz-acrylic`
 - **Text**: `--mz-text-primary|secondary|tertiary|disabled|on-accent`
 - **Strokes**: `--mz-stroke-card|control|control-strong|divider|focus`
@@ -146,6 +146,29 @@ Four mechanisms, each a progressive enhancement that degrades to nothing:
 - **Reveal** — the pointer-tracked radial highlight. `Motion.ts` publishes
   `--mz-reveal-x/y` from one delegated, rAF-coalesced listener.
 
+## Elevation
+
+Windows 11 publishes discrete
+[elevation values](https://learn.microsoft.com/windows/apps/design/signature-experiences/layering),
+so the tokens are named after what a surface **is**, not how deep its shadow is:
+
+| Token | Fluent level | Used by |
+|---|---|---|
+| `--mz-elev-layer` | Layer (1) | TOC panel, author bio, code blocks — content layers |
+| `--mz-elev-control` | Control (2) | Controls at rest |
+| `--mz-elev-card` | Card (8) | Cards, taxonomy cards, back-to-top |
+| `--mz-elev-tooltip` | Tooltip (16) | Card and back-to-top hover |
+| `--mz-elev-flyout` | Flyout (32) | Theme flyout, mobile nav panel |
+| `--mz-elev-dialog` | Dialog (128) | Reserved — nothing modal yet |
+
+Two rules that come from the guidance rather than taste:
+
+1. **Shadow and contour work together.** Every level pairs its shadow with a 1px
+   stroke, so surfaces using these also carry a `--mz-stroke-*` border.
+2. **Dark theme deepens the same levels.** "The intensity of the rendered shadow
+   changes depending on the theme at parity of value" — the level does not
+   change between themes, only its intensity.
+
 ## Materials
 
 Per the [materials guidance](https://learn.microsoft.com/windows/apps/design/signature-experiences/materials):
@@ -156,14 +179,29 @@ transient, light-dismiss ones.**
 |---|---|---|
 | Site header | Acrylic-style translucency | Long-lived, but the web idiom of content scrolling under glass is worth keeping |
 | Theme flyout | True Acrylic | Transient and light-dismiss — textbook Acrylic |
-| Mobile nav panel | Opaque | Full-width surface; legibility over an arbitrary hero beats translucency |
+| Mobile nav panel | True Acrylic | Also transient and light-dismiss |
 
-The theme flyout is a **popover**, which matters for more than z-order: a
+Both transient surfaces are **popovers**, which matters for more than z-order: a
 `backdrop-filter` nested inside an ancestor that itself has a `backdrop-filter`
 samples that ancestor's output rather than the page behind it, so acrylic on a
-flyout inside the header never actually frosts. The top layer escapes that, and
-also supplies light-dismiss and Escape — `ThemeSwitchManager` only handles
-positioning, focus and arrow keys, and keeps a non-popover fallback path.
+surface inside the header never actually frosts. The top layer escapes that, and
+also supplies light-dismiss and Escape — the scripts only handle positioning,
+focus and arrow keys, and both keep a non-popover fallback path.
+
+### Three popover gotchas
+
+1. `.site-nav` is **both** the desktop nav row and the mobile panel, so `SiteNav`
+   adds the `popover` attribute only below the breakpoint. A popover is
+   `display: none` until opened, which would otherwise erase the desktop nav.
+   It closes before removing the attribute, or the element is stranded in the
+   top layer.
+2. The UA hides a closed popover with `[popover]:not(:popover-open) { display:
+   none }` — a **user-agent** rule, which `.site-nav { display: flex }` (an
+   author rule) beats. The closed state has to be restated in author CSS or the
+   menu is permanently open.
+3. The UA also gives every popover `border: solid` and `margin: auto`. Both need
+   resetting, or a black border frames the panel and the auto margin fights
+   explicit positioning.
 
 ### Two traps
 
@@ -190,10 +228,18 @@ Sizes: `.icon` (1em), `.icon--lg` (1.25em). Available ids: `i-github`,
 `i-twitter-x`, `i-youtube`, `i-facebook`, `i-code-slash`, `i-calendar3`,
 `i-arrow-left`, `i-arrow-up`, `i-inbox`, `i-circle-half`, `i-sun`,
 `i-moon-stars`, `i-play-circle`, `i-play-fill`, `i-file-earmark-pdf`, `i-list`,
-`i-link-45deg`, `i-check-lg`, `i-image`, `i-rss`, `i-tag`, `i-folder2-open`.
+`i-link-45deg`, `i-check-lg`, `i-image`, `i-rss`, `i-tag`, `i-folder2-open`,
+`i-chevron-right`.
 
-To add one: edit the `ICONS` array in `Scripts/build-assets.mjs` and run
-`npm run build:assets`.
+To add one: edit the `ICONS` array in `Scripts/build-assets.mjs`, run
+`npm run build:assets`, and **commit the regenerated sprite**.
+
+`build:assets` is deliberately not part of `npm run build`. MSBuild globs
+Content and Razor items at *evaluation* time, before any target runs, so an
+asset regenerated during the build lands one build late — which silently ships
+a stale sprite and a missing icon. Both its outputs (`wwwroot/fonts` and
+`_IconSprite.cshtml`) are committed, so builds always compile what you can see
+in the diff.
 
 ## Utilities
 

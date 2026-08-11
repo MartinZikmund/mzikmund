@@ -106,8 +106,10 @@
 	// =========================================================================
 	@supports (animation-timeline: view()) {
 		@media (prefers-reduced-motion: no-preference) {
-			.card,
-			.taxonomy-card {
+			// Content cards only. Taxonomy rows and tag chips are compact
+			// navigation targets — there are ~500 of the latter, and animating
+			// each one in would read as noise, not life.
+			.card {
 				animation: mz-rise-in auto both;
 				animation-timeline: view();
 				// Play across the first slice of the element's travel through the
@@ -226,9 +228,10 @@
 	// the pointer across a surface, revealing its border. Coordinates come from
 	// SiteNav.ts as --mz-reveal-x / --mz-reveal-y.
 	// =========================================================================
+	// Reveal is for large surfaces. Taxonomy rows use the Fluent hover fill and
+	// accent bar instead, which is the right idiom for a navigation item.
 	@media (hover: hover) and (prefers-reduced-motion: no-preference) {
-		.card,
-		.taxonomy-card {
+		.card {
 			// Establishes the fallback so the gradient is valid before any
 			// pointer movement has been recorded.
 			--mz-reveal-x: 50%;
@@ -236,8 +239,7 @@
 			--mz-reveal-opacity: 0;
 		}
 
-		.card::before,
-		.taxonomy-card::after {
+		.card::before {
 			content: "";
 			position: absolute;
 			inset: 0;
@@ -252,8 +254,7 @@
 			);
 		}
 
-		.card:hover,
-		.taxonomy-card:hover {
+		.card:hover {
 			--mz-reveal-opacity: 1;
 		}
 

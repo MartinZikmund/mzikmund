@@ -1,5 +1,6 @@
 namespace MZikmund.Motion {
-	const REVEAL_SELECTOR = ".card, .taxonomy-card";
+	// Content cards only — taxonomy rows use a plain Fluent hover fill.
+	const REVEAL_SELECTOR = ".card";
 	const HERO_NAME = "post-hero-image";
 
 	const prefersReducedMotion = (): boolean =>

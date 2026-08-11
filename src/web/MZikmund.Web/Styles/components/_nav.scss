@@ -159,7 +159,8 @@
 		list-style: none;
 		background-color: var(--mz-acrylic);
 		border-radius: var(--mz-radius-overlay);
-		box-shadow: var(--mz-elev-3);
+		// Flyout: elevation 32.
+		box-shadow: var(--mz-elev-flyout);
 		overflow: visible;
 
 		@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
@@ -246,6 +247,10 @@
 			margin-inline-start: calc(var(--mz-space-1) * -1);
 		}
 
+		// Fallback path, used when the browser has no popover support. Stays
+		// OPAQUE: anchored inside the header's filtered context, a backdrop-filter
+		// samples that filtered output rather than the page, so acrylic here would
+		// never frost and the hero would read straight through the menu.
 		.site-nav {
 			position: absolute;
 			inset-inline: 0;
@@ -254,17 +259,64 @@
 			align-items: stretch;
 			gap: var(--mz-space-1);
 			padding: var(--mz-space-2) var(--mz-gutter) var(--mz-space-4);
-			// Deliberately OPAQUE, unlike the header above it. This panel is
-			// absolutely positioned outside the header's bounds, and a nested
-			// backdrop-filter inside an already-filtered ancestor does not
-			// sample the page behind it — so an acrylic fill here never blurs
-			// and the hero text reads straight through the menu.
 			background-color: var(--mz-bg-elevated);
 			border-block-end: 1px solid var(--mz-stroke-divider);
-			box-shadow: var(--mz-elev-3);
+			// Transient, light-dismiss surface — same elevation as a flyout.
+			box-shadow: var(--mz-elev-flyout);
 
 			&[hidden] {
 				display: none;
+			}
+		}
+
+		// The UA hides a closed popover with `[popover]:not(:popover-open)
+		// { display: none }`, but that is a user-agent rule and `.site-nav
+		// { display: flex }` is an author one — the author rule wins, leaving the
+		// menu permanently open. Restate it here so the closed state actually hides.
+		.site-nav[popover]:not(:popover-open) {
+			display: none;
+		}
+
+		// Popover path. SiteNav adds the popover attribute only below this
+		// breakpoint (the same element is the desktop nav row). The top layer has
+		// no filtered ancestor, so this is real Acrylic — the material Fluent
+		// specifies for transient, light-dismiss surfaces.
+		.site-nav:popover-open {
+			position: fixed;
+			// Anchored under the header by SiteNav on open.
+			inset: auto;
+			display: flex;
+			width: 100%;
+			// The UA gives every popover `border: solid` and `margin: auto`;
+			// without resetting both, a black 2px border frames the panel and the
+			// auto margin fights the explicit positioning.
+			border: none;
+			border-block-end: 1px solid var(--mz-stroke-divider);
+			margin: 0;
+			background-color: var(--mz-acrylic);
+
+			@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+				-webkit-backdrop-filter: var(--mz-acrylic-blur);
+				backdrop-filter: var(--mz-acrylic-blur);
+			}
+
+			animation: mz-nav-in var(--mz-duration-fast) var(--mz-ease-entrance);
+		}
+
+		// No Smoke behind a navigation panel — that is for modal surfaces.
+		.site-nav::backdrop {
+			background: transparent;
+		}
+
+		@keyframes mz-nav-in {
+			from {
+				opacity: 0;
+				translate: 0 -0.5rem;
+			}
+
+			to {
+				opacity: 1;
+				translate: 0 0;
 			}
 		}
 
@@ -295,6 +347,59 @@
 		}
 	}
 
+	// --- Breadcrumb ----------------------------------------------------------
+	// Models WinUI's BreadcrumbBar, which is the control Fluent specifies for a
+	// hierarchical trail. It replaces the "Back to Blog" button these pages used
+	// to carry: a back button rendered below the page title reads as the primary
+	// action, and it tells you where you came from rather than where you are.
+	.breadcrumb {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--mz-space-1);
+		list-style: none;
+		padding: 0;
+		margin: 0 0 var(--mz-space-3);
+		font-size: var(--mz-text-caption);
+		font-weight: var(--mz-weight-medium);
+	}
+
+	.breadcrumb__item {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--mz-space-1);
+	}
+
+	.breadcrumb__link {
+		display: inline-flex;
+		align-items: center;
+		padding: var(--mz-space-1) var(--mz-space-2);
+		border-radius: var(--mz-radius-control);
+		color: var(--mz-text-secondary);
+		text-decoration: none;
+		transition:
+			background-color var(--mz-duration-fast) var(--mz-ease-standard),
+			color var(--mz-duration-fast) var(--mz-ease-standard);
+
+		&:hover {
+			background-color: var(--mz-shimmer);
+			color: var(--mz-accent-text);
+		}
+	}
+
+	// The trailing item is where you are, so it is text rather than a link.
+	.breadcrumb__current {
+		padding: var(--mz-space-1) var(--mz-space-2);
+		color: var(--mz-text-primary);
+		font-weight: var(--mz-weight-semibold);
+	}
+
+	.breadcrumb__separator {
+		color: var(--mz-text-tertiary);
+		width: 0.75em;
+		height: 0.75em;
+	}
+
 	// --- Reading progress ----------------------------------------------------
 	.reading-progress {
 		position: fixed;
@@ -321,7 +426,8 @@
 		background-color: var(--mz-acrylic);
 		border: 1px solid var(--mz-stroke-card);
 		color: var(--mz-text-primary);
-		box-shadow: var(--mz-elev-3);
+		// A floating control over content — card level, rising to tooltip on hover.
+		box-shadow: var(--mz-elev-card);
 		opacity: 0;
 		visibility: hidden;
 		translate: 0 0.5rem;
@@ -343,7 +449,7 @@
 
 		&:hover {
 			background-color: var(--mz-bg-elevated);
-			box-shadow: var(--mz-elev-4);
+			box-shadow: var(--mz-elev-tooltip);
 		}
 	}
 }

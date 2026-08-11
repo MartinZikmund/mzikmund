@@ -153,11 +153,22 @@
 		--mz-accent-subtle: rgb(0 120 212 / 0.08);
 		--mz-accent-subtle-strong: rgb(0 120 212 / 0.16);
 
-		// Fluent elevation — tight ambient + soft directional.
-		--mz-elev-1: 0 1px 2px rgb(0 0 0 / 0.05), 0 0 1px rgb(0 0 0 / 0.06);
-		--mz-elev-2: 0 2px 4px rgb(0 0 0 / 0.06), 0 0 2px rgb(0 0 0 / 0.06);
-		--mz-elev-3: 0 8px 16px rgb(0 0 0 / 0.10), 0 0 2px rgb(0 0 0 / 0.08);
-		--mz-elev-4: 0 16px 32px rgb(0 0 0 / 0.14), 0 0 4px rgb(0 0 0 / 0.10);
+		// --- Elevation -----------------------------------------------------------
+		// Named after the Fluent elevation levels rather than an arbitrary 1-4
+		// ramp, so a rule states what a surface IS, not how deep its shadow is.
+		// learn.microsoft.com/windows/apps/design/signature-experiences/layering
+		//
+		//   Layer 1 · Control 2 · Card 8 · Tooltip 16 · Flyout 32 · Dialog 128
+		//
+		// Every level pairs its shadow with a 1px contour — in Fluent, shadow and
+		// outline communicate depth together, which is why each surface using
+		// these also carries a --mz-stroke-* border.
+		--mz-elev-layer: 0 0 2px rgb(0 0 0 / 0.12);
+		--mz-elev-control: 0 1px 2px rgb(0 0 0 / 0.14), 0 0 2px rgb(0 0 0 / 0.12);
+		--mz-elev-card: 0 4px 8px rgb(0 0 0 / 0.14), 0 0 2px rgb(0 0 0 / 0.12);
+		--mz-elev-tooltip: 0 8px 16px rgb(0 0 0 / 0.14), 0 0 2px rgb(0 0 0 / 0.12);
+		--mz-elev-flyout: 0 14px 28px rgb(0 0 0 / 0.24), 0 0 8px rgb(0 0 0 / 0.20);
+		--mz-elev-dialog: 0 32px 64px rgb(0 0 0 / 0.24), 0 0 8px rgb(0 0 0 / 0.20);
 
 		--mz-shimmer: rgb(0 0 0 / 0.04);
 	}
@@ -200,11 +211,14 @@
 		--mz-accent-subtle: rgb(118 185 237 / 0.1);
 		--mz-accent-subtle-strong: rgb(118 185 237 / 0.2);
 
-		// Shadows carry less information on dark; deepen and tighten them.
-		--mz-elev-1: 0 1px 2px rgb(0 0 0 / 0.24), 0 0 1px rgb(0 0 0 / 0.3);
-		--mz-elev-2: 0 2px 4px rgb(0 0 0 / 0.28), 0 0 2px rgb(0 0 0 / 0.3);
-		--mz-elev-3: 0 8px 16px rgb(0 0 0 / 0.36), 0 0 2px rgb(0 0 0 / 0.32);
-		--mz-elev-4: 0 16px 32px rgb(0 0 0 / 0.44), 0 0 4px rgb(0 0 0 / 0.36);
+		// "The intensity of the rendered shadow changes depending on the theme at
+		// parity of value" — same elevation levels, deeper on dark.
+		--mz-elev-layer: 0 0 2px rgb(0 0 0 / 0.24);
+		--mz-elev-control: 0 1px 2px rgb(0 0 0 / 0.28), 0 0 2px rgb(0 0 0 / 0.24);
+		--mz-elev-card: 0 4px 8px rgb(0 0 0 / 0.28), 0 0 2px rgb(0 0 0 / 0.24);
+		--mz-elev-tooltip: 0 8px 16px rgb(0 0 0 / 0.32), 0 0 2px rgb(0 0 0 / 0.28);
+		--mz-elev-flyout: 0 14px 28px rgb(0 0 0 / 0.44), 0 0 8px rgb(0 0 0 / 0.36);
+		--mz-elev-dialog: 0 32px 64px rgb(0 0 0 / 0.48), 0 0 8px rgb(0 0 0 / 0.40);
 
 		--mz-shimmer: rgb(255 255 255 / 0.05);
 	}
@@ -248,10 +262,12 @@
 			--mz-accent-subtle: rgb(118 185 237 / 0.1);
 			--mz-accent-subtle-strong: rgb(118 185 237 / 0.2);
 
-			--mz-elev-1: 0 1px 2px rgb(0 0 0 / 0.24), 0 0 1px rgb(0 0 0 / 0.3);
-			--mz-elev-2: 0 2px 4px rgb(0 0 0 / 0.28), 0 0 2px rgb(0 0 0 / 0.3);
-			--mz-elev-3: 0 8px 16px rgb(0 0 0 / 0.36), 0 0 2px rgb(0 0 0 / 0.32);
-			--mz-elev-4: 0 16px 32px rgb(0 0 0 / 0.44), 0 0 4px rgb(0 0 0 / 0.36);
+			--mz-elev-layer: 0 0 2px rgb(0 0 0 / 0.24);
+			--mz-elev-control: 0 1px 2px rgb(0 0 0 / 0.28), 0 0 2px rgb(0 0 0 / 0.24);
+			--mz-elev-card: 0 4px 8px rgb(0 0 0 / 0.28), 0 0 2px rgb(0 0 0 / 0.24);
+			--mz-elev-tooltip: 0 8px 16px rgb(0 0 0 / 0.32), 0 0 2px rgb(0 0 0 / 0.28);
+			--mz-elev-flyout: 0 14px 28px rgb(0 0 0 / 0.44), 0 0 8px rgb(0 0 0 / 0.36);
+			--mz-elev-dialog: 0 32px 64px rgb(0 0 0 / 0.48), 0 0 8px rgb(0 0 0 / 0.40);
 
 			--mz-shimmer: rgb(255 255 255 / 0.05);
 		}
@@ -292,10 +308,12 @@
 			--mz-accent-subtle: Canvas;
 			--mz-accent-subtle-strong: Canvas;
 
-			--mz-elev-1: none;
-			--mz-elev-2: none;
-			--mz-elev-3: none;
-			--mz-elev-4: none;
+			--mz-elev-layer: none;
+			--mz-elev-control: none;
+			--mz-elev-card: none;
+			--mz-elev-tooltip: none;
+			--mz-elev-flyout: none;
+			--mz-elev-dialog: none;
 		}
 	}
 }

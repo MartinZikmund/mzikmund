@@ -7,7 +7,8 @@
 		"build:css": "sass Styles/site.scss wwwroot/css/site.css --style=expanded --source-map",
 		"build:css:prod": "sass Styles/site.scss wwwroot/css/site.min.css --style=compressed --no-source-map",
 		"build:ts": "tsc",
-		"build": "npm run build:assets && npm run build:css && npm run build:css:prod && npm run build:ts",
+		"_comment:build": "build:assets is deliberately NOT part of build. Its outputs (wwwroot/fonts, _IconSprite.cshtml) are committed, and MSBuild globs Content/Razor items at evaluation time - before any target runs - so regenerating them mid-build lands one build late and silently ships a stale sprite. Run `npm run build:assets` explicitly and commit the result when changing the font packages or the icon list.",
+		"build": "npm run build:css && npm run build:css:prod && npm run build:ts",
 		"watch:css": "sass Styles/site.scss wwwroot/css/site.css --style=expanded --source-map --watch",
 		"watch:ts": "tsc --watch",
 		"watch": "npm run watch:css & npm run watch:ts"
