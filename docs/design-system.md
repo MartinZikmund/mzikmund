@@ -231,7 +231,7 @@ Sizes: `.icon` (1em), `.icon--lg` (1.25em). Available ids: `i-github`,
 `i-link-45deg`, `i-check-lg`, `i-image`, `i-rss`, `i-tag`, `i-folder2-open`,
 `i-chevron-right`.
 
-To add one: edit the `ICONS` array in `scripts/build-assets.mjs`, run
+To add one: edit the `ICONS` array in `Scripts/build-assets.mjs`, run
 `npm run build:assets`, and **commit the regenerated sprite**.
 
 `build:assets` is deliberately not part of `npm run build`. MSBuild globs

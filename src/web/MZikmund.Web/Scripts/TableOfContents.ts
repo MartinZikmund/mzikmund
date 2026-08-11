@@ -177,14 +177,34 @@ namespace MZikmund.Blog {
 			this.tocContainer.appendChild(tocNav);
 		}
 
+		/**
+		 * Height of the sticky header, in real pixels.
+		 *
+		 * Measured from the element rather than derived from --mz-header-height:
+		 * getPropertyValue returns the raw token ("3.5rem"), and converting it by
+		 * multiplying by 16 would assume a 16px root font size — wrong for anyone
+		 * who has changed their browser's default text size. Measuring also picks
+		 * up padding and borders the token knows nothing about.
+		 */
+		private static headerOffset(): number {
+			const header = document.querySelector<HTMLElement>('.site-header');
+			if (header) {
+				return Math.round(header.getBoundingClientRect().height);
+			}
+			// No header on the page (e.g. the embed view): fall back to the token,
+			// converted with the ACTUAL root font size rather than an assumed 16.
+			const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+			const rem = parseFloat(
+				getComputedStyle(document.documentElement).getPropertyValue('--mz-header-height')
+			) || 0;
+			return Math.round(rem * rootFontSize);
+		}
+
 		private setupScrollSpy(headings: TocItem[]): void {
 			// Top margin offsets the sticky header, so a heading is not marked
 			// active while it is still hidden behind it. Bottom -80% keeps only
 			// the topmost visible heading active.
-			const headerHeight = parseFloat(
-				getComputedStyle(document.documentElement).getPropertyValue('--mz-header-height')
-			) || 3.5;
-			const offset = Math.round(headerHeight * 16);
+			const offset = TableOfContents.headerOffset();
 
 			const options = {
 				rootMargin: `-${offset}px 0px -80% 0px`,
