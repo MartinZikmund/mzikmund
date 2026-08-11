@@ -40,12 +40,25 @@ jobs:
         dotnet-version: |
           ${{ env.DOTNET_VERSION }}
 
+    # Installs the workloads explicitly instead of `dotnet workload restore
+    # <solution>`. The solution-wide restore runs _GetRequiredWorkloads over
+    # every project, and on SDK 10.0.110 that evaluation fails for the Uno app:
+    #
+    #   error : Project 'MZikmund.App.Core.csproj' targets 'net10.0-android;
+    #   net10.0-ios;net10.0-browserwasm;net10.0-desktop;net10.0-windows10.0.26100'.
+    #   It cannot be referenced by a project that targets '.NETCoreApp,Version=v10.0'.
+    #
+    # Both projects declare the same five TFMs, so neither is misconfigured —
+    # the restore evaluates them without a concrete TargetFramework. The same
+    # target succeeds on 10.0.103, so this is an SDK-patch regression that the
+    # `10.0.x` pin picks up automatically.
+    #
+    # These three cover the solution's heads: android and ios for the mobile
+    # TFMs, wasm-tools for net10.0-browserwasm. net10.0-desktop and
+    # net10.0-windows need no workload.
     - name: Install .NET workloads
       run:
-        dotnet workload restore "$env:SOLUTION_FILE"
-    - name: Install .NET workloads wasm-tools
-      run:
-        dotnet workload install wasm-tools
+        dotnet workload install android ios wasm-tools
     - name: Restore Node.js dependencies
       run: |
         cd src/web/MZikmund.Web
