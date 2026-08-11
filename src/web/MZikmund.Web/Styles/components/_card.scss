@@ -16,7 +16,8 @@
 		background-color: var(--mz-card);
 		border: 1px solid var(--mz-stroke-card);
 		border-radius: var(--mz-radius-card);
-		box-shadow: var(--mz-elev-1);
+		// Fluent puts cards at elevation 8, and raises them on hover.
+		box-shadow: var(--mz-elev-card);
 		overflow: hidden;
 		transition:
 			box-shadow var(--mz-duration-normal) var(--mz-ease-standard),
@@ -25,7 +26,7 @@
 
 		&:hover {
 			translate: 0 -2px;
-			box-shadow: var(--mz-elev-3);
+			box-shadow: var(--mz-elev-tooltip);
 			border-color: var(--mz-stroke-control-strong);
 		}
 
@@ -190,7 +191,7 @@
 		background-color: var(--mz-card);
 		border: 1px solid var(--mz-stroke-card);
 		border-radius: var(--mz-radius-card);
-		box-shadow: var(--mz-elev-1);
+		box-shadow: var(--mz-elev-card);
 		text-decoration: none;
 		color: inherit;
 		overflow: hidden;
@@ -211,7 +212,7 @@
 
 		&:hover {
 			translate: 0 -2px;
-			box-shadow: var(--mz-elev-3);
+			box-shadow: var(--mz-elev-tooltip);
 
 			&::before {
 				inset-block: 0;
@@ -244,6 +245,7 @@
 		background-color: var(--mz-card);
 		border: 1px solid var(--mz-stroke-card);
 		border-radius: var(--mz-radius-card);
+		box-shadow: var(--mz-elev-layer);
 
 		img {
 			width: 3.5rem;

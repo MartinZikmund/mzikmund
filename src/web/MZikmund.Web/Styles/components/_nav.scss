@@ -159,7 +159,8 @@
 		list-style: none;
 		background-color: var(--mz-acrylic);
 		border-radius: var(--mz-radius-overlay);
-		box-shadow: var(--mz-elev-3);
+		// Flyout: elevation 32.
+		box-shadow: var(--mz-elev-flyout);
 		overflow: visible;
 
 		@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
@@ -261,7 +262,8 @@
 			// and the hero text reads straight through the menu.
 			background-color: var(--mz-bg-elevated);
 			border-block-end: 1px solid var(--mz-stroke-divider);
-			box-shadow: var(--mz-elev-3);
+			// Transient, light-dismiss surface — same elevation as a flyout.
+			box-shadow: var(--mz-elev-flyout);
 
 			&[hidden] {
 				display: none;
@@ -321,7 +323,8 @@
 		background-color: var(--mz-acrylic);
 		border: 1px solid var(--mz-stroke-card);
 		color: var(--mz-text-primary);
-		box-shadow: var(--mz-elev-3);
+		// A floating control over content — card level, rising to tooltip on hover.
+		box-shadow: var(--mz-elev-card);
 		opacity: 0;
 		visibility: hidden;
 		translate: 0 0.5rem;
@@ -343,7 +346,7 @@
 
 		&:hover {
 			background-color: var(--mz-bg-elevated);
-			box-shadow: var(--mz-elev-4);
+			box-shadow: var(--mz-elev-tooltip);
 		}
 	}
 }

@@ -148,7 +148,8 @@
 			border-radius: var(--mz-radius-card);
 			background-color: var(--mz-bg-elevated);
 			border: 1px solid var(--mz-stroke-card);
-			box-shadow: var(--mz-elev-1);
+			// A layered surface inside the content, not a floating card.
+			box-shadow: var(--mz-elev-layer);
 			overflow-x: auto;
 			font-size: var(--mz-text-caption);
 			line-height: var(--mz-leading-normal);

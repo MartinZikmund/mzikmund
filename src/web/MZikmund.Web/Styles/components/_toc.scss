@@ -19,6 +19,8 @@
 		background-color: var(--mz-card);
 		border: 1px solid var(--mz-stroke-card);
 		border-radius: var(--mz-radius-card);
+		// A content layer beside the article, not a card floating over it.
+		box-shadow: var(--mz-elev-layer);
 	}
 
 	.toc__title {

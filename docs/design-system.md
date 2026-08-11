@@ -37,7 +37,7 @@ Never hard-code a colour, size, radius or duration. Everything is a
 - **Weight**: `--mz-weight-regular|medium|semibold` — Fluent uses SemiBold, never Bold
 - **Space**: `--mz-space-1..10` on a strict 4px grid (4, 8, 12, 16, 24, 32, 36, 48, 64, 96)
 - **Radius**: `--mz-radius-control` (4px), `--mz-radius-card` / `--mz-radius-overlay` (8px), `--mz-radius-pill`
-- **Elevation**: `--mz-elev-1..4`
+- **Elevation**: named after the Fluent levels — see below
 - **Surfaces**: `--mz-bg-base|secondary|tertiary|elevated`, `--mz-card`, `--mz-layer`, `--mz-acrylic`
 - **Text**: `--mz-text-primary|secondary|tertiary|disabled|on-accent`
 - **Strokes**: `--mz-stroke-card|control|control-strong|divider|focus`
@@ -145,6 +145,29 @@ Four mechanisms, each a progressive enhancement that degrades to nothing:
   IntersectionObserver, and they replay as you browse.
 - **Reveal** — the pointer-tracked radial highlight. `Motion.ts` publishes
   `--mz-reveal-x/y` from one delegated, rAF-coalesced listener.
+
+## Elevation
+
+Windows 11 publishes discrete
+[elevation values](https://learn.microsoft.com/windows/apps/design/signature-experiences/layering),
+so the tokens are named after what a surface **is**, not how deep its shadow is:
+
+| Token | Fluent level | Used by |
+|---|---|---|
+| `--mz-elev-layer` | Layer (1) | TOC panel, author bio, code blocks — content layers |
+| `--mz-elev-control` | Control (2) | Controls at rest |
+| `--mz-elev-card` | Card (8) | Cards, taxonomy cards, back-to-top |
+| `--mz-elev-tooltip` | Tooltip (16) | Card and back-to-top hover |
+| `--mz-elev-flyout` | Flyout (32) | Theme flyout, mobile nav panel |
+| `--mz-elev-dialog` | Dialog (128) | Reserved — nothing modal yet |
+
+Two rules that come from the guidance rather than taste:
+
+1. **Shadow and contour work together.** Every level pairs its shadow with a 1px
+   stroke, so surfaces using these also carry a `--mz-stroke-*` border.
+2. **Dark theme deepens the same levels.** "The intensity of the rendered shadow
+   changes depending on the theme at parity of value" — the level does not
+   change between themes, only its intensity.
 
 ## Materials
 
