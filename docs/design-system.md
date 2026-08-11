@@ -192,7 +192,8 @@ Sizes: `.icon` (1em), `.icon--lg` (1.25em). Available ids: `i-github`,
 `i-moon-stars`, `i-play-circle`, `i-play-fill`, `i-file-earmark-pdf`, `i-list`,
 `i-link-45deg`, `i-check-lg`, `i-image`, `i-rss`, `i-tag`, `i-folder2-open`.
 
-To add one: edit the `ICONS` array in `scripts/gen-sprite.mjs` and re-run it.
+To add one: edit the `ICONS` array in `Scripts/build-assets.mjs` and run
+`npm run build:assets`.
 
 ## Utilities
 

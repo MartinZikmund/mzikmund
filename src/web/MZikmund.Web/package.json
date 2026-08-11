@@ -3,7 +3,7 @@
 	"name": "asp.net",
 	"private": true,
 	"scripts": {
-		"build:assets": "node scripts/build-assets.mjs",
+		"build:assets": "node Scripts/build-assets.mjs",
 		"build:css": "sass Styles/site.scss wwwroot/css/site.css --style=expanded --source-map",
 		"build:css:prod": "sass Styles/site.scss wwwroot/css/site.min.css --style=compressed --no-source-map",
 		"build:ts": "tsc",
