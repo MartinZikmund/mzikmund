@@ -179,14 +179,29 @@ transient, light-dismiss ones.**
 |---|---|---|
 | Site header | Acrylic-style translucency | Long-lived, but the web idiom of content scrolling under glass is worth keeping |
 | Theme flyout | True Acrylic | Transient and light-dismiss — textbook Acrylic |
-| Mobile nav panel | Opaque | Full-width surface; legibility over an arbitrary hero beats translucency |
+| Mobile nav panel | True Acrylic | Also transient and light-dismiss |
 
-The theme flyout is a **popover**, which matters for more than z-order: a
+Both transient surfaces are **popovers**, which matters for more than z-order: a
 `backdrop-filter` nested inside an ancestor that itself has a `backdrop-filter`
 samples that ancestor's output rather than the page behind it, so acrylic on a
-flyout inside the header never actually frosts. The top layer escapes that, and
-also supplies light-dismiss and Escape — `ThemeSwitchManager` only handles
-positioning, focus and arrow keys, and keeps a non-popover fallback path.
+surface inside the header never actually frosts. The top layer escapes that, and
+also supplies light-dismiss and Escape — the scripts only handle positioning,
+focus and arrow keys, and both keep a non-popover fallback path.
+
+### Three popover gotchas
+
+1. `.site-nav` is **both** the desktop nav row and the mobile panel, so `SiteNav`
+   adds the `popover` attribute only below the breakpoint. A popover is
+   `display: none` until opened, which would otherwise erase the desktop nav.
+   It closes before removing the attribute, or the element is stranded in the
+   top layer.
+2. The UA hides a closed popover with `[popover]:not(:popover-open) { display:
+   none }` — a **user-agent** rule, which `.site-nav { display: flex }` (an
+   author rule) beats. The closed state has to be restated in author CSS or the
+   menu is permanently open.
+3. The UA also gives every popover `border: solid` and `margin: auto`. Both need
+   resetting, or a black border frames the panel and the auto margin fights
+   explicit positioning.
 
 ### Two traps
 

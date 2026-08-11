@@ -28,46 +28,134 @@ namespace MZikmund.Chrome {
 
 			this.toggle.addEventListener("click", e => {
 				e.preventDefault();
-				this.setOpen(this.panel!.hidden);
+				this.setOpen(!this.isOpen);
 			});
 
-			document.addEventListener("keydown", e => {
-				if (e.key === "Escape" && !this.panel!.hidden && this.isMobile()) {
-					this.setOpen(false);
-					this.toggle!.focus();
-				}
-			});
+			if (this.supportsPopover) {
+				// Light-dismiss and Escape close the popover without going through
+				// setOpen(), so mirror the state back onto the toggle.
+				this.panel.addEventListener("toggle", e => {
+					const open = (e as ToggleEvent).newState === "open";
+					this.toggle?.setAttribute("aria-expanded", String(open));
+					if (!open && this.panel?.contains(document.activeElement)) {
+						this.toggle?.focus();
+					}
+				});
+			} else {
+				document.addEventListener("keydown", e => {
+					if (e.key === "Escape" && this.isOpen && this.isMobile()) {
+						this.setOpen(false);
+						this.toggle!.focus();
+					}
+				});
 
-			document.addEventListener("click", e => {
-				if (!this.isMobile() || this.panel!.hidden) {
-					return;
-				}
-				const target = e.target as Node;
-				if (!this.panel!.contains(target) && !this.toggle!.contains(target)) {
-					this.setOpen(false);
-				}
-			});
+				document.addEventListener("click", e => {
+					if (!this.isMobile() || !this.isOpen) {
+						return;
+					}
+					const target = e.target as Node;
+					if (!this.panel!.contains(target) && !this.toggle!.contains(target)) {
+						this.setOpen(false);
+					}
+				});
+			}
 
-			// The panel is hidden by the `hidden` attribute on mobile, but must be
-			// unconditionally visible on desktop where there is no toggle.
 			this.desktop = window.matchMedia("(min-width: 48rem)");
-			const sync = () => this.setOpen(this.desktop!.matches ? true : false, true);
-			this.desktop.addEventListener("change", sync);
-			sync();
+			this.desktop.addEventListener("change", () => this.applyMode());
+			window.addEventListener("resize", () => {
+				if (this.isMobile() && this.isOpen) {
+					this.position();
+				}
+			});
+			this.applyMode();
+		}
+
+		private get supportsPopover(): boolean {
+			return typeof (this.panel as any)?.showPopover === "function";
 		}
 
 		private isMobile(): boolean {
 			return !this.desktop || !this.desktop.matches;
 		}
 
-		private setOpen(open: boolean, silent = false): void {
-			if (!this.panel || !this.toggle) {
+		private get isOpen(): boolean {
+			if (!this.panel) {
+				return false;
+			}
+			if (this.isMobile() && this.supportsPopover && this.panel.hasAttribute("popover")) {
+				return this.panel.matches(":popover-open");
+			}
+			return !this.panel.hidden;
+		}
+
+		/**
+		 * The same <ul> is the desktop nav row and the mobile panel, so the
+		 * popover attribute is applied only below the breakpoint — a popover is
+		 * display:none until opened, which would erase the desktop nav.
+		 *
+		 * The server renders the panel `hidden` so it cannot flash open before
+		 * this runs; once popover owns visibility, that attribute is cleared.
+		 */
+		private applyMode(): void {
+			const panel = this.panel;
+			if (!panel) {
 				return;
 			}
-			this.panel.hidden = !open;
-			if (!silent || this.isMobile()) {
-				this.toggle.setAttribute("aria-expanded", String(open && this.isMobile()));
+
+			if (this.isMobile()) {
+				if (this.supportsPopover) {
+					if (!panel.hasAttribute("popover")) {
+						panel.setAttribute("popover", "auto");
+					}
+					// popover now controls visibility; `hidden` would fight it.
+					panel.hidden = false;
+				} else {
+					panel.hidden = true;
+				}
+				this.toggle?.setAttribute("aria-expanded", "false");
+			} else {
+				if (panel.hasAttribute("popover")) {
+					// Must close before removing the attribute, or it is stranded
+					// in the top layer.
+					if (panel.matches(":popover-open")) {
+						(panel as any).hidePopover();
+					}
+					panel.removeAttribute("popover");
+				}
+				panel.hidden = false;
+				this.toggle?.setAttribute("aria-expanded", "false");
 			}
+		}
+
+		/** Full-width panel anchored directly beneath the header. */
+		private position(): void {
+			const header = document.querySelector(".site-header");
+			if (!this.panel || !header) {
+				return;
+			}
+			this.panel.style.top = `${Math.round(header.getBoundingClientRect().bottom)}px`;
+			this.panel.style.left = "0px";
+		}
+
+		private setOpen(open: boolean): void {
+			const panel = this.panel;
+			if (!panel || !this.toggle || !this.isMobile()) {
+				return;
+			}
+
+			if (this.supportsPopover && panel.hasAttribute("popover")) {
+				if (open) {
+					(panel as any).showPopover();
+					this.position();
+				} else if (panel.matches(":popover-open")) {
+					(panel as any).hidePopover();
+				}
+				// aria-expanded is synced by the toggle event handler.
+				return;
+			}
+
+			panel.hidden = !open;
+			this.toggle.setAttribute("aria-expanded", String(open));
 		}
 	}
 
