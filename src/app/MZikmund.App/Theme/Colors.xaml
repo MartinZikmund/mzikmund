@@ -245,6 +245,18 @@
 			<SolidColorBrush x:Key="MzControlElevationBorderBrush" Color="{StaticResource SystemColorWindowTextColor}" />
 			<SolidColorBrush x:Key="MzAccentControlElevationBorderBrush" Color="{StaticResource SystemColorWindowTextColor}" />
 			<SolidColorBrush x:Key="MzCardMediaEmptyBrush" Color="{StaticResource SystemColorWindowColor}" />
+
+			<!--  SystemAccentColor* is redirected theme-invariantly at the root (below) so no stock style
+			      can pull in the personalization accent. Without an override here that hardcoded ramp
+			      would leak into forced-colours mode, so every step is pinned back to the system Highlight
+			      colour for HC specifically.  -->
+			<StaticResource x:Key="SystemAccentColor" ResourceKey="SystemColorHighlightColor" />
+			<StaticResource x:Key="SystemAccentColorLight1" ResourceKey="SystemColorHighlightColor" />
+			<StaticResource x:Key="SystemAccentColorLight2" ResourceKey="SystemColorHighlightColor" />
+			<StaticResource x:Key="SystemAccentColorLight3" ResourceKey="SystemColorHighlightColor" />
+			<StaticResource x:Key="SystemAccentColorDark1" ResourceKey="SystemColorHighlightColor" />
+			<StaticResource x:Key="SystemAccentColorDark2" ResourceKey="SystemColorHighlightColor" />
+			<StaticResource x:Key="SystemAccentColorDark3" ResourceKey="SystemColorHighlightColor" />
 		</ResourceDictionary>
 
 	</ResourceDictionary.ThemeDictionaries>
