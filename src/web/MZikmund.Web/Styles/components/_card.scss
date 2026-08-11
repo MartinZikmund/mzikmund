@@ -99,8 +99,10 @@
 		gap: var(--mz-space-1);
 	}
 
-	// Badges sit on arbitrary photography, so they carry their own scrim.
-	.card__badges .badge {
+	// Over photography the badge has to survive whatever was uploaded, so it
+	// carries its own scrim and stays theme-INVARIANT — a theme-aware colour
+	// would be illegible on half the images in the archive.
+	.card__media:not(.card__media--empty) .card__badges .badge {
 		background-color: rgb(0 0 0 / 0.72);
 		color: #fff;
 		box-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
@@ -109,6 +111,14 @@
 			background-color: rgb(0 0 0 / 0.55);
 			backdrop-filter: blur(8px) saturate(140%);
 		}
+	}
+
+	// Over the tinted placeholder there is no image to fight, so the scrim is
+	// pure weight. Use the ordinary theme-aware subtle badge instead — it reads
+	// as part of the design rather than as an overlay on nothing.
+	.card__media--empty .card__badges .badge {
+		background-color: var(--mz-accent-subtle-strong);
+		color: var(--mz-accent-text);
 	}
 
 	.card__body {
