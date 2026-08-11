@@ -7,12 +7,13 @@ namespace MZikmund.Views;
 
 public sealed partial class PostView : PostViewBase
 {
-	private readonly WebView2 _previewWebView;
+	// Fully qualified: Uno 6.8 added a root-level WebView2 namespace that shadows the simple name.
+	private readonly Microsoft.UI.Xaml.Controls.WebView2 _previewWebView;
 
 	public PostView()
 	{
 		InitializeComponent();
-		PreviewWebViewContainer.Content = _previewWebView = new WebView2();
+		PreviewWebViewContainer.Content = _previewWebView = new Microsoft.UI.Xaml.Controls.WebView2();
 		Loaded += PostView_Loaded;
 		Unloaded += PostView_Unloaded;
 	}

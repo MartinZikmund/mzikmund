@@ -6,7 +6,8 @@ namespace MZikmund.Views.Admin;
 
 public sealed partial class PostEditorView : PostEditorViewBase
 {
-	private readonly WebView2 _previewWebView;
+	// Fully qualified: Uno 6.8 added a root-level WebView2 namespace that shadows the simple name.
+	private readonly Microsoft.UI.Xaml.Controls.WebView2 _previewWebView;
 
 	private string _postPreviewTemplate;
 
@@ -15,7 +16,7 @@ public sealed partial class PostEditorView : PostEditorViewBase
 		InitializeComponent();
 		// Read the template from the embedded resource
 		_postPreviewTemplate = typeof(PostEditorView).Assembly.GetManifestResourceStream("MZikmund.App.Templates.PostPreviewTemplate.html")!.ReadToEnd()!;
-		PreviewWebViewContainer.Content = _previewWebView = new WebView2();
+		PreviewWebViewContainer.Content = _previewWebView = new Microsoft.UI.Xaml.Controls.WebView2();
 		this.Loaded += PostEditorView_Loaded;
 		this.Unloaded += PostEditorView_Unloaded;
 	}
@@ -53,7 +54,7 @@ public sealed partial class PostEditorView : PostEditorViewBase
 			ViewModel!.SelectionLength);
 	}
 
-	private void OnWebViewInitialized(WebView2 sender, CoreWebView2InitializedEventArgs args) => UpdatePreview();
+	private void OnWebViewInitialized(Microsoft.UI.Xaml.Controls.WebView2 sender, CoreWebView2InitializedEventArgs args) => UpdatePreview();
 
 	private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
 	{

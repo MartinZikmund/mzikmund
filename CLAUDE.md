@@ -124,7 +124,8 @@ Use Uno APP MCP to test the desktop app.
 - **Central Package Management**: All versions in `src/Directory.Packages.props`. Project files use `<PackageReference>` without version numbers.
 - **Shared properties** (`src/Directory.Build.props`): Nullable enabled, C# preview language, implicit usings, Nerdbank.GitVersioning.
 - **Versioning** (`version.json`): Nerdbank.GitVersioning, base version 1.0, public releases from `main` only, release branches: `release/v{version}`.
-- **SDK**: .NET 10.0.100 exact (`global.json`), Uno.Sdk 6.5.0-dev.31.
+- **SDK**: .NET 10.0.100 exact (`global.json`), Uno.Sdk 6.8.0-dev.7 (see `global.json` for the current pin).
+- **Package sources**: `NuGet.config` at the repo root pins restore to nuget.org only, so local restore matches CI. Do not rely on machine-level feeds — Uno.Sdk 6.7.7 exists only on the private "Uno Internal" feed and will fail CI.
 
 ### CI/CD Workflows (`.github/workflows/`)
 

@@ -32,7 +32,6 @@
 			Mvvm;
 			Lottie;
 			Logging;
-			Navigation;
 			Localization;
 			ThemeService;
 			SkiaRenderer;
@@ -53,8 +52,19 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <PackageReference Include="CommunityToolkit.WinUI.Converters" />
+	  <PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" />
 	  <PackageReference Include="System.Security.Cryptography.Xml" />
 	  <PackageReference Include="Tmds.DBus.Protocol" />
+	</ItemGroup>
+
+	<!--
+		Elevation shadows are Windows-only. CommunityToolkit.WinUI.Media is bound to
+		WindowsAppSDK + Win2D and fails to restore (NU1202) on the Uno TFMs, and Uno's
+		compositor has no CreateDropShadow. Other heads fall back to the paired 1px
+		stroke via the MzElevation attached property.
+	-->
+	<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
+	  <PackageReference Include="CommunityToolkit.WinUI.Media" />
 	</ItemGroup>
 
 	<ItemGroup>
