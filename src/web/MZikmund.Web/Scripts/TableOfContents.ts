@@ -6,7 +6,17 @@ namespace MZikmund.Blog {
 		element: HTMLElement;
 	}
 
+	/**
+	 * Builds the article table of contents from the rendered post headings.
+	 *
+	 * Runs before HeadingLinks: it assigns ids to headings that lack them, and
+	 * HeadingLinks skips any heading without an id.
+	 */
 	export class TableOfContents {
+		// Must match the `@media (min-width: 80rem)` switch in _layout.scss where
+		// the TOC moves from stacked-above to the right-hand column.
+		private static readonly StackedBreakpoint = "(max-width: 1279.98px)";
+
 		private tocContainer: HTMLElement | null = null;
 		private contentContainer: HTMLElement | null = null;
 		private tocList: HTMLElement | null = null;
@@ -17,7 +27,6 @@ namespace MZikmund.Blog {
 		private usedIds: Set<string> = new Set();
 
 		public init(): void {
-			// Wait for DOM to be ready
 			if (document.readyState === 'loading') {
 				document.addEventListener('DOMContentLoaded', () => this.initialize());
 			} else {
@@ -35,7 +44,7 @@ namespace MZikmund.Blog {
 
 			const headings = this.extractHeadings();
 			if (headings.length === 0) {
-				// Keep TOC hidden if no headings found
+				// Stays hidden — an empty TOC box is worse than none.
 				return;
 			}
 
@@ -43,9 +52,8 @@ namespace MZikmund.Blog {
 			this.setupScrollSpy(headings);
 			this.setupSmoothScroll();
 			this.setupMobileToggle();
-			
-			// Make TOC visible after building
-			this.tocContainer.classList.add('toc-visible');
+
+			this.tocContainer.classList.add('is-visible');
 		}
 
 		private extractHeadings(): TocItem[] {
@@ -56,7 +64,7 @@ namespace MZikmund.Blog {
 			const headings: TocItem[] = [];
 			const headingElements = this.contentContainer.querySelectorAll('h2, h3, h4');
 
-			// First pass: collect all existing IDs to avoid collisions
+			// First pass: reserve every id already present so generated ids cannot collide.
 			headingElements.forEach((heading) => {
 				const element = heading as HTMLElement;
 				if (element.id) {
@@ -64,7 +72,6 @@ namespace MZikmund.Blog {
 				}
 			});
 
-			// Second pass: assign missing IDs and build items
 			headingElements.forEach((heading) => {
 				const element = heading as HTMLElement;
 				if (!element.id) {
@@ -89,8 +96,12 @@ namespace MZikmund.Blog {
 				.replace(/\s+/g, '-')
 				.replace(/--+/g, '-')
 				.trim();
-			
-			// Ensure unique ID by appending a number if duplicate
+
+			// A leading digit makes `document.querySelector('#1-foo')` invalid, so prefix it.
+			if (!baseId || /^\d/.test(baseId)) {
+				baseId = `section-${baseId}`;
+			}
+
 			let id = baseId;
 			let counter = 1;
 			while (this.usedIds.has(id)) {
@@ -107,54 +118,51 @@ namespace MZikmund.Blog {
 			}
 
 			const tocNav = document.createElement('nav');
-			tocNav.className = 'toc-nav';
+			tocNav.className = 'toc__nav';
 			tocNav.setAttribute('aria-label', 'Table of contents');
 
 			const title = document.createElement('h2');
-			title.className = 'toc-title';
-			title.textContent = 'Table of contents';
+			title.className = 'toc__title';
+			title.textContent = 'On this page';
 			tocNav.appendChild(title);
 
 			this.tocList = document.createElement('ul');
-			this.tocList.className = 'toc-list';
+			this.tocList.className = 'toc__list';
+			this.tocList.id = 'toc-list';
 
 			let currentList = this.tocList;
 			let lastLevel = headings.length > 0 ? headings[0].level : 2;
 
 			headings.forEach((heading) => {
 				const listItem = document.createElement('li');
-				listItem.className = `toc-item toc-level-${heading.level}`;
+				listItem.className = `toc__item toc__item--${heading.level}`;
 
 				const link = document.createElement('a');
 				link.href = `#${heading.id}`;
 				link.textContent = heading.text;
-				link.className = 'toc-link';
+				link.className = 'toc__link';
 				link.dataset.target = heading.id;
 
 				listItem.appendChild(link);
 
-				// Handle nesting - go up or down multiple levels if needed
 				if (heading.level > lastLevel) {
-					// Create nested list(s) for going deeper
 					let levelsDown = heading.level - lastLevel;
 					while (levelsDown > 0) {
 						const nestedList = document.createElement('ul');
-						nestedList.className = 'toc-list toc-nested';
+						nestedList.className = 'toc__list toc__list--nested';
 						if (currentList.lastElementChild) {
 							currentList.lastElementChild.appendChild(nestedList);
 						} else {
-							// If no previous item, append to current list
 							currentList.appendChild(nestedList);
 						}
 						currentList = nestedList;
 						levelsDown--;
 					}
 				} else if (heading.level < lastLevel) {
-					// Go back to parent level(s)
 					let levelsUp = lastLevel - heading.level;
 					while (levelsUp > 0 && currentList.parentElement) {
 						const parent = currentList.parentElement.closest('ul');
-						if (parent && parent.classList.contains('toc-list')) {
+						if (parent && parent.classList.contains('toc__list')) {
 							currentList = parent;
 						}
 						levelsUp--;
@@ -169,26 +177,49 @@ namespace MZikmund.Blog {
 			this.tocContainer.appendChild(tocNav);
 		}
 
+		/**
+		 * Height of the sticky header, in real pixels.
+		 *
+		 * Measured from the element rather than derived from --mz-header-height:
+		 * getPropertyValue returns the raw token ("3.5rem"), and converting it by
+		 * multiplying by 16 would assume a 16px root font size — wrong for anyone
+		 * who has changed their browser's default text size. Measuring also picks
+		 * up padding and borders the token knows nothing about.
+		 */
+		private static headerOffset(): number {
+			const header = document.querySelector<HTMLElement>('.site-header');
+			if (header) {
+				return Math.round(header.getBoundingClientRect().height);
+			}
+			// No header on the page (e.g. the embed view): fall back to the token,
+			// converted with the ACTUAL root font size rather than an assumed 16.
+			const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+			const rem = parseFloat(
+				getComputedStyle(document.documentElement).getPropertyValue('--mz-header-height')
+			) || 0;
+			return Math.round(rem * rootFontSize);
+		}
+
 		private setupScrollSpy(headings: TocItem[]): void {
-			// The rootMargin values fine-tune when a heading is considered "active":
-			// - Top margin (0px) allows headings at the very top of the viewport to be detected
-			// - Bottom margin (-80%) reduces intersection area so only topmost visible heading is active
+			// Top margin offsets the sticky header, so a heading is not marked
+			// active while it is still hidden behind it. Bottom -80% keeps only
+			// the topmost visible heading active.
+			const offset = TableOfContents.headerOffset();
+
 			const options = {
-				rootMargin: '0px 0px -80% 0px',
+				rootMargin: `-${offset}px 0px -80% 0px`,
 				threshold: 0
 			};
 
 			this.observer = new IntersectionObserver((entries) => {
-				// Find the topmost visible heading
 				const visibleEntries = entries.filter(entry => entry.isIntersecting);
 				if (visibleEntries.length === 0) {
 					return;
 				}
 
-				// Find entry closest to top of viewport
 				let topEntry = visibleEntries[0];
 				let minTop = Math.abs(visibleEntries[0].boundingClientRect.top);
-				
+
 				visibleEntries.forEach(entry => {
 					const top = Math.abs(entry.boundingClientRect.top);
 					if (top < minTop) {
@@ -212,16 +243,17 @@ namespace MZikmund.Blog {
 				return;
 			}
 
-			// Remove previous active
 			if (this.activeItem) {
-				this.activeItem.classList.remove('active');
+				this.activeItem.classList.remove('is-active');
 			}
 
-			// Set new active
 			const link = this.tocList.querySelector(`[data-target="${CSS.escape(id)}"]`);
 			if (link) {
-				link.classList.add('active');
+				link.classList.add('is-active');
 				this.activeItem = link as HTMLElement;
+
+				// Keep the active entry in view within the sticky sidebar.
+				link.scrollIntoView({ block: 'nearest' });
 			}
 		}
 
@@ -233,21 +265,24 @@ namespace MZikmund.Blog {
 			this.tocList.addEventListener('click', (e) => {
 				const target = e.target as HTMLElement;
 				const link = target.closest('a');
-				
+
 				if (link && link instanceof HTMLAnchorElement) {
-					e.preventDefault();
-					const href = link.getAttribute('href');
-					if (href) {
-						const targetElement = document.querySelector(href);
-						if (targetElement) {
-							targetElement.scrollIntoView({
-								behavior: 'smooth',
-								block: 'start'
-							});
-							// Use replaceState instead of pushState to avoid polluting browser history
-							history.replaceState(null, '', href);
-						}
+					const id = link.dataset.target;
+					if (!id) {
+						return;
 					}
+					const targetElement = document.getElementById(id);
+					if (!targetElement) {
+						return;
+					}
+					e.preventDefault();
+					const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+					// scroll-margin-top on prose headings supplies the header offset.
+					targetElement.scrollIntoView({
+						behavior: reduced ? 'auto' : 'smooth',
+						block: 'start'
+					});
+					history.replaceState(null, '', `#${id}`);
 				}
 			});
 		}
@@ -257,42 +292,38 @@ namespace MZikmund.Blog {
 				return;
 			}
 
-			const title = this.tocContainer.querySelector('.toc-title');
+			const title = this.tocContainer.querySelector('.toc__title');
 			if (!title) {
 				return;
 			}
 
 			const tocList = this.tocList;
-			tocList.id = 'toc-list';
 
-			// Create toggle handler
 			const handleToggleClick = () => {
-				tocList.classList.toggle('collapsed');
-				title.classList.toggle('collapsed');
-				const isExpanded = !tocList.classList.contains('collapsed');
-				title.setAttribute('aria-expanded', String(isExpanded));
+				const willOpen = tocList.hidden;
+				tocList.hidden = !willOpen;
+				title.setAttribute('aria-expanded', String(willOpen));
 			};
 
-			// Only add toggle functionality on mobile/tablet
-			this.mediaQuery = window.matchMedia('(max-width: 1279px)');
+			this.mediaQuery = window.matchMedia(TableOfContents.StackedBreakpoint);
 
 			this.mediaQueryHandler = () => {
 				if (this.mediaQuery!.matches) {
-					// Start collapsed on mobile
-					tocList.classList.add('collapsed');
-					title.classList.add('collapsed');
+					tocList.hidden = true;
 					title.setAttribute('role', 'button');
+					title.setAttribute('tabindex', '0');
 					title.setAttribute('aria-expanded', 'false');
 					title.setAttribute('aria-controls', 'toc-list');
 					title.addEventListener('click', handleToggleClick);
+					title.addEventListener('keydown', this.onTitleKey);
 				} else {
-					// Remove collapse classes on desktop
-					tocList.classList.remove('collapsed');
-					title.classList.remove('collapsed');
+					tocList.hidden = false;
 					title.removeAttribute('role');
+					title.removeAttribute('tabindex');
 					title.removeAttribute('aria-expanded');
 					title.removeAttribute('aria-controls');
 					title.removeEventListener('click', handleToggleClick);
+					title.removeEventListener('keydown', this.onTitleKey);
 				}
 			};
 
@@ -300,14 +331,21 @@ namespace MZikmund.Blog {
 			this.mediaQuery.addEventListener('change', this.mediaQueryHandler);
 		}
 
+		// role="button" must respond to Enter/Space like a real button.
+		private onTitleKey = (e: Event): void => {
+			const key = (e as KeyboardEvent).key;
+			if (key === 'Enter' || key === ' ') {
+				e.preventDefault();
+				(e.currentTarget as HTMLElement).click();
+			}
+		};
+
 		public destroy(): void {
-			// Cleanup IntersectionObserver
 			if (this.observer) {
 				this.observer.disconnect();
 				this.observer = null;
 			}
 
-			// Cleanup media query listener
 			if (this.mediaQuery && this.mediaQueryHandler) {
 				this.mediaQuery.removeEventListener('change', this.mediaQueryHandler);
 				this.mediaQuery = null;

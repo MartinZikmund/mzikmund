@@ -1,46 +1,45 @@
 @model MZikmund.Web.Pages.Blog.IPostPageModel
 
-<div class="blog-post-hero" @(Model.SafeHeroImageUrl != null ? $"data-hero-url={Model.SafeHeroImageUrl}" : "")>
-    <div class="blog-post-hero-overlay">
+@*
+    The title used to be overlaid on the hero image behind a dark gradient with
+    fixed light text, so legibility depended on the uploaded image and broke in
+    dark mode. The image is now a real <img> banner and the title sits below it
+    on a solid layered surface.
+*@
+<div class="post-hero">
+    @if (Model.SafeHeroImageUrl != null)
+    {
+        <div class="post-hero__banner">
+            <img class="post-hero__image" src="@Model.SafeHeroImageUrl" alt="@(Model.BlogPost.HeroImageAlt ?? "")" loading="eager" />
+        </div>
+    }
+    <div class="post-hero__body">
         <div class="container">
-            <div class="blog-post-hero-content">
-                <h1 class="display-3 text-white mb-3">@Model.BlogPost.Title</h1>
-                <div class="blog-post-hero-meta">
-                    <p class="lead mb-2">
+            <div class="post-hero__inner">
+                @if (Model.BlogPost.Categories.Length > 0)
+                {
+                    <div class="post-hero__categories">
                         @foreach (var category in Model.BlogPost.Categories)
                         {
-                            <a class="badge bg-light text-dark text-decoration-none" asp-page="/Blog/CategoryPostList" asp-route-categoryName="@category.RouteName">@category.DisplayName</a>
+                            <a class="badge badge--subtle" asp-page="/Blog/CategoryPostList" asp-route-categoryName="@category.RouteName">@category.DisplayName</a>
                         }
-                    </p>
-                    <p class="text-white-50 mb-0">
-                        @if (Model.BlogPost.PublishedDate.HasValue)
-                        {
-                            @Model.BlogPost.PublishedDate.Value.Humanize()
-                        }
-                        else
-                        {
-                            <text>Draft</text>
-                        }
-                    </p>
+                    </div>
+                }
+                <h1 class="post-hero__title">@Model.BlogPost.Title</h1>
+                <div class="post-hero__meta">
+                    @if (Model.BlogPost.PublishedDate.HasValue)
+                    {
+                        <span class="meta__item">
+                            <svg class="icon" aria-hidden="true"><use href="#i-calendar3"></use></svg>
+                            <time datetime="@Model.BlogPost.PublishedDate.Value.ToString("o")">@Model.BlogPost.PublishedDate.Value.Humanize()</time>
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="meta__item">Draft</span>
+                    }
                 </div>
             </div>
         </div>
     </div>
 </div>
-@if (Model.SafeHeroImageUrl != null)
-{
-    <script>
-        (function() {
-            const heroElement = document.querySelector('.blog-post-hero');
-            if (heroElement) {
-                const url = heroElement.dataset.heroUrl;
-                if (url) {
-                    // Comprehensive escaping for safe CSS usage
-                    // Only escape quotes for safe CSS url() usage
-                    const escapedUrl = url.replace(/"/g, '\\"').replace(/'/g, "\\'");
-                    heroElement.style.setProperty('--hero-bg-url', 'url("' + escapedUrl + '")');
-                }
-            }
-        })();
-    </script>
-}

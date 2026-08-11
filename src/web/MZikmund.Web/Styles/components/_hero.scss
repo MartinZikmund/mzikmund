@@ -1,0 +1,211 @@
+// =============================================================================
+// Heroes — home and blog post.
+// =============================================================================
+
+@layer components {
+
+	// --- Home hero -----------------------------------------------------------
+	// Mica-inspired: a tinted accent wash bled through a fine noise texture, so
+	// the surface has depth without an image.
+	.hero {
+		position: relative;
+		overflow: hidden;
+		background-color: var(--mz-bg-tertiary);
+		border-block-end: 1px solid var(--mz-stroke-divider);
+		padding-block: var(--mz-space-9) var(--mz-space-8);
+
+		@media (min-width: 48rem) {
+			padding-block: var(--mz-space-10) var(--mz-space-9);
+		}
+	}
+
+	// Accent glow, offset to the top-right so it doesn't sit behind the text.
+	.hero::before {
+		content: "";
+		position: absolute;
+		inset-block-start: -30%;
+		inset-inline-end: -10%;
+		width: min(48rem, 90%);
+		aspect-ratio: 1;
+		background: radial-gradient(circle at center, var(--mz-accent-subtle-strong), transparent 62%);
+		pointer-events: none;
+	}
+
+	// Mica-like grain. An inline SVG turbulence keeps it dependency-free and
+	// costs nothing to download.
+	.hero::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		opacity: 0.4;
+		mix-blend-mode: overlay;
+		pointer-events: none;
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+	}
+
+	.hero__inner {
+		position: relative;
+		z-index: 1;
+		max-width: 46rem;
+	}
+
+	.hero__eyebrow {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--mz-space-2);
+		margin-block-end: var(--mz-space-4);
+		padding: var(--mz-space-1) var(--mz-space-3);
+		border-radius: var(--mz-radius-pill);
+		background-color: var(--mz-accent-subtle);
+		color: var(--mz-accent-text);
+		font-size: var(--mz-text-caption);
+		font-weight: var(--mz-weight-semibold);
+		letter-spacing: var(--mz-tracking-wide);
+	}
+
+	.hero__title {
+		font-size: var(--mz-text-display);
+		font-weight: var(--mz-weight-semibold);
+		line-height: var(--mz-leading-tight);
+		letter-spacing: var(--mz-tracking-tight);
+		margin-block-end: var(--mz-space-4);
+	}
+
+	// Accent rule beneath the name.
+	.hero__rule {
+		width: 3.5rem;
+		height: 4px;
+		border-radius: var(--mz-radius-pill);
+		background-color: var(--mz-accent-text);
+		margin-block-end: var(--mz-space-5);
+	}
+
+	.hero__lead {
+		font-size: var(--mz-text-body-large);
+		line-height: var(--mz-leading-relaxed);
+		color: var(--mz-text-secondary);
+		max-width: 46ch;
+		margin-block-end: var(--mz-space-6);
+	}
+
+	.hero__actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--mz-space-3);
+		margin-block-end: var(--mz-space-7);
+	}
+
+	// Structured metadata rather than marketing copy.
+	.hero__topics {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--mz-space-2) var(--mz-space-3);
+		color: var(--mz-text-tertiary);
+		font-size: var(--mz-text-caption);
+		font-weight: var(--mz-weight-medium);
+		letter-spacing: var(--mz-tracking-wide);
+	}
+
+	.hero__topic-sep {
+		color: var(--mz-text-disabled);
+	}
+
+	// --- Page header (blog index, categories, tags, videos) ------------------
+	.page-header {
+		padding-block: var(--mz-space-8) var(--mz-space-6);
+		border-block-end: 1px solid var(--mz-stroke-divider);
+		margin-block-end: var(--mz-space-7);
+	}
+
+	.page-header__title {
+		font-size: var(--mz-text-title-large);
+		margin-block-end: var(--mz-space-2);
+	}
+
+	.page-header__lead {
+		color: var(--mz-text-secondary);
+		font-size: var(--mz-text-body-large);
+		max-width: 56ch;
+	}
+
+	.page-header__actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--mz-space-2);
+		margin-block-start: var(--mz-space-5);
+	}
+
+	// --- Blog post hero ------------------------------------------------------
+	// Restructured: the image is a banner, and the title sits on a solid layered
+	// surface below it. Previously the title was overlaid on the image behind a
+	// gradient, so legibility depended entirely on which image had been uploaded.
+	.post-hero {
+		border-block-end: 1px solid var(--mz-stroke-divider);
+		background-color: var(--mz-bg-tertiary);
+	}
+
+	.post-hero__banner {
+		position: relative;
+		width: 100%;
+		aspect-ratio: 21 / 9;
+		max-height: 26rem;
+		overflow: hidden;
+		background-color: var(--mz-bg-secondary);
+
+		@media (max-width: 47.99rem) {
+			aspect-ratio: 16 / 9;
+		}
+	}
+
+	.post-hero__image {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	// Soft fade into the title surface so the join doesn't read as a hard seam.
+	.post-hero__banner::after {
+		content: "";
+		position: absolute;
+		inset-inline: 0;
+		inset-block-end: 0;
+		height: 30%;
+		background: linear-gradient(to top, var(--mz-bg-tertiary), transparent);
+		pointer-events: none;
+	}
+
+	.post-hero__body {
+		padding-block: var(--mz-space-6) var(--mz-space-7);
+	}
+
+	.post-hero__inner {
+		max-width: var(--mz-measure);
+		margin-inline: auto;
+	}
+
+	.post-hero__categories {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--mz-space-2);
+		margin-block-end: var(--mz-space-4);
+	}
+
+	.post-hero__title {
+		font-size: var(--mz-text-title-large);
+		line-height: var(--mz-leading-tight);
+		letter-spacing: var(--mz-tracking-tight);
+		margin-block-end: var(--mz-space-4);
+		text-wrap: balance;
+	}
+
+	.post-hero__meta {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--mz-space-2) var(--mz-space-4);
+		color: var(--mz-text-tertiary);
+		font-size: var(--mz-text-caption);
+		font-weight: var(--mz-weight-medium);
+	}
+}

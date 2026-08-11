@@ -1,0 +1,383 @@
+// =============================================================================
+// Long-form article body.
+//
+// The three biggest readability changes over the previous design:
+//   1. body 19px/1.7 serif on a 68ch measure (was ~15-16px/1.5 sans)
+//   2. real heading rhythm — generous space ABOVE headings, tight below, so
+//      sections group visually instead of reading as one undifferentiated wall
+//   3. every element the Markdig pipeline can emit is styled, not just p/h2/img
+// =============================================================================
+
+@layer components {
+
+	.prose {
+		font-family: var(--mz-font-serif);
+		font-size: var(--mz-text-body-large);
+		line-height: var(--mz-leading-relaxed);
+		color: var(--mz-text-primary);
+		// Serif numerals look better proportional in running text.
+		font-variant-numeric: oldstyle-nums proportional-nums;
+
+		> * + * {
+			margin-block-start: 1.15em;
+		}
+
+		// --- Headings --------------------------------------------------------
+		// Sans headings against serif body give a clear structural signal.
+		h1,
+		h2,
+		h3,
+		h4,
+		h5,
+		h6 {
+			font-family: var(--mz-font-sans);
+			font-variant-numeric: normal;
+			scroll-margin-top: calc(var(--mz-header-height) + var(--mz-space-4));
+		}
+
+		h2 {
+			font-size: var(--mz-text-title);
+			margin-block: 2.2em 0.6em;
+			padding-block-end: 0.3em;
+			border-block-end: 1px solid var(--mz-stroke-divider);
+		}
+
+		h3 {
+			font-size: var(--mz-text-subtitle);
+			margin-block: 1.9em 0.5em;
+		}
+
+		h4 {
+			font-size: var(--mz-text-body-large);
+			margin-block: 1.6em 0.4em;
+		}
+
+		h5,
+		h6 {
+			font-size: var(--mz-text-body);
+			font-weight: var(--mz-weight-semibold);
+			color: var(--mz-text-secondary);
+			letter-spacing: var(--mz-tracking-wide);
+			text-transform: uppercase;
+			margin-block: 1.6em 0.4em;
+		}
+
+		// First heading shouldn't push the article away from the hero.
+		> :first-child {
+			margin-block-start: 0;
+		}
+
+		// --- Links -----------------------------------------------------------
+		a {
+			color: var(--mz-accent-text);
+			text-decoration: underline;
+			text-decoration-thickness: 1px;
+			text-decoration-color: color-mix(in srgb, var(--mz-accent-text) 40%, transparent);
+			text-underline-offset: 0.16em;
+			transition:
+				text-decoration-color var(--mz-duration-fast) var(--mz-ease-standard),
+				background-color var(--mz-duration-fast) var(--mz-ease-standard);
+
+			&:hover {
+				text-decoration-color: var(--mz-accent-text);
+				background-color: var(--mz-accent-subtle);
+			}
+		}
+
+		// --- Lists -----------------------------------------------------------
+		ul,
+		ol {
+			padding-inline-start: 1.5em;
+		}
+
+		li + li {
+			margin-block-start: 0.4em;
+		}
+
+		li::marker {
+			color: var(--mz-text-tertiary);
+		}
+
+		ul ul,
+		ol ol,
+		ul ol,
+		ol ul {
+			margin-block-start: 0.4em;
+		}
+
+		// Task lists (Markdig TaskLists extension).
+		li input[type="checkbox"] {
+			margin-inline-end: 0.5em;
+			accent-color: var(--mz-accent-fill);
+		}
+
+		// --- Blockquote ------------------------------------------------------
+		blockquote {
+			padding: var(--mz-space-1) 0 var(--mz-space-1) var(--mz-space-5);
+			border-inline-start: 3px solid var(--mz-accent-text);
+			color: var(--mz-text-secondary);
+			font-style: italic;
+
+			> * + * {
+				margin-block-start: 0.8em;
+			}
+
+			cite {
+				display: block;
+				margin-block-start: 0.6em;
+				font-size: var(--mz-text-body);
+				font-style: normal;
+				color: var(--mz-text-tertiary);
+			}
+		}
+
+		// --- Code ------------------------------------------------------------
+		code {
+			font-family: var(--mz-font-mono);
+			font-size: 0.86em;
+			font-variant-numeric: normal;
+			padding: 0.15em 0.4em;
+			border-radius: var(--mz-radius-control);
+			background-color: var(--mz-shimmer);
+			border: 1px solid var(--mz-stroke-card);
+			word-break: break-word;
+		}
+
+		pre {
+			padding: var(--mz-space-4);
+			border-radius: var(--mz-radius-card);
+			background-color: var(--mz-bg-elevated);
+			border: 1px solid var(--mz-stroke-card);
+			box-shadow: var(--mz-elev-1);
+			overflow-x: auto;
+			font-size: var(--mz-text-caption);
+			line-height: var(--mz-leading-normal);
+			-webkit-overflow-scrolling: touch;
+
+			code {
+				padding: 0;
+				border: none;
+				background: none;
+				font-size: inherit;
+			}
+		}
+
+		// --- Media -----------------------------------------------------------
+		img {
+			display: block;
+			margin-inline: auto;
+			max-width: 100%;
+			height: auto;
+			border-radius: var(--mz-radius-card);
+			background-color: var(--mz-bg-secondary);
+		}
+
+		figure {
+			margin-inline: 0;
+			text-align: center;
+		}
+
+		figcaption {
+			margin-block-start: var(--mz-space-3);
+			color: var(--mz-text-tertiary);
+			font-family: var(--mz-font-sans);
+			font-size: var(--mz-text-caption);
+			font-variant-numeric: normal;
+			line-height: var(--mz-leading-normal);
+			text-wrap: pretty;
+		}
+
+		// Embedded video — classes emitted by the content pipeline.
+		iframe,
+		.youtube,
+		.youtubeshort {
+			display: block;
+			width: 100%;
+			aspect-ratio: 16 / 9;
+			margin-inline: auto;
+			border: none;
+			border-radius: var(--mz-radius-card);
+			background-color: var(--mz-bg-secondary);
+		}
+
+		.youtubeshort {
+			aspect-ratio: 9 / 16;
+			width: min(100%, 22rem);
+		}
+
+		// --- Tables ----------------------------------------------------------
+		// Wrapped so wide tables scroll instead of forcing the page sideways.
+		.table-wrap {
+			overflow-x: auto;
+			-webkit-overflow-scrolling: touch;
+			border: 1px solid var(--mz-stroke-card);
+			border-radius: var(--mz-radius-card);
+		}
+
+		table {
+			width: 100%;
+			border-collapse: collapse;
+			font-family: var(--mz-font-sans);
+			font-size: var(--mz-text-body);
+			font-variant-numeric: tabular-nums;
+		}
+
+		th,
+		td {
+			padding: var(--mz-space-3) var(--mz-space-4);
+			text-align: start;
+			border-block-end: 1px solid var(--mz-stroke-divider);
+		}
+
+		th {
+			font-weight: var(--mz-weight-semibold);
+			background-color: var(--mz-bg-secondary);
+			white-space: nowrap;
+		}
+
+		tbody tr:last-child td {
+			border-block-end: none;
+		}
+
+		tbody tr:hover {
+			background-color: var(--mz-shimmer);
+		}
+
+		// --- Misc ------------------------------------------------------------
+		hr {
+			margin-block: var(--mz-space-8);
+		}
+
+		kbd {
+			padding: 0.15em 0.45em;
+			border-radius: var(--mz-radius-control);
+			background-color: var(--mz-bg-secondary);
+			border: 1px solid var(--mz-stroke-control-strong);
+			border-block-end-width: 2px;
+			font-size: 0.82em;
+		}
+
+		mark {
+			padding: 0.1em 0.2em;
+			border-radius: 2px;
+			background-color: var(--mz-accent-subtle-strong);
+			color: var(--mz-text-primary);
+		}
+
+		abbr[title] {
+			text-decoration: underline dotted;
+			cursor: help;
+		}
+
+		sup,
+		sub {
+			font-size: 0.72em;
+			line-height: 0;
+		}
+
+		dt {
+			font-weight: var(--mz-weight-semibold);
+			font-family: var(--mz-font-sans);
+		}
+
+		dd {
+			margin-inline-start: var(--mz-space-5);
+			color: var(--mz-text-secondary);
+		}
+
+		// Footnotes (Markdig Footnotes extension).
+		.footnotes {
+			margin-block-start: var(--mz-space-8);
+			padding-block-start: var(--mz-space-5);
+			border-block-start: 1px solid var(--mz-stroke-divider);
+			font-size: var(--mz-text-body);
+			color: var(--mz-text-secondary);
+		}
+	}
+
+	// --- Heading anchor links ------------------------------------------------
+	.prose h2,
+	.prose h3,
+	.prose h4 {
+		position: relative;
+	}
+
+	.heading-copy-link {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		margin-inline-start: var(--mz-space-2);
+		padding: var(--mz-space-1);
+		border-radius: var(--mz-radius-control);
+		color: var(--mz-text-tertiary);
+		vertical-align: middle;
+		opacity: 0;
+		transition:
+			opacity var(--mz-duration-fast) var(--mz-ease-standard),
+			color var(--mz-duration-fast) var(--mz-ease-standard),
+			background-color var(--mz-duration-fast) var(--mz-ease-standard);
+
+		&:hover {
+			color: var(--mz-accent-text);
+			background-color: var(--mz-shimmer);
+		}
+
+		&:focus-visible {
+			opacity: 1;
+		}
+
+		&.is-copied {
+			opacity: 1;
+			color: var(--mz-accent-text);
+			pointer-events: none;
+
+			.icon {
+				display: none;
+			}
+
+			&::after {
+				content: "Copied";
+				font-family: var(--mz-font-sans);
+				font-size: var(--mz-text-caption);
+				font-weight: var(--mz-weight-semibold);
+				white-space: nowrap;
+			}
+		}
+	}
+
+	.prose h2:hover .heading-copy-link,
+	.prose h3:hover .heading-copy-link,
+	.prose h4:hover .heading-copy-link,
+	.prose h2:focus-within .heading-copy-link,
+	.prose h3:focus-within .heading-copy-link,
+	.prose h4:focus-within .heading-copy-link {
+		opacity: 1;
+	}
+
+	// Touch devices have no hover, so keep the affordance faintly visible.
+	@media (hover: none) {
+		.heading-copy-link {
+			opacity: 0.45;
+		}
+	}
+
+	// --- Post footer ---------------------------------------------------------
+	.post-footer {
+		margin-block-start: var(--mz-space-9);
+		padding-block-start: var(--mz-space-6);
+		border-block-start: 1px solid var(--mz-stroke-divider);
+		display: flex;
+		flex-direction: column;
+		gap: var(--mz-space-6);
+	}
+
+	.post-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--mz-space-2);
+	}
+
+	.post-ad {
+		min-height: 1px;
+	}
+}

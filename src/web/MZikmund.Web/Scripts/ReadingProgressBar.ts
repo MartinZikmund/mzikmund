@@ -33,7 +33,8 @@ namespace MZikmund.Blog {
             // Create the progress bar element
             this.progressBar = document.createElement('div');
             this.progressBar.id = 'reading-progress-bar';
-            this.progressBar.className = 'reading-progress-bar';
+            this.progressBar.className = 'reading-progress';
+            this.progressBar.setAttribute('role', 'presentation');
 
             // Insert at the beginning of the body
             document.body.insertBefore(this.progressBar, document.body.firstChild);

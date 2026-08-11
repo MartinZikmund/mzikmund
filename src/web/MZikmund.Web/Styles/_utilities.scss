@@ -1,0 +1,116 @@
+// =============================================================================
+// Utilities — deliberately small.
+//
+// Bootstrap's utility set was ~1,500 classes; the templates used about 50, and
+// most of those disappear once components own their own spacing. What remains
+// is only what genuinely varies per usage.
+// =============================================================================
+
+@layer utilities {
+
+	// --- Spacing (4px grid) --------------------------------------------------
+	@each $name, $step in (0: 0, 1: var(--mz-space-1), 2: var(--mz-space-2), 3: var(--mz-space-3), 4: var(--mz-space-4), 5: var(--mz-space-5), 6: var(--mz-space-6), 7: var(--mz-space-7), 8: var(--mz-space-8)) {
+		.mt-#{$name} {
+			margin-block-start: #{$step};
+		}
+
+		.mb-#{$name} {
+			margin-block-end: #{$step};
+		}
+	}
+
+	// --- Text ----------------------------------------------------------------
+	.text-center {
+		text-align: center;
+	}
+
+	.text-secondary {
+		color: var(--mz-text-secondary);
+	}
+
+	.text-tertiary {
+		color: var(--mz-text-tertiary);
+	}
+
+	.text-accent {
+		color: var(--mz-accent-text);
+	}
+
+	.text-caption {
+		font-size: var(--mz-text-caption);
+	}
+
+	.text-body-large {
+		font-size: var(--mz-text-body-large);
+	}
+
+	.lead {
+		font-size: var(--mz-text-body-large);
+		line-height: var(--mz-leading-relaxed);
+		color: var(--mz-text-secondary);
+	}
+
+	.fw-semibold {
+		font-weight: var(--mz-weight-semibold);
+	}
+
+	.no-underline {
+		text-decoration: none;
+	}
+
+	// Long unbroken strings (bare autolinked URLs in posts).
+	.break-word {
+		overflow-wrap: anywhere;
+	}
+
+	// --- Layout helpers ------------------------------------------------------
+	.flex {
+		display: flex;
+	}
+
+	.items-center {
+		align-items: center;
+	}
+
+	.justify-center {
+		justify-content: center;
+	}
+
+	.justify-between {
+		justify-content: space-between;
+	}
+
+	.flex-wrap {
+		flex-wrap: wrap;
+	}
+
+	.gap-2 {
+		gap: var(--mz-space-2);
+	}
+
+	.gap-3 {
+		gap: var(--mz-space-3);
+	}
+
+	.gap-4 {
+		gap: var(--mz-space-4);
+	}
+
+	// Escapes the content container for full-bleed sections.
+	.full-bleed {
+		width: 100vw;
+		margin-inline: calc(50% - 50vw);
+	}
+
+	@media (max-width: 47.99rem) {
+		.hide-sm {
+			display: none;
+		}
+	}
+
+	@media (min-width: 48rem) {
+		.show-sm-only {
+			display: none;
+		}
+	}
+}

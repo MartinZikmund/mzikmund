@@ -1,49 +1,59 @@
-﻿@model PostListItem
+@model PostListItem
 @{
     var postDate = Model.PublishedDate ?? Model.LastModifiedDate;
     var showAbsoluteDate = postDate.HasValue && (DateTimeOffset.UtcNow - postDate.Value).TotalDays > 30;
     var categories = Model.Categories ?? Array.Empty<Category>();
+    var hasHeroImage = Model.HeroImageUrl is not null;
+    var mediaClass = hasHeroImage ? "card__media" : "card__media card__media--empty";
 }
-<div class="col-md-6 col-lg-4 mb-4 d-flex align-items-stretch">
-    <article class="article-card card border-0 shadow-sm h-100 w-100">
-        <a asp-page="/Blog/Post" asp-route-routename="@Model.RouteName" class="card-link-wrapper" aria-label="Read blog post: @Model.Title">
-            <div class="article-card-image-wrapper" @(Model.HeroImageUrl == null ? Html.Raw("aria-hidden=\"true\"") : null)>
-                @if (Model.HeroImageUrl is not null)
+<article class="card">
+    @* aria-hidden deliberately NOT on this container: it also holds the category
+       badges, so hiding it removed every category name from the accessibility
+       tree on posts with no hero image. The placeholder svg carries its own. *@
+    <div class="@mediaClass">
+        @if (Model.HeroImageUrl is not null)
+        {
+            <img class="card__image" src="@Model.HeroImageUrl" alt="@Model.HeroImageAlt" loading="lazy">
+        }
+        else
+        {
+            <svg class="icon" aria-hidden="true"><use href="#i-image"></use></svg>
+        }
+        @if (categories.Length > 0)
+        {
+            <div class="card__badges">
+                @foreach (var category in categories)
                 {
-                    <img class="card-img-top article-card-image" src="@Model.HeroImageUrl" alt="@Model.HeroImageAlt">
-                }
-                @if (categories.Length > 0)
-                {
-                    <div class="article-card-categories">
-                        @foreach (var category in categories)
-                        {
-                            <span class="article-card-category">@category.DisplayName</span>
-                        }
-                    </div>
+                    <span class="badge">@category.DisplayName</span>
                 }
             </div>
-            <div class="card-body d-flex flex-column">
-                <div class="article-meta mb-2">
-                    <small class="text-muted">
-                        <i class="bi bi-calendar3"></i>
-                        @if (showAbsoluteDate && postDate.HasValue)
-                        {
-                            @postDate.Value.ToString("MMM d, yyyy")
-                        }
-                        else
-                        {
-                            @postDate.Humanize()
-                        }
-                    </small>
-                </div>
-                <h3 class="article-title h5 mb-3">@Model.Title</h3>
-                <div class="article-abstract text-muted mb-3 flex-grow-1">
-                    @Html.Raw(Model.Abstract)
-                </div>
-                <div class="article-read-more mt-auto">
-                    <span class="btn btn-sm btn-outline-primary">@Localizer["Read more"] →</span>
-                </div>
-            </div>
-        </a>
-    </article>
-</div>
+        }
+    </div>
+    <div class="card__body">
+        <div class="meta">
+            <span class="meta__item">
+                <svg class="icon" aria-hidden="true"><use href="#i-calendar3"></use></svg>
+                @if (showAbsoluteDate && postDate.HasValue)
+                {
+                    @postDate.Value.ToString("MMM d, yyyy")
+                }
+                else
+                {
+                    @postDate.Humanize()
+                }
+            </span>
+        </div>
+        <h3 class="card__title">
+            <a class="card__link" asp-page="/Blog/Post" asp-route-routename="@Model.RouteName" aria-label="Read blog post: @Model.Title">@Model.Title</a>
+        </h3>
+        <div class="card__excerpt">
+            @Html.Raw(Model.Abstract)
+        </div>
+        <div class="card__footer">
+            <span class="btn btn--sm btn--accent-subtle">
+                @Localizer["Read more"]
+                <span class="btn__arrow">→</span>
+            </span>
+        </div>
+    </div>
+</article>

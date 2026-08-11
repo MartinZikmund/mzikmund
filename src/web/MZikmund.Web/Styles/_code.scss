@@ -1,0 +1,420 @@
+// =============================================================================
+// Code presentation.
+//
+// Two entirely separate rendering paths coexist in post bodies:
+//   1. GitHub Gist embeds (the dominant one in practice — GitHub's own script
+//      writes the DOM and ships its own light-mode stylesheet)
+//   2. Markdown.ColorCode server-side highlighting, which emits
+//      <div class="csharp"><pre><span class="keyword"> with NO <code> element
+//
+// ColorCode's token classes had no stylesheet at all, so highlighted blocks
+// rendered as flat monochrome text. Both paths are themed here.
+// =============================================================================
+
+@layer components {
+
+	// -------------------------------------------------------------------------
+	// Syntax palette. One set of semantic tokens, remapped per theme, so both
+	// ColorCode and any future highlighter stay consistent.
+	// -------------------------------------------------------------------------
+	:root,
+	:root[data-theme="light"] {
+		--mz-code-comment: #6a737d;
+		--mz-code-keyword: #a626a4;
+		--mz-code-string: #50a14f;
+		--mz-code-number: #b76b01;
+		--mz-code-type: #c18401;
+		--mz-code-function: #4078f2;
+		--mz-code-variable: #e45649;
+		--mz-code-operator: #0184bc;
+		--mz-code-punctuation: #383a42;
+	}
+
+	:root[data-theme="dark"] {
+		--mz-code-comment: #7f848e;
+		--mz-code-keyword: #c578dd;
+		--mz-code-string: #97c279;
+		--mz-code-number: #d19965;
+		--mz-code-type: #e4bf7a;
+		--mz-code-function: #61afef;
+		--mz-code-variable: #df6b75;
+		--mz-code-operator: #56b5c2;
+		--mz-code-punctuation: #aab1bf;
+	}
+
+	@media (prefers-color-scheme: dark) {
+		:root:not([data-theme="light"]) {
+			--mz-code-comment: #7f848e;
+			--mz-code-keyword: #c578dd;
+			--mz-code-string: #97c279;
+			--mz-code-number: #d19965;
+			--mz-code-type: #e4bf7a;
+			--mz-code-function: #61afef;
+			--mz-code-variable: #df6b75;
+			--mz-code-operator: #56b5c2;
+			--mz-code-punctuation: #aab1bf;
+		}
+	}
+
+	// -------------------------------------------------------------------------
+	// ColorCode wrapper. The language name is the div's class (csharp, xml,
+	// javascript, ...), so the wrapper is matched via :has(> pre) rather than by
+	// enumerating every language ColorCode knows.
+	// -------------------------------------------------------------------------
+	.prose div:has(> pre) {
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+		border-radius: var(--mz-radius-card);
+
+		> pre {
+			min-width: max-content;
+		}
+	}
+
+	.prose pre {
+		color: var(--mz-code-punctuation);
+
+		// ColorCode token classes.
+		.comment {
+			color: var(--mz-code-comment);
+			font-style: italic;
+		}
+
+		.keyword,
+		.controlKeyword,
+		.pseudoKeyword,
+		.preprocessorKeyword,
+		.htmlServerSideScript {
+			color: var(--mz-code-keyword);
+		}
+
+		.string,
+		.stringCSharpVerbatim,
+		.stringEscape,
+		.specialChar,
+		.xmlAttributeValue,
+		.xmlAttributeQuotes,
+		.htmlAttributeValue,
+		.jsonString {
+			color: var(--mz-code-string);
+		}
+
+		.number,
+		.jsonNumber,
+		.jsonConst,
+		.builtinValue,
+		.predefined {
+			color: var(--mz-code-number);
+		}
+
+		.type,
+		.typeVariable,
+		.className,
+		.constructor,
+		.namespace,
+		.xmlName,
+		.htmlElementName,
+		.cssSelector,
+		.powershellType {
+			color: var(--mz-code-type);
+		}
+
+		.builtinFunction,
+		.name,
+		.powershellCommand,
+		.sqlSystemFunction,
+		.markdownHeader {
+			color: var(--mz-code-function);
+		}
+
+		.attribute,
+		.xmlAttribute,
+		.htmlAttributeName,
+		.cssPropertyName,
+		.jsonKey,
+		.powershellVariable,
+		.powershellParameter,
+		.powershellAttribute {
+			color: var(--mz-code-variable);
+		}
+
+		.operator,
+		.delimiter,
+		.xmlDelimiter,
+		.htmlTagDelimiter,
+		.htmlOperator,
+		.powershellOperator,
+		.regex {
+			color: var(--mz-code-operator);
+		}
+
+		.plainText,
+		.xmlDocComment,
+		.xmlDocTag {
+			color: inherit;
+		}
+
+		.bold {
+			font-weight: var(--mz-weight-semibold);
+		}
+
+		.italic {
+			font-style: italic;
+		}
+	}
+
+	// Unhighlighted fences still use <pre><code class="language-x">.
+	.prose pre > code {
+		color: inherit;
+	}
+
+	// Diagram / math blocks. No client-side renderer is loaded, so these arrive
+	// as raw text — present them as code rather than as broken prose.
+	.prose pre.mermaid,
+	.prose .nomnoml,
+	.prose div.math {
+		display: block;
+		padding: var(--mz-space-4);
+		border-radius: var(--mz-radius-card);
+		background-color: var(--mz-bg-elevated);
+		border: 1px solid var(--mz-stroke-card);
+		font-family: var(--mz-font-mono);
+		font-size: var(--mz-text-caption);
+		white-space: pre-wrap;
+		overflow-x: auto;
+	}
+
+	.prose span.math {
+		font-family: var(--mz-font-mono);
+		font-size: 0.9em;
+	}
+
+	// =========================================================================
+	// GitHub Gist embeds.
+	//
+	// GitHub injects its own stylesheet and hard-codes data-color-mode="light"
+	// on .gist-file, so every rule needs the extra `body` to out-specify it.
+	// Palette matches the ColorCode dark tokens above so the two code paths look
+	// like one system.
+	// =========================================================================
+	.gist {
+		margin-block: var(--mz-space-5);
+
+		.gist-file {
+			border-radius: var(--mz-radius-card) !important;
+			overflow: hidden;
+		}
+
+		.blob-num,
+		.blob-code-inner {
+			font-family: var(--mz-font-mono) !important;
+			font-size: var(--mz-text-caption) !important;
+		}
+	}
+
+	[data-theme="dark"] {
+		body .gist .highlight {
+			background: #1a1a1a;
+		}
+
+		body .gist .blob-num,
+		body .gist .blob-code-inner,
+		body .gist .highlight,
+		body .gist .pl-enm,
+		body .gist .pl-ko,
+		body .gist .pl-mo,
+		body .gist .pl-mp1 .pl-sf,
+		body .gist .pl-ms,
+		body .gist .pl-pdc1,
+		body .gist .pl-scp,
+		body .gist .pl-smc,
+		body .gist .pl-som,
+		body .gist .pl-va,
+		body .gist .pl-vpf,
+		body .gist .pl-vpu,
+		body .gist .pl-mdr {
+			color: var(--mz-code-punctuation);
+		}
+
+		body .gist .pl-mb,
+		body .gist .pl-pdb {
+			font-weight: 700;
+		}
+
+		body .gist .pl-c,
+		body .gist .pl-c span,
+		body .gist .pl-pdc {
+			color: var(--mz-code-comment);
+			font-style: italic;
+		}
+
+		body .gist .pl-sr .pl-cce {
+			color: var(--mz-code-operator);
+			font-weight: 400;
+		}
+
+		body .gist .pl-ef,
+		body .gist .pl-en,
+		body .gist .pl-enf,
+		body .gist .pl-eoai,
+		body .gist .pl-kos,
+		body .gist .pl-mh .pl-pdh,
+		body .gist .pl-mr {
+			color: var(--mz-code-function);
+		}
+
+		body .gist .pl-ens,
+		body .gist .pl-vi {
+			color: #be5046;
+		}
+
+		body .gist .pl-enti,
+		body .gist .pl-mai .pl-sf,
+		body .gist .pl-ml,
+		body .gist .pl-sf,
+		body .gist .pl-sr,
+		body .gist .pl-sr .pl-sra,
+		body .gist .pl-src,
+		body .gist .pl-st,
+		body .gist .pl-vo {
+			color: var(--mz-code-operator);
+		}
+
+		body .gist .pl-eoi,
+		body .gist .pl-mri,
+		body .gist .pl-pds,
+		body .gist .pl-pse .pl-s1,
+		body .gist .pl-s,
+		body .gist .pl-s1 {
+			color: var(--mz-code-string);
+		}
+
+		body .gist .pl-k,
+		body .gist .pl-kolp,
+		body .gist .pl-mc,
+		body .gist .pl-pde {
+			color: var(--mz-code-keyword);
+		}
+
+		body .gist .pl-mi,
+		body .gist .pl-pdi {
+			color: var(--mz-code-keyword);
+			font-style: italic;
+		}
+
+		body .gist .pl-mp,
+		body .gist .pl-stp {
+			color: #818896;
+		}
+
+		body .gist .pl-mdh,
+		body .gist .pl-mdi,
+		body .gist .pl-mdr {
+			font-weight: 400;
+		}
+
+		body .gist .pl-mdht,
+		body .gist .pl-mi1 {
+			color: var(--mz-code-string);
+			background: #002200;
+		}
+
+		body .gist .pl-md,
+		body .gist .pl-mdhf {
+			color: #df6b75;
+			background: #220000;
+		}
+
+		body .gist .pl-corl {
+			color: #df6b75;
+			text-decoration: underline;
+		}
+
+		body .gist .pl-ib {
+			background: #df6b75;
+		}
+
+		body .gist .pl-ii {
+			background: #e0c184;
+			color: #fff;
+		}
+
+		body .gist .pl-iu {
+			background: #e05151;
+		}
+
+		body .gist .pl-ms1 {
+			color: var(--mz-code-punctuation);
+			background: #373b41;
+		}
+
+		body .gist .pl-c1,
+		body .gist .pl-cn,
+		body .gist .pl-e,
+		body .gist .pl-eoa,
+		body .gist .pl-eoac,
+		body .gist .pl-eoac .pl-pde,
+		body .gist .pl-kou,
+		body .gist .pl-mm,
+		body .gist .pl-mp .pl-s3,
+		body .gist .pl-mq,
+		body .gist .pl-s3,
+		body .gist .pl-sok,
+		body .gist .pl-sv,
+		body .gist .pl-mb {
+			color: var(--mz-code-number);
+		}
+
+		body .gist .pl-enc,
+		body .gist .pl-entc,
+		body .gist .pl-pse .pl-s2,
+		body .gist .pl-s2,
+		body .gist .pl-sc,
+		body .gist .pl-smp,
+		body .gist .pl-sr .pl-sre,
+		body .gist .pl-stj,
+		body .gist .pl-v,
+		body .gist .pl-pdb {
+			color: var(--mz-code-type);
+		}
+
+		body .gist .pl-ent,
+		body .gist .pl-entl,
+		body .gist .pl-entm,
+		body .gist .pl-mh,
+		body .gist .pl-pdv,
+		body .gist .pl-smi,
+		body .gist .pl-sol,
+		body .gist .pl-mdh,
+		body .gist .pl-mdi {
+			color: var(--mz-code-variable);
+		}
+
+		body .gist .gist-file {
+			background-color: #141414 !important;
+			border-color: #303030 !important;
+
+			::selection {
+				background-color: #2a2a2a;
+			}
+
+			.gist-meta {
+				background-color: #1a1a1a;
+				color: #929292;
+
+				a {
+					color: #c9c9c9;
+
+					&:hover {
+						color: #fff;
+					}
+				}
+			}
+
+			.gist-data {
+				background-color: #1a1a1a;
+				border-bottom: none;
+			}
+		}
+	}
+}

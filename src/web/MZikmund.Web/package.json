@@ -3,19 +3,21 @@
 	"name": "asp.net",
 	"private": true,
 	"scripts": {
-		"build:css": "sass Styles/site.scss wwwroot/css/site.css --style=expanded --source-map --load-path=node_modules --quiet-deps --silence-deprecation=import",
-		"build:css:prod": "sass Styles/site.scss wwwroot/css/site.min.css --style=compressed --no-source-map --load-path=node_modules --quiet-deps --silence-deprecation=import",
+		"build:assets": "node Scripts/build-assets.mjs",
+		"build:css": "sass Styles/site.scss wwwroot/css/site.css --style=expanded --source-map",
+		"build:css:prod": "sass Styles/site.scss wwwroot/css/site.min.css --style=compressed --no-source-map",
 		"build:ts": "tsc",
-		"build": "npm run build:css && npm run build:css:prod && npm run build:ts",
-		"watch:css": "sass Styles/site.scss wwwroot/css/site.css --style=expanded --source-map --watch --load-path=node_modules --quiet-deps --silence-deprecation=import",
+		"build": "npm run build:assets && npm run build:css && npm run build:css:prod && npm run build:ts",
+		"watch:css": "sass Styles/site.scss wwwroot/css/site.css --style=expanded --source-map --watch",
 		"watch:ts": "tsc --watch",
 		"watch": "npm run watch:css & npm run watch:ts"
 	},
-	"dependencies": {
-		"bootstrap": "5.3.8"
-	},
 	"devDependencies": {
+		"@fontsource-variable/inter": "^5.3.0",
+		"@fontsource-variable/jetbrains-mono": "^5.3.0",
+		"@fontsource-variable/source-serif-4": "^5.3.0",
 		"@types/node": "25.2.3",
+		"bootstrap-icons": "^1.13.1",
 		"eslint": "10.0.0",
 		"sass": "1.97.3",
 		"typescript": "5.9.3"

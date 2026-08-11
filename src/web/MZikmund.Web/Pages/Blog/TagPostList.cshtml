@@ -1,4 +1,4 @@
-﻿@page "/Blog/Tags/{tagName}"
+@page "/Blog/Tags/{tagName}"
 @model MZikmund.Web.Pages.Blog.TagPostListModel
 
 @{
@@ -6,8 +6,20 @@
 }
 
 @{
-    <h1 class="display-4 text-center text-secondary">#@Model.Tag.DisplayName</h1>
-    <div class="row">
-        <partial name="_PostList" model="Model.BlogPosts" />
+    <div class="page-header">
+        <h1 class="page-header__title">#@Model.Tag.DisplayName</h1>
+        @if (!string.IsNullOrEmpty(Model.Tag.Description))
+        {
+            <p class="page-header__lead">@Model.Tag.Description</p>
+        }
+        <div class="page-header__actions">
+            <a asp-page="/Blog/TagList" class="btn btn--standard">
+                <svg class="icon" aria-hidden="true"><use href="#i-arrow-left"></use></svg>
+                All Tags
+            </a>
+        </div>
     </div>
+
+    @* _PostList supplies its own .card-grid. *@
+    <partial name="_PostList" model="Model.BlogPosts" />
 }

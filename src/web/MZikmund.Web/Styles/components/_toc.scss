@@ -1,0 +1,128 @@
+// =============================================================================
+// Table of contents — WinUI NavigationView left-pane behaviour: subtle hover
+// fill, and a vertical accent bar marking the active section.
+// =============================================================================
+
+@layer components {
+
+	.toc {
+		// Populated by JS; stays hidden until it has entries.
+		display: none;
+
+		&.is-visible {
+			display: block;
+		}
+	}
+
+	.toc__nav {
+		padding: var(--mz-space-4);
+		background-color: var(--mz-card);
+		border: 1px solid var(--mz-stroke-card);
+		border-radius: var(--mz-radius-card);
+	}
+
+	.toc__title {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--mz-space-2);
+		width: 100%;
+		font-size: var(--mz-text-caption);
+		font-weight: var(--mz-weight-semibold);
+		letter-spacing: var(--mz-tracking-wide);
+		text-transform: uppercase;
+		color: var(--mz-text-tertiary);
+		margin-block-end: var(--mz-space-3);
+	}
+
+	.toc__list {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+	}
+
+	.toc__list--nested {
+		padding-inline-start: var(--mz-space-3);
+	}
+
+	.toc__link {
+		position: relative;
+		display: block;
+		padding: var(--mz-space-2) var(--mz-space-3);
+		border-radius: var(--mz-radius-control);
+		color: var(--mz-text-secondary);
+		font-size: var(--mz-text-caption);
+		line-height: var(--mz-leading-snug);
+		text-decoration: none;
+		transition:
+			background-color var(--mz-duration-fast) var(--mz-ease-standard),
+			color var(--mz-duration-fast) var(--mz-ease-standard);
+
+		&:hover {
+			background-color: var(--mz-shimmer);
+			color: var(--mz-text-primary);
+		}
+
+		&.is-active {
+			background-color: var(--mz-accent-subtle);
+			color: var(--mz-accent-text);
+			font-weight: var(--mz-weight-semibold);
+
+			&::before {
+				content: "";
+				position: absolute;
+				inset-inline-start: 0;
+				inset-block: 20%;
+				width: 3px;
+				border-radius: var(--mz-radius-pill);
+				background-color: var(--mz-accent-text);
+			}
+		}
+	}
+
+	.toc__item--3 .toc__link {
+		padding-inline-start: var(--mz-space-5);
+	}
+
+	.toc__item--4 .toc__link {
+		padding-inline-start: var(--mz-space-6);
+		font-size: 0.75rem;
+	}
+
+	// --- Collapsed on narrow viewports ---------------------------------------
+	@media (max-width: 79.99rem) {
+		.toc__title {
+			cursor: pointer;
+			margin-block-end: 0;
+
+			&::after {
+				content: "";
+				width: 0.5rem;
+				height: 0.5rem;
+				border-inline-end: 2px solid currentColor;
+				border-block-end: 2px solid currentColor;
+				rotate: 45deg;
+				translate: 0 -2px;
+				transition: rotate var(--mz-duration-normal) var(--mz-ease-standard);
+			}
+
+			&[aria-expanded="true"] {
+				margin-block-end: var(--mz-space-3);
+
+				&::after {
+					rotate: 225deg;
+					translate: 0 2px;
+				}
+			}
+		}
+
+		.toc__list[hidden] {
+			display: none;
+		}
+
+		.toc__list {
+			max-height: 22rem;
+			overflow-y: auto;
+		}
+	}
+}

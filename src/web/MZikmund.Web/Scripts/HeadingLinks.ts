@@ -1,4 +1,10 @@
 namespace MZikmund.Blog {
+	/**
+	 * Adds a copy-link button to each article heading.
+	 *
+	 * Depends on TableOfContents having run first — headings without an id are
+	 * skipped, and the TOC is what assigns them.
+	 */
 	export class HeadingLinks {
 		private contentContainer: HTMLElement | null = null;
 
@@ -20,18 +26,23 @@ namespace MZikmund.Blog {
 				if (!el.id) return;
 
 				const button = document.createElement('button');
+				button.type = 'button';
 				button.className = 'heading-copy-link';
 				button.setAttribute('aria-label', 'Copy link to this section');
 				button.title = 'Copy link';
-				button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6.75 8.75a3.25 3.25 0 0 0 4.596.444l1.904-1.904a3.25 3.25 0 0 0-4.596-4.596L7.5 3.847"/><path d="M9.25 7.25a3.25 3.25 0 0 0-4.596-.444L2.75 8.71a3.25 3.25 0 0 0 4.596 4.596L8.5 12.153"/></svg>`;
+				// Uses the shared inline sprite rather than a bespoke inline SVG.
+				button.innerHTML = '<svg class="icon" aria-hidden="true"><use href="#i-link-45deg"></use></svg>';
 
 				button.addEventListener('click', (e) => {
 					e.preventDefault();
 					e.stopPropagation();
 					const url = `${window.location.origin}${window.location.pathname}#${el.id}`;
-					navigator.clipboard.writeText(url).then(() => {
-						this.showCopiedFeedback(button);
-					});
+					// clipboard.writeText needs a secure context and can reject —
+					// handle rejection rather than leaving it unhandled.
+					navigator.clipboard?.writeText(url).then(
+						() => this.showCopiedFeedback(button),
+						() => { /* copying unavailable; nothing useful to show */ }
+					);
 				});
 
 				el.appendChild(button);
@@ -39,8 +50,8 @@ namespace MZikmund.Blog {
 		}
 
 		private showCopiedFeedback(button: HTMLElement): void {
-			button.classList.add('copied');
-			setTimeout(() => button.classList.remove('copied'), 1500);
+			button.classList.add('is-copied');
+			setTimeout(() => button.classList.remove('is-copied'), 1500);
 		}
 	}
 }

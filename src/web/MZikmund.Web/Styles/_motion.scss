@@ -1,0 +1,287 @@
+// =============================================================================
+// Motion.
+//
+// Fluent's motion model translated to the web, using the published curves and
+// durations from _tokens.scss:
+//
+//   Page transitions      -> cross-document View Transitions
+//   Connected animation   -> a shared view-transition-name on the post image
+//   Reveal highlight      -> pointer-tracked radial highlight on cards
+//   Entrance animations   -> scroll-driven, so they replay as you browse
+//
+// Everything here is progressive enhancement behind @supports, and everything
+// is disabled wholesale under prefers-reduced-motion (handled in _base.scss,
+// reinforced explicitly where an animation would otherwise leave an element
+// stuck at opacity 0).
+// =============================================================================
+
+// =============================================================================
+// Cross-document page transitions.
+//
+// Deliberately OUTSIDE @layer: Chrome does not honour `@view-transition` when it
+// is nested inside a cascade layer, so opting in from within one silently
+// disables page transitions altogether. The ::view-transition-* pseudo-elements
+// live in the same un-layered block for consistency — nothing competes with
+// them, so they need no layer to win.
+//
+// Fluent's page transition is: outgoing content fades out fast on an accelerate
+// curve, incoming content slides up and decelerates in.
+// =============================================================================
+@view-transition {
+	navigation: auto;
+}
+
+::view-transition-old(root) {
+	animation: mz-page-out var(--mz-duration-fast) var(--mz-ease-exit) both;
+}
+
+::view-transition-new(root) {
+	animation: mz-page-in var(--mz-duration-slow) var(--mz-ease-entrance) both;
+}
+
+@keyframes mz-page-out {
+	to {
+		opacity: 0;
+	}
+}
+
+@keyframes mz-page-in {
+	from {
+		opacity: 0;
+		transform: translateY(16px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+// Persistent chrome holds still while the content behind it transitions,
+// exactly as a NavigationView frame does.
+::view-transition-old(site-header),
+::view-transition-new(site-header),
+::view-transition-old(site-footer),
+::view-transition-new(site-footer) {
+	animation: none;
+	mix-blend-mode: normal;
+}
+
+::view-transition-group(post-hero-image) {
+	animation-duration: var(--mz-duration-slow);
+	animation-timing-function: var(--mz-ease-standard);
+}
+
+// Cross-fade the two images rather than scaling one over the other, which would
+// show the aspect-ratio change as a squash.
+::view-transition-old(post-hero-image),
+::view-transition-new(post-hero-image) {
+	height: 100%;
+	object-fit: cover;
+}
+
+@layer components {
+
+	// `view-transition-name` is an ordinary property, so these belong in the
+	// layer with the components they name.
+	.site-header {
+		view-transition-name: site-header;
+	}
+
+	.site-footer {
+		view-transition-name: site-footer;
+	}
+
+	// Connected animation destination. The matching name is applied to the
+	// clicked card's image at click time by Motion.ts.
+	.post-hero__image {
+		view-transition-name: post-hero-image;
+	}
+
+	// =========================================================================
+	// Entrance animations, driven by scroll position.
+	//
+	// animation-timeline: view() means these replay whenever an element enters
+	// the viewport, and cost no JavaScript and no IntersectionObserver.
+	// =========================================================================
+	@supports (animation-timeline: view()) {
+		@media (prefers-reduced-motion: no-preference) {
+			.card,
+			.taxonomy-card {
+				animation: mz-rise-in auto both;
+				animation-timeline: view();
+				// Play across the first slice of the element's travel through the
+				// viewport, then hold. `cover 0%` would start it off-screen.
+				animation-range: entry 0% cover 22%;
+			}
+
+			.section-head,
+			.page-header__title {
+				animation: mz-fade-up auto both;
+				animation-timeline: view();
+				animation-range: entry 0% cover 18%;
+			}
+		}
+	}
+
+	@keyframes mz-rise-in {
+		from {
+			opacity: 0;
+			transform: translateY(20px);
+		}
+
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	@keyframes mz-fade-up {
+		from {
+			opacity: 0;
+			transform: translateY(10px);
+		}
+
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	// =========================================================================
+	// Hero entrance — plays once on load.
+	//
+	// Staggered decelerate entrances rather than one block fading in, so the
+	// eye is led name -> rule -> lead -> actions.
+	// =========================================================================
+	@media (prefers-reduced-motion: no-preference) {
+		.hero__eyebrow,
+		.hero__title,
+		.hero__rule,
+		.hero__lead,
+		.hero__actions,
+		.hero__topics {
+			animation: mz-hero-in var(--mz-duration-slow) var(--mz-ease-entrance) both;
+		}
+
+		.hero__eyebrow {
+			animation-delay: 0ms;
+		}
+
+		.hero__title {
+			animation-delay: 60ms;
+		}
+
+		.hero__rule {
+			animation-delay: 120ms;
+			// The rule draws itself out from the left rather than fading.
+			animation-name: mz-rule-in;
+		}
+
+		.hero__lead {
+			animation-delay: 160ms;
+		}
+
+		.hero__actions {
+			animation-delay: 220ms;
+		}
+
+		.hero__topics {
+			animation-delay: 280ms;
+		}
+	}
+
+	@keyframes mz-hero-in {
+		from {
+			opacity: 0;
+			transform: translateY(12px);
+		}
+
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	@keyframes mz-rule-in {
+		from {
+			opacity: 0;
+			transform: scaleX(0);
+		}
+
+		to {
+			opacity: 1;
+			transform: scaleX(1);
+		}
+	}
+
+	.hero__rule {
+		transform-origin: left center;
+	}
+
+	// =========================================================================
+	// Fluent Reveal.
+	//
+	// The signature Windows hover effect: a soft radial highlight that tracks
+	// the pointer across a surface, revealing its border. Coordinates come from
+	// SiteNav.ts as --mz-reveal-x / --mz-reveal-y.
+	// =========================================================================
+	@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+		.card,
+		.taxonomy-card {
+			// Establishes the fallback so the gradient is valid before any
+			// pointer movement has been recorded.
+			--mz-reveal-x: 50%;
+			--mz-reveal-y: 50%;
+			--mz-reveal-opacity: 0;
+		}
+
+		.card::before,
+		.taxonomy-card::after {
+			content: "";
+			position: absolute;
+			inset: 0;
+			z-index: 0;
+			pointer-events: none;
+			opacity: var(--mz-reveal-opacity);
+			transition: opacity var(--mz-duration-normal) var(--mz-ease-standard);
+			background: radial-gradient(
+				18rem circle at var(--mz-reveal-x) var(--mz-reveal-y),
+				var(--mz-accent-subtle),
+				transparent 60%
+			);
+		}
+
+		.card:hover,
+		.taxonomy-card:hover {
+			--mz-reveal-opacity: 1;
+		}
+
+		// Keep card content above the highlight.
+		//
+		// z-index WITHOUT position: both are flex items of .card, and z-index
+		// applies to flex items even when statically positioned. Adding
+		// `position: relative` here would make .card__body the containing block
+		// for .card__link::after, shrinking the stretched link to the body and
+		// making the card image un-clickable.
+		.card__body,
+		.card__media {
+			z-index: 1;
+		}
+	}
+
+	// =========================================================================
+	// Micro-interactions.
+	// =========================================================================
+	@media (prefers-reduced-motion: no-preference) {
+		// Fluent presses a control down rather than scaling it.
+		.btn:active {
+			transform: translateY(1px);
+		}
+
+		// The nav indicator slides between items instead of popping.
+		.site-nav__link[aria-current="page"]::after {
+			view-transition-name: nav-indicator;
+		}
+	}
+}
