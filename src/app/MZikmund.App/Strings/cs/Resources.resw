@@ -246,4 +246,34 @@
   <data name="OpenPreview" xml:space="preserve">
     <value>Otevřít náhled</value>
   </data>
+  <data name="Blog" xml:space="preserve">
+    <value>Blog</value>
+  </data>
+  <data name="Videos" xml:space="preserve">
+    <value>Videa</value>
+  </data>
+  <data name="ReadMore" xml:space="preserve">
+    <value>Číst dál</value>
+  </data>
+  <data name="Retry" xml:space="preserve">
+    <value>Zkusit znovu</value>
+  </data>
+  <data name="Refresh" xml:space="preserve">
+    <value>Obnovit</value>
+  </data>
+  <data name="NoPostsFound" xml:space="preserve">
+    <value>Zatím žádné příspěvky</value>
+  </data>
+  <data name="NoPostsFoundDescription" xml:space="preserve">
+    <value>Momentálně tu není nic publikováno. Zkuste to prosím později.</value>
+  </data>
+  <data name="BlogLead" xml:space="preserve">
+    <value>Články o .NET, Windows a multiplatformním vývoji.</value>
+  </data>
+  <data name="WatchOnYouTube" xml:space="preserve">
+    <value>Přehrát na YouTube</value>
+  </data>
+  <data name="Id" xml:space="preserve">
+    <value>Id</value>
+  </data>
 </root>

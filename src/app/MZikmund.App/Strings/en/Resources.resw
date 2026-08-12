@@ -312,4 +312,31 @@
   <data name="OpenPreview" xml:space="preserve">
     <value>Open preview</value>
   </data>
+  <data name="Videos" xml:space="preserve">
+    <value>Videos</value>
+  </data>
+  <data name="ReadMore" xml:space="preserve">
+    <value>Read more</value>
+  </data>
+  <data name="Retry" xml:space="preserve">
+    <value>Try again</value>
+  </data>
+  <data name="Refresh" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="NoPostsFound" xml:space="preserve">
+    <value>No posts yet</value>
+  </data>
+  <data name="NoPostsFoundDescription" xml:space="preserve">
+    <value>There is nothing published here at the moment. Check back soon.</value>
+  </data>
+  <data name="BlogLead" xml:space="preserve">
+    <value>Articles on .NET, Windows and cross-platform development.</value>
+  </data>
+  <data name="WatchOnYouTube" xml:space="preserve">
+    <value>Watch on YouTube</value>
+  </data>
+  <data name="Id" xml:space="preserve">
+    <value>Id</value>
+  </data>
 </root>
