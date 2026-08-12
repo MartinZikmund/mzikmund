@@ -64,9 +64,13 @@
 	<!--  _card.scss's .card__title reuses Subtitle's family/size/tracking but pins line-height to
 	      the snug 1.3 ratio (20*1.3=26, 22*1.3=28.6->29) instead of Subtitle's tight 1.15. Not in
 	      the original brief's Produces list; added because card titles need it and no other style
-	      in the ramp provides it.  -->
+	      in the ramp provides it. Clamped to 2 lines: the web card has no such limit, but the
+	      app's fixed-height card grid needs a bound (Theme/Styles/TextBlocks.xaml's brief asked
+	      for this same key again — folded in here instead of shadowing it).  -->
 	<Style x:Key="MzCardTitleTextStyle" TargetType="TextBlock" BasedOn="{StaticResource MzSubtitleTextStyle}">
 		<Setter Property="LineHeight" Value="26" />
+		<Setter Property="MaxLines" Value="2" />
+		<Setter Property="TextTrimming" Value="CharacterEllipsis" />
 	</Style>
 
 	<Style x:Key="MzCardTitleWideTextStyle" TargetType="TextBlock" BasedOn="{StaticResource MzSubtitleWideTextStyle}">
