@@ -35,6 +35,10 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 	services.Configure<YouTubeOptions>(youtubeConfig);
 	ValidateYouTubeOptions(youtubeConfig);
 
+	services.Configure<CommentsOptions>(configuration.GetSection("Comments"));
+	services.Configure<SupabaseOptions>(configuration.GetSection("Supabase"));
+	services.Configure<TurnstileOptions>(configuration.GetSection("Turnstile"));
+
 	services.AddAutoMapper(c => c.AddMaps(typeof(CoreAssemblyMarker)));
 	services.AddSingleton<ICache, Cache>();
 	services.AddSingleton<IConnectionStringProvider, ConnectionStringProvider>();
