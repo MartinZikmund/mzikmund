@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Protocols;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using MZikmund.Web.Configuration;
 using MZikmund.Web.Configuration.Connections;
@@ -16,6 +19,7 @@ using MZikmund.Web.Core.Services.Blobs;
 using MZikmund.Web.Core.Syndication;
 using MZikmund.Web.Data;
 using MZikmund.Web.Data.Extensions;
+using MZikmund.Web.Infrastructure.Auth;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -71,42 +75,77 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 		option.AppendTrailingSlash = false;
 	});
 
+	// --- Supabase authentication ---------------------------------------------------------------
+	// ONE registration for every environment. The local Supabase CLI stack (v2.71.1 and newer)
+	// signs access tokens with ES256 and publishes the key at /auth/v1/.well-known/jwks.json,
+	// exactly like the hosted project - so there is no HS256 branch and no second code path.
+	// The only thing that differs is the base URL, which comes from configuration:
+	//     Production  -> Supabase:ProjectRef => https://<ref>.supabase.co
+	//     Development -> Supabase:LocalUrl   => http://127.0.0.1:54321
+	// plus the plain-HTTP exemption that a loopback URL needs for metadata retrieval.
+	var supabaseOptions = configuration.GetSection("Supabase").Get<SupabaseOptions>() ?? new SupabaseOptions();
+
+	// Derived from the URL rather than from IWebHostEnvironment, so a stray LocalUrl in production
+	// cannot silently disable TLS for a public host.
+	var supabaseIsLoopbackHttp =
+		Uri.TryCreate(supabaseOptions.BaseUrl, UriKind.Absolute, out var supabaseUri) &&
+		supabaseUri.Scheme == Uri.UriSchemeHttp &&
+		supabaseUri.IsLoopback;
+
 	services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 		.AddJwtBearer(options =>
 		{
-			var auth0Config = configuration.GetSection("Auth0");
-			var domain = auth0Config["Domain"];
-			var audience = auth0Config["Audience"];
+			options.RequireHttpsMetadata = !supabaseIsLoopbackHttp;
 
-			// Validate that Auth0 configuration is not using placeholder values
-			if (string.IsNullOrEmpty(domain) || domain.Contains("your-auth0-domain") ||
-				string.IsNullOrEmpty(audience) || audience.Contains("your-api-identifier"))
-			{
-				throw new InvalidOperationException(
-					"Auth0 configuration is not set or contains placeholder values. " +
-					"Please configure Auth0:Domain and Auth0:Audience in appsettings.json, " +
-					"User Secrets, or environment variables. See docs/AUTH0_MIGRATION.md for details.");
-			}
+			// Deliberately NOT options.Authority. That fetches /.well-known/openid-configuration,
+			// which Supabase serves with an empty issuer and relative endpoints in several
+			// deployments. Supplying a ConfigurationManager also keeps the JWKS fetch LAZY, so
+			// `dotnet run` with no Supabase reachable still serves every anonymous page and only
+			// authenticated requests fail. That property is intentional - do not validate the
+			// Supabase configuration at startup.
+			options.ConfigurationManager = new ConfigurationManager<OpenIdConnectConfiguration>(
+				supabaseOptions.JwksUri,
+				new SupabaseJwksConfigurationRetriever(supabaseOptions.Issuer),
+				new HttpDocumentRetriever { RequireHttps = !supabaseIsLoopbackHttp });
 
-			options.Authority = $"https://{domain}";
-			options.Audience = audience;
+			// Recover automatically when Supabase rotates its signing key.
+			options.RefreshOnIssuerKeyNotFound = true;
+
+			// Keep the raw Supabase claim names. With the default mapping on, "sub" becomes
+			// ClaimTypes.NameIdentifier and Supabase's Postgres "role" claim ("authenticated")
+			// becomes a genuine ASP.NET role for every signed-in user.
+			options.MapInboundClaims = false;
+
 			options.TokenValidationParameters = new TokenValidationParameters
 			{
 				ValidateIssuer = true,
+				ValidIssuer = supabaseOptions.Issuer,
 				ValidateAudience = true,
+				ValidAudience = "authenticated",
 				ValidateLifetime = true,
-				ValidateIssuerSigningKey = true
+				ValidateIssuerSigningKey = true,
+
+				// SECURITY: pin the asymmetric algorithms. The local stack also ships a publicly
+				// known HS256 secret (it signs the legacy anon/service_role API keys). Without
+				// this pin, anyone could mint an admin token with that public secret.
+				ValidAlgorithms = [SecurityAlgorithms.EcdsaSha256, SecurityAlgorithms.RsaSha256],
+
+				NameClaimType = "sub",
+				RoleClaimType = SupabaseClaims.Role,
+				ClockSkew = TimeSpan.FromSeconds(30)
 			};
 		});
 
-	// Add authorization policies
+	// app_metadata arrives as ONE claim whose value is raw JSON, so the nested role has to be
+	// projected before any policy can read it.
+	services.AddSingleton<IClaimsTransformation, SupabaseAppMetadataClaimsTransformation>();
+
 	services.AddAuthorization(options =>
 	{
 		options.AddPolicy("AdminPolicy", policy =>
 		{
 			policy.RequireAuthenticatedUser();
-			// Check for "admin:all" permission in the permissions claim
-			policy.RequireClaim("permissions", "admin:all");
+			policy.RequireClaim(SupabaseClaims.Role, "admin");
 		});
 	});
 
