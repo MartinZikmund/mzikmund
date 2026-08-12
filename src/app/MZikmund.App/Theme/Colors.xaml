@@ -283,4 +283,8 @@
 	<StaticResource x:Key="BrandColor" ResourceKey="MzAccent" />
 	<SolidColorBrush x:Key="BrandBrush" Color="{StaticResource MzAccent}" />
 
+	<!--  Moved from the deleted Resources/Colors.xaml: WindowShell.xaml's NavigationView reads this
+	      stock template key to keep its content pane transparent instead of the default fill.  -->
+	<SolidColorBrush x:Key="NavigationViewContentBackground" Color="Transparent" />
+
 </ResourceDictionary>

@@ -1,14 +1,11 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-	<!--  Fluent presses a control down rather than scaling it: TranslateY = 1 at 0ms. Duration is a
-	      literal "0", not {StaticResource MzDurationInstant} — that resource is typed as x:String
-	      (unlike MzButtonPadding/MzControlCornerRadius, which are typed Thickness/CornerRadius), and
-	      WinUI's independent-animation fast path requires a literal Duration="0" on the animation
-	      itself (see "Dependent and independent animations"); routing it through a StaticResource
-	      string risks both a failed type conversion and losing that fast path. ObjectAnimationUsingKeyFrames
-	      is unconditionally independent regardless of duration, so the brush swaps below need no
-	      EnableDependentAnimation — only true for genuinely dependent Double/Color animations on
-	      non-GPU properties (Width, Height, Margin), which none of these are.  -->
+	<!--  Fluent presses a control down rather than scaling it: TranslateY = 1 at MzDurationInstant
+	      (0ms). {StaticResource MzDurationInstant} resolves fine here even though it's typed as
+	      x:String — Cards.xaml proves the same token flows into Duration/KeySpline/KeyTime. Object
+	      AnimationUsingKeyFrames is unconditionally independent regardless of duration, so the brush
+	      swaps below need no EnableDependentAnimation — only true for genuinely dependent Double/Color
+	      animations on non-GPU properties (Width, Height, Margin), which none of these are.  -->
 
 	<Style x:Key="MzStandardButtonStyle" TargetType="Button">
 		<Setter Property="Background" Value="{ThemeResource MzCardBrush}" />
@@ -81,7 +78,7 @@
 											Storyboard.TargetName="ButtonTransform"
 											Storyboard.TargetProperty="TranslateY"
 											To="1"
-											Duration="0" />
+											Duration="{StaticResource MzDurationInstant}" />
 									</Storyboard>
 								</VisualState>
 								<VisualState x:Name="Disabled">
@@ -185,7 +182,7 @@
 											Storyboard.TargetName="ButtonTransform"
 											Storyboard.TargetProperty="TranslateY"
 											To="1"
-											Duration="0" />
+											Duration="{StaticResource MzDurationInstant}" />
 									</Storyboard>
 								</VisualState>
 								<VisualState x:Name="Disabled">
@@ -275,7 +272,7 @@
 											Storyboard.TargetName="ButtonTransform"
 											Storyboard.TargetProperty="TranslateY"
 											To="1"
-											Duration="0" />
+											Duration="{StaticResource MzDurationInstant}" />
 									</Storyboard>
 								</VisualState>
 								<VisualState x:Name="Disabled">
@@ -368,7 +365,7 @@
 											Storyboard.TargetName="ButtonTransform"
 											Storyboard.TargetProperty="TranslateY"
 											To="1"
-											Duration="0" />
+											Duration="{StaticResource MzDurationInstant}" />
 									</Storyboard>
 								</VisualState>
 								<VisualState x:Name="Disabled">
