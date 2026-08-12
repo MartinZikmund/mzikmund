@@ -18,6 +18,7 @@
                 <ResourceDictionary Source="ms-appx:///Theme/Radii.xaml" />
                 <ResourceDictionary Source="ms-appx:///Theme/Motion.xaml" />
                 <ResourceDictionary Source="ms-appx:///Theme/Elevation.xaml" />
+                <ResourceDictionary Source="ms-appx:///Theme/Acrylic.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
