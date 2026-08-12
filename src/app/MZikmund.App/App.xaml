@@ -22,6 +22,7 @@
                 <ResourceDictionary Source="ms-appx:///Theme/Styles/TextBlocks.xaml" />
                 <ResourceDictionary Source="ms-appx:///Theme/Styles/Badges.xaml" />
                 <ResourceDictionary Source="ms-appx:///Theme/Styles/Buttons.xaml" />
+                <ResourceDictionary Source="ms-appx:///Theme/Styles/Cards.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
