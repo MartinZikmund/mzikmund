@@ -35,13 +35,20 @@
 		<Setter Property="Foreground" Value="{ThemeResource MzTextOnAccentBrush}" />
 	</Style>
 
-	<!--  Resting-state tint. _controls.scss's badge subtle variant uses the mz-accent-subtle token
+	<!--  Resting-state tint. The web's badge subtle variant uses the mz-accent-subtle token
 	      (8%/10%) at rest and only steps up to mz-accent-subtle-strong (16%/20%) on hover; this
 	      static ControlTemplate has no PointerOver state, so the resting value is the only one
-	      that applies. MzContentCardStyle (Task 20) already relies on MzAccentSubtleBrush for the
-	      same resting-tint purpose elsewhere on the card.  -->
+	      that applies.  -->
 	<Style x:Key="MzBadgeSubtleStyle" TargetType="ContentControl" BasedOn="{StaticResource MzBadgeBaseStyle}">
 		<Setter Property="Background" Value="{ThemeResource MzAccentSubtleBrush}" />
+		<Setter Property="Foreground" Value="{ThemeResource MzAccentTextBrush}" />
+	</Style>
+
+	<!--  The web's placeholder-media badge is a separate, unconditional rule (not the hover state
+	      above) — over the tinted placeholder there is no photo to fight, so it sits at the strong
+	      tint at rest. MzContentCardStyle (Task 20) uses this for badges over an empty card thumbnail.  -->
+	<Style x:Key="MzBadgeSubtleStrongStyle" TargetType="ContentControl" BasedOn="{StaticResource MzBadgeBaseStyle}">
+		<Setter Property="Background" Value="{ThemeResource MzAccentSubtleStrongBrush}" />
 		<Setter Property="Foreground" Value="{ThemeResource MzAccentTextBrush}" />
 	</Style>
 
