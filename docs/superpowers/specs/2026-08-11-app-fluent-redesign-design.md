@@ -281,6 +281,16 @@ reading measure ~**680**. Card grid `MinItemWidth=320`, spacing **24** both axes
 | `Flyout` | `0 14px 28px` @24% + `0 0 8px` @20% | @44% / @36% |
 | `Dialog` | `0 32px 64px` @24% + `0 0 8px` @20% | @48% / @40% |
 
+> **Implementation reality (verified in Task 16):** `AttachedShadowBase` exposes `Color`, `Offset`,
+> `BlurRadius` and `Opacity` as *singular* properties, and `Effects.Shadow` is a single attached
+> property with no collection variant — **one shadow per element is a hard API ceiling.** So the
+> ambient half of each pair cannot be applied. `Layer` is unaffected (its token is already a single
+> `0 0 2px` shadow); the other five levels keep the **directional** half only. This is the right
+> trade: the directional values must match the tokens exactly, a blended "compromise" shadow would
+> distort that character without reproducing ambient, and the paired 1px stroke already supplies the
+> tight occlusion contour the ambient half contributed. Nesting a second shadowed element per card,
+> flyout and dialog was judged not worth the cost for a barely perceptible gain.
+
 Implemented as an **`MzElevation.Level` attached property defined in the app assembly**, so XAML never
 names a Windows-only type:
 
