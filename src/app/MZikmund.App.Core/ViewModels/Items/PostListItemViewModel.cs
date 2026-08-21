@@ -1,4 +1,5 @@
-﻿using Humanizer;
+﻿using System.Globalization;
+using Humanizer;
 using Microsoft.UI.Xaml.Media.Imaging;
 using MZikmund.DataContracts.Blog;
 using MZikmund.Web.Core.Services;
@@ -13,8 +14,10 @@ public sealed class PostListItemViewModel : ObservableObject, ICardItem
 	{
 		Item = item;
 		HeroImageUri = item.HeroImageUrl is { } heroImageUrl ? new Uri(heroImageUrl) : null;
-		CardSummary = markdownConverter.ToPlainText(item.Abstract);
-		CardMeta = (item.PublishedDate ?? item.LastModifiedDate)?.Humanize() ?? "";
+		// Markdig ends every block with a newline, and a trailing one makes the card reserve an
+		// empty line it never draws, which pushes the card past its grid cell.
+		CardSummary = markdownConverter.ToPlainText(item.Abstract).Trim();
+		CardMeta = FormatCardMeta(item.PublishedDate ?? item.LastModifiedDate);
 		CardBadges = item.Categories.Select(category => category.DisplayName).ToArray();
 	}
 
@@ -34,4 +37,22 @@ public sealed class PostListItemViewModel : ObservableObject, ICardItem
 	public string CardMeta { get; }
 
 	public IReadOnlyList<string> CardBadges { get; }
+
+	/// <summary>
+	/// Formats the card date the way _PostListItem.cshtml does: the relative form for the first
+	/// 30 days, an absolute date after that. The site renders that date under the server culture
+	/// with a US pattern, so the app pins the invariant culture rather than pairing the pattern
+	/// with Czech month names.
+	/// </summary>
+	private static string FormatCardMeta(DateTimeOffset? date)
+	{
+		if (date is not { } value)
+		{
+			return "";
+		}
+
+		return (DateTimeOffset.UtcNow - value).TotalDays > 30
+			? value.ToString("MMM d, yyyy", CultureInfo.InvariantCulture)
+			: value.Humanize();
+	}
 }

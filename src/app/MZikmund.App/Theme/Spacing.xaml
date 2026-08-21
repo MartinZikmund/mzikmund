@@ -12,6 +12,11 @@
 	<x:Double x:Key="MzSpace9">64</x:Double>
 	<x:Double x:Key="MzSpace10">96</x:Double>
 
+	<!--  _tokens.scss caps the page body at 1200, and article pages at 780. The gutter stays
+	      outside the column, so these cap the content and the page padding adds to them.  -->
+	<x:Double x:Key="MzContainerWidth">1200</x:Double>
+	<x:Double x:Key="MzContainerNarrowWidth">780</x:Double>
+
 	<Thickness x:Key="MzPagePaddingCompact">16</Thickness>
 	<Thickness x:Key="MzPagePaddingWide">36,24,36,24</Thickness>
 	<Thickness x:Key="MzCardPadding">16</Thickness>

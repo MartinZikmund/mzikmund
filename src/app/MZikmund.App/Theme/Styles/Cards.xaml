@@ -101,15 +101,14 @@
 									</Grid>
 								</Border>
 
+								<!--  .card__body puts the meta row above the title. The title and the excerpt reserve
+								      their clamped height (2 and 3 lines of 26), so every card measures to the same
+								      height: UniformGridLayout gives every row the height of the item it realizes
+								      first, and a shorter first card would crop all the others.  -->
 								<StackPanel
 									Grid.Row="1"
 									Padding="{StaticResource MzCardPadding}"
 									Spacing="8">
-									<TextBlock
-										x:Name="CardTitle"
-										Foreground="{ThemeResource MzTextPrimaryBrush}"
-										Style="{StaticResource MzCardTitleTextStyle}"
-										Text="{Binding CardTitle}" />
 									<StackPanel Orientation="Horizontal" Spacing="4">
 										<FontIcon
 											VerticalAlignment="Center"
@@ -119,7 +118,16 @@
 											Glyph="{StaticResource MzGlyphCalendar}" />
 										<TextBlock Style="{StaticResource MzMetaTextStyle}" Text="{Binding CardMeta}" />
 									</StackPanel>
-									<TextBlock Style="{StaticResource MzCardExcerptTextStyle}" Text="{Binding CardSummary}" />
+									<TextBlock
+										x:Name="CardTitle"
+										MinHeight="52"
+										Foreground="{ThemeResource MzTextPrimaryBrush}"
+										Style="{StaticResource MzCardTitleTextStyle}"
+										Text="{Binding CardTitle}" />
+									<TextBlock
+										MinHeight="78"
+										Style="{StaticResource MzCardExcerptTextStyle}"
+										Text="{Binding CardSummary}" />
 								</StackPanel>
 
 								<!--  Decorative: the whole card is the button, so this must not be a nested Button.  -->

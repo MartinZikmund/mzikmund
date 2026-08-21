@@ -1,0 +1,17 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+	<!--  _layout.scss's .container: cap the content column and centre it in the page, with the
+	      page padding left outside as the gutter. Stretch is what centres it, not Center: an
+	      element arranged narrower than its slot is offset by half the remainder, while Center
+	      would collapse the column onto its content width.  -->
+	<Style x:Key="MzPageContainerStyle" TargetType="Grid">
+		<Setter Property="MaxWidth" Value="{StaticResource MzContainerWidth}" />
+		<Setter Property="HorizontalAlignment" Value="Stretch" />
+	</Style>
+
+	<!--  The narrow variant, for article width content.  -->
+	<Style x:Key="MzPageContainerNarrowStyle" TargetType="Grid" BasedOn="{StaticResource MzPageContainerStyle}">
+		<Setter Property="MaxWidth" Value="{StaticResource MzContainerNarrowWidth}" />
+	</Style>
+
+</ResourceDictionary>

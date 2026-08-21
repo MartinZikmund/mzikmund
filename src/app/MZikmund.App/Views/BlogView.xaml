@@ -12,103 +12,107 @@
     mc:Ignorable="d">
 
     <Grid x:Name="PageRoot" Padding="{StaticResource MzPagePaddingCompact}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+        <!--  The header and the cards share one container, so both sit in the same column.  -->
+        <Grid Style="{StaticResource MzPageContainerStyle}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
 
-        <!--  The shell still paints its own title below 768; Task 25 deletes ContentHeader.  -->
-        <StackPanel
-            Grid.Row="0"
-            Margin="0,0,0,24"
-            Spacing="{StaticResource MzSpace2}">
-            <TextBlock
-                x:Name="PageTitle"
-                Style="{StaticResource MzTitleTextStyle}"
-                Text="{x:Bind ViewModel.Title, Mode=OneWay}" />
-            <TextBlock Style="{StaticResource MzLeadTextStyle}" Text="{x:Bind ViewModel.Lead, Mode=OneWay}" />
-        </StackPanel>
-
-        <ScrollViewer
-            x:Name="Scroller"
-            Grid.Row="1"
-            Padding="0,0,0,24"
-            ViewChanged="Scroller_ViewChanged">
-            <StackPanel Spacing="{StaticResource MzSpace5}">
-                <!--  MzContentCardStyle reads the item through DataContext, and ItemsRepeater only
-                      assigns DataContext when the template root carries no x:Bind, so this template
-                      binds classically. x:DataType is kept for tooling.  -->
-                <ItemsRepeater ItemsSource="{x:Bind ViewModel.Posts, Mode=OneWay}">
-                    <ItemsRepeater.Layout>
-                        <UniformGridLayout
-                            ItemsStretch="Fill"
-                            MinColumnSpacing="{StaticResource MzSpace5}"
-                            MinItemHeight="420"
-                            MinItemWidth="320"
-                            MinRowSpacing="{StaticResource MzSpace5}" />
-                    </ItemsRepeater.Layout>
-                    <ItemsRepeater.ItemTemplate>
-                        <DataTemplate x:DataType="vmitems:PostListItemViewModel">
-                            <Button
-                                AutomationProperties.Name="{Binding CardTitle}"
-                                Click="PostCard_Click"
-                                Style="{StaticResource MzContentCardStyle}"
-                                Tag="{extensions:Localize Key=ReadMore}" />
-                        </DataTemplate>
-                    </ItemsRepeater.ItemTemplate>
-                </ItemsRepeater>
-
-                <ProgressRing
-                    HorizontalAlignment="Center"
-                    IsActive="{x:Bind ViewModel.IsLoadingMore, Mode=OneWay}"
-                    Visibility="{x:Bind ViewModel.IsLoadingMore, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
-
-                <!--  A failed follow-up page keeps the cards that did load, so it retries inline.  -->
-                <StackPanel
-                    HorizontalAlignment="Center"
-                    Spacing="{StaticResource MzSpace3}"
-                    Visibility="{x:Bind ViewModel.HasLoadMoreError, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <TextBlock Style="{StaticResource MzEmptyStateBodyTextStyle}" Text="{extensions:Localize Key=ErrorLoadingData}" />
-                    <Button
-                        HorizontalAlignment="Center"
-                        Command="{x:Bind ViewModel.RetryLoadMoreCommand, Mode=OneWay}"
-                        Content="{extensions:Localize Key=Retry}"
-                        Style="{StaticResource MzStandardButtonStyle}" />
-                </StackPanel>
+            <!--  The shell still paints its own title below 768; Task 25 deletes ContentHeader.  -->
+            <StackPanel
+                Grid.Row="0"
+                Margin="0,0,0,24"
+                Spacing="{StaticResource MzSpace2}">
+                <TextBlock
+                    x:Name="PageTitle"
+                    Style="{StaticResource MzTitleTextStyle}"
+                    Text="{x:Bind ViewModel.Title, Mode=OneWay}" />
+                <TextBlock Style="{StaticResource MzLeadTextStyle}" Text="{x:Bind ViewModel.Lead, Mode=OneWay}" />
             </StackPanel>
-        </ScrollViewer>
 
-        <ProgressRing
-            Grid.Row="1"
-            Width="48"
-            Height="48"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
-            Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+            <ScrollViewer
+                x:Name="Scroller"
+                Grid.Row="1"
+                Padding="0,0,0,24"
+                ViewChanged="Scroller_ViewChanged">
+                <StackPanel Spacing="{StaticResource MzSpace5}">
+                    <!--  MzContentCardStyle reads the item through DataContext, and ItemsRepeater only
+                          assigns DataContext when the template root carries no x:Bind, so this template
+                          binds classically. x:DataType is kept for tooling.  -->
+                    <ItemsRepeater ItemsSource="{x:Bind ViewModel.Posts, Mode=OneWay}">
+                        <ItemsRepeater.Layout>
+                            <!--  MinItemHeight is the exact row height rather than a floor, so it is left
+                                  unset: the rows take the measured card height and grow with text scale.  -->
+                            <UniformGridLayout
+                                ItemsStretch="Fill"
+                                MinColumnSpacing="{StaticResource MzSpace5}"
+                                MinItemWidth="320"
+                                MinRowSpacing="{StaticResource MzSpace5}" />
+                        </ItemsRepeater.Layout>
+                        <ItemsRepeater.ItemTemplate>
+                            <DataTemplate x:DataType="vmitems:PostListItemViewModel">
+                                <Button
+                                    AutomationProperties.Name="{Binding CardTitle}"
+                                    Click="PostCard_Click"
+                                    Style="{StaticResource MzContentCardStyle}"
+                                    Tag="{extensions:Localize Key=ReadMore}" />
+                            </DataTemplate>
+                        </ItemsRepeater.ItemTemplate>
+                    </ItemsRepeater>
 
-        <StackPanel
-            Grid.Row="1"
-            Style="{StaticResource MzEmptyStatePanelStyle}"
-            Visibility="{x:Bind ViewModel.IsEmpty, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-            <FontIcon Glyph="{StaticResource MzGlyphNews}" Style="{StaticResource MzEmptyStateIconStyle}" />
-            <TextBlock Style="{StaticResource MzEmptyStateTitleTextStyle}" Text="{extensions:Localize Key=NoPostsFound}" />
-            <TextBlock Style="{StaticResource MzEmptyStateBodyTextStyle}" Text="{extensions:Localize Key=NoPostsFoundDescription}" />
-        </StackPanel>
+                    <ProgressRing
+                        HorizontalAlignment="Center"
+                        IsActive="{x:Bind ViewModel.IsLoadingMore, Mode=OneWay}"
+                        Visibility="{x:Bind ViewModel.IsLoadingMore, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
 
-        <StackPanel
-            Grid.Row="1"
-            Style="{StaticResource MzEmptyStatePanelStyle}"
-            Visibility="{x:Bind ViewModel.HasError, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-            <FontIcon Glyph="{StaticResource MzGlyphWarning}" Style="{StaticResource MzEmptyStateIconStyle}" />
-            <TextBlock Style="{StaticResource MzEmptyStateTitleTextStyle}" Text="{extensions:Localize Key=CouldNotLoadData}" />
-            <TextBlock Style="{StaticResource MzEmptyStateBodyTextStyle}" Text="{extensions:Localize Key=ErrorLoadingData}" />
-            <Button
+                    <!--  A failed follow-up page keeps the cards that did load, so it retries inline.  -->
+                    <StackPanel
+                        HorizontalAlignment="Center"
+                        Spacing="{StaticResource MzSpace3}"
+                        Visibility="{x:Bind ViewModel.HasLoadMoreError, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TextBlock Style="{StaticResource MzEmptyStateBodyTextStyle}" Text="{extensions:Localize Key=ErrorLoadingData}" />
+                        <Button
+                            HorizontalAlignment="Center"
+                            Command="{x:Bind ViewModel.RetryLoadMoreCommand, Mode=OneWay}"
+                            Content="{extensions:Localize Key=Retry}"
+                            Style="{StaticResource MzStandardButtonStyle}" />
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+
+            <ProgressRing
+                Grid.Row="1"
+                Width="48"
+                Height="48"
                 HorizontalAlignment="Center"
-                Command="{x:Bind ViewModel.RetryCommand, Mode=OneWay}"
-                Content="{extensions:Localize Key=Retry}"
-                Style="{StaticResource MzStandardButtonStyle}" />
-        </StackPanel>
+                VerticalAlignment="Center"
+                IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+            <StackPanel
+                Grid.Row="1"
+                Style="{StaticResource MzEmptyStatePanelStyle}"
+                Visibility="{x:Bind ViewModel.IsEmpty, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <FontIcon Glyph="{StaticResource MzGlyphNews}" Style="{StaticResource MzEmptyStateIconStyle}" />
+                <TextBlock Style="{StaticResource MzEmptyStateTitleTextStyle}" Text="{extensions:Localize Key=NoPostsFound}" />
+                <TextBlock Style="{StaticResource MzEmptyStateBodyTextStyle}" Text="{extensions:Localize Key=NoPostsFoundDescription}" />
+            </StackPanel>
+
+            <StackPanel
+                Grid.Row="1"
+                Style="{StaticResource MzEmptyStatePanelStyle}"
+                Visibility="{x:Bind ViewModel.HasError, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <FontIcon Glyph="{StaticResource MzGlyphWarning}" Style="{StaticResource MzEmptyStateIconStyle}" />
+                <TextBlock Style="{StaticResource MzEmptyStateTitleTextStyle}" Text="{extensions:Localize Key=CouldNotLoadData}" />
+                <TextBlock Style="{StaticResource MzEmptyStateBodyTextStyle}" Text="{extensions:Localize Key=ErrorLoadingData}" />
+                <Button
+                    HorizontalAlignment="Center"
+                    Command="{x:Bind ViewModel.RetryCommand, Mode=OneWay}"
+                    Content="{extensions:Localize Key=Retry}"
+                    Style="{StaticResource MzStandardButtonStyle}" />
+            </StackPanel>
+        </Grid>
 
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="MzTypeScale">

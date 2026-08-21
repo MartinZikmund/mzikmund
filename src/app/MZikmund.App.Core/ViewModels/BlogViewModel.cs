@@ -144,7 +144,7 @@ public class BlogViewModel : PageViewModel
 		IsLoadingMore = pageNumber > 1;
 		try
 		{
-			var response = await _api.GetPostsAsync(pageNumber);
+			var response = await _api.GetPostsAsync(pageNumber, cancellationToken);
 			if (cancellationToken.IsCancellationRequested)
 			{
 				return IncrementalPage<PostListItemViewModel>.Failure;
@@ -162,6 +162,12 @@ public class BlogViewModel : PageViewModel
 				: 1;
 
 			return new IncrementalPage<PostListItemViewModel>(items, content.PageNumber < totalPages);
+		}
+		catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+		{
+			// The request itself is now abortable, so a discarded page arrives as a cancellation
+			// rather than as data. It is not an error state.
+			return IncrementalPage<PostListItemViewModel>.Failure;
 		}
 		catch (Exception ex)
 		{

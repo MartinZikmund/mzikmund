@@ -27,6 +27,7 @@
                 <ResourceDictionary Source="ms-appx:///Theme/Styles/Buttons.xaml" />
                 <ResourceDictionary Source="ms-appx:///Theme/Styles/Cards.xaml" />
                 <ResourceDictionary Source="ms-appx:///Theme/Styles/EmptyState.xaml" />
+                <ResourceDictionary Source="ms-appx:///Theme/Styles/Layout.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
