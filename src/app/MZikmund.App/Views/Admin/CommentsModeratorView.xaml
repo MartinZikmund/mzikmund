@@ -107,13 +107,26 @@
                         </ItemsRepeater.Layout>
                     </ItemsRepeater>
                 </Border>
-                <StackPanel
+                <Border
                     Margin="0,0,0,32"
-                    Style="{StaticResource MzEmptyStatePanelStyle}"
+                    Padding="16,12"
+                    Style="{StaticResource MzLayerSurfaceStyle}"
                     Visibility="{x:Bind ViewModel.IsQueueEmpty, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <FontIcon Glyph="{StaticResource MzGlyphComment}" Style="{StaticResource MzEmptyStateIconStyle}" />
-                    <TextBlock Style="{StaticResource MzEmptyStateTitleTextStyle}" Text="{xaml:Localize Key=ModeratorNothingToReview}" />
-                </StackPanel>
+                    <StackPanel
+                        HorizontalAlignment="Center"
+                        Orientation="Horizontal"
+                        Spacing="10">
+                        <FontIcon
+                            VerticalAlignment="Center"
+                            FontFamily="{StaticResource MzIconFontFamily}"
+                            FontSize="16"
+                            Glyph="{StaticResource MzGlyphComment}" />
+                        <TextBlock
+                            VerticalAlignment="Center"
+                            Style="{StaticResource MzBodyTextStyle}"
+                            Text="{xaml:Localize Key=ModeratorNothingToReview}" />
+                    </StackPanel>
+                </Border>
 
                 <TextBlock
                     Margin="0,0,0,12"

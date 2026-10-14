@@ -447,7 +447,7 @@ public partial class CommentsViewModel : ViewModelBase
 
 	public void BeginEdit(CommentItemViewModel comment)
 	{
-		if (!comment.IsOwn)
+		if (!comment.CanEdit)
 		{
 			return;
 		}
@@ -460,11 +460,12 @@ public partial class CommentsViewModel : ViewModelBase
 
 	public async Task SaveEditAsync(CommentItemViewModel comment)
 	{
-		var content = comment.EditText.Trim();
-		if (comment.IsBusy || content.Length == 0 || content.Length > CommentLimits.MaxCommentLength)
+		if (!comment.CanSaveEdit)
 		{
 			return;
 		}
+
+		var content = comment.EditText.Trim();
 
 		comment.IsBusy = true;
 		try
@@ -512,15 +513,10 @@ public partial class CommentsViewModel : ViewModelBase
 			{
 				Comments.FirstOrDefault(c => c.Id == comment.ParentId)?.RemoveReply(comment);
 			}
-			else if (comment.Item.ReplyCount > 0)
-			{
-				comment.Apply(comment.Item with { Status = CommentStatus.DeletedByAuthor, Content = "", ContentHtml = "" });
-			}
 			else
 			{
-				Comments.Remove(comment);
-				TotalCount = Math.Max(0, TotalCount - 1);
-				OnPropertyChanged(nameof(IsEmpty));
+				// Same as the server: a deleted top-level comment stays as a tombstone and still counts.
+				comment.Apply(comment.Item with { Status = CommentStatus.DeletedByAuthor, Content = "", ContentHtml = "" });
 			}
 		}
 		finally
@@ -652,16 +648,38 @@ public partial class CommentsViewModel : ViewModelBase
 				Localizer.Instance.GetString("CommentSlowDown");
 		}
 
-		if (api.StatusCode is HttpStatusCode.BadRequest or HttpStatusCode.Forbidden or HttpStatusCode.NotFound or HttpStatusCode.Conflict
-			&& ReadProblemDetail(api.Content) is { } detail)
+		var code = ReadProblemCode(api.Content);
+		return api.StatusCode switch
 		{
-			return detail;
-		}
-
-		return Localizer.Instance.GetString(api.StatusCode == HttpStatusCode.Forbidden ? "CommentBanned" : "CommentGenericError");
+			HttpStatusCode.BadRequest or HttpStatusCode.Forbidden or HttpStatusCode.NotFound or HttpStatusCode.Conflict =>
+				DescribeCode(code, api.StatusCode),
+			_ => Localizer.Instance.GetString("CommentGenericError"),
+		};
 	}
 
-	private static string? ReadProblemDetail(string? body)
+	// The server's detail is English, so only its stable code is trusted and the text comes from resources.
+	private static string DescribeCode(string? code, HttpStatusCode status)
+	{
+		static string Get(string key) => Localizer.Instance.GetString(key);
+
+		return code switch
+		{
+			CommentErrorCodes.Banned => Get("CommentBanned"),
+			CommentErrorCodes.ContentEmpty => Get("CommentEditEmpty"),
+			CommentErrorCodes.ContentTooLong => string.Format(CultureInfo.CurrentCulture, Localizer.Instance.GetString("CommentTooLongFormat"), CommentLimits.MaxCommentLength),
+			CommentErrorCodes.EditWindowExpired => string.Format(CultureInfo.CurrentCulture, Localizer.Instance.GetString("CommentErrorEditWindowFormat"), CommentLimits.EditWindowMinutes),
+			CommentErrorCodes.NotVisible => Get("CommentErrorNotVisible"),
+			CommentErrorCodes.OwnComment => Get("CommentErrorOwnComment"),
+			CommentErrorCodes.HiddenByModerator => Get("CommentErrorHidden"),
+			CommentErrorCodes.NotFound => Get("CommentErrorNotFound"),
+			CommentErrorCodes.Forbidden => Get("CommentErrorForbidden"),
+			CommentErrorCodes.Validation => Get("CommentErrorValidation"),
+			CommentErrorCodes.Conflict => Get("CommentErrorConflict"),
+			_ => Get(status == HttpStatusCode.Forbidden ? "CommentBanned" : "CommentGenericError"),
+		};
+	}
+
+	private static string? ReadProblemCode(string? body)
 	{
 		if (string.IsNullOrWhiteSpace(body))
 		{
@@ -672,11 +690,11 @@ public partial class CommentsViewModel : ViewModelBase
 		{
 			using var document = JsonDocument.Parse(body);
 			if (document.RootElement.ValueKind == JsonValueKind.Object &&
-				document.RootElement.TryGetProperty("detail", out var detail) &&
-				detail.ValueKind == JsonValueKind.String &&
-				!string.IsNullOrWhiteSpace(detail.GetString()))
+				document.RootElement.TryGetProperty("code", out var code) &&
+				code.ValueKind == JsonValueKind.String &&
+				!string.IsNullOrWhiteSpace(code.GetString()))
 			{
-				return detail.GetString();
+				return code.GetString();
 			}
 		}
 		catch (JsonException)

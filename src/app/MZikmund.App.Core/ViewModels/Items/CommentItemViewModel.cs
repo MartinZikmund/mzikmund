@@ -34,7 +34,7 @@ public partial class CommentItemViewModel : ObservableObject
 	public string DisplayName => Item.AuthorDisplayName;
 
 	public Uri? AvatarUri => Uri.TryCreate(Item.AuthorAvatarUrl, UriKind.Absolute, out var uri) &&
-		(uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == Uri.UriSchemeHttp) ? uri : null;
+		uri.Scheme == Uri.UriSchemeHttps ? uri : null;
 
 	public bool IsAuthorAdmin => Item.AuthorIsAdmin;
 
@@ -67,6 +67,9 @@ public partial class CommentItemViewModel : ObservableObject
 
 	public bool IsOwn => Item.IsOwn && !IsTombstone;
 
+	// The window is checked again by the server; this only stops offering an edit that cannot work.
+	public bool CanEdit => IsOwn && DateTimeOffset.UtcNow - Item.CreatedOn <= CommentLimits.EditWindow;
+
 	public bool IsNotOwn => !IsOwn;
 
 	public int RemainingReplies => _repliesExhausted ? 0 : CommentDisplay.RemainingReplyCount(Item.ReplyCount, Replies.Count);
@@ -78,6 +81,26 @@ public partial class CommentItemViewModel : ObservableObject
 		Localizer.Instance.GetString("CommentShowMoreRepliesFormat"),
 		RemainingReplies);
 
+	public string UpvoteAutomationName => Localizer.Instance.GetString(HasUpvoted ? "CommentUpvoted" : "CommentUpvote");
+
+	public int EditMaxLength => CommentLimits.MaxCommentLength;
+
+	public bool IsEditEmpty => string.IsNullOrWhiteSpace(EditText);
+
+	public bool IsEditTooLong => EditText.Trim().Length > CommentLimits.MaxCommentLength;
+
+	public bool CanSaveEdit => !IsBusy && !IsEditEmpty && !IsEditTooLong;
+
+	public string EditLengthText => $"{EditText.Length} / {CommentLimits.MaxCommentLength}";
+
+	public string EditError => IsEditEmpty ?
+		Localizer.Instance.GetString("CommentEditEmpty") :
+		IsEditTooLong ?
+			string.Format(System.Globalization.CultureInfo.CurrentCulture, Localizer.Instance.GetString("CommentTooLongFormat"), CommentLimits.MaxCommentLength) :
+			"";
+
+	public bool HasEditError => EditError.Length > 0;
+
 	public string UpvoteCountText => UpvoteCount > 0 ? UpvoteCount.ToString(System.Globalization.CultureInfo.CurrentCulture) : "";
 
 	[ObservableProperty]
@@ -85,6 +108,7 @@ public partial class CommentItemViewModel : ObservableObject
 	public partial int UpvoteCount { get; set; }
 
 	[ObservableProperty]
+	[NotifyPropertyChangedFor(nameof(UpvoteAutomationName))]
 	public partial bool HasUpvoted { get; set; }
 
 	[ObservableProperty]
@@ -93,10 +117,17 @@ public partial class CommentItemViewModel : ObservableObject
 	public partial bool IsEditing { get; set; }
 
 	[ObservableProperty]
+	[NotifyPropertyChangedFor(nameof(IsEditEmpty))]
+	[NotifyPropertyChangedFor(nameof(IsEditTooLong))]
+	[NotifyPropertyChangedFor(nameof(CanSaveEdit))]
+	[NotifyPropertyChangedFor(nameof(EditLengthText))]
+	[NotifyPropertyChangedFor(nameof(EditError))]
+	[NotifyPropertyChangedFor(nameof(HasEditError))]
 	public partial string EditText { get; set; } = "";
 
 	[ObservableProperty]
 	[NotifyPropertyChangedFor(nameof(IsNotBusy))]
+	[NotifyPropertyChangedFor(nameof(CanSaveEdit))]
 	public partial bool IsBusy { get; set; }
 
 	public bool IsNotBusy => !IsBusy;

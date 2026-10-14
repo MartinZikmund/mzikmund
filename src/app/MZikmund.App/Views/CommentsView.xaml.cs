@@ -111,7 +111,11 @@ public sealed partial class CommentsView : UserControl
 		MenuFlyout flyout = new();
 		if (item.IsOwn)
 		{
-			flyout.Items.Add(CreateMenuItem("CommentEdit", () => viewModel.BeginEdit(item)));
+			if (item.CanEdit)
+			{
+				flyout.Items.Add(CreateMenuItem("CommentEdit", () => viewModel.BeginEdit(item)));
+			}
+
 			flyout.Items.Add(CreateMenuItem("Delete", async () => await viewModel.DeleteAsync(item)));
 		}
 		else
