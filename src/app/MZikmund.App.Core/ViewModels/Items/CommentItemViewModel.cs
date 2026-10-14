@@ -88,6 +88,8 @@ public partial class CommentItemViewModel : ObservableObject
 	public partial bool HasUpvoted { get; set; }
 
 	[ObservableProperty]
+	[NotifyPropertyChangedFor(nameof(ShowBody))]
+	[NotifyPropertyChangedFor(nameof(ShowEditor))]
 	public partial bool IsEditing { get; set; }
 
 	[ObservableProperty]
