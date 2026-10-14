@@ -25,6 +25,7 @@ public partial class WindowShellViewModel : ViewModelBase
 
 		// Initialize from cached authentication state
 		UpdateAuthenticationState();
+		_userService.AuthenticationChanged += OnAuthenticationChanged;
 	}
 
 	public string Title { get; } = "Martin Zikmund";
@@ -69,6 +70,19 @@ public partial class WindowShellViewModel : ViewModelBase
 		UpdateAuthenticationState();
 		_navigationService.Navigate<HomeViewModel>();
 		_navigationService.ClearBackStack();
+	}
+
+	// Raised wherever a token was needed, which can be a thread-pool continuation of an API call.
+	private void OnAuthenticationChanged(object? sender, EventArgs e)
+	{
+		if (_provider.DispatcherQueue.HasThreadAccess)
+		{
+			UpdateAuthenticationState();
+		}
+		else
+		{
+			_provider.DispatcherQueue.TryEnqueue(UpdateAuthenticationState);
+		}
 	}
 
 	private void UpdateAuthenticationState()

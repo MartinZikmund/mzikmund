@@ -46,6 +46,7 @@ public partial class PostViewModel : PageViewModel
 		}
 
 		_postId = postId;
+		Post = null;
 		IsLoading = true;
 		HasError = false;
 
@@ -58,8 +59,14 @@ public partial class PostViewModel : PageViewModel
 	{
 		try
 		{
-			var response = await _api.GetPostAsync(_postId);
-			Post = response.Content;
+			var postId = _postId;
+			var response = await _api.GetPostAsync(postId);
+
+			// The ViewModel outlives a single post; a late answer for the previous one must not win.
+			if (postId == _postId)
+			{
+				Post = response.Content;
+			}
 		}
 		catch (Exception ex)
 		{

@@ -78,7 +78,7 @@
                                     Tag="{x:Bind}">
                                     <Grid ColumnSpacing="16">
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="88" />
+                                            <ColumnDefinition Width="Auto" MinWidth="0" />
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>

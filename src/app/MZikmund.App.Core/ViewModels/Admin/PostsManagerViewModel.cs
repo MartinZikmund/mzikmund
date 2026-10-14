@@ -80,7 +80,7 @@ public partial class PostsManagerViewModel : PageViewModel
 	public override async void ViewLoaded()
 	{
 		base.ViewLoaded();
-		await RefreshAsync();
+		await RefreshCommand.ExecuteAsync(null);
 	}
 
 	[RelayCommand]

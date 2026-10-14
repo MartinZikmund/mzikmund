@@ -13,7 +13,7 @@ public sealed class PostListItemViewModel : ObservableObject, ICardItem
 	public PostListItemViewModel(PostListItem item, IMarkdownConverter markdownConverter)
 	{
 		Item = item;
-		HeroImageUri = item.HeroImageUrl is { } heroImageUrl ? new Uri(heroImageUrl) : null;
+		HeroImageUri = Uri.TryCreate(item.HeroImageUrl, UriKind.Absolute, out var heroImageUri) ? heroImageUri : null;
 		// Markdig ends every block with a newline, and a trailing one makes the card reserve an
 		// empty line it never draws, which pushes the card past its grid cell.
 		CardSummary = markdownConverter.ToPlainText(item.Abstract).Trim();

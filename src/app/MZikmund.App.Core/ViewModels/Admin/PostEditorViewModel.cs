@@ -37,6 +37,7 @@ public partial class PostEditorViewModel : PageViewModel
 	private bool _isPreviewDirty = true;
 	private bool _isDraftDirty;
 	private bool _isPopulating;
+	private int _editVersion;
 
 	public PostEditorViewModel(
 		IMZikmundApi api,
@@ -152,7 +153,7 @@ public partial class PostEditorViewModel : PageViewModel
 		Localizer.Instance.GetString("NoCategoriesSelected") :
 		string.Join(", ", Categories.Select(c => c.DisplayName));
 
-	partial void OnPostTitleChanged(string? oldValue, string newValue)
+	partial void OnPostTitleChanged(string oldValue, string newValue)
 	{
 		// Renaming a live post must not silently break its URL, nor overwrite a hand-tuned route.
 		if (!_isPopulating && Post is not { IsPublished: true } && PostRouteNames.FollowsTitle(PostRouteName, oldValue ?? ""))
@@ -196,6 +197,7 @@ public partial class PostEditorViewModel : PageViewModel
 
 		IsDirty = true;
 		_isDraftDirty = true;
+		_editVersion++;
 	}
 
 	private DateTimeOffset GetCombinedPublishDateTime()
@@ -245,11 +247,13 @@ public partial class PostEditorViewModel : PageViewModel
 		Post.HeroImageUrl = HeroImageUrl;
 		Post.HeroImageAlt = HeroImageAlt;
 
+		var post = Post;
+		var savedVersion = _editVersion;
 		try
 		{
 			var response = IsExistingPost ?
-				await _api.UpdatePostAsync(Post.Id, Post) :
-				await _api.AddPostAsync(Post);
+				await _api.UpdatePostAsync(post.Id, post) :
+				await _api.AddPostAsync(post);
 
 			if (!response.IsSuccessStatusCode || response.Content is not { } savedPost)
 			{
@@ -257,24 +261,49 @@ public partial class PostEditorViewModel : PageViewModel
 				return;
 			}
 
-			// Without the server-assigned Id the next save would create a duplicate post.
-			var adminPost = await _api.GetPostForAdminAsync(savedPost.Id);
-			Post = adminPost.IsSuccessStatusCode && adminPost.Content is { } refreshed ?
-				refreshed :
-				new PostAdmin { Id = savedPost.Id, PreviewToken = Post.PreviewToken };
+			// Kept before anything else can fail: without it the next save would create a duplicate post.
+			post.Id = savedPost.Id;
+			OnPropertyChanged(nameof(IsExistingPost));
 
-			if (adminPost.Content is not null)
-			{
-				PopulateInfo(adminPost.Content, keepEditorText: true);
-			}
-
-			IsDirty = false;
+			// Edits typed while the request was in flight are not part of this save.
+			IsDirty = _editVersion != savedVersion;
 			LastSavedAt = DateTimeOffset.Now;
 		}
 		catch (Exception ex) when (ex is ApiException or HttpRequestException or AuthenticationFailedException or TaskCanceledException)
 		{
 			_logger.LogError(ex, "Saving post failed");
 			await ShowSaveErrorAsync(ex.Message);
+			return;
+		}
+
+		await RefreshServerStateAsync(post, savedVersion);
+	}
+
+	// Picks up what the server decides on save (preview token, published state, the route it kept).
+	private async Task RefreshServerStateAsync(PostAdmin post, int savedVersion)
+	{
+		try
+		{
+			var response = await _api.GetPostForAdminAsync(post.Id);
+			if (!response.IsSuccessStatusCode || response.Content is not { } refreshed)
+			{
+				return;
+			}
+
+			post.PreviewToken = refreshed.PreviewToken;
+			post.IsPublished = refreshed.IsPublished;
+			OpenPreviewCommand.NotifyCanExecuteChanged();
+
+			if (_editVersion == savedVersion && PostRouteName != refreshed.RouteName)
+			{
+				_isPopulating = true;
+				PostRouteName = refreshed.RouteName;
+				_isPopulating = false;
+			}
+		}
+		catch (Exception ex) when (ex is ApiException or HttpRequestException or AuthenticationFailedException or TaskCanceledException)
+		{
+			_logger.LogWarning(ex, "Refreshing the saved post failed");
 		}
 	}
 
@@ -439,7 +468,7 @@ public partial class PostEditorViewModel : PageViewModel
 			return;
 		}
 
-		_previewTimer!.Stop();
+		sender.Stop();
 		try
 		{
 			_isPreviewDirty = false;
@@ -451,7 +480,11 @@ public partial class PostEditorViewModel : PageViewModel
 		}
 		finally
 		{
-			_previewTimer.Start();
+			// The editor may have been left while rendering; its timer is then gone.
+			if (_previewTimer == sender)
+			{
+				sender.Start();
+			}
 		}
 	}
 
@@ -505,7 +538,7 @@ public partial class PostEditorViewModel : PageViewModel
 		}
 	}
 
-	private void PopulateInfo(Post post, bool keepEditorText = false)
+	private void PopulateInfo(Post post)
 	{
 		ArgumentNullException.ThrowIfNull(post);
 
@@ -521,13 +554,9 @@ public partial class PostEditorViewModel : PageViewModel
 			HeroImageAlt = post.HeroImageAlt;
 			IsPublished = post.IsPublished;
 
-			// Keeps the caret where it is after a save; the server only normalizes line endings.
-			if (!keepEditorText)
-			{
-				PostContent = post.Content;
-			}
+			PostContent = post.Content;
 
-			var publishedDate = post.PublishedDate ?? DateTimeOffset.Now;
+			var publishedDate = (post.PublishedDate ?? DateTimeOffset.Now).ToLocalTime();
 			PublishDate = publishedDate;
 			PublishTime = ToMinutes(publishedDate.TimeOfDay);
 		}

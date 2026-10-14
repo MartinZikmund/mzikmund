@@ -23,6 +23,8 @@ public class UserService : IUserService
 {
 	private static readonly TimeSpan SignInTimeout = TimeSpan.FromMinutes(5);
 
+	private readonly SemaphoreSlim _authenticationLock = new(1, 1);
+
 	private AuthenticationInfo? _authenticationInfo;
 	private string? _refreshToken;
 	private readonly IAppPreferences _appPreferences;
@@ -46,6 +48,8 @@ public class UserService : IUserService
 
 		LoadCachedAuthentication();
 	}
+
+	public event EventHandler? AuthenticationChanged;
 
 	public bool IsLoggedIn => _authenticationInfo != null;
 
@@ -106,6 +110,29 @@ public class UserService : IUserService
 
 	public async Task AuthenticateAsync()
 	{
+		// Concurrent API calls share one refresh or sign-in instead of racing Auth0 token rotation.
+		await _authenticationLock.WaitAsync();
+		var wasLoggedIn = IsLoggedIn;
+		try
+		{
+			await AuthenticateCoreAsync();
+		}
+		catch (Exception ex) when (ex is not AuthenticationFailedException)
+		{
+			throw new AuthenticationFailedException(ex.Message, ex);
+		}
+		finally
+		{
+			_authenticationLock.Release();
+			if (wasLoggedIn != IsLoggedIn)
+			{
+				AuthenticationChanged?.Invoke(this, EventArgs.Empty);
+			}
+		}
+	}
+
+	private async Task AuthenticateCoreAsync()
+	{
 		if (IsLoggedIn && !NeedsRefresh)
 		{
 			return;
@@ -118,6 +145,7 @@ public class UserService : IUserService
 				"MZIKMUND_AuthConfig__ClientId environment variable). See docs/AUTH0_MIGRATION.md.");
 		}
 
+		// A rejected refresh token falls through to a fresh sign-in; an unreachable server throws and keeps the session.
 		if (!string.IsNullOrEmpty(_refreshToken) && await TryRefreshTokenAsync())
 		{
 			SaveAuthenticationToCache();
@@ -178,31 +206,25 @@ public class UserService : IUserService
 
 	private async Task<bool> TryRefreshTokenAsync()
 	{
-		try
+		var tokenRequestParams = TokenRequestParams.CreateForRefreshToken(_refreshToken);
+		tokenRequestParams.ClientId = Config.ClientId;
+
+		// Transport failures throw out of here, which keeps the cached session for the next attempt.
+		var tokenResult = await OAuth2Manager.RequestTokenAsync(new Uri($"{Authority}/oauth/token"), tokenRequestParams);
+
+		if (tokenResult.Response is not { } tokenResponse)
 		{
-			var tokenResult = await OAuth2Manager.RequestTokenAsync(
-				new Uri($"{Authority}/oauth/token"),
-				TokenRequestParams.CreateForRefreshToken(_refreshToken));
-
-			if (tokenResult.Response is not { } tokenResponse)
-			{
-				Debug.WriteLine($"Token refresh failed: {tokenResult.Failure?.Error} - {tokenResult.Failure?.ErrorDescription}");
-				return false;
-			}
-
-			if (!string.IsNullOrEmpty(tokenResponse.RefreshToken))
-			{
-				_refreshToken = tokenResponse.RefreshToken;
-			}
-
-			_authenticationInfo = CreateAuthenticationInfo(tokenResponse.AccessToken, tokenResponse.ExpiresIn);
-			return true;
-		}
-		catch (Exception ex)
-		{
-			Debug.WriteLine($"Token refresh failed: {ex.Message}");
+			Debug.WriteLine($"Token refresh rejected: {tokenResult.Failure?.Error} - {tokenResult.Failure?.ErrorDescription}");
 			return false;
 		}
+
+		if (!string.IsNullOrEmpty(tokenResponse.RefreshToken))
+		{
+			_refreshToken = tokenResponse.RefreshToken;
+		}
+
+		_authenticationInfo = CreateAuthenticationInfo(tokenResponse.AccessToken, tokenResponse.ExpiresIn);
+		return true;
 	}
 
 	private WindowId GetWindowId()
@@ -289,7 +311,7 @@ public class UserService : IUserService
 		var result = await WebAuthenticationBroker.AuthenticateAsync(WebAuthenticationOptions.None, authUri, redirectUri);
 		return result.ResponseStatus switch
 		{
-			WebAuthenticationStatus.Success => new Uri(result.ResponseData),
+			WebAuthenticationStatus.Success when result.ResponseData is { } data => new Uri(data),
 			WebAuthenticationStatus.UserCancel => null,
 			_ => throw new AuthenticationFailedException($"Sign-in failed (HTTP {result.ResponseErrorDetail})."),
 		};
@@ -298,28 +320,30 @@ public class UserService : IUserService
 
 	private async Task<bool> TryRefreshTokenAsync()
 	{
+		TokenResponse tokenResponse;
 		try
 		{
-			var tokenResponse = await RequestTokenAsync(new Dictionary<string, string>
+			tokenResponse = await RequestTokenAsync(new Dictionary<string, string>
 			{
 				["grant_type"] = "refresh_token",
 				["client_id"] = Config.ClientId!,
 				["refresh_token"] = _refreshToken!,
 			});
-
-			if (!string.IsNullOrEmpty(tokenResponse.RefreshToken))
-			{
-				_refreshToken = tokenResponse.RefreshToken;
-			}
-
-			_authenticationInfo = CreateAuthenticationInfo(tokenResponse.AccessToken, tokenResponse.ExpiresIn);
-			return true;
 		}
-		catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or JsonException or AuthenticationFailedException)
+		catch (TokenRequestRejectedException ex)
 		{
-			Debug.WriteLine($"Token refresh failed: {ex.Message}");
+			// Only a rejection by Auth0 (expired or revoked token) ends the session; network errors propagate.
+			Debug.WriteLine($"Token refresh rejected: {ex.Message}");
 			return false;
 		}
+
+		if (!string.IsNullOrEmpty(tokenResponse.RefreshToken))
+		{
+			_refreshToken = tokenResponse.RefreshToken;
+		}
+
+		_authenticationInfo = CreateAuthenticationInfo(tokenResponse.AccessToken, tokenResponse.ExpiresIn);
+		return true;
 	}
 
 	private async Task<TokenResponse> RequestTokenAsync(Dictionary<string, string> form)
@@ -327,6 +351,11 @@ public class UserService : IUserService
 		using HttpClient httpClient = new();
 		using var response = await httpClient.PostAsync($"{Authority}/oauth/token", new FormUrlEncodedContent(form));
 		var content = await response.Content.ReadAsStringAsync();
+
+		if ((int)response.StatusCode is >= 400 and < 500)
+		{
+			throw new TokenRequestRejectedException($"Token request rejected ({(int)response.StatusCode}): {content}");
+		}
 
 		if (!response.IsSuccessStatusCode)
 		{
@@ -336,6 +365,8 @@ public class UserService : IUserService
 		return JsonSerializer.Deserialize<TokenResponse>(content) ??
 			throw new AuthenticationFailedException("Token response was empty.");
 	}
+
+	private sealed class TokenRequestRejectedException(string message) : AuthenticationFailedException(message);
 
 	private sealed class TokenResponse
 	{
@@ -383,5 +414,6 @@ public class UserService : IUserService
 		_authenticationInfo = null;
 		_refreshToken = null;
 		ClearAuthenticationCache();
+		AuthenticationChanged?.Invoke(this, EventArgs.Empty);
 	}
 }

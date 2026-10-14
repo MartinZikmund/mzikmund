@@ -24,10 +24,11 @@ public abstract partial class PageBase<TViewModel> : Page
 	{
 		EnsureViewModel();
 
-		if (_isNavigationDelayed)
+		if (_isNavigationDelayed && ViewModel is not null)
 		{
-			ViewModel?.ViewNavigatedTo(_pendingParameter);
+			ViewModel.ViewNavigatedTo(_pendingParameter);
 			_pendingParameter = null;
+			_isNavigationDelayed = false;
 		}
 
 		ViewModel?.ViewLoading();
