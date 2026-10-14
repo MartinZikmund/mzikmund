@@ -137,7 +137,7 @@ public class GetCommentReportsHandlerTests
 	}
 
 	[Fact]
-	public async Task Handle_HiddenComment_StaysBlankedInTheQueue()
+	public async Task Handle_HiddenComment_ShowsItsTextInTheQueue()
 	{
 		// Arrange
 		using CommentsDbFixture fixture = new();
@@ -154,7 +154,8 @@ public class GetCommentReportsHandlerTests
 		// Assert
 		var row = Assert.Single(result.Data);
 		Assert.Equal(MZikmund.DataContracts.Blog.Comments.CommentStatus.HiddenByModerator, row.Comment.Status);
-		Assert.Equal("", row.Comment.Content);
+		Assert.Equal("secret", row.Comment.Content);
+		Assert.Equal(comment.ContentHtml, row.Comment.ContentHtml);
 	}
 
 	[Fact]
