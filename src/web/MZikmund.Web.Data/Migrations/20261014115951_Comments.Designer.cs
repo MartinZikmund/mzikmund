@@ -117,6 +117,9 @@ namespace MZikmund.Web.Data.Migrations
                         .HasMaxLength(320)
                         .HasColumnType("nvarchar(320)");
 
+                    b.Property<bool>("IsAdmin")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsBanned")
                         .HasColumnType("bit");
 
@@ -214,6 +217,10 @@ namespace MZikmund.Web.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ReporterId");
+
+                    b.HasIndex("CommentId", "ReporterId")
+                        .IsUnique()
+                        .HasFilter("[ResolvedOn] IS NULL");
 
                     b.HasIndex("CommentId", "ResolvedOn");
 

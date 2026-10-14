@@ -22,6 +22,7 @@ public partial class Comments : Migration
                 AvatarUrl = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: true),
                 Email = table.Column<string>(type: "nvarchar(320)", maxLength: 320, nullable: false),
                 IsBanned = table.Column<bool>(type: "bit", nullable: false),
+                IsAdmin = table.Column<bool>(type: "bit", nullable: false),
                 NotifyOnReply = table.Column<bool>(type: "bit", nullable: false),
                 CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                 LastSeenOn = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -140,6 +141,13 @@ public partial class Comments : Migration
             name: "IX_Comment_PostId_ParentId_CreatedOn",
             table: "Comment",
             columns: new[] { "PostId", "ParentId", "CreatedOn" });
+
+        migrationBuilder.CreateIndex(
+            name: "IX_CommentReport_CommentId_ReporterId",
+            table: "CommentReport",
+            columns: new[] { "CommentId", "ReporterId" },
+            unique: true,
+            filter: "[ResolvedOn] IS NULL");
 
         migrationBuilder.CreateIndex(
             name: "IX_CommentReport_CommentId_ResolvedOn",
