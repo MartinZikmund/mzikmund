@@ -30,5 +30,5 @@ public partial interface IMZikmundApi
 
 	[Delete("/v1/admin/posts/{postId}")]
 	[Headers("Authorization: Bearer")]
-	Task<ApiResponse<object?>> DeletePostAsync(Guid postId);
+	Task<IApiResponse> DeletePostAsync(Guid postId); // 204 No Content: a typed response would fail to deserialize the empty body
 }

@@ -18,5 +18,5 @@ public partial interface IMZikmundApi
 
 	[Delete("/v1/admin/tags/{tagId}")]
 	[Headers("Authorization: Bearer")]
-	Task<ApiResponse<object?>> DeleteTagAsync(Guid tagId);
+	Task<IApiResponse> DeleteTagAsync(Guid tagId); // 204 No Content: a typed response would fail to deserialize the empty body
 }

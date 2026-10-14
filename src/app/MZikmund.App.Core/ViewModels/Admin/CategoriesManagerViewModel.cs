@@ -117,14 +117,20 @@ public partial class CategoriesManagerViewModel : PageViewModel
 		}
 	}
 
-	private async Task RunAndRefreshAsync<T>(Func<Task<ApiResponse<T>>> action)
+	private Task RunAndRefreshAsync<T>(Func<Task<ApiResponse<T>>> action) =>
+		RunAndRefreshAsync(async () => (IApiResponse)await action());
+
+	private async Task RunAndRefreshAsync(Func<Task<IApiResponse>> action)
 	{
 		using (_loadingIndicator.BeginLoading())
 		{
 			try
 			{
 				var response = await action();
-				await response.EnsureSuccessfulAsync();
+				if (!response.IsSuccessStatusCode)
+				{
+					throw (Exception?)response.Error ?? new InvalidOperationException(response.StatusCode.ToString());
+				}
 			}
 			catch (Exception ex)
 			{
