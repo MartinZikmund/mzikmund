@@ -30,6 +30,18 @@ public class CommentsAdminController : Controller
 		_mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
 
 	/// <summary>
+	/// Normalizes a bound instant to UTC. Model binding yields Local for a value with an offset;
+	/// a value with no offset at all is Unspecified, which ToUniversalTime would wrongly read as
+	/// server-local time, so it is taken as UTC.
+	/// </summary>
+	private static DateTime? ToUtc(DateTime? value) => value switch
+	{
+		null => null,
+		{ Kind: DateTimeKind.Unspecified } unspecified => DateTime.SpecifyKind(unspecified, DateTimeKind.Utc),
+		{ } instant => instant.ToUniversalTime(),
+	};
+
+	/// <summary>
 	/// Gets the open report queue, grouped by comment.
 	/// </summary>
 	/// <param name="pageNumber">Page number (1-based).</param>
@@ -61,7 +73,7 @@ public class CommentsAdminController : Controller
 	/// <summary>
 	/// Gets the newest-first moderation feed.
 	/// </summary>
-	/// <param name="since">Only comments created after this instant.</param>
+	/// <param name="since">Only comments created after this instant. Pass an ISO 8601 UTC instant; one without an offset is read as UTC.</param>
 	/// <param name="pageNumber">Page number (1-based).</param>
 	/// <returns>A page of comments, newest first.</returns>
 	[HttpGet("")]
@@ -71,7 +83,7 @@ public class CommentsAdminController : Controller
 	public async Task<IActionResult> GetModerationFeed(
 		[FromQuery] DateTime? since = null,
 		[FromQuery] int pageNumber = 1) =>
-		Ok(await _mediator.Send(new GetModerationFeedQuery(since?.ToUniversalTime(), pageNumber, PageSize)));
+		Ok(await _mediator.Send(new GetModerationFeedQuery(ToUtc(since), pageNumber, PageSize)));
 
 	/// <summary>
 	/// Counts comments created since the given instant, for the app's unread badge.
@@ -83,7 +95,7 @@ public class CommentsAdminController : Controller
 	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 	[ProducesResponseType(StatusCodes.Status403Forbidden)]
 	public async Task<IActionResult> CountNewComments([FromQuery] DateTime? since = null) =>
-		Ok(await _mediator.Send(new CountNewCommentsQuery(since?.ToUniversalTime())));
+		Ok(await _mediator.Send(new CountNewCommentsQuery(ToUtc(since))));
 
 	/// <summary>
 	/// Hides a comment from public view and auto-resolves its open reports.

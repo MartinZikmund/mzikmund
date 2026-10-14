@@ -152,7 +152,7 @@ public class CommentsHttpTests
 		Mock<IMediator> mediator = new();
 		mediator
 			.Setup(x => x.Send(It.IsAny<GetModerationFeedQuery>(), It.IsAny<CancellationToken>()))
-			.ReturnsAsync(new PagedResponse<CommentDto>(Array.Empty<CommentDto>(), 1, 20, 0));
+			.ReturnsAsync(new PagedResponse<CommentModerationDto>(Array.Empty<CommentModerationDto>(), 1, 20, 0));
 		using var host = await StartHostAsync(mediator, commentsEnabled: false);
 		using var client = host.GetTestClient();
 		if (user is not null)
@@ -191,7 +191,7 @@ public class CommentsHttpTests
 		Mock<IMediator> mediator = new();
 		mediator
 			.Setup(x => x.Send(It.IsAny<GetModerationFeedQuery>(), It.IsAny<CancellationToken>()))
-			.ReturnsAsync(new PagedResponse<CommentDto>(Array.Empty<CommentDto>(), 1, 20, 0));
+			.ReturnsAsync(new PagedResponse<CommentModerationDto>(Array.Empty<CommentModerationDto>(), 1, 20, 0));
 		using var host = await StartHostAsync(mediator, commentsEnabled: false);
 		using var client = host.GetTestClient();
 		client.DefaultRequestHeaders.Add(TestAuthHandler.Header, "admin");

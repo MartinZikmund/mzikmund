@@ -72,7 +72,7 @@ public class CommentsAdminControllerTests
 	{
 		// Arrange
 		var since = new DateTime(2026, 8, 1, 0, 0, 0, DateTimeKind.Utc);
-		var paged = new PagedResponse<CommentDto>(Array.Empty<CommentDto>(), 2, 20, 0);
+		var paged = new PagedResponse<CommentModerationDto>(Array.Empty<CommentModerationDto>(), 2, 20, 0);
 		_mockMediator
 			.Setup(x => x.Send(It.IsAny<GetModerationFeedQuery>(), It.IsAny<CancellationToken>()))
 			.ReturnsAsync(paged);
@@ -197,7 +197,7 @@ public class CommentsAdminControllerTests
 		var since = new DateTime(2026, 8, 1, 12, 0, 0, DateTimeKind.Local);
 		_mockMediator
 			.Setup(x => x.Send(It.IsAny<GetModerationFeedQuery>(), It.IsAny<CancellationToken>()))
-			.ReturnsAsync(new PagedResponse<CommentDto>(Array.Empty<CommentDto>(), 1, 20, 0));
+			.ReturnsAsync(new PagedResponse<CommentModerationDto>(Array.Empty<CommentModerationDto>(), 1, 20, 0));
 
 		// Act
 		await _controller.GetModerationFeed(since);

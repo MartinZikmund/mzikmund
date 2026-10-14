@@ -105,6 +105,13 @@ namespace MZikmund.Api.Serialization;
 [JsonSerializable(typeof(CommentReportReason))]
 [JsonSerializable(typeof(CommentSortOrder))]
 
+// Comment moderation types
+[JsonSerializable(typeof(CommentModerationDto))]
+[JsonSerializable(typeof(CommentModerationDto[]))]
+[JsonSerializable(typeof(IEnumerable<CommentModerationDto>))]
+[JsonSerializable(typeof(PagedResponse<CommentModerationDto>))]
+[JsonSerializable(typeof(ApiResponse<PagedResponse<CommentModerationDto>>))]
+
 // Comment report types
 [JsonSerializable(typeof(CommentReportDto))]
 [JsonSerializable(typeof(CommentReportDto[]))]

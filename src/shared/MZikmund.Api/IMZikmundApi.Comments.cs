@@ -67,15 +67,17 @@ public partial interface IMZikmundApi
 	[Headers("Authorization: Bearer")]
 	Task<ApiResponse<object?>> ResolveCommentReportAsync(Guid commentId);
 
+	// "since" is sent as a round-trip ISO 8601 instant ("o"), keeping the offset and the
+	// milliseconds. Callers must pass a UTC DateTime: an Unspecified one is read as UTC by the server.
 	[Get("/v1/admin/comments")]
 	[Headers("Authorization: Bearer")]
-	Task<ApiResponse<PagedResponse<CommentDto>>> GetModerationFeedAsync(
-		[Query] DateTime? since = null,
+	Task<ApiResponse<PagedResponse<CommentModerationDto>>> GetModerationFeedAsync(
+		[Query(Format = "o")] DateTime? since = null,
 		[Query] int pageNumber = 1);
 
 	[Get("/v1/admin/comments/count")]
 	[Headers("Authorization: Bearer")]
-	Task<ApiResponse<int>> CountNewCommentsAsync([Query] DateTime? since = null);
+	Task<ApiResponse<int>> CountNewCommentsAsync([Query(Format = "o")] DateTime? since = null);
 
 	[Post("/v1/admin/comments/{id}/hide")]
 	[Headers("Authorization: Bearer")]
