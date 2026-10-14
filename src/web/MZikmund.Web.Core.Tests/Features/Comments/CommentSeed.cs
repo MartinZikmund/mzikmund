@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Moq;
+using MZikmund.DataContracts.Blog.Comments;
 using MZikmund.Web.Core.Services;
 using MZikmund.Web.Core.Services.Comments;
 using MZikmund.Web.Data;
@@ -82,6 +83,26 @@ internal static class CommentSeed
 
 		context.Comment.Add(comment);
 		return comment;
+	}
+
+	public static CommentReportEntity AddReport(
+		DatabaseContext context,
+		Guid commentId,
+		Guid reporterId,
+		CommentReportReason reason,
+		DateTime createdOn)
+	{
+		CommentReportEntity report = new()
+		{
+			Id = Guid.NewGuid(),
+			CommentId = commentId,
+			ReporterId = reporterId,
+			Reason = reason,
+			CreatedOn = createdOn,
+		};
+
+		context.CommentReport.Add(report);
+		return report;
 	}
 
 	public static Mock<ICurrentUserAccessor> CurrentUser(Guid? authorId, string displayName = "Reader")
