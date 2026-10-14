@@ -1,0 +1,109 @@
+<dialogs:SignInDialogBase
+    x:Class="MZikmund.Dialogs.SignInDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:dialogs="using:MZikmund.Dialogs"
+    xmlns:xaml="using:MZikmund.Extensions.Xaml"
+    Title="{x:Bind ViewModel.Title}"
+    CloseButtonText="{xaml:Localize Key=Cancel}"
+    Style="{StaticResource DefaultContentDialogStyle}">
+
+    <StackPanel MinWidth="300" Spacing="12">
+        <StackPanel
+            Spacing="8"
+            Visibility="{x:Bind ViewModel.IsChooseStep, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Button
+                HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Center"
+                AutomationProperties.AutomationId="SignInGoogle"
+                Command="{x:Bind ViewModel.SignInWithGoogleCommand}"
+                Content="{xaml:Localize Key=SignInWithGoogle}"
+                IsEnabled="{x:Bind ViewModel.IsNotBusy, Mode=OneWay}"
+                Style="{StaticResource MzStandardButtonStyle}" />
+            <Button
+                HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Center"
+                AutomationProperties.AutomationId="SignInApple"
+                Command="{x:Bind ViewModel.SignInWithAppleCommand}"
+                Content="{xaml:Localize Key=SignInWithApple}"
+                IsEnabled="{x:Bind ViewModel.IsNotBusy, Mode=OneWay}"
+                Style="{StaticResource MzStandardButtonStyle}" />
+            <Button
+                HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Center"
+                AutomationProperties.AutomationId="SignInEmail"
+                Command="{x:Bind ViewModel.ContinueWithEmailCommand}"
+                Content="{xaml:Localize Key=SignInWithEmail}"
+                IsEnabled="{x:Bind ViewModel.IsNotBusy, Mode=OneWay}"
+                Style="{StaticResource MzAccentButtonStyle}" />
+            <StackPanel Orientation="Horizontal" Spacing="4">
+                <TextBlock
+                    VerticalAlignment="Center"
+                    Style="{StaticResource MzMetaTextStyle}"
+                    Text="{xaml:Localize Key=SignInPrivacyNote}" />
+                <HyperlinkButton
+                    Padding="0"
+                    Content="{xaml:Localize Key=PrivacyPolicy}"
+                    NavigateUri="{x:Bind ViewModel.PrivacyUri}" />
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel
+            Spacing="8"
+            Visibility="{x:Bind ViewModel.IsEmailStep, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+            <TextBox
+                AutomationProperties.AutomationId="SignInEmailBox"
+                Header="{xaml:Localize Key=Email}"
+                InputScope="EmailSmtpAddress"
+                Text="{x:Bind ViewModel.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <Button
+                HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Center"
+                AutomationProperties.AutomationId="SignInSendCode"
+                Command="{x:Bind ViewModel.SendCodeCommand}"
+                Content="{xaml:Localize Key=SendCode}"
+                IsEnabled="{x:Bind ViewModel.IsNotBusy, Mode=OneWay}"
+                Style="{StaticResource MzAccentButtonStyle}" />
+        </StackPanel>
+
+        <StackPanel
+            Spacing="8"
+            Visibility="{x:Bind ViewModel.IsCodeStep, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+            <TextBlock
+                Style="{StaticResource MzMetaTextStyle}"
+                Text="{x:Bind ViewModel.CodePrompt, Mode=OneWay}"
+                TextWrapping="Wrap" />
+            <TextBox
+                AutomationProperties.AutomationId="SignInCodeBox"
+                Header="{xaml:Localize Key=SignInCode}"
+                InputScope="Number"
+                MaxLength="6"
+                Text="{x:Bind ViewModel.Code, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <Button
+                HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Center"
+                AutomationProperties.AutomationId="SignInVerify"
+                Command="{x:Bind ViewModel.VerifyCodeCommand}"
+                Content="{xaml:Localize Key=Verify}"
+                IsEnabled="{x:Bind ViewModel.IsNotBusy, Mode=OneWay}"
+                Style="{StaticResource MzAccentButtonStyle}" />
+            <HyperlinkButton
+                Padding="0"
+                AutomationProperties.AutomationId="SignInDifferentEmail"
+                Command="{x:Bind ViewModel.UseDifferentEmailCommand}"
+                Content="{xaml:Localize Key=UseDifferentEmail}" />
+        </StackPanel>
+
+        <ProgressRing
+            Width="24"
+            Height="24"
+            HorizontalAlignment="Center"
+            IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}" />
+        <TextBlock
+            AutomationProperties.AutomationId="SignInError"
+            Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+            Text="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
+            TextWrapping="Wrap"
+            Visibility="{x:Bind ViewModel.HasError, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+    </StackPanel>
+</dialogs:SignInDialogBase>

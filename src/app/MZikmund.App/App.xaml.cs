@@ -158,7 +158,8 @@ public partial class MZikmundApp : Application, IApplication
 		services.AddScoped<IDialogService, DialogService>();
 		services.AddScoped<IWindowShellProvider, WindowShellProvider>();
 		services.AddScoped<ITimerFactory, TimerFactory>();
-		services.AddScoped<IUserService, UserService>();
+		services.AddSingleton<IUserService, UserService>();
+		services.AddScoped<ISignInPrompt, SignInPrompt>();
 		services.AddSingleton<IMarkdownConverter, MarkdownConverter>();
 		services.AddSingleton<IPostContentProcessor, PostContentProcessor>();
 
@@ -182,27 +183,16 @@ public partial class MZikmundApp : Application, IApplication
 
 		async Task<string> GetTokenAsync(HttpRequestMessage message, CancellationToken cancellationToken)
 		{
-			var userService = provider.GetRequiredService<IUserService>();
-			if (!userService.IsLoggedIn || userService.NeedsRefresh)
-			{
-				await userService.AuthenticateAsync();
-			}
-
-			if (userService.AccessToken is not { } accessToken)
-			{
-				throw new AuthenticationFailedException("Sign in to continue.");
-			}
-
-			return accessToken;
+			return await provider.GetRequiredService<IUserService>().GetAccessTokenAsync(cancellationToken);
 		}
 	}
 
 #if WINDOWS
 	internal void OnUriCallback(Uri uri)
 	{
-		if (!Microsoft.Security.Authentication.OAuth.OAuth2Manager.CompleteAuthRequest(uri))
+		if (!UserService.TryCompleteProtocolCallback(uri))
 		{
-			this.Log().LogError("Could not authenticate");
+			this.Log().LogError("Received a sign-in callback nobody was waiting for");
 		}
 	}
 #endif
