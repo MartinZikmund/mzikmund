@@ -100,6 +100,10 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 	services.AddMediatR(config =>
 	{
 		config.RegisterServicesFromAssemblyContaining<CoreAssemblyMarker>();
+
+		// Upserts the comment author and rejects banned authors for every IAuthoredRequest.
+		// The DI container honours the generic constraint, so unmarked requests are unaffected.
+		config.AddOpenBehavior(typeof(AuthoredRequestBehavior<,>));
 	});
 
 	services.AddSingleton<IDateProvider, DateProvider>();
