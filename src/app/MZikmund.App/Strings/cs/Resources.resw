@@ -459,4 +459,7 @@
   <data name="MoreActions" xml:space="preserve">
     <value>Další akce</value>
   </data>
+  <data name="PickCategories" xml:space="preserve">
+    <value>Vybrat kategorie</value>
+  </data>
 </root>

@@ -10,7 +10,7 @@
     xmlns:xaml="using:MZikmund.Extensions.Xaml"
     Title="{x:Bind ViewModel.FileName, Mode=OneWay}"
     CloseButtonText="{xaml:Localize Key=Close}"
-    Style="{ThemeResource DefaultContentDialogStyle}"
+    Style="{StaticResource DefaultContentDialogStyle}"
     mc:Ignorable="d">
 
     <Grid
@@ -70,7 +70,7 @@
             Command="{x:Bind ViewModel.CopyUrlCommand}"
             Visibility="{x:Bind ViewModel.SelectedVariant, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
             <StackPanel Orientation="Horizontal" Spacing="8">
-                <SymbolIcon Symbol="Copy" />
+                <FontIcon FontFamily="{StaticResource MzIconFontFamily}" FontSize="16" Glyph="{StaticResource MzGlyphCopy}" />
                 <TextBlock Text="{xaml:Localize Key=CopyUrl}" />
             </StackPanel>
         </Button>
