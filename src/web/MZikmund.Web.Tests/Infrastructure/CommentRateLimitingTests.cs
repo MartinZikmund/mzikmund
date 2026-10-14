@@ -34,6 +34,42 @@ public class CommentRateLimitingTests
 	}
 
 	[Fact]
+	public async Task CommentEditAndDelete_PastTheEditLimit_Return429()
+	{
+		// Arrange
+		RateLimitOptions limits = new() { CommentEdit = new() { PermitLimit = 2, WindowMinutes = 10 } };
+		using var host = await StartHostAsync(limits);
+		using var client = host.GetTestClient();
+
+		// Act
+		var edit = await client.PatchAsync("/comment/1", null);
+		var delete = await client.DeleteAsync("/comment/1");
+		var blocked = await client.PatchAsync("/comment/1", null);
+
+		// Assert
+		Assert.Equal(HttpStatusCode.OK, edit.StatusCode);
+		Assert.Equal(HttpStatusCode.OK, delete.StatusCode);
+		Assert.Equal(HttpStatusCode.TooManyRequests, blocked.StatusCode);
+	}
+
+	[Fact]
+	public async Task CommentEdits_CountTowardsThePerIpLimit()
+	{
+		// Arrange
+		RateLimitOptions limits = new() { GlobalWrites = new() { PermitLimit = 1, WindowMinutes = 1 } };
+		using var host = await StartHostAsync(limits);
+		using var client = host.GetTestClient();
+
+		// Act
+		var first = await client.PatchAsync("/comment/1", null);
+		var second = await client.DeleteAsync("/comment/1");
+
+		// Assert
+		Assert.Equal(HttpStatusCode.OK, first.StatusCode);
+		Assert.Equal(HttpStatusCode.TooManyRequests, second.StatusCode);
+	}
+
+	[Fact]
 	public async Task NonCommentWrite_IsNeverThrottled_EvenWhenTheCommentIpLimitIsTiny()
 	{
 		// Arrange
@@ -109,6 +145,8 @@ public class CommentRateLimitingTests
 						endpoints.MapPost("/comment", () => "ok").RequireRateLimiting(RateLimitPolicies.CommentCreate);
 						endpoints.MapPut("/vote", () => "ok").RequireRateLimiting(RateLimitPolicies.CommentVote);
 						endpoints.MapPost("/report", () => "ok").RequireRateLimiting(RateLimitPolicies.CommentReport);
+						endpoints.MapPatch("/comment/{id}", (string id) => "ok").RequireRateLimiting(RateLimitPolicies.CommentEdit);
+						endpoints.MapDelete("/comment/{id}", (string id) => "ok").RequireRateLimiting(RateLimitPolicies.CommentEdit);
 						endpoints.MapPost("/admin-upload", () => "ok");
 					});
 				}))

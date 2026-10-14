@@ -384,6 +384,8 @@ public class CommentsControllerTests
 	[InlineData(nameof(CommentsController.AddVote), RateLimitPolicies.CommentVote)]
 	[InlineData(nameof(CommentsController.RemoveVote), RateLimitPolicies.CommentVote)]
 	[InlineData(nameof(CommentsController.ReportComment), RateLimitPolicies.CommentReport)]
+	[InlineData(nameof(CommentsController.UpdateComment), RateLimitPolicies.CommentEdit)]
+	[InlineData(nameof(CommentsController.DeleteComment), RateLimitPolicies.CommentEdit)]
 	public void WriteActions_AreRateLimitedByTheirPolicy(string methodName, string policy)
 	{
 		// Arrange
