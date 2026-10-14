@@ -1,6 +1,6 @@
+using Microsoft.UI.Text;
 using Microsoft.UI.Xaml.Documents;
 using MZikmund.Shared.Blog;
-using Microsoft.UI.Text;
 
 namespace MZikmund.Extensions.Xaml;
 

@@ -143,6 +143,7 @@ public partial class MZikmundApp : Application, IApplication
 		services.AddScoped<PostsManagerViewModel>();
 		services.AddScoped<MediaBrowserViewModel>();
 		services.AddScoped<PostViewModel>();
+		services.AddTransient<CommentsViewModel>();
 		services.AddScoped<WindowShellViewModel>();
 		services.AddTransient<PostEditorViewModel>();
 		services.AddTransient<MediaBrowserDialogViewModel>();
