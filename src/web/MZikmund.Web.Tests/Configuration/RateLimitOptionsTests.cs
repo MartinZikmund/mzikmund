@@ -15,6 +15,7 @@ public class RateLimitOptionsTests
 		var create = options.CommentCreate;
 		var vote = options.CommentVote;
 		var report = options.CommentReport;
+		var edit = options.CommentEdit;
 		var globalWrites = options.GlobalWrites;
 
 		// Assert
@@ -24,6 +25,8 @@ public class RateLimitOptionsTests
 		Assert.Equal(TimeSpan.FromMinutes(1), vote.Window);
 		Assert.Equal(10, report.PermitLimit);
 		Assert.Equal(TimeSpan.FromHours(1), report.Window);
+		Assert.Equal(20, edit.PermitLimit);
+		Assert.Equal(TimeSpan.FromMinutes(10), edit.Window);
 		Assert.Equal(20, globalWrites.PermitLimit);
 		Assert.Equal(TimeSpan.FromMinutes(1), globalWrites.Window);
 	}
