@@ -23,7 +23,7 @@ specificity, and utilities always win. Never write `!important`.
 | `Styles/_base.scss` | Reset, element defaults, focus, skip link |
 | `Styles/_layout.scss` | `.container`, `.section`, `.card-grid`, `.article-layout` |
 | `Styles/_code.scss` | ColorCode token colours + GitHub Gist dark theme |
-| `Styles/components/*.scss` | nav, controls, card, hero, article, toc, footer |
+| `Styles/components/*.scss` | nav, controls, card, hero, article, toc, footer, comments |
 | `Styles/_motion.scss` | Page transitions, connected animation, Reveal, entrances |
 | `Styles/_utilities.scss` | The ~25 utilities actually used |
 
@@ -42,6 +42,7 @@ Never hard-code a colour, size, radius or duration. Everything is a
 - **Text**: `--mz-text-primary|secondary|tertiary|disabled|on-accent`
 - **Strokes**: `--mz-stroke-card|control|control-strong|divider|focus`
 - **Accent**: `--mz-accent-light-3..dark-3`, applied via `--mz-accent-text|fill|fill-hover|subtle`
+- **Smoke**: `--mz-smoke` — the scrim behind a modal `<dialog>::backdrop` only; menus and flyouts get a transparent backdrop
 
 Colour values are the real WinUI 3 theme resources, not approximations.
 
@@ -119,6 +120,12 @@ emit — do not add per-element classes in templates.
 `.empty-state`, `.pagination` / `.pagination__link`, `.taxonomy-card`,
 `.author-bio`, `.toc`, `.reading-progress`, `.back-to-top`.
 
+`.comments`, `.comment` (+ `--reply`, `--tombstone`, `__badge`, `__actions`, `__action`, `__editor`),
+`.comment-composer`, `.signin-dialog` — the comments section and the site's first
+modal. Comments do not reuse `.card` (its hover lift and stretched link assume
+one link per card). Every `[hidden]` inside `.comments` is forced to
+`display: none`, because the component rules set `display` on the same elements.
+
 ## Motion
 
 Uses the **published Fluent values**, not approximations
@@ -159,7 +166,7 @@ so the tokens are named after what a surface **is**, not how deep its shadow is:
 | `--mz-elev-card` | Card (8) | Cards, taxonomy cards, back-to-top |
 | `--mz-elev-tooltip` | Tooltip (16) | Card and back-to-top hover |
 | `--mz-elev-flyout` | Flyout (32) | Theme flyout, mobile nav panel |
-| `--mz-elev-dialog` | Dialog (128) | Reserved — nothing modal yet |
+| `--mz-elev-dialog` | Dialog (128) | Sign-in and report dialogs |
 
 Two rules that come from the guidance rather than taste:
 
@@ -298,6 +305,18 @@ Renaming any of these silently breaks a feature — no error:
 | `[data-nav-toggle]`, `#site-nav` | mobile navigation |
 | `#back-to-top` + `.is-visible` | back-to-top control |
 | `localStorage["ui-theme"]` | stored theme preference — changing the key resets everyone |
+| `[data-comments-root]` + its `data-post-id` / `data-sort` / `data-page` / `data-page-size` / `data-total` / `data-turnstile-sitekey` / `data-highlight-comment` | comments hydration entry point |
+| `[data-comments-list]`, `[data-comments-total]`, `[data-comments-empty]`, `[data-load-more]` | comment list, count and paging |
+| `[data-comment-id]`, `[data-comment-replies]`, `[data-load-replies]` | per-comment identity and reply overflow |
+| `[data-comment-upvote]` + `[data-upvote-count]`, `[data-comment-reply]`, `[data-comment-edit]`, `[data-comment-delete]`, `[data-comment-report]` | comment actions; reply and report are `hidden` until JS reveals them |
+| `[data-comment-composer]`, `[data-comment-content]`, `[data-comment-counter]`, `[data-comment-submit]`, `[data-comment-status]`, `[data-comment-turnstile]`, `[data-comment-parent]`, `[data-comment-cancel-reply]`, `[data-comment-identity]`, `[data-comment-signout]` | composer; the form is `hidden` until JS reveals it |
+| `[data-signin-dialog]` + `[data-signin-provider]` / `[data-signin-email]` / `[data-signin-send]` / `[data-signin-code]` / `[data-signin-verify]` / `[data-signin-error]` / `[data-signin-close]` | sign-in modal |
+| `[data-report-dialog]` + `[data-report-reason]` / `[data-report-note]` / `[data-report-send]` / `[data-report-error]` | report modal |
+| `.comment.is-highlighted`, `.comment.is-busy`, `.comments__sort-link.is-active` | comment state classes |
+| `#comment-{guid}` | deep-link scroll target for `?comment={guid}` |
+| `#supabase-config` (`type="application/json"`) | Supabase URL + publishable key handed to `comments.js` |
+| `sessionStorage["mz-comment-draft"]` | write-then-auth draft; survives the OAuth redirect |
+| `localStorage["mz-auth"]` (+ short-lived `mz-auth-code-verifier`) | supabase-js session store — changing the key signs everyone out |
 
 `Scripts/site.ts` initialises `TableOfContents` **before** `HeadingLinks`,
 because the TOC assigns the heading ids that HeadingLinks requires.

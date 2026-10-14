@@ -171,6 +171,8 @@
 		--mz-elev-dialog: 0 32px 64px rgb(0 0 0 / 0.24), 0 0 8px rgb(0 0 0 / 0.20);
 
 		--mz-shimmer: rgb(0 0 0 / 0.04);
+		// Smoke: the scrim behind a MODAL surface only. Menus and flyouts get a transparent ::backdrop.
+		--mz-smoke: rgb(0 0 0 / 0.3);
 	}
 
 	// =========================================================================
@@ -221,6 +223,7 @@
 		--mz-elev-dialog: 0 32px 64px rgb(0 0 0 / 0.48), 0 0 8px rgb(0 0 0 / 0.40);
 
 		--mz-shimmer: rgb(255 255 255 / 0.05);
+		--mz-smoke: rgb(0 0 0 / 0.45);
 	}
 
 	// =========================================================================
@@ -270,6 +273,7 @@
 			--mz-elev-dialog: 0 32px 64px rgb(0 0 0 / 0.48), 0 0 8px rgb(0 0 0 / 0.40);
 
 			--mz-shimmer: rgb(255 255 255 / 0.05);
+			--mz-smoke: rgb(0 0 0 / 0.45);
 		}
 	}
 
@@ -314,6 +318,7 @@
 			--mz-elev-tooltip: none;
 			--mz-elev-flyout: none;
 			--mz-elev-dialog: none;
+			--mz-smoke: transparent;
 		}
 	}
 }
