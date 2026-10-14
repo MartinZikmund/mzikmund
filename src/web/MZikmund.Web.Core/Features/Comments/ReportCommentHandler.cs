@@ -6,6 +6,7 @@ using MZikmund.Web.Core.Services;
 using MZikmund.Web.Core.Services.Comments;
 using MZikmund.Web.Data;
 using MZikmund.Web.Data.Entities;
+using DataCommentStatus = MZikmund.Web.Data.Entities.CommentStatus;
 
 namespace MZikmund.Web.Core.Features.Comments;
 
@@ -33,6 +34,11 @@ internal sealed class ReportCommentHandler : IRequestHandler<ReportCommentComman
 		var reporter = _currentUserAccessor.Current
 			?? throw new CommentForbiddenException("A signed-in author is required to report a comment.");
 
+		if (!Enum.IsDefined(request.Reason))
+		{
+			throw new CommentValidationException($"Unknown report reason {(int)request.Reason}.");
+		}
+
 		var note = string.IsNullOrWhiteSpace(request.Note) ? null : request.Note.Trim();
 		if (note is not null && note.Length > CommentLimits.MaxReportNoteLength)
 		{
@@ -52,30 +58,54 @@ internal sealed class ReportCommentHandler : IRequestHandler<ReportCommentComman
 				_dbContext.ChangeTracker.Clear();
 
 				var comment = await _dbContext.Comment
-					.FirstOrDefaultAsync(c => c.Id == request.CommentId, ct)
+					.AsNoTracking()
+					.Where(c => c.Id == request.CommentId)
+					.Select(c => new { c.Id, c.AuthorId, c.Status })
+					.FirstOrDefaultAsync(ct)
 					?? throw new CommentNotFoundException($"Comment {request.CommentId} was not found.");
 
-				var alreadyReported = await _dbContext.CommentReport
-					.AnyAsync(r => r.CommentId == comment.Id && r.ReporterId == reporter.Id && r.ResolvedOn == null, ct);
-				if (alreadyReported)
+				if (comment.Status != DataCommentStatus.Visible)
+				{
+					throw new CommentConflictException($"Comment {comment.Id} is not visible and cannot be reported.");
+				}
+
+				if (comment.AuthorId == reporter.Id)
+				{
+					throw new CommentConflictException("An author cannot report their own comment.");
+				}
+
+				if (await OpenReportExistsAsync(comment.Id, reporter.Id, ct))
 				{
 					return;
 				}
 
-				await using var transaction = await _dbContext.Database.BeginTransactionAsync(ct);
-				_dbContext.CommentReport.Add(new CommentReportEntity
+				try
 				{
-					Id = Guid.NewGuid(),
-					CommentId = comment.Id,
-					ReporterId = reporter.Id,
-					Reason = request.Reason,
-					Note = note,
-					CreatedOn = createdOn,
-				});
-				await _dbContext.SaveChangesAsync(ct);
-				await CommentCounters.IncrementReportCountAsync(_dbContext, comment.Id, ct);
-				await transaction.CommitAsync(ct);
-				reported = true;
+					await using var transaction = await _dbContext.Database.BeginTransactionAsync(ct);
+					_dbContext.CommentReport.Add(new CommentReportEntity
+					{
+						Id = Guid.NewGuid(),
+						CommentId = comment.Id,
+						ReporterId = reporter.Id,
+						Reason = request.Reason,
+						Note = note,
+						CreatedOn = createdOn,
+					});
+					await _dbContext.SaveChangesAsync(ct);
+					await CommentCounters.IncrementReportCountAsync(_dbContext, comment.Id, ct);
+					await transaction.CommitAsync(ct);
+					reported = true;
+				}
+				catch (DbUpdateException)
+				{
+					// The unique index on open reports fired: a concurrent request from the same
+					// reporter got there first, so this one is the duplicate and changes nothing.
+					_dbContext.ChangeTracker.Clear();
+					if (!await OpenReportExistsAsync(comment.Id, reporter.Id, ct))
+					{
+						throw;
+					}
+				}
 			},
 			cancellationToken);
 
@@ -88,4 +118,9 @@ internal sealed class ReportCommentHandler : IRequestHandler<ReportCommentComman
 				request.Reason);
 		}
 	}
+
+	private Task<bool> OpenReportExistsAsync(Guid commentId, Guid reporterId, CancellationToken cancellationToken) =>
+		_dbContext.CommentReport.AnyAsync(
+			r => r.CommentId == commentId && r.ReporterId == reporterId && r.ResolvedOn == null,
+			cancellationToken);
 }
