@@ -23,4 +23,11 @@ public class TurnstileOptions
 	/// not enforce it, so the verifier compares it. An empty value disables the check.
 	/// </summary>
 	public string ExpectedAction { get; set; } = "comment-create";
+
+	/// <summary>
+	/// Hostname the widget must have been solved on, for example mzikmund.dev. Cloudflare reports it
+	/// but does not enforce it, so the verifier compares it. An empty value disables the check;
+	/// Cloudflare's test keys report a placeholder hostname, so leave it empty in development.
+	/// </summary>
+	public string ExpectedHostname { get; set; } = "";
 }

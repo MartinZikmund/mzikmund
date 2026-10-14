@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MZikmund.Web.Configuration;
@@ -90,7 +91,23 @@ public sealed class TurnstileVerifier : ITurnstileVerifier
 				return false;
 			}
 
+			if (!string.IsNullOrEmpty(_options.ExpectedHostname) &&
+				!string.Equals(result.Hostname, _options.ExpectedHostname, StringComparison.OrdinalIgnoreCase))
+			{
+				_logger.LogWarning(
+					"Turnstile hostname mismatch. Expected {Expected}, got {Actual}.",
+					_options.ExpectedHostname,
+					result.Hostname);
+				return false;
+			}
+
 			return true;
+		}
+		catch (JsonException ex)
+		{
+			// A body we cannot read is a captcha we cannot check.
+			_logger.LogError(ex, "Turnstile siteverify returned a malformed body.");
+			return false;
 		}
 		catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException && !cancellationToken.IsCancellationRequested)
 		{
