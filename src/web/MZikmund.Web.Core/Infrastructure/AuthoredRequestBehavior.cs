@@ -55,6 +55,7 @@ public sealed class AuthoredRequestBehavior<TRequest, TResponse> : IPipelineBeha
 		var author = await _dbContext.CommentAuthor
 			.FirstOrDefaultAsync(a => a.Id == current.Id, cancellationToken);
 
+		var inserted = false;
 		if (author is null)
 		{
 			author = new CommentAuthorEntity
@@ -64,23 +65,50 @@ public sealed class AuthoredRequestBehavior<TRequest, TResponse> : IPipelineBeha
 				NotifyOnReply = true
 			};
 
+			ApplyProfile(author, current, now);
 			_dbContext.CommentAuthor.Add(author);
-			_logger.LogInformation("Creating comment author projection for {AuthorId}.", current.Id);
-		}
-		else if (author.IsBanned)
-		{
-			// Bans block future writes only; existing comments stay visible.
-			throw new CommentForbiddenException($"Author {current.Id} is banned.");
+
+			try
+			{
+				await _dbContext.SaveChangesAsync(cancellationToken);
+				inserted = true;
+				_logger.LogInformation("Created comment author projection for {AuthorId}.", current.Id);
+			}
+			catch (DbUpdateException)
+			{
+				// Two first requests from the same new user raced and the other one won the insert:
+				// carry on with the row that now exists.
+				_dbContext.ChangeTracker.Clear();
+				author = await _dbContext.CommentAuthor
+					.FirstOrDefaultAsync(a => a.Id == current.Id, cancellationToken);
+				if (author is null)
+				{
+					throw;
+				}
+			}
 		}
 
+		if (!inserted)
+		{
+			if (author.IsBanned && request is not IAllowsBannedAuthor)
+			{
+				// Bans block future writes only; existing comments stay visible.
+				throw new CommentForbiddenException($"Author {current.Id} is banned.");
+			}
+
+			ApplyProfile(author, current, now);
+			await _dbContext.SaveChangesAsync(cancellationToken);
+		}
+
+		return await next(cancellationToken);
+	}
+
+	private static void ApplyProfile(CommentAuthorEntity author, CommentAuthorInfo current, DateTime now)
+	{
 		author.DisplayName = current.DisplayName;
 		author.AvatarUrl = current.AvatarUrl;
 		author.Email = current.Email;
 		author.IsAdmin = current.IsAdmin;
 		author.LastSeenOn = now;
-
-		await _dbContext.SaveChangesAsync(cancellationToken);
-
-		return await next(cancellationToken);
 	}
 }

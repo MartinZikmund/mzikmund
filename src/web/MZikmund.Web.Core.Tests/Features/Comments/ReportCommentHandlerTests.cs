@@ -36,7 +36,7 @@ public class ReportCommentHandlerTests
 		Assert.Null(report.ResolvedOn);
 		Assert.Equal(Now.UtcDateTime, report.CreatedOn);
 
-		var stored = await db.Comment.FirstAsync(c => c.Id == commentId, CancellationToken.None);
+		var stored = await db.Comment.AsNoTracking().FirstAsync(c => c.Id == commentId, CancellationToken.None);
 		Assert.Equal(1, stored.ReportCount);
 	}
 
@@ -55,7 +55,7 @@ public class ReportCommentHandlerTests
 
 		// Assert
 		Assert.Equal(1, await db.CommentReport.CountAsync(r => r.CommentId == commentId, CancellationToken.None));
-		var stored = await db.Comment.FirstAsync(c => c.Id == commentId, CancellationToken.None);
+		var stored = await db.Comment.AsNoTracking().FirstAsync(c => c.Id == commentId, CancellationToken.None);
 		Assert.Equal(1, stored.ReportCount);
 	}
 
@@ -95,7 +95,7 @@ public class ReportCommentHandlerTests
 
 		// Assert
 		Assert.Equal(2, await db.CommentReport.CountAsync(r => r.CommentId == commentId, CancellationToken.None));
-		var stored = await db.Comment.FirstAsync(c => c.Id == commentId, CancellationToken.None);
+		var stored = await db.Comment.AsNoTracking().FirstAsync(c => c.Id == commentId, CancellationToken.None);
 		Assert.Equal(2, stored.ReportCount);
 	}
 
@@ -113,7 +113,7 @@ public class ReportCommentHandlerTests
 		await Assert.ThrowsAsync<CommentValidationException>(
 			() => handler.Handle(new ReportCommentCommand(commentId, CommentReportReason.Other, tooLongNote), CancellationToken.None));
 		Assert.Equal(0, await db.CommentReport.CountAsync(CancellationToken.None));
-		var stored = await db.Comment.FirstAsync(c => c.Id == commentId, CancellationToken.None);
+		var stored = await db.Comment.AsNoTracking().FirstAsync(c => c.Id == commentId, CancellationToken.None);
 		Assert.Equal(0, stored.ReportCount);
 	}
 

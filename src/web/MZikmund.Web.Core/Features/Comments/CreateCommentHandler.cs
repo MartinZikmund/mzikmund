@@ -140,12 +140,12 @@ internal sealed class CreateCommentHandler : IRequestHandler<CreateCommentComman
 				};
 
 				_dbContext.Comment.Add(comment);
+				await _dbContext.SaveChangesAsync(ct);
 				if (parent is not null)
 				{
-					parent.ReplyCount += 1;
+					await CommentCounters.IncrementReplyCountAsync(_dbContext, parent.Id, ct);
 				}
 
-				await _dbContext.SaveChangesAsync(ct);
 				await transaction.CommitAsync(ct);
 				created = comment;
 			},
