@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using MZikmund.DataContracts.Blog.Comments;
 using MZikmund.Web.Core.Services;
 using MZikmund.Web.Core.Services.Comments;
 using MZikmund.Web.Data;
@@ -93,7 +94,7 @@ public sealed class AuthoredRequestBehavior<TRequest, TResponse> : IPipelineBeha
 			if (author.IsBanned && request is not IAllowsBannedAuthor)
 			{
 				// Bans block future writes only; existing comments stay visible.
-				throw new CommentForbiddenException($"Author {current.Id} is banned.");
+				throw new CommentForbiddenException($"Author {current.Id} is banned.", CommentErrorCodes.Banned);
 			}
 
 			ApplyProfile(author, current, now);

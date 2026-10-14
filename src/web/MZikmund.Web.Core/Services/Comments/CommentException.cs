@@ -6,8 +6,15 @@ namespace MZikmund.Web.Core.Services.Comments;
 /// </summary>
 public abstract class CommentException : Exception
 {
-	protected CommentException(string message)
+	protected CommentException(string message, string? code = null)
 		: base(message)
 	{
+		Code = code;
 	}
+
+	/// <summary>
+	/// One of <see cref="MZikmund.DataContracts.Blog.Comments.CommentErrorCodes"/> when the failure has a
+	/// specific reason; otherwise the filter falls back to the code of the exception type.
+	/// </summary>
+	public string? Code { get; }
 }

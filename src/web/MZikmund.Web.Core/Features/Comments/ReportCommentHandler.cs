@@ -71,12 +71,12 @@ internal sealed class ReportCommentHandler : IRequestHandler<ReportCommentComman
 
 				if (comment.Status != DataCommentStatus.Visible)
 				{
-					throw new CommentConflictException($"Comment {comment.Id} is not visible and cannot be reported.");
+					throw new CommentConflictException($"Comment {comment.Id} is not visible and cannot be reported.", CommentErrorCodes.NotVisible);
 				}
 
 				if (comment.AuthorId == reporter.Id)
 				{
-					throw new CommentConflictException("An author cannot report their own comment.");
+					throw new CommentConflictException("An author cannot report their own comment.", CommentErrorCodes.OwnComment);
 				}
 
 				if (await OpenReportExistsAsync(comment.Id, reporter.Id, ct))

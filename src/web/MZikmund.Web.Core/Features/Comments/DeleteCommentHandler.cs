@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using MZikmund.DataContracts.Blog.Comments;
 using MZikmund.Web.Core.Services.Comments;
 using MZikmund.Web.Data;
 using DataCommentStatus = MZikmund.Web.Data.Entities.CommentStatus;
@@ -58,7 +59,7 @@ internal sealed class DeleteCommentHandler : IRequestHandler<DeleteCommentComman
 
 				if (comment.Status == DataCommentStatus.HiddenByModerator)
 				{
-					throw new CommentConflictException($"Comment {comment.Id} was hidden by a moderator and cannot be deleted.");
+					throw new CommentConflictException($"Comment {comment.Id} was hidden by a moderator and cannot be deleted.", CommentErrorCodes.HiddenByModerator);
 				}
 
 				await using var transaction = await _dbContext.Database.BeginTransactionAsync(ct);

@@ -40,13 +40,14 @@ internal sealed class CreateCommentHandler : IRequestHandler<CreateCommentComman
 		var content = request.Content.Trim();
 		if (content.Length == 0)
 		{
-			throw new CommentValidationException("Comment content must not be empty.");
+			throw new CommentValidationException("Comment content must not be empty.", CommentErrorCodes.ContentEmpty);
 		}
 
 		if (content.Length > CommentLimits.MaxCommentLength)
 		{
 			throw new CommentValidationException(
-				$"Comment content must not exceed {CommentLimits.MaxCommentLength} characters.");
+				$"Comment content must not exceed {CommentLimits.MaxCommentLength} characters.",
+				CommentErrorCodes.ContentTooLong);
 		}
 
 		var contentHtml = _contentRenderer.RenderHtml(content);
@@ -98,7 +99,7 @@ internal sealed class CreateCommentHandler : IRequestHandler<CreateCommentComman
 
 					if (target.Status == DataCommentStatus.HiddenByModerator)
 					{
-						throw new CommentConflictException($"Comment {targetId} is not visible and cannot be replied to.");
+						throw new CommentConflictException($"Comment {targetId} is not visible and cannot be replied to.", CommentErrorCodes.NotVisible);
 					}
 
 					if (target.ParentId is Guid grandParentId)
@@ -107,7 +108,7 @@ internal sealed class CreateCommentHandler : IRequestHandler<CreateCommentComman
 						// a deleted reply is not worth addressing.
 						if (target.Status != DataCommentStatus.Visible)
 						{
-							throw new CommentConflictException($"Comment {targetId} is not visible and cannot be replied to.");
+							throw new CommentConflictException($"Comment {targetId} is not visible and cannot be replied to.", CommentErrorCodes.NotVisible);
 						}
 
 						// One level of threading only. A reply aimed at a reply is re-pointed at the
@@ -119,7 +120,7 @@ internal sealed class CreateCommentHandler : IRequestHandler<CreateCommentComman
 
 						if (parent.Status == DataCommentStatus.HiddenByModerator)
 						{
-							throw new CommentConflictException($"Comment {grandParentId} is not visible and cannot be replied to.");
+							throw new CommentConflictException($"Comment {grandParentId} is not visible and cannot be replied to.", CommentErrorCodes.NotVisible);
 						}
 
 						mentionedDisplayName = target.Author.DisplayName;
