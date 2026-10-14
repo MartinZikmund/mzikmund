@@ -646,7 +646,7 @@
     <value>Ban this author?</value>
   </data>
   <data name="ModeratorBanText" xml:space="preserve">
-    <value>They will no longer be able to comment, vote or report. Their existing comments are hidden.</value>
+    <value>They will no longer be able to comment, vote or report.</value>
   </data>
   <data name="ModeratorStatusHidden" xml:space="preserve">
     <value>Hidden</value>

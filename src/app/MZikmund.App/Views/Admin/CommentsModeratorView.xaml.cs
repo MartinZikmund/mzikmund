@@ -35,7 +35,7 @@ public sealed partial class CommentsModeratorView : CommentsModeratorViewBase
 	private static MenuFlyoutItem CreateMenuItem(string textKey, Action onClick)
 	{
 		MenuFlyoutItem menuItem = new() { Text = Localizer.Instance.GetString(textKey) };
-		AutomationProperties.SetAutomationId(menuItem, "Moderator" + textKey);
+		AutomationProperties.SetAutomationId(menuItem, "ModeratorAction" + textKey.Replace("Moderator", ""));
 		menuItem.Click += (_, _) => onClick();
 		return menuItem;
 	}

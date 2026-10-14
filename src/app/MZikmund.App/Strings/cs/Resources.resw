@@ -646,7 +646,7 @@
     <value>Zablokovat tohoto autora?</value>
   </data>
   <data name="ModeratorBanText" xml:space="preserve">
-    <value>Už nebude moci komentovat, hlasovat ani nahlašovat. Jeho stávající komentáře se skryjí.</value>
+    <value>Už nebude moci komentovat, hlasovat ani nahlašovat.</value>
   </data>
   <data name="ModeratorStatusHidden" xml:space="preserve">
     <value>Skrytý</value>
