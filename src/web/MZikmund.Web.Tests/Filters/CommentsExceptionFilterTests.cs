@@ -39,12 +39,22 @@ public class CommentsExceptionFilterTests
 		Assert.Equal(exception.Message, problem.Detail);
 	}
 
-	[Fact]
-	public void OnException_UnrelatedException_StaysUnhandled()
+	public static TheoryData<Exception> Unmapped => new()
+	{
+		new NotSupportedException("boom"),
+		new InvalidOperationException("sequence contains no elements"),
+		new ArgumentException("bad argument"),
+		new KeyNotFoundException("dictionary key"),
+		new UnauthorizedAccessException("file system"),
+	};
+
+	[Theory]
+	[MemberData(nameof(Unmapped))]
+	public void OnException_NonDomainException_StaysUnhandledSoItSurfacesAs500(Exception exception)
 	{
 		// Arrange
 		var filter = new CommentsExceptionFilterAttribute();
-		var context = CreateContext(new NotSupportedException("boom"));
+		var context = CreateContext(exception);
 
 		// Act
 		filter.OnException(context);
