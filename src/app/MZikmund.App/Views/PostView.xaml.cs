@@ -26,6 +26,7 @@ public sealed partial class PostView : PostViewBase
 		}
 
 		ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+		UpdateCommentsColumn();
 		try
 		{
 			await _webView.EnsureCoreWebView2Async();
@@ -40,6 +41,18 @@ public sealed partial class PostView : PostViewBase
 		}
 	}
 
+	public Visibility PanelVisibility(bool isOpen, bool isAvailable) =>
+		isOpen && isAvailable ? Visibility.Visible : Visibility.Collapsed;
+
+	// The side panel only takes its column when it is open and the window is wide enough to share.
+	private void UpdateCommentsColumn()
+	{
+		var isSideBySide = CommentsLayout.CurrentState?.Name == "Wide";
+		CommentsColumn.Width = isSideBySide && ViewModel is { IsCommentsOpen: true } ? new GridLength(400) : new GridLength(0);
+	}
+
+	private void CommentsLayout_CurrentStateChanged(object sender, VisualStateChangedEventArgs e) => UpdateCommentsColumn();
+
 	private void PostView_Unloaded(object sender, RoutedEventArgs e)
 	{
 		if (ViewModel is not null)
@@ -53,6 +66,10 @@ public sealed partial class PostView : PostViewBase
 		if (e.PropertyName == nameof(PostViewModel.EmbedUrl))
 		{
 			NavigateToPost();
+		}
+		else if (e.PropertyName == nameof(PostViewModel.IsCommentsOpen))
+		{
+			UpdateCommentsColumn();
 		}
 	}
 

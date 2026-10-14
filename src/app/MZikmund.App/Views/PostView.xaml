@@ -15,14 +15,38 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition x:Name="CommentsColumn" Width="0" />
+        </Grid.ColumnDefinitions>
+
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="CommentsLayout" CurrentStateChanged="CommentsLayout_CurrentStateChanged">
+                <VisualState x:Name="Narrow" />
+                <VisualState x:Name="Wide">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1008" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="CommentsPanel.(Grid.Column)" Value="1" />
+                        <Setter Target="CommentsPanel.(Grid.ColumnSpan)" Value="1" />
+                        <Setter Target="CommentsPanel.Background" Value="{ThemeResource MzBgSecondaryBrush}" />
+                        <Setter Target="CommentsPanel.BorderThickness" Value="1,0,0,0" />
+                        <Setter Target="CommentsCloseRow.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
 
         <Grid
+            Grid.ColumnSpan="2"
             Padding="16,8"
             BorderBrush="{ThemeResource MzStrokeDividerBrush}"
             BorderThickness="0,0,0,1"
             ColumnSpacing="12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <TextBlock
@@ -31,6 +55,21 @@
                 Text="{x:Bind ViewModel.Title, Mode=OneWay}" />
             <Button
                 Grid.Column="1"
+                AutomationProperties.AutomationId="PostComments"
+                AutomationProperties.Name="{extensions:Localize Key=Comments}"
+                Command="{x:Bind ViewModel.ToggleCommentsCommand}"
+                Style="{StaticResource MzSubtleButtonSmallStyle}"
+                Visibility="{x:Bind ViewModel.Comments.IsPanelVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon
+                        FontFamily="{StaticResource MzIconFontFamily}"
+                        FontSize="14"
+                        Glyph="{StaticResource MzGlyphComment}" />
+                    <TextBlock Text="{x:Bind ViewModel.Comments.CountText, Mode=OneWay}" />
+                </StackPanel>
+            </Button>
+            <Button
+                Grid.Column="2"
                 AutomationProperties.AutomationId="PostOpenInBrowser"
                 Command="{x:Bind ViewModel.OpenInBrowserCommand}"
                 Style="{StaticResource MzSubtleButtonSmallStyle}">
@@ -73,6 +112,38 @@
                     Content="{extensions:Localize Key=Retry}"
                     Style="{StaticResource MzStandardButtonStyle}" />
             </StackPanel>
+        </Grid>
+
+        <Grid
+            x:Name="CommentsPanel"
+            Grid.Row="1"
+            Grid.ColumnSpan="2"
+            Background="{ThemeResource MzBgBaseBrush}"
+            BorderBrush="{ThemeResource MzStrokeDividerBrush}"
+            Visibility="{x:Bind PanelVisibility(ViewModel.IsCommentsOpen, ViewModel.Comments.IsPanelVisible), Mode=OneWay}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid
+                x:Name="CommentsCloseRow"
+                Padding="16,4"
+                BorderBrush="{ThemeResource MzStrokeDividerBrush}"
+                BorderThickness="0,0,0,1">
+                <Button
+                    HorizontalAlignment="Right"
+                    AutomationProperties.AutomationId="PostCommentsClose"
+                    AutomationProperties.Name="{extensions:Localize Key=Close}"
+                    Command="{x:Bind ViewModel.ToggleCommentsCommand}"
+                    Style="{StaticResource MzSubtleButtonSmallStyle}"
+                    ToolTipService.ToolTip="{extensions:Localize Key=Close}">
+                    <FontIcon
+                        FontFamily="{StaticResource MzIconFontFamily}"
+                        FontSize="14"
+                        Glyph="{StaticResource MzGlyphDismiss}" />
+                </Button>
+            </Grid>
+            <local:CommentsView Grid.Row="1" ViewModel="{x:Bind ViewModel.Comments, Mode=OneWay}" />
         </Grid>
     </Grid>
 </local:PostViewBase>
