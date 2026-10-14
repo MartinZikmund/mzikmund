@@ -110,10 +110,8 @@ public class UserService : IUserService
 		}
 	}
 
-	public async Task SignInWithProviderAsync(SupabaseOAuthProvider provider)
+	public async Task SignInWithProviderAsync(SupabaseOAuthProvider provider, CancellationToken cancellationToken = default)
 	{
-		await _authenticationLock.WaitAsync();
-		var before = Snapshot();
 		try
 		{
 			EnsureConfigured();
@@ -126,7 +124,8 @@ public class UserService : IUserService
 				redirectUri,
 				Pkce.CreateCodeChallenge(codeVerifier));
 
-			var callbackUri = await GetAuthorizationCallbackAsync(authUri, redirectUri);
+			// Waiting for the browser can take minutes: the lock would stall every API call meanwhile.
+			var callbackUri = await GetAuthorizationCallbackAsync(authUri, redirectUri, cancellationToken);
 			if (callbackUri is null)
 			{
 				return;
@@ -139,16 +138,24 @@ public class UserService : IUserService
 				throw new AuthenticationFailedException($"{callback.Error}: {callback.ErrorDescription}");
 			}
 
-			SetSession(await GetClient().ExchangeCodeAsync(callback.Code, codeVerifier));
+			await _authenticationLock.WaitAsync(cancellationToken);
+			var before = Snapshot();
+			try
+			{
+				SetSession(await GetClient().ExchangeCodeAsync(callback.Code, codeVerifier));
+			}
+			finally
+			{
+				_authenticationLock.Release();
+				RaiseIfChanged(before);
+			}
+		}
+		catch (OperationCanceledException)
+		{
 		}
 		catch (Exception ex) when (ex is not AuthenticationFailedException)
 		{
 			throw new AuthenticationFailedException(ex.Message, ex);
-		}
-		finally
-		{
-			_authenticationLock.Release();
-			RaiseIfChanged(before);
 		}
 	}
 
@@ -320,25 +327,29 @@ public class UserService : IUserService
 
 	private static Uri GetRedirectUri() => new("mzikmund-app://oauthcallback");
 
-	private static async Task<Uri?> GetAuthorizationCallbackAsync(Uri authUri, Uri redirectUri)
+	private static async Task<Uri?> GetAuthorizationCallbackAsync(Uri authUri, Uri redirectUri, CancellationToken cancellationToken)
 	{
 		TaskCompletionSource<Uri> callback = new(TaskCreationOptions.RunContinuationsAsynchronously);
 		Interlocked.Exchange(ref _pendingCallback, callback)?.TrySetCanceled();
 
-		await Windows.System.Launcher.LaunchUriAsync(authUri);
-
-		if (await Task.WhenAny(callback.Task, Task.Delay(SignInTimeout)) != callback.Task)
+		try
 		{
-			Interlocked.CompareExchange(ref _pendingCallback, null, callback);
+			await Windows.System.Launcher.LaunchUriAsync(authUri);
+			return await callback.Task.WaitAsync(SignInTimeout, cancellationToken);
+		}
+		catch (TimeoutException)
+		{
 			throw new AuthenticationFailedException("Sign-in timed out.");
 		}
-
-		return await callback.Task;
+		finally
+		{
+			Interlocked.CompareExchange(ref _pendingCallback, null, callback);
+		}
 	}
 #elif __DESKTOP__
 	private Uri GetRedirectUri() => new($"http://127.0.0.1:{Config.DesktopCallbackPort}/callback");
 
-	private static async Task<Uri?> GetAuthorizationCallbackAsync(Uri authUri, Uri redirectUri)
+	private static async Task<Uri?> GetAuthorizationCallbackAsync(Uri authUri, Uri redirectUri, CancellationToken cancellationToken)
 	{
 		using HttpListener listener = new();
 		listener.Prefixes.Add(redirectUri.GetLeftPart(UriPartial.Path).TrimEnd('/') + "/");
@@ -346,13 +357,15 @@ public class UserService : IUserService
 
 		await Windows.System.Launcher.LaunchUriAsync(authUri);
 
-		var contextTask = listener.GetContextAsync();
-		if (await Task.WhenAny(contextTask, Task.Delay(SignInTimeout)) != contextTask)
+		HttpListenerContext context;
+		try
+		{
+			context = await listener.GetContextAsync().WaitAsync(SignInTimeout, cancellationToken);
+		}
+		catch (TimeoutException)
 		{
 			throw new AuthenticationFailedException("Sign-in timed out.");
 		}
-
-		var context = await contextTask;
 		var page = Encoding.UTF8.GetBytes(
 			"<html><body style=\"font-family:sans-serif;padding:48px\">" +
 			"<h2>Signed in</h2><p>You can close this tab and return to the app.</p></body></html>");
@@ -371,9 +384,11 @@ public class UserService : IUserService
 	private static Uri GetRedirectUri() => WebAuthenticationBroker.GetCurrentApplicationCallbackUri();
 #endif
 
-	private static async Task<Uri?> GetAuthorizationCallbackAsync(Uri authUri, Uri redirectUri)
+	private static async Task<Uri?> GetAuthorizationCallbackAsync(Uri authUri, Uri redirectUri, CancellationToken cancellationToken)
 	{
-		var result = await WebAuthenticationBroker.AuthenticateAsync(WebAuthenticationOptions.None, authUri, redirectUri);
+		var result = await WebAuthenticationBroker.AuthenticateAsync(WebAuthenticationOptions.None, authUri, redirectUri)
+			.AsTask()
+			.WaitAsync(cancellationToken);
 		return result.ResponseStatus switch
 		{
 			WebAuthenticationStatus.Success when result.ResponseData is { } data => new Uri(data),

@@ -229,7 +229,7 @@ public partial class CommentsModeratorViewModel : PageViewModel
 	}
 
 	private async Task ShowFailureAsync() =>
-		_dialogService.ShowStatusMessageAsync(
+		await _dialogService.ShowStatusMessageAsync(
 			StatusMessageDialogType.Error,
 			Localizer.Instance.GetString("CommentActionFailed"),
 			Localizer.Instance.GetString("ErrorLoadingData"));
