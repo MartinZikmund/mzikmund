@@ -96,10 +96,24 @@ public partial class PostEditorViewModel : PageViewModel
 	public partial bool IsPublished { get; set; }
 
 	[ObservableProperty]
+	[NotifyPropertyChangedFor(nameof(PublishDateValue))]
 	public partial DateTimeOffset PublishDate { get; set; } = DateTimeOffset.Now;
 
+	// CalendarDatePicker speaks DateTimeOffset? and writes back midnight; only a different day is an edit.
+	public DateTimeOffset? PublishDateValue
+	{
+		get => PublishDate;
+		set
+		{
+			if (value is { } date && date.Date != PublishDate.Date)
+			{
+				PublishDate = new DateTimeOffset(date.Date, PublishDate.Offset);
+			}
+		}
+	}
+
 	[ObservableProperty]
-	public partial TimeSpan PublishTime { get; set; } = DateTimeOffset.Now.TimeOfDay;
+	public partial TimeSpan PublishTime { get; set; } = ToMinutes(DateTimeOffset.Now.TimeOfDay);
 
 	[ObservableProperty]
 	public partial int SelectionStart { get; set; }
@@ -515,7 +529,7 @@ public partial class PostEditorViewModel : PageViewModel
 
 			var publishedDate = post.PublishedDate ?? DateTimeOffset.Now;
 			PublishDate = publishedDate;
-			PublishTime = publishedDate.TimeOfDay;
+			PublishTime = ToMinutes(publishedDate.TimeOfDay);
 		}
 		finally
 		{
@@ -525,6 +539,9 @@ public partial class PostEditorViewModel : PageViewModel
 		IsDirty = false;
 		_isPreviewDirty = true;
 	}
+
+	// TimePicker has minute precision and writes a truncated value back, which must not count as an edit.
+	private static TimeSpan ToMinutes(TimeSpan time) => new(time.Hours, time.Minutes, 0);
 
 	public void SetSelection(int selectionStart, int selectionLength)
 	{

@@ -1,134 +1,141 @@
 ﻿using System.Collections.ObjectModel;
-using System.Windows.Input;
 using MZikmund.Api.Client;
 using MZikmund.DataContracts.Blog;
 using MZikmund.Extensions;
 using MZikmund.Models.Dialogs;
+using MZikmund.Services.Account;
 using MZikmund.Services.Dialogs;
-using MZikmund.Services.Loading;
 using MZikmund.Services.Localization;
 using MZikmund.Services.Navigation;
-using Newtonsoft.Json;
-using Windows.Storage.Pickers;
 
 namespace MZikmund.ViewModels.Admin;
 
 public partial class PostsManagerViewModel : PageViewModel
 {
 	private readonly IDialogService _dialogService;
-	private readonly ILoadingIndicator _loadingIndicator;
 	private readonly INavigationService _navigationService;
 	private readonly IMZikmundApi _api;
-	private int _currentPage = 1;
-	private int _totalPages = 1;
-	private int _totalCount;
-	private bool _isLoadingMore;
+	private readonly ILogger<PostsManagerViewModel> _logger;
+	private readonly List<PostListItem> _allPosts = new();
 
 	public PostsManagerViewModel(
 		IMZikmundApi api,
 		IDialogService dialogService,
-		ILoadingIndicator loadingIndicator,
-		INavigationService navigationService)
+		INavigationService navigationService,
+		ILogger<PostsManagerViewModel> logger)
 	{
 		_dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
-		_loadingIndicator = loadingIndicator ?? throw new ArgumentNullException(nameof(loadingIndicator));
 		_navigationService = navigationService;
 		_api = api ?? throw new ArgumentNullException(nameof(api));
-		LoadMoreCommand = new AsyncRelayCommand(LoadMoreAsync, () => CanLoadMore);
+		_logger = logger;
 	}
 
 	public override string Title => Localizer.Instance.GetString("Posts");
 
-	public ObservableCollection<PostListItem> Posts { get; } = new ObservableCollection<PostListItem>();
+	public ObservableCollection<PostListItem> VisiblePosts { get; } = new();
 
-	public int CurrentPage
-	{
-		get => _currentPage;
-		private set => SetProperty(ref _currentPage, value);
-	}
+	[ObservableProperty]
+	public partial string SearchText { get; set; } = "";
 
-	public int TotalPages
-	{
-		get => _totalPages;
-		private set => SetProperty(ref _totalPages, value);
-	}
+	[ObservableProperty]
+	[NotifyPropertyChangedFor(nameof(CanLoadMore))]
+	[NotifyCanExecuteChangedFor(nameof(LoadMoreCommand))]
+	public partial int CurrentPage { get; set; }
 
-	public int TotalCount
-	{
-		get => _totalCount;
-		private set => SetProperty(ref _totalCount, value);
-	}
+	[ObservableProperty]
+	[NotifyPropertyChangedFor(nameof(CanLoadMore))]
+	[NotifyCanExecuteChangedFor(nameof(LoadMoreCommand))]
+	public partial int TotalPages { get; set; }
 
-	public bool IsLoadingMore
-	{
-		get => _isLoadingMore;
-		private set
-		{
-			SetProperty(ref _isLoadingMore, value);
-			(LoadMoreCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
-			OnPropertyChanged(nameof(CanLoadMore));
-		}
-	}
+	[ObservableProperty]
+	[NotifyPropertyChangedFor(nameof(CountText))]
+	public partial int TotalCount { get; set; }
+
+	[ObservableProperty]
+	[NotifyPropertyChangedFor(nameof(IsEmpty))]
+	public partial bool IsLoading { get; set; }
+
+	[ObservableProperty]
+	[NotifyPropertyChangedFor(nameof(CanLoadMore))]
+	[NotifyCanExecuteChangedFor(nameof(LoadMoreCommand))]
+	public partial bool IsLoadingMore { get; set; }
+
+	[ObservableProperty]
+	[NotifyPropertyChangedFor(nameof(IsEmpty))]
+	public partial bool HasError { get; set; }
+
+	[ObservableProperty]
+	public partial string? ErrorDetail { get; set; }
 
 	public bool CanLoadMore => CurrentPage < TotalPages && !IsLoadingMore;
 
-	public ICommand LoadMoreCommand { get; }
+	public bool IsEmpty => !IsLoading && !HasError && VisiblePosts.Count == 0;
+
+	public bool HasVisiblePosts => VisiblePosts.Count > 0;
+
+	public string CountText => string.Format(System.Globalization.CultureInfo.CurrentCulture, Localizer.Instance.GetString("PostCountFormat"), TotalCount);
+
+	partial void OnSearchTextChanged(string value) => ApplyFilter();
 
 	public override async void ViewLoaded()
 	{
-		await RefreshListAsync();
+		base.ViewLoaded();
+		await RefreshAsync();
 	}
 
-	private async Task RefreshListAsync()
+	[RelayCommand]
+	private async Task RefreshAsync()
 	{
-		using var loadingScope = _loadingIndicator.BeginLoading();
+		IsLoading = true;
+		HasError = false;
+		_allPosts.Clear();
+		ApplyFilter();
 		try
 		{
-			Posts.Clear();
-			CurrentPage = 1;
-			await LoadPostsAsync(1);
+			await LoadPageAsync(1);
 		}
 		catch (Exception ex)
 		{
-			await _dialogService.ShowStatusMessageAsync(
-				StatusMessageDialogType.Error,
-				"Could not load data",
-				$"Error occurred loading data from server. {ex}");
+			_logger.LogError(ex, "Loading admin posts failed");
+			ErrorDetail = ex is AuthenticationFailedException ? ex.Message : null;
+			HasError = true;
 		}
-	}
-
-	private async Task LoadPostsAsync(int pageNumber)
-	{
-		var posts = await _api.GetAllPostsAsync(pageNumber);
-		await posts.EnsureSuccessfulAsync();
-
-		if (posts.Content != null)
+		finally
 		{
-			Posts.AddRange(posts.Content.Data);
-			TotalCount = posts.Content.TotalCount;
-			TotalPages = (int)Math.Ceiling((double)posts.Content.TotalCount / posts.Content.PageSize);
-			CurrentPage = posts.Content.PageNumber;
+			IsLoading = false;
 		}
 	}
 
+	private async Task LoadPageAsync(int pageNumber)
+	{
+		var response = await _api.GetAllPostsAsync(pageNumber);
+		await response.EnsureSuccessfulAsync();
+
+		if (response.Content is { } page)
+		{
+			_allPosts.AddRange(page.Data);
+			TotalCount = page.TotalCount;
+			TotalPages = page.PageSize > 0 ? (int)Math.Ceiling((double)page.TotalCount / page.PageSize) : 1;
+			CurrentPage = page.PageNumber;
+			ApplyFilter();
+		}
+	}
+
+	[RelayCommand(CanExecute = nameof(CanLoadMore))]
 	private async Task LoadMoreAsync()
 	{
-		if (!CanLoadMore)
-		{
-			return;
-		}
-
 		IsLoadingMore = true;
 		try
 		{
-			await LoadPostsAsync(CurrentPage + 1);
+			await LoadPageAsync(CurrentPage + 1);
 		}
 		catch (Exception ex)
 		{
+			_logger.LogError(ex, "Loading more admin posts failed");
 			await _dialogService.ShowStatusMessageAsync(
 				StatusMessageDialogType.Error,
-				"Could not load data",
-				$"Error occurred loading data from server. {ex}");
+				Localizer.Instance.GetString("CouldNotLoadData"),
+				Localizer.Instance.GetString("ErrorLoadingData"));
 		}
 		finally
 		{
@@ -136,20 +143,27 @@ public partial class PostsManagerViewModel : PageViewModel
 		}
 	}
 
-	[RelayCommand]
-	private void AddPost()
+	private void ApplyFilter()
 	{
-		_navigationService.Navigate<PostEditorViewModel>(Guid.Empty);
-	}
+		var query = SearchText.Trim();
+		var matches = string.IsNullOrEmpty(query) ?
+			_allPosts :
+			_allPosts.Where(p =>
+				p.Title.Contains(query, StringComparison.CurrentCultureIgnoreCase) ||
+				p.RouteName.Contains(query, StringComparison.OrdinalIgnoreCase));
 
-	[RelayCommand]
-	private void UpdatePost(PostListItem? post)
-	{
-		if (post is null)
+		VisiblePosts.Clear();
+		foreach (var post in matches)
 		{
-			return;
+			VisiblePosts.Add(post);
 		}
 
-		_navigationService.Navigate<PostEditorViewModel>(post.Id);
+		OnPropertyChanged(nameof(IsEmpty));
+		OnPropertyChanged(nameof(HasVisiblePosts));
 	}
+
+	[RelayCommand]
+	private void AddPost() => _navigationService.Navigate<PostEditorViewModel>(Guid.Empty);
+
+	public void EditPost(PostListItem post) => _navigationService.Navigate<PostEditorViewModel>(post.Id);
 }

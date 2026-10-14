@@ -423,4 +423,40 @@
   <data name="SourceCode" xml:space="preserve">
     <value>Zdrojový kód</value>
   </data>
+  <data name="Draft" xml:space="preserve">
+    <value>Koncept</value>
+  </data>
+  <data name="SearchPosts" xml:space="preserve">
+    <value>Hledat podle názvu nebo cesty</value>
+  </data>
+  <data name="PostCountFormat" xml:space="preserve">
+    <value>Počet článků: {0}</value>
+  </data>
+  <data name="AdminLoadErrorDescription" xml:space="preserve">
+    <value>Zkontrolujte, že jste přihlášeni a API je dostupné.</value>
+  </data>
+  <data name="PostDetails" xml:space="preserve">
+    <value>Podrobnosti článku</value>
+  </data>
+  <data name="TitlePlaceholder" xml:space="preserve">
+    <value>Název článku</value>
+  </data>
+  <data name="ContentPlaceholder" xml:space="preserve">
+    <value>Pište v Markdownu…</value>
+  </data>
+  <data name="TagsPlaceholder" xml:space="preserve">
+    <value>Oddělené čárkou, např. C#, WinUI</value>
+  </data>
+  <data name="HeroImage" xml:space="preserve">
+    <value>Úvodní obrázek</value>
+  </data>
+  <data name="SearchTags" xml:space="preserve">
+    <value>Filtrovat štítky</value>
+  </data>
+  <data name="TagCountFormat" xml:space="preserve">
+    <value>Počet štítků: {0}</value>
+  </data>
+  <data name="MoreActions" xml:space="preserve">
+    <value>Další akce</value>
+  </data>
 </root>
