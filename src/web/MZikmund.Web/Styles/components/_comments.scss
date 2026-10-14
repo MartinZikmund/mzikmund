@@ -408,6 +408,8 @@
 	// scrim — Fluent reserves dimming for modal surfaces.
 	.signin-dialog {
 		width: min(24rem, calc(100vw - var(--mz-space-6)));
+		// The global reset zeroes margins, which would pin the dialog to the top-left corner.
+		margin: auto;
 		padding: var(--mz-space-6);
 		border: 1px solid var(--mz-stroke-card);
 		border-radius: var(--mz-radius-overlay);
