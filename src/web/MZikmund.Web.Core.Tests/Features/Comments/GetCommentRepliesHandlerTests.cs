@@ -1,4 +1,5 @@
 using MZikmund.Web.Core.Features.Comments;
+using MZikmund.Web.Core.Services.Comments;
 using MZikmund.Web.Core.Tests.Infrastructure;
 using MZikmund.Web.Data;
 using MZikmund.Web.Data.Entities;
@@ -156,7 +157,7 @@ public class GetCommentRepliesHandlerTests
 		var handler = CreateHandler(context);
 
 		// Act & Assert
-		await Assert.ThrowsAsync<KeyNotFoundException>(
+		await Assert.ThrowsAsync<CommentNotFoundException>(
 			() => handler.Handle(new GetCommentRepliesQuery(Guid.NewGuid(), 1, 20), CancellationToken.None));
 	}
 
@@ -176,7 +177,7 @@ public class GetCommentRepliesHandlerTests
 		var handler = CreateHandler(context);
 
 		// Act & Assert
-		await Assert.ThrowsAsync<KeyNotFoundException>(
+		await Assert.ThrowsAsync<CommentNotFoundException>(
 			() => handler.Handle(new GetCommentRepliesQuery(parent.Id, 1, 20), CancellationToken.None));
 	}
 
@@ -196,7 +197,7 @@ public class GetCommentRepliesHandlerTests
 		var handler = CreateHandler(context);
 
 		// Act & Assert
-		await Assert.ThrowsAsync<KeyNotFoundException>(
+		await Assert.ThrowsAsync<CommentNotFoundException>(
 			() => handler.Handle(new GetCommentRepliesQuery(parent.Id, 1, 20), CancellationToken.None));
 	}
 
@@ -210,7 +211,7 @@ public class GetCommentRepliesHandlerTests
 		var query = new GetCommentRepliesQuery(Guid.NewGuid(), 1, 0);
 
 		// Act & Assert
-		await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => handler.Handle(query, CancellationToken.None));
+		await Assert.ThrowsAsync<CommentValidationException>(() => handler.Handle(query, CancellationToken.None));
 	}
 
 	private static GetCommentRepliesHandler CreateHandler(DatabaseContext context, Guid? currentAuthorId = null) =>

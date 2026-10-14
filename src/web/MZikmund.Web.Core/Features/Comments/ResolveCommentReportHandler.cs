@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MZikmund.Web.Core.Services;
+using MZikmund.Web.Core.Services.Comments;
 using MZikmund.Web.Data;
 
 namespace MZikmund.Web.Core.Features.Comments;
@@ -26,7 +27,7 @@ internal sealed class ResolveCommentReportHandler : IRequestHandler<ResolveComme
 	{
 		var comment = await _dbContext.Comment
 			.FirstOrDefaultAsync(c => c.Id == request.CommentId, cancellationToken)
-			?? throw new KeyNotFoundException($"Comment {request.CommentId} was not found.");
+			?? throw new CommentNotFoundException($"Comment {request.CommentId} was not found.");
 
 		// "Reviewed and dismissed": the comment itself is left exactly as it is.
 		var resolvedReports = await CommentModeration.ResolveOpenReportsAsync(

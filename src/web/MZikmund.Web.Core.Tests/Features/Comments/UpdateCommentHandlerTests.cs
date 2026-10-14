@@ -59,7 +59,7 @@ public class UpdateCommentHandlerTests
 		var handler = CreateHandler(db);
 
 		// Act & Assert
-		await Assert.ThrowsAsync<InvalidOperationException>(
+		await Assert.ThrowsAsync<CommentConflictException>(
 			() => handler.Handle(new UpdateCommentCommand(comment.Id, "edited body"), CancellationToken.None));
 		var stored = await db.Comment.FirstAsync(c => c.Id == comment.Id, CancellationToken.None);
 		Assert.Equal("Existing comment", stored.Content);
@@ -78,7 +78,7 @@ public class UpdateCommentHandlerTests
 		var handler = CreateHandler(db);
 
 		// Act & Assert
-		await Assert.ThrowsAsync<UnauthorizedAccessException>(
+		await Assert.ThrowsAsync<CommentForbiddenException>(
 			() => handler.Handle(new UpdateCommentCommand(comment.Id, "edited body"), CancellationToken.None));
 		var stored = await db.Comment.FirstAsync(c => c.Id == comment.Id, CancellationToken.None);
 		Assert.Equal("Existing comment", stored.Content);
@@ -98,7 +98,7 @@ public class UpdateCommentHandlerTests
 		var handler = CreateHandler(db);
 
 		// Act & Assert
-		await Assert.ThrowsAsync<InvalidOperationException>(
+		await Assert.ThrowsAsync<CommentConflictException>(
 			() => handler.Handle(new UpdateCommentCommand(comment.Id, "edited body"), CancellationToken.None));
 		var stored = await db.Comment.FirstAsync(c => c.Id == comment.Id, CancellationToken.None);
 		Assert.Equal("Existing comment", stored.Content);
@@ -141,7 +141,7 @@ public class UpdateCommentHandlerTests
 		var tooLong = new string('a', CommentLimits.MaxCommentLength + 1);
 
 		// Act & Assert
-		await Assert.ThrowsAsync<ArgumentOutOfRangeException>(
+		await Assert.ThrowsAsync<CommentValidationException>(
 			() => handler.Handle(new UpdateCommentCommand(comment.Id, tooLong), CancellationToken.None));
 		var stored = await db.Comment.FirstAsync(c => c.Id == comment.Id, CancellationToken.None);
 		Assert.Equal("Existing comment", stored.Content);

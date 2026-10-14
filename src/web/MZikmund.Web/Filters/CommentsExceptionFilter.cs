@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using MZikmund.Web.Core.Services.Comments;
 
 namespace MZikmund.Web.Filters;
 
 /// <summary>
-/// Turns the BCL exceptions thrown by the comment handlers into ProblemDetails responses.
+/// Turns the domain exceptions thrown by the comment handlers into ProblemDetails responses.
+/// Anything else is a bug and is left alone, so it surfaces as a 500 without leaking its message.
 /// Scoped to the comment controllers so existing controllers keep their behavior.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class)]
@@ -15,10 +17,10 @@ public sealed class CommentsExceptionFilterAttribute : ExceptionFilterAttribute
 	{
 		int? mapped = context.Exception switch
 		{
-			KeyNotFoundException => StatusCodes.Status404NotFound,
-			UnauthorizedAccessException => StatusCodes.Status403Forbidden,
-			ArgumentException => StatusCodes.Status400BadRequest,
-			InvalidOperationException => StatusCodes.Status409Conflict,
+			CommentNotFoundException => StatusCodes.Status404NotFound,
+			CommentForbiddenException => StatusCodes.Status403Forbidden,
+			CommentValidationException => StatusCodes.Status400BadRequest,
+			CommentConflictException => StatusCodes.Status409Conflict,
 			_ => (int?)null,
 		};
 

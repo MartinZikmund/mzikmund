@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MZikmund.DataContracts.Blog.Comments;
 using MZikmund.Web.Core.Features.Comments;
+using MZikmund.Web.Core.Services.Comments;
 using MZikmund.Web.Core.Tests.Infrastructure;
 using MZikmund.Web.Data;
 using static MZikmund.Web.Core.Tests.Features.Comments.CommentSeed;
@@ -125,7 +126,7 @@ public class AdminDeleteCommentHandlerTests
 	}
 
 	[Fact]
-	public async Task Handle_UnknownComment_ThrowsKeyNotFoundException()
+	public async Task Handle_UnknownComment_ThrowsCommentNotFoundException()
 	{
 		// Arrange
 		using CommentsDbFixture fixture = new();
@@ -133,7 +134,7 @@ public class AdminDeleteCommentHandlerTests
 		var handler = CreateHandler(db);
 
 		// Act & Assert
-		await Assert.ThrowsAsync<KeyNotFoundException>(
+		await Assert.ThrowsAsync<CommentNotFoundException>(
 			() => handler.Handle(new AdminDeleteCommentCommand(Guid.NewGuid()), CancellationToken.None));
 	}
 

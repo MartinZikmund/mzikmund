@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using MZikmund.Web.Core.Features.Comments;
+using MZikmund.Web.Core.Services.Comments;
 using MZikmund.Web.Core.Tests.Infrastructure;
 using MZikmund.Web.Data;
 using static MZikmund.Web.Core.Tests.Features.Comments.CommentSeed;
@@ -113,7 +114,7 @@ public class DeleteCommentHandlerTests
 		var handler = CreateHandler(db);
 
 		// Act & Assert
-		await Assert.ThrowsAsync<UnauthorizedAccessException>(
+		await Assert.ThrowsAsync<CommentForbiddenException>(
 			() => handler.Handle(new DeleteCommentCommand(comment.Id), CancellationToken.None));
 		var stored = await db.Comment.FirstAsync(c => c.Id == comment.Id, CancellationToken.None);
 		Assert.Equal(DataCommentStatus.Visible, stored.Status);
@@ -132,7 +133,7 @@ public class DeleteCommentHandlerTests
 		var handler = CreateHandler(db);
 
 		// Act & Assert
-		await Assert.ThrowsAsync<InvalidOperationException>(
+		await Assert.ThrowsAsync<CommentConflictException>(
 			() => handler.Handle(new DeleteCommentCommand(comment.Id), CancellationToken.None));
 		var stored = await db.Comment.FirstAsync(c => c.Id == comment.Id, CancellationToken.None);
 		Assert.Equal(DataCommentStatus.HiddenByModerator, stored.Status);

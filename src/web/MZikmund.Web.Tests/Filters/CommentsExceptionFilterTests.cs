@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using MZikmund.Web.Core.Services.Comments;
 using MZikmund.Web.Filters;
 
 namespace MZikmund.Web.Tests.Filters;
@@ -12,11 +13,10 @@ public class CommentsExceptionFilterTests
 {
 	public static TheoryData<Exception, int> Mappings => new()
 	{
-		{ new KeyNotFoundException("missing"), 404 },
-		{ new UnauthorizedAccessException("banned"), 403 },
-		{ new ArgumentException("empty"), 400 },
-		{ new ArgumentOutOfRangeException("page", "too small"), 400 },
-		{ new InvalidOperationException("conflict"), 409 },
+		{ new CommentNotFoundException("missing"), 404 },
+		{ new CommentForbiddenException("banned"), 403 },
+		{ new CommentValidationException("empty"), 400 },
+		{ new CommentConflictException("conflict"), 409 },
 	};
 
 	[Theory]

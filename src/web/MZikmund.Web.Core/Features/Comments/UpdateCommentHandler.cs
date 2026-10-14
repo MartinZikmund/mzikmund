@@ -36,18 +36,17 @@ internal sealed class UpdateCommentHandler : IRequestHandler<UpdateCommentComman
 	public async Task<CommentDto> Handle(UpdateCommentCommand request, CancellationToken cancellationToken)
 	{
 		var author = _currentUserAccessor.Current
-			?? throw new UnauthorizedAccessException("A signed-in author is required to edit a comment.");
+			?? throw new CommentForbiddenException("A signed-in author is required to edit a comment.");
 
 		var content = request.Content.Trim();
 		if (content.Length == 0)
 		{
-			throw new ArgumentException("Comment content must not be empty.", nameof(request));
+			throw new CommentValidationException("Comment content must not be empty.");
 		}
 
 		if (content.Length > CommentLimits.MaxCommentLength)
 		{
-			throw new ArgumentOutOfRangeException(
-				nameof(request),
+			throw new CommentValidationException(
 				$"Comment content must not exceed {CommentLimits.MaxCommentLength} characters.");
 		}
 
@@ -55,22 +54,22 @@ internal sealed class UpdateCommentHandler : IRequestHandler<UpdateCommentComman
 			.Include(c => c.Author)
 			.Include(c => c.Votes)
 			.FirstOrDefaultAsync(c => c.Id == request.CommentId, cancellationToken)
-			?? throw new KeyNotFoundException($"Comment {request.CommentId} was not found.");
+			?? throw new CommentNotFoundException($"Comment {request.CommentId} was not found.");
 
 		if (comment.AuthorId != author.Id)
 		{
-			throw new UnauthorizedAccessException($"Comment {comment.Id} belongs to another author.");
+			throw new CommentForbiddenException($"Comment {comment.Id} belongs to another author.");
 		}
 
 		if (comment.Status != DataCommentStatus.Visible)
 		{
-			throw new InvalidOperationException($"Comment {comment.Id} is not visible and cannot be edited.");
+			throw new CommentConflictException($"Comment {comment.Id} is not visible and cannot be edited.");
 		}
 
 		var now = _dateProvider.UtcNow.UtcDateTime;
 		if (now - comment.CreatedOn > EditWindow)
 		{
-			throw new InvalidOperationException(
+			throw new CommentConflictException(
 				$"Comment {comment.Id} can only be edited within {EditWindow.TotalMinutes} minutes of posting.");
 		}
 

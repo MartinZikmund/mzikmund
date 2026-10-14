@@ -32,7 +32,7 @@ internal sealed class SetCommentVoteHandler : IRequestHandler<SetCommentVoteComm
 	public async Task<CommentDto> Handle(SetCommentVoteCommand request, CancellationToken cancellationToken)
 	{
 		var author = _currentUserAccessor.Current
-			?? throw new UnauthorizedAccessException("A signed-in author is required to vote on a comment.");
+			?? throw new CommentForbiddenException("A signed-in author is required to vote on a comment.");
 
 		CommentEntity? voted = null;
 
@@ -48,16 +48,16 @@ internal sealed class SetCommentVoteHandler : IRequestHandler<SetCommentVoteComm
 					.Include(c => c.Author)
 					.Include(c => c.Votes)
 					.FirstOrDefaultAsync(c => c.Id == request.CommentId, ct)
-					?? throw new KeyNotFoundException($"Comment {request.CommentId} was not found.");
+					?? throw new CommentNotFoundException($"Comment {request.CommentId} was not found.");
 
 				if (comment.AuthorId == author.Id)
 				{
-					throw new InvalidOperationException("An author cannot vote on their own comment.");
+					throw new CommentConflictException("An author cannot vote on their own comment.");
 				}
 
 				if (comment.Status != DataCommentStatus.Visible)
 				{
-					throw new InvalidOperationException($"Comment {comment.Id} is not visible and cannot be voted on.");
+					throw new CommentConflictException($"Comment {comment.Id} is not visible and cannot be voted on.");
 				}
 
 				var existingVote = comment.Votes.FirstOrDefault(v => v.AuthorId == author.Id);
