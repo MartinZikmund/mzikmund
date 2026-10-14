@@ -141,9 +141,6 @@ public sealed partial class CommentsView : UserControl
 	public static Visibility HasReplies(int replyCount, bool hasMoreReplies) =>
 		replyCount > 0 || hasMoreReplies ? Visibility.Visible : Visibility.Collapsed;
 
-	public static Brush CounterBrush(bool isTooLong) =>
-		(Brush)Application.Current.Resources[isTooLong ? "SystemFillColorCriticalBrush" : "MzTextTertiaryBrush"];
-
 	// Decoded at avatar size; the list is virtualized, so only visible avatars are fetched.
 	public static ImageSource? ToAvatar(Uri? avatarUri) =>
 		avatarUri is null ? null : new BitmapImage(avatarUri) { DecodePixelWidth = 64, DecodePixelType = DecodePixelType.Logical };

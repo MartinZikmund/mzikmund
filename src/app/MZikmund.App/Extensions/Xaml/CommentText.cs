@@ -17,6 +17,13 @@ public static class CommentText
 	public static readonly DependencyProperty PrefixProperty = DependencyProperty.RegisterAttached(
 		"Prefix", typeof(string), typeof(CommentText), new PropertyMetadata(null, OnChanged));
 
+	private static readonly DependencyProperty IsThemeHookedProperty = DependencyProperty.RegisterAttached(
+		"IsThemeHooked", typeof(bool), typeof(CommentText), new PropertyMetadata(false));
+
+	private static bool GetIsThemeHooked(DependencyObject element) => (bool)element.GetValue(IsThemeHookedProperty);
+
+	private static void SetIsThemeHooked(DependencyObject element, bool value) => element.SetValue(IsThemeHookedProperty, value);
+
 	public static string? GetMarkdown(DependencyObject element) => (string?)element.GetValue(MarkdownProperty);
 
 	public static void SetMarkdown(DependencyObject element, string? value) => element.SetValue(MarkdownProperty, value);
@@ -27,9 +34,18 @@ public static class CommentText
 
 	private static void OnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
 	{
-		if (d is not TextBlock textBlock)
+		if (d is TextBlock textBlock)
 		{
-			return;
+			Rebuild(textBlock);
+		}
+	}
+
+	private static void Rebuild(TextBlock textBlock)
+	{
+		if (!GetIsThemeHooked(textBlock))
+		{
+			SetIsThemeHooked(textBlock, true);
+			textBlock.ActualThemeChanged += (sender, _) => Rebuild((TextBlock)sender);
 		}
 
 		textBlock.Inlines.Clear();
@@ -40,14 +56,14 @@ public static class CommentText
 			{
 				Text = prefix,
 				FontWeight = FontWeights.SemiBold,
-				Foreground = GetBrush("MzAccentTextBrush"),
+				Foreground = GetBrush(textBlock, "MzAccentTextBrush"),
 			});
 		}
 
-		AppendBlocks(textBlock.Inlines, CommentMarkdown.Parse(GetMarkdown(textBlock)));
+		AppendBlocks(textBlock, textBlock.Inlines, CommentMarkdown.Parse(GetMarkdown(textBlock)));
 	}
 
-	private static void AppendBlocks(InlineCollection target, IReadOnlyList<CommentBlock> blocks)
+	private static void AppendBlocks(TextBlock owner, InlineCollection target, IReadOnlyList<CommentBlock> blocks)
 	{
 		for (var i = 0; i < blocks.Count; i++)
 		{
@@ -71,15 +87,15 @@ public static class CommentText
 					break;
 
 				case QuoteBlock quote:
-					Span quoteSpan = new() { Foreground = GetBrush("MzTextSecondaryBrush") };
+					Span quoteSpan = new() { Foreground = GetBrush(owner, "MzTextSecondaryBrush") };
 					quoteSpan.Inlines.Add(new Run { Text = "│ " });
-					AppendBlocks(quoteSpan.Inlines, quote.Blocks);
+					AppendBlocks(owner, quoteSpan.Inlines, quote.Blocks);
 					target.Add(quoteSpan);
 					break;
 
 				case ListItemBlock item:
 					target.Add(new Run { Text = item.Marker + " " });
-					AppendBlocks(target, item.Blocks);
+					AppendBlocks(owner, target, item.Blocks);
 					break;
 			}
 		}
@@ -132,6 +148,27 @@ public static class CommentText
 
 	private static FontFamily GetMono() => (FontFamily)Application.Current.Resources["MzMonoFontFamily"];
 
-	private static Brush? GetBrush(string key) =>
-		Application.Current.Resources.TryGetValue(key, out var value) ? value as Brush : null;
+	// Application.Current.Resources follows the app theme, not the in-app override set on the window root.
+	private static Brush? GetBrush(FrameworkElement owner, string key) =>
+		FindThemed(Application.Current.Resources, owner.ActualTheme == ElementTheme.Dark ? "Dark" : "Light", key) as Brush;
+
+	private static object? FindThemed(ResourceDictionary dictionary, string theme, string key)
+	{
+		if (dictionary.ThemeDictionaries.TryGetValue(theme, out var themed) &&
+			themed is ResourceDictionary themeDictionary &&
+			themeDictionary.TryGetValue(key, out var value))
+		{
+			return value;
+		}
+
+		foreach (var merged in dictionary.MergedDictionaries)
+		{
+			if (FindThemed(merged, theme, key) is { } found)
+			{
+				return found;
+			}
+		}
+
+		return null;
+	}
 }
