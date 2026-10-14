@@ -68,10 +68,16 @@ export class SignInDialog {
 			button.addEventListener("click", () => {
 				const provider = button.dataset.signinProvider;
 				this.showError("");
-				// Navigates the tab away; the draft is already in sessionStorage.
+				this.setProvidersDisabled(true);
+				// Navigates the tab away; the draft is already in sessionStorage. Only a sign-in that
+				// actually started counts as "redirecting"; on failure the dialog stays open.
 				const started = provider === "apple" ? signInWithApple(returnTo) : signInWithGoogle(returnTo);
-				void started.catch(() => this.showError("Sign-in could not be started. Please try again."));
-				this.settle("redirecting");
+				started.then(
+					() => this.settle("redirecting"),
+					() => {
+						this.setProvidersDisabled(false);
+						this.showError("Sign-in could not be started. Please try again.");
+					});
 			});
 		}
 
@@ -135,6 +141,12 @@ export class SignInDialog {
 			this.showError("That code is not valid. Request a new one if it has expired.");
 		} finally {
 			this.busy(false);
+		}
+	}
+
+	private setProvidersDisabled(value: boolean): void {
+		for (const button of this.dialog.querySelectorAll<HTMLButtonElement>("[data-signin-provider]")) {
+			button.disabled = value;
 		}
 	}
 

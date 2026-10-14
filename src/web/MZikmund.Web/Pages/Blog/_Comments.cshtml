@@ -115,6 +115,8 @@
 		 data-sort="@Model.SortValue"
 		 data-page="@Model.PageNumber"
 		 data-page-size="@Model.PageSize"
+		 data-replies-page-size="@CommentLimits.RepliesPageSize"
+		 data-edit-window-minutes="@CommentLimits.EditWindowMinutes"
 		 data-total="@Model.TotalCount"
 		 data-turnstile-sitekey="@Model.TurnstileSiteKey"
 		 data-highlight-comment="@(Model.HighlightCommentId?.ToString() ?? "")">

@@ -9,6 +9,10 @@ const ScriptUrl = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=
  */
 export class CommentTurnstile {
 	private widgetId: string | undefined;
+	private container: HTMLElement | null = null;
+	private siteKey = "";
+	private scriptLoaded = false;
+	private renderedTheme: "light" | "dark" | null = null;
 	private token: string | null = null;
 	private waiters: ((token: string | null) => void)[] = [];
 
@@ -17,22 +21,20 @@ export class CommentTurnstile {
 			return;
 		}
 
+		this.container = container;
+		this.siteKey = siteKey;
+
+		// Turnstile fixes its theme at render time and "auto" follows the OS, not the site's
+		// switch, so the widget is redrawn whenever data-theme changes.
+		new MutationObserver(() => {
+			if (this.scriptLoaded && this.renderedTheme !== this.currentTheme()) {
+				this.redraw();
+			}
+		}).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
 		const draw = (): void => {
-			this.widgetId = turnstile.render(container, {
-				sitekey: siteKey,
-				action: "comment-create",
-				theme: document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light",
-				size: "flexible",
-				"refresh-expired": "auto",
-				// The token rides in the CF-Turnstile-Response header; no form post, no hidden input.
-				"response-field": false,
-				callback: (token: string) => this.settle(token),
-				"error-callback": () => this.settle(null),
-				"expired-callback": () => {
-					this.token = null;
-				},
-				"timeout-callback": () => this.settle(null),
-			});
+			this.scriptLoaded = true;
+			this.draw();
 		};
 
 		// Loaded from here rather than from a script tag with ?onload=, so there is no global
@@ -43,6 +45,42 @@ export class CommentTurnstile {
 		// and an explicit render() after `load` needs no ready() at all.
 		script.addEventListener("load", draw);
 		document.head.appendChild(script);
+	}
+
+	private currentTheme(): "light" | "dark" {
+		return document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+	}
+
+	private draw(): void {
+		if (!this.container) {
+			return;
+		}
+
+		this.renderedTheme = this.currentTheme();
+		this.widgetId = turnstile.render(this.container, {
+			sitekey: this.siteKey,
+			action: "comment-create",
+			theme: this.renderedTheme,
+			size: "flexible",
+			"refresh-expired": "auto",
+			// The token rides in the CF-Turnstile-Response header; no form post, no hidden input.
+			"response-field": false,
+			callback: (token: string) => this.settle(token),
+			"error-callback": () => this.settle(null),
+			"expired-callback": () => {
+				this.token = null;
+			},
+			"timeout-callback": () => this.settle(null),
+		});
+	}
+
+	private redraw(): void {
+		if (this.widgetId !== undefined) {
+			turnstile.remove(this.widgetId);
+		}
+		this.widgetId = undefined;
+		this.token = null;
+		this.draw();
 	}
 
 	/**
