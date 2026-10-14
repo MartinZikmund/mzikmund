@@ -12,12 +12,14 @@ import {
 	type CommentSort,
 	type ReportReason,
 } from "./CommentsApi";
-import { bodyMarkup, renderComment } from "./CommentRenderer";
+import { actionsMarkup, bodyMarkup, renderComment, setEditWindow } from "./CommentRenderer";
 import { CommentTurnstile } from "./CommentTurnstile";
 import { SignInDialog, type SignInResult } from "./SignInDialog";
 
 const DraftKey = "mz-comment-draft";
 const MaxLength = 4000;
+/** A draft older than this never posts itself after a sign-in redirect. */
+const DraftFreshMs = 10 * 60 * 1000;
 
 interface CommentDraft {
 	postId: string;
@@ -25,6 +27,7 @@ interface CommentDraft {
 	content: string;
 	/** True when the reader pressed Post and only sign-in stood in the way. */
 	submit: boolean;
+	savedAt: number;
 }
 
 export class CommentsSection {
@@ -39,6 +42,7 @@ export class CommentsSection {
 	private replyToBanner: HTMLElement | null = null;
 	private replyToName: HTMLElement | null = null;
 	private loadMoreButton: HTMLButtonElement | null = null;
+	private earlierWrap: HTMLElement | null = null;
 	private totalEl: HTMLElement | null = null;
 	private identityEl: HTMLElement | null = null;
 	private identityName: HTMLElement | null = null;
@@ -53,8 +57,14 @@ export class CommentsSection {
 
 	private postId = "";
 	private sort: CommentSort = "top";
+	/** First and last loaded page: a deep link starts mid-list, so pages 1..firstPage-1 are not loaded. */
+	private firstPage = 1;
 	private page = 1;
+	private pageSize = 20;
+	private repliesPageSize = 20;
 	private total = 0;
+	private posting = false;
+	private reporting = false;
 
 	public init(): void {
 		if (document.readyState === "loading") {
@@ -70,6 +80,10 @@ export class CommentsSection {
 		if (!root || !list) {
 			return;
 		}
+
+		// The OAuth return is the only time a pending draft may post itself. Read it before the
+		// Supabase client runs: it exchanges ?code= and strips it from the address.
+		const oauthReturn = new URLSearchParams(window.location.search).has("code");
 
 		this.root = root;
 		this.list = list;
@@ -93,6 +107,10 @@ export class CommentsSection {
 		this.postId = root.dataset.postId ?? "";
 		this.sort = root.dataset.sort === "new" ? "new" : "top";
 		this.page = Number.parseInt(root.dataset.page ?? "1", 10) || 1;
+		this.firstPage = this.page;
+		this.pageSize = Number.parseInt(root.dataset.pageSize ?? "20", 10) || 20;
+		this.repliesPageSize = Number.parseInt(root.dataset.repliesPageSize ?? "20", 10) || 20;
+		setEditWindow(Number.parseInt(root.dataset.editWindowMinutes ?? "15", 10) || 15);
 		this.total = Number.parseInt(root.dataset.total ?? "0", 10) || 0;
 
 		// Reply, report and the composer need JavaScript (they may have to sign the reader in).
@@ -100,6 +118,7 @@ export class CommentsSection {
 			this.composer.hidden = false;
 		}
 		this.revealServerActions();
+		this.addEarlierButton();
 
 		this.wire();
 		this.updateCounter();
@@ -115,7 +134,7 @@ export class CommentsSection {
 		const session = await getSession();
 		if (session) {
 			await this.onSignedIn();
-			await this.resumePendingDraft();
+			await this.resumePendingDraft(oauthReturn);
 		} else {
 			this.restoreDraftText();
 		}
@@ -125,6 +144,23 @@ export class CommentsSection {
 		for (const button of this.list.querySelectorAll<HTMLElement>("[data-comment-reply][hidden], [data-comment-report][hidden]")) {
 			button.hidden = false;
 		}
+	}
+
+	private addEarlierButton(): void {
+		if (this.firstPage <= 1) {
+			return;
+		}
+
+		const wrap = document.createElement("div");
+		wrap.className = "comments__more";
+		const button = document.createElement("button");
+		button.type = "button";
+		button.className = "btn btn--standard";
+		button.textContent = "Show earlier comments";
+		button.addEventListener("click", () => void this.loadEarlier(button));
+		wrap.appendChild(button);
+		this.list.before(wrap);
+		this.earlierWrap = wrap;
 	}
 
 	// --- Wiring --------------------------------------------------------------
@@ -221,11 +257,43 @@ export class CommentsSection {
 	}
 
 	private async signOutReader(): Promise<void> {
-		await signOut();
+		await this.dropSession();
+		await this.refreshCurrentPage();
+	}
+
+	private async dropSession(): Promise<void> {
+		try {
+			await signOut();
+		} catch {
+			// Nothing to revoke is fine; the local session is gone either way.
+		}
 		if (this.identityEl) {
 			this.identityEl.hidden = true;
 		}
-		await this.refreshCurrentPage();
+	}
+
+	/**
+	 * Runs a write. A 401 means the session is stale or revoked, so the reader signs in again and
+	 * the write is retried once instead of ending in a dead-end message.
+	 */
+	private async authed<T>(operation: () => Promise<T>, beforeRetry?: () => void): Promise<T> {
+		try {
+			return await operation();
+		} catch (error) {
+			if (!(error instanceof ApiError) || error.status !== 401 || !this.signIn) {
+				throw error;
+			}
+
+			await this.dropSession();
+			const result = await this.signIn.open(this.returnUrl());
+			if (result !== "signed-in") {
+				throw error;
+			}
+
+			await this.onSignedIn();
+			beforeRetry?.();
+			return await operation();
+		}
 	}
 
 	// --- Composer ------------------------------------------------------------
@@ -256,7 +324,27 @@ export class CommentsSection {
 		}
 	}
 
-	private async submit(): Promise<void> {
+	/** One post at a time: a double click or Enter-repeat must not create the comment twice. */
+	private async guardPost(action: () => Promise<void>): Promise<void> {
+		if (this.posting) {
+			return;
+		}
+
+		this.posting = true;
+		this.busy(true);
+		try {
+			await action();
+		} finally {
+			this.posting = false;
+			this.busy(false);
+		}
+	}
+
+	private submit(): Promise<void> {
+		return this.guardPost(() => this.submitCore());
+	}
+
+	private async submitCore(): Promise<void> {
 		const content = this.textarea?.value.trim() ?? "";
 		if (!content) {
 			this.setStatus("Write something first.");
@@ -280,12 +368,12 @@ export class CommentsSection {
 	}
 
 	private async postDraft(content: string, parentId: string | null): Promise<void> {
-		this.busy(true);
 		this.setStatus("Posting…");
 
 		try {
-			const token = await this.captcha.getToken();
-			const created = await createComment(this.postId, content, parentId, token);
+			const created = await this.authed(
+				async () => createComment(this.postId, content, parentId, await this.captcha.getToken()),
+				() => this.captcha.reset());
 			this.insertCreated(created);
 			this.clearDraft();
 			if (this.textarea) {
@@ -295,11 +383,12 @@ export class CommentsSection {
 			this.setReplyTarget(null, null);
 			this.setStatus("Posted.");
 		} catch (error) {
+			// A failed post must never leave the draft armed to post itself later.
+			this.saveDraft(false);
 			this.setStatus(this.describe(error, "Your comment could not be posted."));
 		} finally {
 			// The token is spent either way - Cloudflare rejects a replay.
 			this.captcha.reset();
-			this.busy(false);
 		}
 	}
 
@@ -336,6 +425,7 @@ export class CommentsSection {
 			parentId: this.parentInput?.value || null,
 			content,
 			submit,
+			savedAt: Date.now(),
 		};
 
 		try {
@@ -376,11 +466,21 @@ export class CommentsSection {
 		this.updateCounter();
 	}
 
-	/** Runs on the OAuth return: a draft marked submit posts itself. */
-	private async resumePendingDraft(): Promise<void> {
+	/** A draft marked submit posts itself, but only straight after the OAuth return and only once. */
+	private async resumePendingDraft(oauthReturn: boolean): Promise<void> {
 		const draft = this.readDraft();
 		if (!draft) {
 			return;
+		}
+
+		// Disarm first, so a failure, a reload or a later visit can never retry it.
+		const armed = draft.submit && oauthReturn && Date.now() - (draft.savedAt ?? 0) <= DraftFreshMs;
+		if (draft.submit) {
+			try {
+				window.sessionStorage.setItem(DraftKey, JSON.stringify({ ...draft, submit: false }));
+			} catch {
+				// See saveDraft.
+			}
 		}
 
 		if (this.textarea) {
@@ -389,8 +489,8 @@ export class CommentsSection {
 		this.setReplyTarget(draft.parentId, this.authorOf(draft.parentId));
 		this.updateCounter();
 
-		if (draft.submit) {
-			await this.postDraft(draft.content.trim(), draft.parentId);
+		if (armed) {
+			await this.guardPost(() => this.postDraft(draft.content.trim(), draft.parentId));
 		}
 	}
 
@@ -430,14 +530,24 @@ export class CommentsSection {
 		this.paintVote(fresh, countEl, wantUpvote, previousCount + (wantUpvote ? 1 : -1));
 		fresh.disabled = true;
 
+		// A 401 re-signs the reader in, which swaps the action buttons: paint whichever is live.
+		const live = (): [HTMLButtonElement, HTMLElement | null] => {
+			const button = this.findArticle(commentId)
+				?.querySelector<HTMLButtonElement>(":scope > .comment__actions [data-comment-upvote]") ?? fresh;
+			return [button, button.querySelector<HTMLElement>("[data-upvote-count]")];
+		};
+
 		try {
-			const updated = await setVote(commentId, wantUpvote);
-			this.paintVote(fresh, countEl, updated.hasUpvoted, updated.upvoteCount);
+			const updated = await this.authed(() => setVote(commentId, wantUpvote));
+			const [button, count] = live();
+			this.paintVote(button, count, updated.hasUpvoted, updated.upvoteCount);
 		} catch (error) {
-			this.paintVote(fresh, countEl, !wantUpvote, previousCount);
-			this.flash(fresh, this.describe(error, "Your vote could not be saved."));
+			const [button, count] = live();
+			this.paintVote(button, count, !wantUpvote, previousCount);
+			this.flash(button, this.describe(error, "Your vote could not be saved."));
 		} finally {
 			fresh.disabled = false;
+			live()[0].disabled = false;
 		}
 	}
 
@@ -451,16 +561,109 @@ export class CommentsSection {
 
 	// --- Paging --------------------------------------------------------------
 
+	/**
+	 * Re-reads the loaded pages and patches the reader-specific state (own, upvoted) onto what is
+	 * already rendered, so loaded pages, expanded replies and open editors survive a sign-in change.
+	 */
 	private async refreshCurrentPage(): Promise<void> {
 		try {
-			const response = await getComments(this.postId, this.sort, this.page);
-			this.list.replaceChildren(...response.data.map((comment) => this.render(comment, false)));
-			this.total = response.totalCount;
+			const signedIn = (await getSession()) !== null;
+			const fresh = new Map<string, CommentDto>();
+			let total = this.total;
+
+			for (let page = this.firstPage; page <= this.page; page++) {
+				const response = await getComments(this.postId, this.sort, page);
+				total = response.totalCount;
+				for (const comment of response.data) {
+					fresh.set(comment.id, comment);
+					for (const reply of comment.replies) {
+						fresh.set(reply.id, reply);
+					}
+				}
+			}
+
+			await this.fetchLoadedReplies(fresh);
+
+			for (const article of this.list.querySelectorAll<HTMLElement>("[data-comment-id]")) {
+				const id = article.dataset.commentId ?? "";
+				// Anything the server did not return (a comment posted a moment ago) keeps its state
+				// while signed in, and loses the reader's flags on sign-out.
+				const known = this.known.get(id);
+				const dto = fresh.get(id) ?? (!signedIn && known ? { ...known, isOwn: false, hasUpvoted: false } : undefined);
+				if (dto) {
+					this.patch(article, dto);
+				}
+			}
+
+			this.total = total;
 			this.syncTotal();
 			this.syncLoadMore();
 			this.highlightDeepLink(false);
 		} catch {
-			// Keep the server-rendered list: still correct, just without the reader's own state.
+			// Keep what is on screen: still correct, just without the reader's own state.
+		}
+	}
+
+	/** Replies expanded beyond the inline ones are not part of the page response. */
+	private async fetchLoadedReplies(fresh: Map<string, CommentDto>): Promise<void> {
+		for (const container of this.list.querySelectorAll<HTMLElement>("[data-comment-replies]")) {
+			const parentId = container.closest<HTMLElement>("[data-comment-id]")?.dataset.commentId;
+			const rendered = Array.from(container.querySelectorAll<HTMLElement>(":scope > [data-comment-id]"));
+			if (!parentId || rendered.every((reply) => fresh.has(reply.dataset.commentId ?? ""))) {
+				continue;
+			}
+
+			for (let page = 1; ; page++) {
+				const response = await getReplies(parentId, page);
+				for (const reply of response.data) {
+					fresh.set(reply.id, reply);
+				}
+				if (response.data.length === 0
+					|| page * this.repliesPageSize >= response.totalCount
+					|| rendered.every((reply) => fresh.has(reply.dataset.commentId ?? ""))) {
+					break;
+				}
+			}
+		}
+	}
+
+	private patch(article: HTMLElement, comment: CommentDto): void {
+		this.known.set(comment.id, comment);
+		const actions = article.querySelector<HTMLElement>(":scope > .comment__actions");
+		if (actions && comment.status === "Visible") {
+			actions.outerHTML = actionsMarkup(comment);
+		}
+	}
+
+	private async loadEarlier(button: HTMLButtonElement): Promise<void> {
+		button.disabled = true;
+		try {
+			const response = await getComments(this.postId, this.sort, this.firstPage - 1);
+			const anchor = this.list.firstElementChild;
+			const before = anchor?.getBoundingClientRect().top ?? 0;
+
+			for (const comment of response.data) {
+				if (!this.findArticle(comment.id)) {
+					this.list.insertBefore(this.render(comment, false), anchor);
+				}
+			}
+
+			// Keep what the reader was looking at where it was.
+			if (anchor) {
+				window.scrollBy(0, anchor.getBoundingClientRect().top - before);
+			}
+
+			this.firstPage -= 1;
+			this.total = response.totalCount;
+			this.syncTotal();
+			if (this.firstPage <= 1) {
+				this.earlierWrap?.remove();
+				this.earlierWrap = null;
+			}
+		} catch (error) {
+			this.setStatus(this.describe(error, "Earlier comments could not be loaded."));
+		} finally {
+			button.disabled = false;
 		}
 	}
 
@@ -496,7 +699,8 @@ export class CommentsSection {
 
 	private syncLoadMore(): void {
 		if (this.loadMoreButton) {
-			this.loadMoreButton.hidden = this.list.querySelectorAll(":scope > [data-comment-id]").length >= this.total;
+			const loaded = this.list.querySelectorAll(":scope > [data-comment-id]").length;
+			this.loadMoreButton.hidden = loaded >= this.total || this.page * this.pageSize >= this.total;
 		}
 	}
 
@@ -585,7 +789,7 @@ export class CommentsSection {
 			}
 
 			save.disabled = true;
-			updateComment(known.id, content)
+			this.authed(() => updateComment(known.id, content))
 				.then((updated) => {
 					const merged: CommentDto = { ...known, ...updated, replies: known.replies };
 					this.known.set(known.id, merged);
@@ -623,7 +827,7 @@ export class CommentsSection {
 
 		article.classList.add("is-busy");
 		try {
-			await deleteComment(commentId);
+			await this.authed(() => deleteComment(commentId));
 		} catch (error) {
 			article.classList.remove("is-busy");
 			this.flash(button, this.describe(error, "Your comment could not be deleted."));
@@ -675,6 +879,27 @@ export class CommentsSection {
 	}
 
 	private async sendReport(): Promise<void> {
+		if (this.reporting || !this.reportTargetId || !this.reportDialog) {
+			return;
+		}
+
+		this.reporting = true;
+		const send = this.reportDialog.querySelector<HTMLButtonElement>("[data-report-send]");
+		if (send) {
+			send.disabled = true;
+		}
+
+		try {
+			await this.sendReportCore();
+		} finally {
+			this.reporting = false;
+			if (send) {
+				send.disabled = false;
+			}
+		}
+	}
+
+	private async sendReportCore(): Promise<void> {
 		if (!this.reportTargetId || !this.reportDialog) {
 			return;
 		}
@@ -684,7 +909,8 @@ export class CommentsSection {
 		const errorEl = this.reportDialog.querySelector<HTMLElement>("[data-report-error]");
 
 		try {
-			await reportComment(this.reportTargetId, reason, note.length > 0 ? note : null);
+			const targetId = this.reportTargetId;
+			await this.authed(() => reportComment(targetId, reason, note.length > 0 ? note : null));
 			this.reportDialog.close();
 			const article = this.findArticle(this.reportTargetId);
 			const target = article?.querySelector<HTMLElement>(":scope > .comment__actions [data-comment-report]");

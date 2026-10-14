@@ -72,14 +72,25 @@ export function bodyMarkup(comment: CommentDto): string {
 	return `${mention}${comment.contentHtml}`;
 }
 
-function actionsMarkup(comment: CommentDto): string {
+let editWindowMs = 15 * Minute;
+
+/** The server decides the window; the page hands it over so Edit is hidden once it has passed. */
+export function setEditWindow(minutes: number): void {
+	editWindowMs = minutes * Minute;
+}
+
+function canEdit(comment: CommentDto): boolean {
+	return comment.isOwn && Date.now() - new Date(comment.createdOn).getTime() <= editWindowMs;
+}
+
+export function actionsMarkup(comment: CommentDto): string {
 	const pressed = comment.hasUpvoted ? "true" : "false";
 	const icon = comment.hasUpvoted ? "#i-hand-thumbs-up-fill" : "#i-hand-thumbs-up";
 	const button = (attribute: string, symbol: string, label: string): string =>
 		`<button type="button" class="comment__action" ${attribute}><svg class="icon" aria-hidden="true"><use href="#i-${symbol}"></use></svg>${label}</button>`;
 
 	const own = comment.isOwn
-		? button("data-comment-edit", "pencil", "Edit") + button("data-comment-delete", "trash3", "Delete")
+		? (canEdit(comment) ? button("data-comment-edit", "pencil", "Edit") : "") + button("data-comment-delete", "trash3", "Delete")
 		: button("data-comment-report", "flag", "Report");
 
 	return `<div class="comment__actions">

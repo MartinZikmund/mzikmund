@@ -45,18 +45,23 @@ export function getClient(): SupabaseClient {
 // signInWithOAuth navigates the tab away, so nothing after it runs. returnTo must be on
 // the Redirect URLs allow list of the Supabase project.
 
-export function signInWithGoogle(returnTo: string): Promise<unknown> {
-	return getClient().auth.signInWithOAuth({
-		provider: "google",
+// The library reports failure in the result instead of rejecting, so it is rethrown here.
+async function startOAuth(provider: "google" | "apple", returnTo: string): Promise<void> {
+	const { error } = await getClient().auth.signInWithOAuth({
+		provider,
 		options: { redirectTo: returnTo },
 	});
+	if (error) {
+		throw error;
+	}
 }
 
-export function signInWithApple(returnTo: string): Promise<unknown> {
-	return getClient().auth.signInWithOAuth({
-		provider: "apple",
-		options: { redirectTo: returnTo },
-	});
+export function signInWithGoogle(returnTo: string): Promise<void> {
+	return startOAuth("google", returnTo);
+}
+
+export function signInWithApple(returnTo: string): Promise<void> {
+	return startOAuth("apple", returnTo);
 }
 
 /**
