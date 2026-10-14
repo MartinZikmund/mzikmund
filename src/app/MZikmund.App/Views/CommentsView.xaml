@@ -33,12 +33,12 @@
                     VerticalAlignment="Top"
                     DisplayName="{x:Bind DisplayName}"
                     ProfilePicture="{x:Bind local:CommentsView.ToAvatar(AvatarUri)}"
-                    Visibility="{x:Bind IsNotTombstone, Converter={StaticResource BoolToVisibilityConverter}}" />
+                    Visibility="{x:Bind IsNotTombstone, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
                 <StackPanel Grid.Column="1" Spacing="4">
                     <StackPanel
                         Orientation="Horizontal"
                         Spacing="8"
-                        Visibility="{x:Bind IsNotTombstone, Converter={StaticResource BoolToVisibilityConverter}}">
+                        Visibility="{x:Bind IsNotTombstone, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock
                             VerticalAlignment="Center"
                             Style="{StaticResource MzRowTitleTextStyle}"
@@ -147,12 +147,12 @@
                     VerticalAlignment="Top"
                     DisplayName="{x:Bind DisplayName}"
                     ProfilePicture="{x:Bind local:CommentsView.ToAvatar(AvatarUri)}"
-                    Visibility="{x:Bind IsNotTombstone, Converter={StaticResource BoolToVisibilityConverter}}" />
+                    Visibility="{x:Bind IsNotTombstone, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
                 <StackPanel Grid.Column="1" Spacing="4">
                     <StackPanel
                         Orientation="Horizontal"
                         Spacing="8"
-                        Visibility="{x:Bind IsNotTombstone, Converter={StaticResource BoolToVisibilityConverter}}">
+                        Visibility="{x:Bind IsNotTombstone, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock
                             VerticalAlignment="Center"
                             Style="{StaticResource MzRowTitleTextStyle}"
