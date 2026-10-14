@@ -305,6 +305,35 @@ public class CommentProjectionTests : IClassFixture<CommentsDbFixture>
 		Assert.Equal("", dto.ContentHtml);
 	}
 
+	[Theory]
+	[InlineData(DataCommentStatus.HiddenByModerator, "secret", "<p>secret</p>")]
+	[InlineData(DataCommentStatus.Visible, "secret", "<p>secret</p>")]
+	[InlineData(DataCommentStatus.DeletedByAuthor, "", "")]
+	public void ToDto_FromEntityWithModeratedContent_KeepsHiddenTextButNeverDeletedText(
+		DataCommentStatus status, string expectedContent, string expectedHtml)
+	{
+		// Arrange
+		var authorId = Guid.NewGuid();
+		CommentEntity comment = new()
+		{
+			Id = Guid.NewGuid(),
+			PostId = Guid.NewGuid(),
+			AuthorId = authorId,
+			Content = "secret",
+			ContentHtml = "<p>secret</p>",
+			Status = status,
+			CreatedOn = Day(1),
+			Author = new CommentAuthorEntity { Id = authorId, DisplayName = "Homer" },
+		};
+
+		// Act
+		var dto = CommentProjection.ToDto(comment, null, includeReplies: false, includeModeratedContent: true);
+
+		// Assert
+		Assert.Equal(expectedContent, dto.Content);
+		Assert.Equal(expectedHtml, dto.ContentHtml);
+	}
+
 	[Fact]
 	public void Moq_CanProxyLoggerOfInternalCoreType()
 	{

@@ -47,7 +47,7 @@ public class GetModerationFeedHandlerTests
 	}
 
 	[Fact]
-	public async Task Handle_HiddenComment_IsListedButItsTextStaysBlank()
+	public async Task Handle_HiddenComment_IsListedWithItsText()
 	{
 		// Arrange
 		using CommentsDbFixture fixture = new();
@@ -65,11 +65,30 @@ public class GetModerationFeedHandlerTests
 		var row = Assert.Single(result.Data);
 		Assert.Equal(comment.Id, row.Id);
 		Assert.Equal(CommentStatus.HiddenByModerator, row.Status);
-		Assert.Equal("", row.Content);
+		Assert.Equal("removed words", row.Content);
 		Assert.Equal("Commenter", row.AuthorDisplayName);
 		Assert.False(row.HasUpvoted);
 		Assert.False(row.IsOwn);
 		Assert.Empty(row.Replies);
+	}
+
+	[Fact]
+	public async Task Handle_DeletedByAuthorComment_StaysBlank()
+	{
+		// Arrange
+		using CommentsDbFixture fixture = new();
+		using var db = fixture.CreateContext();
+		AddPost(db, _postId);
+		AddAuthor(db, _authorId, "Commenter");
+		AddComment(db, _postId, _authorId, "regretted", status: DataCommentStatus.DeletedByAuthor);
+		await db.SaveChangesAsync(CancellationToken.None);
+		var handler = new GetModerationFeedHandler(db);
+
+		// Act
+		var result = await handler.Handle(new GetModerationFeedQuery(null, 1, 20), CancellationToken.None);
+
+		// Assert
+		Assert.Equal("", Assert.Single(result.Data).Content);
 	}
 
 	[Fact]
