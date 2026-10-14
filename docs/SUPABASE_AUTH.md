@@ -75,3 +75,44 @@ must be verified against a deployed HTTPS host.
 
 No Supabase **secret** key belongs in either application. It is used by hand, from
 `supabase/seed-admin.ps1`, against the local stack only.
+
+## Uno app
+
+The app talks to GoTrue over plain HTTP (no Supabase NuGet package): PKCE code exchange, refresh,
+email OTP and logout. Sessions are cached in `IAppPreferences`; a cached token whose issuer is not
+`{Url}/auth/v1` is discarded. Only `app_metadata.role == "admin"` shows the Admin menu.
+
+### Configuration
+
+| Key | Notes |
+|---|---|
+| `SupabaseConfig:Url` | Full URL: `https://<ref>.supabase.co`, `http://127.0.0.1:54321` (local), `http://10.0.2.2:54321` (Android emulator) |
+| `SupabaseConfig:PublishableKey` | Public by design; never a secret key |
+| `SupabaseConfig:DesktopCallbackPort` | Defaults to `51842` |
+
+The committed `appsettings.json` ships placeholders. Override per machine with
+`appsettings.development.json` (see the `.sample`) or environment variables:
+`MZIKMUND_SupabaseConfig__Url` and `MZIKMUND_SupabaseConfig__PublishableKey`.
+
+### Redirect URIs per head
+
+Every one must be in the Supabase allow-list (`additional_redirect_urls` locally, Authentication >
+URL Configuration on the hosted project).
+
+| Head | Redirect URI |
+|---|---|
+| Windows (packaged) | `mzikmund-app://oauthcallback` (protocol activation) |
+| Desktop (Skia) | `http://127.0.0.1:51842/callback` (loopback listener) |
+| Android | `mzikmund-app://oauthcallback` (`WebAuthenticationBrokerActivity`) |
+| iOS | `mzikmund-app://oauthcallback` (`CFBundleURLTypes` in `Info.plist`) |
+| WebAssembly | `<origin>/authentication-callback` (Uno default). Local runs are covered by the `http://localhost:5000/**` entry; add the hosted app origin when it is known |
+
+### Local recipe
+
+1. `npx supabase start`, then `pwsh supabase/seed-admin.ps1`.
+2. Run the app with `MZIKMUND_SupabaseConfig__Url=http://127.0.0.1:54321` and the local publishable key.
+3. Sign in with "Continue with email" and read the 6-digit code from Mailpit (`http://127.0.0.1:54324`).
+   `admin@mzikmund.test` sees the Admin menu, `reader@mzikmund.test` does not.
+
+Google and Apple only work end to end against the hosted project (see the provider steps the owner
+performs in the dashboard: enable the providers, add the client IDs and the redirect URIs above).
