@@ -12,10 +12,19 @@
 param(
 	[string]$Email = "admin@mzikmund.test",
 	[string]$SupabaseUrl = "http://127.0.0.1:54321",
-	[string]$SecretKey = "<local-secret-key>"
+	# Defaults to the running local stack's secret key, so no key needs to live in the repo.
+	[string]$SecretKey
 )
 
 $ErrorActionPreference = "Stop"
+
+if (-not $SecretKey) {
+	$statusLine = npx --yes supabase@latest status -o env | Where-Object { $_ -like "SECRET_KEY=*" } | Select-Object -First 1
+	if (-not $statusLine) {
+		throw "Could not read SECRET_KEY from 'npx supabase status'. Is the local stack running (npx supabase start)?"
+	}
+	$SecretKey = ($statusLine -replace '^SECRET_KEY=', '').Trim('"')
+}
 
 $headers = @{
 	apikey        = $SecretKey
