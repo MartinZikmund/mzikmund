@@ -15,6 +15,8 @@ using MZikmund.Web.Core.Services.Comments;
 using MZikmund.Web.Core.Syndication;
 using MZikmund.Web.Data;
 using MZikmund.Web.Data.Extensions;
+using MZikmund.Web.Filters;
+using MZikmund.Web.Infrastructure;
 using MZikmund.Web.Infrastructure.Auth;
 using MZikmund.Web.Services;
 
@@ -39,6 +41,10 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 	services.Configure<CommentsOptions>(configuration.GetSection("Comments"));
 	services.Configure<SupabaseOptions>(configuration.GetSection("Supabase"));
 	services.Configure<TurnstileOptions>(configuration.GetSection("Turnstile"));
+
+	services.AddScoped<CommentsEnabledFilter>();
+	services.AddCommentRateLimiting(
+		configuration.GetSection("RateLimits").Get<RateLimitOptions>() ?? new RateLimitOptions());
 
 	services.AddAutoMapper(c => c.AddMaps(typeof(CoreAssemblyMarker)));
 	services.AddSingleton<ICache, Cache>();
@@ -153,6 +159,8 @@ async Task Configure(WebApplication app)
 	app.UseCors("WasmAppPolicy");
 
 	app.UseAuthentication();
+	// After UseAuthentication: the partitioner reads HttpContext.User.
+	app.UseRateLimiter();
 	app.UseAuthorization();
 
 	app.MapHealthChecks("/health");
