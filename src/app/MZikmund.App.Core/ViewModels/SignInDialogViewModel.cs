@@ -7,6 +7,7 @@ namespace MZikmund.ViewModels;
 public partial class SignInDialogViewModel : DialogViewModel
 {
 	private readonly IUserService _userService;
+	private readonly CancellationTokenSource _cancellation = new();
 	private ContentDialog? _dialog;
 
 	public SignInDialogViewModel(IUserService userService, string? webUrl)
@@ -57,7 +58,12 @@ public partial class SignInDialogViewModel : DialogViewModel
 	[NotifyPropertyChangedFor(nameof(HasError))]
 	public partial string? ErrorMessage { get; set; }
 
-	public override void OnOpened(ContentDialog contentDialog) => _dialog = contentDialog;
+	public override void OnOpened(ContentDialog contentDialog)
+	{
+		_dialog = contentDialog;
+		// Close, Escape and a finished sign-in all end here; a browser wait still running must stop.
+		contentDialog.Closed += (_, _) => _cancellation.Cancel();
+	}
 
 	[RelayCommand]
 	private Task SignInWithGoogleAsync() => SignInWithProviderAsync(SupabaseOAuthProvider.Google);
@@ -97,7 +103,7 @@ public partial class SignInDialogViewModel : DialogViewModel
 
 	private Task SignInWithProviderAsync(SupabaseOAuthProvider provider) => RunAsync(async () =>
 	{
-		await _userService.SignInWithProviderAsync(provider);
+		await _userService.SignInWithProviderAsync(provider, _cancellation.Token);
 		if (_userService.IsLoggedIn)
 		{
 			OnSignedIn();

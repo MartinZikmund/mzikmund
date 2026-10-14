@@ -10,7 +10,7 @@ using Uno.Disposables;
 
 namespace MZikmund.ViewModels;
 
-public partial class WindowShellViewModel : ViewModelBase
+public partial class WindowShellViewModel : ViewModelBase, IDisposable
 {
 	private readonly IWindowShellProvider _provider;
 	private readonly INavigationService _navigationService;
@@ -36,6 +36,13 @@ public partial class WindowShellViewModel : ViewModelBase
 	}
 
 	public string Title { get; } = "Martin Zikmund";
+
+	// The user service and badge outlive the window scope, so the handlers must be detached with it.
+	public void Dispose()
+	{
+		_userService.AuthenticationChanged -= OnAuthenticationChanged;
+		_commentsBadge.Changed -= OnCommentsBadgeChanged;
+	}
 
 	[ObservableProperty]
 	public partial bool CanGoBack { get; set; }

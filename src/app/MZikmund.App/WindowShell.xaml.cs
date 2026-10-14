@@ -27,6 +27,7 @@ public sealed partial class WindowShell : Page, IWindowShell
 
 		_windowScope = serviceProvider.CreateScope();
 		_associatedWindow = associatedWindow;
+		_associatedWindow.Closed += (_, _) => _windowScope.Dispose();
 
 		var windowShellProvider = (WindowShellProvider)ServiceProvider.GetRequiredService<IWindowShellProvider>();
 		windowShellProvider.SetShell(this, associatedWindow);

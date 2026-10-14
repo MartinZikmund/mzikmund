@@ -22,7 +22,10 @@ public interface IUserService
 	/// </summary>
 	Task<string> GetAccessTokenAsync(CancellationToken cancellationToken = default);
 
-	Task SignInWithProviderAsync(SupabaseOAuthProvider provider);
+	/// <summary>
+	/// Signs in through the browser. Cancelling the token abandons the wait and returns without a session.
+	/// </summary>
+	Task SignInWithProviderAsync(SupabaseOAuthProvider provider, CancellationToken cancellationToken = default);
 
 	Task SendEmailCodeAsync(string email);
 
