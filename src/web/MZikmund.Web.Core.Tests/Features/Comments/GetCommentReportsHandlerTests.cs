@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using MZikmund.DataContracts.Blog.Comments;
 using MZikmund.Web.Core.Features.Comments;
 using MZikmund.Web.Core.Services.Comments;
@@ -180,6 +181,9 @@ public class GetCommentReportsHandlerTests
 	[Theory]
 	[InlineData(0, 20)]
 	[InlineData(1, 0)]
+	[InlineData(10_001, 20)]
+	[InlineData(int.MaxValue, 20)]
+	[InlineData(1, 101)]
 	public async Task Handle_InvalidPaging_ThrowsCommentValidationException(int pageNumber, int pageSize)
 	{
 		// Arrange
@@ -190,6 +194,35 @@ public class GetCommentReportsHandlerTests
 		// Act & Assert
 		await Assert.ThrowsAsync<CommentValidationException>(
 			() => handler.Handle(new GetCommentReportsQuery(pageNumber, pageSize), CancellationToken.None));
+	}
+
+	[Fact]
+	public async Task Handle_CommentDeletedBetweenTheQueries_SkipsItInsteadOfThrowing()
+	{
+		// Arrange
+		using CommentsDbFixture fixture = new();
+		using var seedDb = fixture.CreateContext();
+		await SeedAsync(seedDb);
+		var comment = AddComment(seedDb, _postId, _authorId);
+		AddReport(seedDb, comment.Id, _reporterId, CommentReportReason.Spam, Day(2));
+		await seedDb.SaveChangesAsync(CancellationToken.None);
+
+		using var competitor = fixture.CreateContext();
+		await competitor.Comment.AnyAsync(CancellationToken.None);
+		RaceInterceptor race = new("GROUP BY", async () =>
+		{
+			await competitor.CommentReport.ExecuteDeleteAsync(CancellationToken.None);
+			await competitor.Comment.ExecuteDeleteAsync(CancellationToken.None);
+		});
+		using var db = fixture.CreateContext(race);
+		var handler = new GetCommentReportsHandler(db);
+
+		// Act
+		var result = await handler.Handle(new GetCommentReportsQuery(1, 20), CancellationToken.None);
+
+		// Assert
+		Assert.True(race.Fired);
+		Assert.Empty(result.Data);
 	}
 
 	private static Guid NewReporter(DatabaseContext db)

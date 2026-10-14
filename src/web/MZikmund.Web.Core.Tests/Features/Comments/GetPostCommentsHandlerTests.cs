@@ -118,6 +118,56 @@ public class GetPostCommentsHandlerTests
 	}
 
 	[Fact]
+	public async Task Handle_CommentsWithTheSameTimestamp_PageDeterministicallyWithoutGapsOrRepeats()
+	{
+		// Arrange
+		using CommentsDbFixture fixture = new();
+		using var context = fixture.CreateContext();
+		var postId = Guid.NewGuid();
+		var authorId = Guid.NewGuid();
+		AddPost(context, postId);
+		AddAuthor(context, authorId, "Homer");
+		for (var index = 0; index < 7; index++)
+		{
+			AddComment(context, postId, authorId, $"c{index}", Day(1), upvoteCount: 3);
+		}
+
+		await context.SaveChangesAsync(CancellationToken.None);
+		var handler = CreateHandler(context);
+
+		foreach (var sort in new[] { CommentSortOrder.New, CommentSortOrder.Top })
+		{
+			// Act
+			List<Guid> seen = new();
+			for (var page = 1; page <= 3; page++)
+			{
+				var result = await handler.Handle(new GetPostCommentsQuery(postId, sort, page, 3), CancellationToken.None);
+				seen.AddRange(result.Data.Select(c => c.Id));
+			}
+
+			// Assert
+			Assert.Equal(7, seen.Count);
+			Assert.Equal(7, seen.Distinct().Count());
+		}
+	}
+
+	[Theory]
+	[InlineData(0)]
+	[InlineData(10_001)]
+	[InlineData(int.MaxValue)]
+	public async Task Handle_PageNumberOutOfRange_ThrowsValidation(int pageNumber)
+	{
+		// Arrange
+		using CommentsDbFixture fixture = new();
+		using var context = fixture.CreateContext();
+		var handler = CreateHandler(context);
+		var query = new GetPostCommentsQuery(Guid.NewGuid(), CommentSortOrder.New, pageNumber, 20);
+
+		// Act & Assert
+		await Assert.ThrowsAsync<CommentValidationException>(() => handler.Handle(query, CancellationToken.None));
+	}
+
+	[Fact]
 	public async Task Handle_SortNew_OrdersByCreatedOnDescending()
 	{
 		// Arrange
