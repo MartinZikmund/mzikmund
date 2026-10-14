@@ -113,23 +113,23 @@ internal static class CommentProjection
 		Guid? currentAuthorId,
 		bool includeReplies,
 		bool includeModeratedContent = false) => new()
-	{
-		Id = comment.Id,
-		PostId = comment.PostId,
-		ParentId = comment.ParentId,
-		AuthorDisplayName = comment.Author.DisplayName,
-		AuthorAvatarUrl = comment.Author.AvatarUrl,
-		MentionedDisplayName = comment.MentionedDisplayName,
-		Content = ShowsContent(comment.Status, includeModeratedContent) ? comment.Content : "",
-		ContentHtml = ShowsContent(comment.Status, includeModeratedContent) ? comment.ContentHtml : "",
-		Status = MapStatus(comment.Status),
-		CreatedOn = comment.CreatedOn,
-		EditedOn = comment.EditedOn,
-		UpvoteCount = comment.UpvoteCount,
-		ReplyCount = comment.ReplyCount,
-		HasUpvoted = currentAuthorId is not null && comment.Votes.Any(vote => vote.AuthorId == currentAuthorId),
-		IsOwn = currentAuthorId is not null && currentAuthorId == comment.AuthorId,
-		Replies = includeReplies
+		{
+			Id = comment.Id,
+			PostId = comment.PostId,
+			ParentId = comment.ParentId,
+			AuthorDisplayName = comment.Author.DisplayName,
+			AuthorAvatarUrl = comment.Author.AvatarUrl,
+			MentionedDisplayName = comment.MentionedDisplayName,
+			Content = ShowsContent(comment.Status, includeModeratedContent) ? comment.Content : "",
+			ContentHtml = ShowsContent(comment.Status, includeModeratedContent) ? comment.ContentHtml : "",
+			Status = MapStatus(comment.Status),
+			CreatedOn = comment.CreatedOn,
+			EditedOn = comment.EditedOn,
+			UpvoteCount = comment.UpvoteCount,
+			ReplyCount = comment.ReplyCount,
+			HasUpvoted = currentAuthorId is not null && comment.Votes.Any(vote => vote.AuthorId == currentAuthorId),
+			IsOwn = currentAuthorId is not null && currentAuthorId == comment.AuthorId,
+			Replies = includeReplies
 			? comment.Replies
 				.Where(reply => reply.Status != DataCommentStatus.HiddenByModerator)
 				.OrderBy(reply => reply.CreatedOn)
@@ -137,7 +137,7 @@ internal static class CommentProjection
 				.Select(reply => ToDto(reply, currentAuthorId, includeReplies: false))
 				.ToArray()
 			: Array.Empty<CommentDto>(),
-	};
+		};
 
 	private static bool ShowsContent(DataCommentStatus status, bool includeModeratedContent) =>
 		status == DataCommentStatus.Visible
