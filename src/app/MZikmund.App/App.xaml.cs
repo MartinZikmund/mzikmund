@@ -54,8 +54,9 @@ public partial class MZikmundApp : Application, IApplication
 						.EmbeddedSource<MZikmundApp>()
 						.Section<AppConfig>()
 						.Section<AuthConfig>()
+						.Section<SupabaseConfig>()
 				)
-				// e.g. MZIKMUND_AppConfig__ApiUrl, MZIKMUND_AuthConfig__ClientId
+				// e.g. MZIKMUND_AppConfig__ApiUrl, MZIKMUND_SupabaseConfig__Url
 				.ConfigureAppConfiguration((_, configBuilder) => configBuilder.AddEnvironmentVariables("MZIKMUND_"))
 				.UseLogging(configure: (context, logBuilder) =>
 				{
