@@ -1,20 +1,30 @@
 ﻿using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.Extensions.Options;
 using Microsoft.UI;
 using MZikmund.App.Core.Infrastructure;
-using MZikmund.Business.Models;
 using MZikmund.Services.Preferences;
+using MZikmund.Shared.Authentication;
 
 #if WINDOWS
 using Microsoft.Security.Authentication.OAuth;
+#elif __DESKTOP__
+using System.Net;
+using System.Text;
+#else
+using Windows.Security.Authentication.Web;
 #endif
 
 namespace MZikmund.Services.Account;
 
 public class UserService : IUserService
 {
+	private static readonly TimeSpan SignInTimeout = TimeSpan.FromMinutes(5);
+
+	private readonly SemaphoreSlim _authenticationLock = new(1, 1);
+
 	private AuthenticationInfo? _authenticationInfo;
 	private string? _refreshToken;
 	private readonly IAppPreferences _appPreferences;
@@ -36,23 +46,26 @@ public class UserService : IUserService
 		_appPreferences = appPreferences;
 		_authConfig = authConfig;
 
-		// Load cached authentication info on initialization
 		LoadCachedAuthentication();
 	}
+
+	public event EventHandler? AuthenticationChanged;
 
 	public bool IsLoggedIn => _authenticationInfo != null;
 
 	public string? UserName => _authenticationInfo?.DisplayName;
 
-	public bool NeedsRefresh => _authenticationInfo?.ExpiresOn < DateTimeOffset.UtcNow.AddMinutes(-5);
+	public bool NeedsRefresh => _authenticationInfo?.ExpiresOn < DateTimeOffset.UtcNow.AddMinutes(5);
 
 	public string? AccessToken => _authenticationInfo?.Token;
 
+	private AuthConfig Config => _authConfig.Value;
+
+	private string Authority => $"https://{Config.Domain}";
+
 	private void LoadCachedAuthentication()
 	{
-		// Try to restore authentication from cache
 		var accessToken = _appPreferences.AccessToken;
-		var refreshToken = _appPreferences.RefreshToken;
 		var userId = _appPreferences.UserId;
 		var displayName = _appPreferences.DisplayName;
 		var expiresOn = _appPreferences.TokenExpiresOn;
@@ -70,9 +83,7 @@ public class UserService : IUserService
 				ExpiresOn = expiresOn.Value
 			};
 
-			_refreshToken = refreshToken;
-
-			Debug.WriteLine($"Loaded cached authentication for user: {displayName}");
+			_refreshToken = _appPreferences.RefreshToken;
 		}
 	}
 
@@ -85,8 +96,6 @@ public class UserService : IUserService
 			_appPreferences.DisplayName = _authenticationInfo.DisplayName;
 			_appPreferences.TokenExpiresOn = _authenticationInfo.ExpiresOn;
 			_appPreferences.RefreshToken = _refreshToken;
-
-			Debug.WriteLine($"Saved authentication to cache for user: {_authenticationInfo.DisplayName}");
 		}
 	}
 
@@ -97,359 +106,314 @@ public class UserService : IUserService
 		_appPreferences.UserId = null;
 		_appPreferences.DisplayName = null;
 		_appPreferences.TokenExpiresOn = null;
-
-		Debug.WriteLine("Cleared authentication cache");
 	}
 
 	public async Task AuthenticateAsync()
+	{
+		// Concurrent API calls share one refresh or sign-in instead of racing Auth0 token rotation.
+		await _authenticationLock.WaitAsync();
+		var wasLoggedIn = IsLoggedIn;
+		try
+		{
+			await AuthenticateCoreAsync();
+		}
+		catch (Exception ex) when (ex is not AuthenticationFailedException)
+		{
+			throw new AuthenticationFailedException(ex.Message, ex);
+		}
+		finally
+		{
+			_authenticationLock.Release();
+			if (wasLoggedIn != IsLoggedIn)
+			{
+				AuthenticationChanged?.Invoke(this, EventArgs.Empty);
+			}
+		}
+	}
+
+	private async Task AuthenticateCoreAsync()
 	{
 		if (IsLoggedIn && !NeedsRefresh)
 		{
 			return;
 		}
 
-		// Validate that Auth0 configuration is not using placeholder values
-		if (string.IsNullOrEmpty(_authConfig.Value.ClientId) ||
-			_authConfig.Value.ClientId.Contains("your-auth0-client-id"))
+		if (!Config.IsConfigured)
 		{
-			throw new InvalidOperationException(
-				"Auth0 configuration is not set or contains placeholder values. " +
-				"Please update AuthenticationConstants.cs with your actual Auth0 configuration. " +
-				"See docs/AUTH0_MIGRATION.md for details.");
+			throw new AuthenticationFailedException(
+				"Sign-in is not configured. Set AuthConfig:ClientId (for example via the " +
+				"MZIKMUND_AuthConfig__ClientId environment variable). See docs/AUTH0_MIGRATION.md.");
 		}
 
-		try
+		// A rejected refresh token falls through to a fresh sign-in; an unreachable server throws and keeps the session.
+		if (!string.IsNullOrEmpty(_refreshToken) && await TryRefreshTokenAsync())
 		{
-			// Try refresh token first if we have one
-			if (!string.IsNullOrEmpty(_refreshToken))
-			{
-				var refreshed = await RefreshTokenAsync();
-				if (refreshed)
-				{
-					SaveAuthenticationToCache();
-					return;
-				}
-			}
+			SaveAuthenticationToCache();
+			return;
+		}
 
-			// Perform new authentication
-			await PerformAuthenticationAsync();
-		}
-		catch (Exception ex)
-		{
-			Debug.WriteLine($"Auth0 Error: {ex.Message}");
-			// Clear cache on authentication failure
-			ClearAuthenticationCache();
-		}
+		_authenticationInfo = null;
+		_refreshToken = null;
+		ClearAuthenticationCache();
+
+		await PerformAuthenticationAsync();
+		SaveAuthenticationToCache();
 	}
 
+#if WINDOWS
 	private async Task PerformAuthenticationAsync()
 	{
-#if WINDOWS
 		if (_application.MainWindow is null)
 		{
 			throw new InvalidOperationException("Window is not available");
 		}
 
-		// Use OAuth2Manager on Windows platforms
-		var authority = $"https://{AuthenticationConstants.Domain}";
-
-		// Build authorization URL
-		var authUrl = $"{authority}/authorize";
-
-		// Build scope string
-		var scopes = string.Join(" ", AuthenticationConstants.DefaultScopes);
-
-		// Create authorization request parameters for Auth0
-		// OAuth2Manager handles PKCE automatically, so we don't need to generate code verifier/challenge
 		var authRequestParams = AuthRequestParams.CreateForAuthorizationCodeRequest(
-			_authConfig.Value.ClientId,
+			Config.ClientId,
 			new Uri("mzikmund-app://oauthcallback"));
+		authRequestParams.Scope = string.Join(" ", AuthenticationConstants.DefaultScopes);
 
-		authRequestParams.Scope = scopes;
+		var authUrl = $"{Authority}/authorize?audience={Uri.EscapeDataString(Config.Audience)}";
 
-		// Auth0 requires audience parameter
-		if (!string.IsNullOrEmpty(AuthenticationConstants.Audience) &&
-			!AuthenticationConstants.Audience.Contains("your-api-identifier"))
-		{
-			// Create full auth URL with audience parameter
-			authUrl = $"{authUrl}?audience={Uri.EscapeDataString(AuthenticationConstants.Audience)}";
-		}
-
-		// Get window ID
-		var windowId = GetWindowHandle();
-
-		// Perform OAuth2 authorization
 		var authResult = await OAuth2Manager.RequestAuthWithParamsAsync(
-			windowId,
+			GetWindowId(),
 			new Uri(authUrl),
 			authRequestParams);
 
-		if (authResult.Response != null)
+		if (authResult.Failure is { } authFailure)
 		{
-			// Use OAuth2Manager to exchange the authorization code for tokens
-			var tokenRequestParams = TokenRequestParams.CreateForAuthorizationCodeRequest(authResult.Response);
-
-			var tokenEndpoint = $"{authority}/oauth/token";
-			var tokenResult = await OAuth2Manager.RequestTokenAsync(
-				new Uri(tokenEndpoint),
-				tokenRequestParams);
-
-			if (tokenResult.Response != null)
+			if (authFailure.Error == "user_cancelled")
 			{
-				var tokenResponse = tokenResult.Response;
-				_refreshToken = tokenResponse.RefreshToken;
-
-				// Parse JWT to get user info
-				var handler = new JwtSecurityTokenHandler();
-				var token = handler.ReadJwtToken(tokenResponse.AccessToken);
-
-				var expiresOn = DateTimeOffset.UtcNow.AddSeconds(tokenResponse.ExpiresIn);
-
-				_authenticationInfo = new AuthenticationInfo
-				{
-					DisplayName = token.Claims.FirstOrDefault(c => c.Type == "name")?.Value ??
-								  token.Claims.FirstOrDefault(c => c.Type == "email")?.Value ??
-								  "User",
-					ExpiresOn = expiresOn,
-					Token = tokenResponse.AccessToken,
-					UserId = token.Claims.FirstOrDefault(c => c.Type == "sub")?.Value ?? ""
-				};
-
-				// Save to cache after successful authentication
-				SaveAuthenticationToCache();
+				return;
 			}
-			else if (tokenResult.Failure != null)
-			{
-				Debug.WriteLine($"Token exchange failed: {tokenResult.Failure.Error} - {tokenResult.Failure.ErrorDescription}");
-			}
+
+			throw new AuthenticationFailedException($"{authFailure.Error}: {authFailure.ErrorDescription}");
 		}
-		else if (authResult.Failure != null)
+
+		var tokenResult = await OAuth2Manager.RequestTokenAsync(
+			new Uri($"{Authority}/oauth/token"),
+			TokenRequestParams.CreateForAuthorizationCodeRequest(authResult.Response));
+
+		if (tokenResult.Failure is { } tokenFailure)
 		{
-			if (authResult.Failure.Error == "user_cancelled")
-			{
-				Debug.WriteLine("User cancelled authentication");
-			}
-			else
-			{
-				Debug.WriteLine($"Authentication error: {authResult.Failure.Error} - {authResult.Failure.ErrorDescription}");
-			}
+			throw new AuthenticationFailedException($"{tokenFailure.Error}: {tokenFailure.ErrorDescription}");
 		}
-#else
-		//// For non-Windows platforms, use WebAuthenticator from Uno Platform
-		//var authority = $"https://{AuthenticationConstants.Domain}";
-		//var redirectUri = "dev.mzikmund.MZikmund.App://callback";
 
-		//// Generate PKCE code verifier and challenge
-		//var codeVerifier = GenerateCodeVerifier();
-		//var codeChallenge = GenerateCodeChallenge(codeVerifier);
-
-		//// Build authorization URL
-		//var authUrl = $"{authority}/authorize?" +
-		//	$"client_id={Uri.EscapeDataString(AuthenticationConstants.ClientId)}&" +
-		//	$"response_type=code&" +
-		//	$"redirect_uri={Uri.EscapeDataString(redirectUri)}&" +
-		//	$"scope={Uri.EscapeDataString(string.Join(" ", AuthenticationConstants.DefaultScopes))}&" +
-		//	$"code_challenge={Uri.EscapeDataString(codeChallenge)}&" +
-		//	$"code_challenge_method=S256";
-
-		//if (!string.IsNullOrEmpty(AuthenticationConstants.Audience) &&
-		//	!AuthenticationConstants.Audience.Contains("your-api-identifier"))
-		//{
-		//	authUrl += $"&audience={Uri.EscapeDataString(AuthenticationConstants.Audience)}";
-		//}
-
-		//// Use platform WebAuthenticator
-		//var result = await WebAuthenticator.Default.AuthenticateAsync(
-		//	new Uri(authUrl),
-		//	new Uri(redirectUri));
-
-		//if (result?.Properties?.TryGetValue("code", out var code) == true && !string.IsNullOrEmpty(code))
-		//{
-		//	await ExchangeCodeForTokensAsync(code, codeVerifier, redirectUri);
-		//}
-#endif
+		var tokenResponse = tokenResult.Response;
+		_refreshToken = tokenResponse.RefreshToken;
+		_authenticationInfo = CreateAuthenticationInfo(tokenResponse.AccessToken, tokenResponse.ExpiresIn);
 	}
 
-	private async Task<bool> RefreshTokenAsync()
+	private async Task<bool> TryRefreshTokenAsync()
 	{
-		if (string.IsNullOrEmpty(_refreshToken))
+		var tokenRequestParams = TokenRequestParams.CreateForRefreshToken(_refreshToken);
+		tokenRequestParams.ClientId = Config.ClientId;
+
+		// Transport failures throw out of here, which keeps the cached session for the next attempt.
+		var tokenResult = await OAuth2Manager.RequestTokenAsync(new Uri($"{Authority}/oauth/token"), tokenRequestParams);
+
+		if (tokenResult.Response is not { } tokenResponse)
 		{
+			Debug.WriteLine($"Token refresh rejected: {tokenResult.Failure?.Error} - {tokenResult.Failure?.ErrorDescription}");
 			return false;
 		}
 
-#if WINDOWS
-		// Use OAuth2Manager for token refresh
-		var authority = $"https://{AuthenticationConstants.Domain}";
-		var tokenEndpoint = $"{authority}/oauth/token";
-
-		var tokenRequestParams = TokenRequestParams.CreateForRefreshToken(_refreshToken);
-
-		try
+		if (!string.IsNullOrEmpty(tokenResponse.RefreshToken))
 		{
-			var tokenResult = await OAuth2Manager.RequestTokenAsync(
-				new Uri(tokenEndpoint),
-				tokenRequestParams);
-
-			if (tokenResult.Response != null)
-			{
-				var tokenResponse = tokenResult.Response;
-
-				// Update refresh token if a new one is provided
-				if (!string.IsNullOrEmpty(tokenResponse.RefreshToken))
-				{
-					_refreshToken = tokenResponse.RefreshToken;
-				}
-
-				// Parse JWT to get user info
-				var handler = new JwtSecurityTokenHandler();
-				var token = handler.ReadJwtToken(tokenResponse.AccessToken);
-
-				var expiresOn = DateTimeOffset.UtcNow.AddSeconds(tokenResponse.ExpiresIn);
-
-				_authenticationInfo = new AuthenticationInfo
-				{
-					DisplayName = token.Claims.FirstOrDefault(c => c.Type == "name")?.Value ??
-								  token.Claims.FirstOrDefault(c => c.Type == "email")?.Value ??
-								  "User",
-					ExpiresOn = expiresOn,
-					Token = tokenResponse.AccessToken,
-					UserId = token.Claims.FirstOrDefault(c => c.Type == "sub")?.Value ?? ""
-				};
-
-				return true;
-			}
-			else if (tokenResult.Failure != null)
-			{
-				Debug.WriteLine($"Token refresh failed: {tokenResult.Failure.Error} - {tokenResult.Failure.ErrorDescription}");
-			}
+			_refreshToken = tokenResponse.RefreshToken;
 		}
-		catch (Exception ex)
-		{
-			Debug.WriteLine($"Token refresh failed: {ex.Message}");
-		}
-#else
-		var authority = $"https://{AuthenticationConstants.Domain}";
-		var tokenEndpoint = $"{authority}/oauth/token";
 
-		var requestData = new Dictionary<string, string>
-		{
-			{ "grant_type", "refresh_token" },
-			{ "client_id", _authConfig.Value.ClientId },
-			{ "refresh_token", _refreshToken }
-		};
-
-		using var httpClient = new HttpClient();
-		using var request = new HttpRequestMessage(HttpMethod.Post, tokenEndpoint)
-		{
-			Content = new FormUrlEncodedContent(requestData)
-		};
-
-		try
-		{
-			var response = await httpClient.SendAsync(request);
-			var responseContent = await response.Content.ReadAsStringAsync();
-
-			if (response.IsSuccessStatusCode)
-			{
-				var tokenResponse = JsonSerializer.Deserialize<TokenResponse>(responseContent);
-				if (tokenResponse != null)
-				{
-					if (!string.IsNullOrEmpty(tokenResponse.refresh_token))
-					{
-						_refreshToken = tokenResponse.refresh_token;
-					}
-
-					// Parse JWT to get user info
-					var handler = new JwtSecurityTokenHandler();
-					var token = handler.ReadJwtToken(tokenResponse.access_token);
-
-					var expiresOn = DateTimeOffset.UtcNow.AddSeconds(tokenResponse.expires_in);
-
-					_authenticationInfo = new AuthenticationInfo
-					{
-						DisplayName = token.Claims.FirstOrDefault(c => c.Type == "name")?.Value ??
-									  token.Claims.FirstOrDefault(c => c.Type == "email")?.Value ??
-									  "User",
-						ExpiresOn = expiresOn,
-						Token = tokenResponse.access_token,
-						UserId = token.Claims.FirstOrDefault(c => c.Type == "sub")?.Value ?? ""
-					};
-
-					return true;
-				}
-			}
-		}
-		catch (HttpRequestException ex)
-		{
-			Debug.WriteLine($"Token refresh failed (HTTP error): {ex.Message}");
-		}
-		catch (TaskCanceledException ex)
-		{
-			Debug.WriteLine($"Token refresh failed (request timed out): {ex.Message}");
-		}
-		catch (JsonException ex)
-		{
-			Debug.WriteLine($"Token refresh failed (JSON error): {ex.Message}");
-		}
-#endif
-
-		return false;
+		_authenticationInfo = CreateAuthenticationInfo(tokenResponse.AccessToken, tokenResponse.ExpiresIn);
+		return true;
 	}
 
-#if WINDOWS
-	private WindowId GetWindowHandle()
+	private WindowId GetWindowId()
 	{
-		var window = _application.MainWindow;
-		var windowHandle = WinRT.Interop.WindowNative.GetWindowHandle(window);
+		var windowHandle = WinRT.Interop.WindowNative.GetWindowHandle(_application.MainWindow);
 		return new WindowId((ulong)windowHandle);
 	}
+#else
+	private async Task PerformAuthenticationAsync()
+	{
+		var codeVerifier = Pkce.CreateCodeVerifier();
+		var state = Pkce.CreateState();
+		var redirectUri = GetRedirectUri();
+
+		var authUri = new Uri(
+			$"{Authority}/authorize" +
+			$"?response_type=code" +
+			$"&client_id={Uri.EscapeDataString(Config.ClientId!)}" +
+			$"&redirect_uri={Uri.EscapeDataString(redirectUri.AbsoluteUri)}" +
+			$"&scope={Uri.EscapeDataString(string.Join(" ", AuthenticationConstants.DefaultScopes))}" +
+			$"&audience={Uri.EscapeDataString(Config.Audience)}" +
+			$"&code_challenge={Pkce.CreateCodeChallenge(codeVerifier)}" +
+			$"&code_challenge_method=S256" +
+			$"&state={state}");
+
+		var callbackUri = await GetAuthorizationCallbackAsync(authUri, redirectUri);
+		if (callbackUri is null)
+		{
+			return;
+		}
+
+		var callback = OAuthCallback.Parse(callbackUri, state);
+		if (callback.Code is null)
+		{
+			throw new AuthenticationFailedException($"{callback.Error}: {callback.ErrorDescription}");
+		}
+
+		var tokenResponse = await RequestTokenAsync(new Dictionary<string, string>
+		{
+			["grant_type"] = "authorization_code",
+			["client_id"] = Config.ClientId!,
+			["code"] = callback.Code,
+			["code_verifier"] = codeVerifier,
+			["redirect_uri"] = redirectUri.AbsoluteUri,
+		});
+
+		_refreshToken = tokenResponse.RefreshToken;
+		_authenticationInfo = CreateAuthenticationInfo(tokenResponse.AccessToken, tokenResponse.ExpiresIn);
+	}
+
+#if __DESKTOP__
+	private Uri GetRedirectUri() => new($"http://127.0.0.1:{Config.DesktopCallbackPort}/callback");
+
+	private static async Task<Uri?> GetAuthorizationCallbackAsync(Uri authUri, Uri redirectUri)
+	{
+		using HttpListener listener = new();
+		listener.Prefixes.Add(redirectUri.GetLeftPart(UriPartial.Path).TrimEnd('/') + "/");
+		listener.Start();
+
+		await Windows.System.Launcher.LaunchUriAsync(authUri);
+
+		var contextTask = listener.GetContextAsync();
+		if (await Task.WhenAny(contextTask, Task.Delay(SignInTimeout)) != contextTask)
+		{
+			throw new AuthenticationFailedException("Sign-in timed out.");
+		}
+
+		var context = await contextTask;
+		var page = Encoding.UTF8.GetBytes(
+			"<html><body style=\"font-family:sans-serif;padding:48px\">" +
+			"<h2>Signed in</h2><p>You can close this tab and return to the app.</p></body></html>");
+		context.Response.ContentType = "text/html; charset=utf-8";
+		context.Response.ContentLength64 = page.Length;
+		await context.Response.OutputStream.WriteAsync(page);
+		context.Response.Close();
+
+		return context.Request.Url;
+	}
+#else
+	private static Uri GetRedirectUri() => WebAuthenticationBroker.GetCurrentApplicationCallbackUri();
+
+	private static async Task<Uri?> GetAuthorizationCallbackAsync(Uri authUri, Uri redirectUri)
+	{
+		var result = await WebAuthenticationBroker.AuthenticateAsync(WebAuthenticationOptions.None, authUri, redirectUri);
+		return result.ResponseStatus switch
+		{
+			WebAuthenticationStatus.Success when result.ResponseData is { } data => new Uri(data),
+			WebAuthenticationStatus.UserCancel => null,
+			_ => throw new AuthenticationFailedException($"Sign-in failed (HTTP {result.ResponseErrorDetail})."),
+		};
+	}
 #endif
+
+	private async Task<bool> TryRefreshTokenAsync()
+	{
+		TokenResponse tokenResponse;
+		try
+		{
+			tokenResponse = await RequestTokenAsync(new Dictionary<string, string>
+			{
+				["grant_type"] = "refresh_token",
+				["client_id"] = Config.ClientId!,
+				["refresh_token"] = _refreshToken!,
+			});
+		}
+		catch (TokenRequestRejectedException ex)
+		{
+			// Only a rejection by Auth0 (expired or revoked token) ends the session; network errors propagate.
+			Debug.WriteLine($"Token refresh rejected: {ex.Message}");
+			return false;
+		}
+
+		if (!string.IsNullOrEmpty(tokenResponse.RefreshToken))
+		{
+			_refreshToken = tokenResponse.RefreshToken;
+		}
+
+		_authenticationInfo = CreateAuthenticationInfo(tokenResponse.AccessToken, tokenResponse.ExpiresIn);
+		return true;
+	}
+
+	private async Task<TokenResponse> RequestTokenAsync(Dictionary<string, string> form)
+	{
+		using HttpClient httpClient = new();
+		using var response = await httpClient.PostAsync($"{Authority}/oauth/token", new FormUrlEncodedContent(form));
+		var content = await response.Content.ReadAsStringAsync();
+
+		if ((int)response.StatusCode is >= 400 and < 500)
+		{
+			throw new TokenRequestRejectedException($"Token request rejected ({(int)response.StatusCode}): {content}");
+		}
+
+		if (!response.IsSuccessStatusCode)
+		{
+			throw new AuthenticationFailedException($"Token request failed ({(int)response.StatusCode}): {content}");
+		}
+
+		return JsonSerializer.Deserialize<TokenResponse>(content) ??
+			throw new AuthenticationFailedException("Token response was empty.");
+	}
+
+	private sealed class TokenRequestRejectedException(string message) : AuthenticationFailedException(message);
+
+	private sealed class TokenResponse
+	{
+		[JsonPropertyName("access_token")]
+		public string AccessToken { get; set; } = "";
+
+		[JsonPropertyName("refresh_token")]
+		public string? RefreshToken { get; set; }
+
+		[JsonPropertyName("expires_in")]
+		public int ExpiresIn { get; set; }
+	}
+#endif
+
+	private static AuthenticationInfo CreateAuthenticationInfo(string accessToken, double expiresInSeconds)
+	{
+		var token = new JwtSecurityTokenHandler().ReadJwtToken(accessToken);
+		return new AuthenticationInfo
+		{
+			DisplayName = token.Claims.FirstOrDefault(c => c.Type == "name")?.Value ??
+				token.Claims.FirstOrDefault(c => c.Type == "email")?.Value ??
+				"User",
+			ExpiresOn = DateTimeOffset.UtcNow.AddSeconds(expiresInSeconds),
+			Token = accessToken,
+			UserId = token.Claims.FirstOrDefault(c => c.Type == "sub")?.Value ?? ""
+		};
+	}
 
 	public async Task LogoutAsync()
 	{
-#if WINDOWS
-		// For Auth0, we should logout by opening the browser to the logout endpoint
-		// This ensures the Auth0 session is properly terminated
-		if (_application.MainWindow != null && _authenticationInfo != null)
+		if (_authenticationInfo != null && Config.IsConfigured)
 		{
 			try
 			{
-				var authority = $"https://{AuthenticationConstants.Domain}";
-				var returnTo = Uri.EscapeDataString("mzikmund-app://logout");
-
-				// Build Auth0 logout URL
-				// See: https://auth0.com/docs/api/authentication#logout
-				var logoutUrl = $"{authority}/v2/logout?" +
-					$"client_id={Uri.EscapeDataString(_authConfig.Value.ClientId)}&" +
-					$"returnTo={returnTo}";
-
-				// Open the logout URL in the browser
-				// This will clear the Auth0 session cookies
+				// Ends the Auth0 browser session too, so the next sign-in can pick a different account.
+				var logoutUrl = $"{Authority}/v2/logout?client_id={Uri.EscapeDataString(Config.ClientId!)}";
 				await Windows.System.Launcher.LaunchUriAsync(new Uri(logoutUrl));
-
-				Debug.WriteLine("Auth0 logout initiated in browser");
 			}
 			catch (Exception ex)
 			{
 				Debug.WriteLine($"Error during Auth0 logout: {ex.Message}");
 			}
 		}
-#endif
 
-		// Clear local authentication state
 		_authenticationInfo = null;
 		_refreshToken = null;
 		ClearAuthenticationCache();
-		Debug.WriteLine("User logged out locally");
+		AuthenticationChanged?.Invoke(this, EventArgs.Empty);
 	}
-
-#if !WINDOWS
-	private sealed class TokenResponse
-	{
-		public string access_token { get; set; } = "";
-		public string? refresh_token { get; set; }
-		public int expires_in { get; set; }
-		public string token_type { get; set; } = "";
-	}
-#endif
 }

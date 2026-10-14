@@ -13,4 +13,6 @@ public interface IUserService
 	Task AuthenticateAsync();
 
 	Task LogoutAsync();
+
+	event EventHandler? AuthenticationChanged;
 }

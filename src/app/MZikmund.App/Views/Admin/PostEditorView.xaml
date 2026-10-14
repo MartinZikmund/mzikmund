@@ -6,132 +6,281 @@
     xmlns:local="using:MZikmund.Views.Admin"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:xaml="using:MZikmund.Extensions.Xaml"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    Background="{ThemeResource MzBgBaseBrush}"
     mc:Ignorable="d">
 
-    <Grid
-        Padding="20"
-        ColumnDefinitions="*, *"
-        ColumnSpacing="8"
-        RowDefinitions="Auto, Auto, *, Auto"
-        RowSpacing="8">
-        <TextBox
-            Grid.ColumnSpan="1"
-            FontSize="20"
-            Header="{xaml:Localize Key=Title}"
-            Text="{x:Bind ViewModel.PostTitle, Mode=TwoWay}" />
-        <TextBox
-            Grid.Column="1"
-            Grid.ColumnSpan="1"
-            FontSize="20"
-            Header="{xaml:Localize Key=Route}"
-            Text="{x:Bind ViewModel.PostRouteName, Mode=TwoWay}" />
-        <StackPanel
-            Grid.Row="1"
-            Grid.Column="1"
-            Orientation="Vertical">
-            <TextBlock Text="{xaml:Localize Key=Categories}" />
-            <Button
-                Margin="0,0,0,4"
-                HorizontalAlignment="Stretch"
-                Command="{x:Bind ViewModel.PickCategoriesCommand}"
-                Content="{x:Bind ViewModel.CategoriesText, Mode=OneWay}" />
-            <TextBlock Text="{xaml:Localize Key=Tags}" />
-            <TextBox Text="{x:Bind ViewModel.Tags, Mode=TwoWay}" />
-            <TextBlock Text="{xaml:Localize Key=HeroImageUrl}" />
-            <Grid ColumnDefinitions="*, Auto">
-                <TextBox Grid.Column="0" Text="{x:Bind ViewModel.HeroImageUrl, Mode=TwoWay}" />
-                <Button
-                    Grid.Column="1"
-                    Margin="4,0,0,0"
-                    Command="{x:Bind ViewModel.BrowseImagesCommand}">
-                    <StackPanel Orientation="Horizontal" Spacing="4">
-                        <SymbolIcon Symbol="Folder" />
-                        <TextBlock Text="{xaml:Localize Key=Browse}" />
-                    </StackPanel>
-                </Button>
-            </Grid>
-            <TextBlock Text="{xaml:Localize Key=HeroImageAlt}" />
-            <TextBox Text="{x:Bind ViewModel.Post.HeroImageAlt, Mode=TwoWay}" />
-        </StackPanel>
-        <TextBox
-            Grid.Row="1"
-            AcceptsReturn="True"
-            FontFamily="{StaticResource CodeFont}"
-            Header="{xaml:Localize Key=Abstract}"
-            Text="{x:Bind ViewModel.Post.Abstract, Mode=TwoWay}"
-            TextWrapping="Wrap" />
-        <Grid
-            Grid.Row="2"
-            RowDefinitions="Auto, *"
-            RowSpacing="4">
-            <Grid ColumnDefinitions="*, Auto, Auto">
-                <TextBlock Text="{xaml:Localize Key=Content}" />
-                <Button
-                    Grid.Column="1"
-                    Margin="4,0,0,0"
-                    Command="{x:Bind ViewModel.InsertImageCommand}">
-                    <StackPanel Orientation="Horizontal" Spacing="4">
-                        <SymbolIcon Symbol="Pictures" />
-                        <TextBlock Text="{xaml:Localize Key=InsertImage}" />
-                    </StackPanel>
-                </Button>
-                <Button
-                    Grid.Column="2"
-                    Margin="4,0,0,0"
-                    Command="{x:Bind ViewModel.InsertFileCommand}">
-                    <StackPanel Orientation="Horizontal" Spacing="4">
-                        <SymbolIcon Symbol="Attach" />
-                        <TextBlock Text="{xaml:Localize Key=InsertFile}" />
-                    </StackPanel>
-                </Button>
-            </Grid>
-            <TextBox
-                x:Name="ContentTextBox"
-                Grid.Row="1"
-                AcceptsReturn="True"
-                FontFamily="{StaticResource CodeFont}"
-                SelectionChanged="ContentTextBox_SelectionChanged"
-                Text="{x:Bind ViewModel.PostContent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                TextWrapping="Wrap" />
-        </Grid>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
 
+        <!--  Header: what is being edited, its save state, and the actions.  -->
         <Grid
-            Grid.Row="2"
-            Grid.Column="1"
-            RowSpacing="4">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            <TextBlock Text="{xaml:Localize Key=Preview}" />
-            <ContentControl
-                x:Name="PreviewWebViewContainer"
-                Grid.Row="1"
-                HorizontalAlignment="Stretch"
-                VerticalAlignment="Stretch"
-                HorizontalContentAlignment="Stretch"
-                VerticalContentAlignment="Stretch" />
-        </Grid>
-
-        <StackPanel
-            Grid.Row="3"
-            Grid.ColumnSpan="2"
-            Orientation="Horizontal"
-            Spacing="8">
-            <Button Command="{x:Bind ViewModel.SaveCommand}">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <SymbolIcon Symbol="Save" />
-                    <TextBlock Text="{xaml:Localize Key=Save}" />
-                </StackPanel>
-            </Button>
-            <CheckBox
+            Padding="16,12"
+            BorderBrush="{ThemeResource MzStrokeDividerBrush}"
+            BorderThickness="0,0,0,1"
+            ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel VerticalAlignment="Center" Spacing="2">
+                <TextBlock
+                    Style="{StaticResource MzSubtitleTextStyle}"
+                    Text="{x:Bind ViewModel.Title, Mode=OneWay}"
+                    TextTrimming="CharacterEllipsis"
+                    TextWrapping="NoWrap" />
+                <TextBlock Style="{StaticResource MzMetaTextStyle}" Text="{x:Bind ViewModel.SaveStatusText, Mode=OneWay}" />
+            </StackPanel>
+            <StackPanel
                 Grid.Column="1"
-                Content="{xaml:Localize Key=Published}"
-                IsChecked="{x:Bind ViewModel.IsPublished, Mode=TwoWay}" />
-            <DatePicker Date="{x:Bind ViewModel.PublishDate, Mode=TwoWay}" Header="{xaml:Localize Key=PublishDate}" />
-            <TimePicker Header="{xaml:Localize Key=PublishTime}" Time="{x:Bind ViewModel.PublishTime, Mode=TwoWay}" />
-            <HyperlinkButton Command="{x:Bind ViewModel.OpenPreviewCommand}" Content="{xaml:Localize Key=OpenPreview}" />
-        </StackPanel>
+                VerticalAlignment="Center"
+                Orientation="Horizontal"
+                Spacing="8">
+                <Button
+                    AutomationProperties.AutomationId="EditorInsertImage"
+                    AutomationProperties.Name="{xaml:Localize Key=InsertImage}"
+                    Command="{x:Bind ViewModel.InsertImageCommand}"
+                    ToolTipService.ToolTip="{xaml:Localize Key=InsertImage}">
+                    <FontIcon
+                        FontFamily="{StaticResource MzIconFontFamily}"
+                        FontSize="16"
+                        Glyph="{StaticResource MzGlyphImage}" />
+                </Button>
+                <Button
+                    AutomationProperties.AutomationId="EditorInsertFile"
+                    AutomationProperties.Name="{xaml:Localize Key=InsertFile}"
+                    Command="{x:Bind ViewModel.InsertFileCommand}"
+                    ToolTipService.ToolTip="{xaml:Localize Key=InsertFile}">
+                    <FontIcon
+                        FontFamily="{StaticResource MzIconFontFamily}"
+                        FontSize="16"
+                        Glyph="{StaticResource MzGlyphLink}" />
+                </Button>
+                <ToggleButton
+                    x:Name="PreviewToggle"
+                    AutomationProperties.AutomationId="EditorPreviewToggle"
+                    AutomationProperties.Name="{xaml:Localize Key=Preview}"
+                    Click="LayoutToggle_Click"
+                    IsChecked="True"
+                    ToolTipService.ToolTip="{xaml:Localize Key=Preview}">
+                    <FontIcon
+                        FontFamily="{StaticResource MzIconFontFamily}"
+                        FontSize="16"
+                        Glyph="{StaticResource MzGlyphOpen}" />
+                </ToggleButton>
+                <ToggleButton
+                    x:Name="DetailsToggle"
+                    AutomationProperties.AutomationId="EditorDetailsToggle"
+                    AutomationProperties.Name="{xaml:Localize Key=PostDetails}"
+                    Click="LayoutToggle_Click"
+                    IsChecked="True"
+                    ToolTipService.ToolTip="{xaml:Localize Key=PostDetails}">
+                    <FontIcon
+                        FontFamily="{StaticResource MzIconFontFamily}"
+                        FontSize="16"
+                        Glyph="{StaticResource MzGlyphSettings}" />
+                </ToggleButton>
+                <Button
+                    AutomationProperties.AutomationId="EditorSave"
+                    Command="{x:Bind ViewModel.SaveCommand}"
+                    Style="{StaticResource MzAccentButtonStyle}">
+                    <Button.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="S" Modifiers="Control" />
+                    </Button.KeyboardAccelerators>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon
+                            FontFamily="{StaticResource MzIconFontFamily}"
+                            FontSize="16"
+                            Glyph="{StaticResource MzGlyphSave}" />
+                        <TextBlock Text="{xaml:Localize Key=Save}" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <Grid x:Name="Body" Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="EditorColumn" Width="*" />
+                <ColumnDefinition x:Name="PreviewColumn" Width="*" />
+                <ColumnDefinition x:Name="DetailsColumn" Width="340" />
+            </Grid.ColumnDefinitions>
+
+            <!--  Writing surface  -->
+            <Grid
+                x:Name="EditorPane"
+                Padding="16"
+                RowSpacing="12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <TextBox
+                    AutomationProperties.AutomationId="EditorTitle"
+                    AutomationProperties.Name="{xaml:Localize Key=Title}"
+                    FontFamily="{StaticResource MzFontFamilySemiBold}"
+                    FontSize="24"
+                    FontWeight="SemiBold"
+                    PlaceholderText="{xaml:Localize Key=TitlePlaceholder}"
+                    Text="{x:Bind ViewModel.PostTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox
+                    x:Name="ContentTextBox"
+                    Grid.Row="1"
+                    AcceptsReturn="True"
+                    AutomationProperties.AutomationId="EditorContent"
+                    AutomationProperties.Name="{xaml:Localize Key=Content}"
+                    FontFamily="{StaticResource MzMonoFontFamily}"
+                    FontSize="14"
+                    IsSpellCheckEnabled="False"
+                    PlaceholderText="{xaml:Localize Key=ContentPlaceholder}"
+                    ScrollViewer.VerticalScrollBarVisibility="Auto"
+                    SelectionChanged="ContentTextBox_SelectionChanged"
+                    Text="{x:Bind ViewModel.PostContent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    TextWrapping="Wrap" />
+            </Grid>
+
+            <!--  Live preview  -->
+            <Grid
+                x:Name="PreviewPane"
+                Grid.Column="1"
+                Margin="0,16,16,16">
+                <Border Style="{StaticResource MzLayerSurfaceStyle}">
+                    <ContentControl
+                        x:Name="PreviewWebViewContainer"
+                        Margin="1"
+                        HorizontalContentAlignment="Stretch"
+                        VerticalContentAlignment="Stretch" />
+                </Border>
+            </Grid>
+
+            <!--  Post details  -->
+            <Border
+                x:Name="DetailsPane"
+                Grid.Column="2"
+                Background="{ThemeResource MzBgSecondaryBrush}"
+                BorderBrush="{ThemeResource MzStrokeDividerBrush}"
+                BorderThickness="1,0,0,0">
+                <ScrollViewer>
+                    <StackPanel Padding="16" Spacing="16">
+                        <TextBlock Style="{StaticResource MzSectionHeadingTextStyle}" Text="{xaml:Localize Key=PostDetails}" />
+
+                        <ToggleSwitch
+                            AutomationProperties.AutomationId="EditorPublished"
+                            Header="{xaml:Localize Key=Published}"
+                            IsOn="{x:Bind ViewModel.IsPublished, Mode=TwoWay}" />
+
+                        <StackPanel Spacing="8">
+                            <CalendarDatePicker
+                                HorizontalAlignment="Stretch"
+                                AutomationProperties.AutomationId="EditorPublishDate"
+                                Date="{x:Bind ViewModel.PublishDateValue, Mode=TwoWay}"
+                                Header="{xaml:Localize Key=PublishDate}" />
+                            <TimePicker
+                                AutomationProperties.AutomationId="EditorPublishTime"
+                                Header="{xaml:Localize Key=PublishTime}"
+                                Time="{x:Bind ViewModel.PublishTime, Mode=TwoWay}" />
+                        </StackPanel>
+
+                        <TextBox
+                            AutomationProperties.AutomationId="EditorRoute"
+                            Header="{xaml:Localize Key=Route}"
+                            Text="{x:Bind ViewModel.PostRouteName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="{xaml:Localize Key=Categories}" />
+                            <Button
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                AutomationProperties.AutomationId="EditorCategories"
+                                Command="{x:Bind ViewModel.PickCategoriesCommand}">
+                                <Grid ColumnSpacing="8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <FontIcon
+                                        FontFamily="{StaticResource MzIconFontFamily}"
+                                        FontSize="16"
+                                        Glyph="{StaticResource MzGlyphFolder}" />
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Text="{x:Bind ViewModel.CategoriesText, Mode=OneWay}"
+                                        TextTrimming="CharacterEllipsis" />
+                                </Grid>
+                            </Button>
+                        </StackPanel>
+
+                        <TextBox
+                            AutomationProperties.AutomationId="EditorTags"
+                            Header="{xaml:Localize Key=Tags}"
+                            PlaceholderText="{xaml:Localize Key=TagsPlaceholder}"
+                            Text="{x:Bind ViewModel.Tags, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <TextBox
+                            MinHeight="96"
+                            AcceptsReturn="True"
+                            AutomationProperties.AutomationId="EditorAbstract"
+                            Header="{xaml:Localize Key=Abstract}"
+                            Text="{x:Bind ViewModel.PostAbstract, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            TextWrapping="Wrap" />
+
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="{xaml:Localize Key=HeroImage}" />
+                            <Border
+                                Height="120"
+                                Background="{ThemeResource MzCardMediaEmptyBrush}"
+                                CornerRadius="{StaticResource MzControlCornerRadius}">
+                                <Grid>
+                                    <FontIcon
+                                        FontFamily="{StaticResource MzIconFontFamily}"
+                                        FontSize="24"
+                                        Foreground="{ThemeResource MzTextTertiaryBrush}"
+                                        Glyph="{StaticResource MzGlyphImageOff}" />
+                                    <Image Source="{x:Bind local:PostEditorView.ToImage(ViewModel.HeroImageUrl), Mode=OneWay}" Stretch="UniformToFill" />
+                                </Grid>
+                            </Border>
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox
+                                    AutomationProperties.AutomationId="EditorHeroUrl"
+                                    AutomationProperties.Name="{xaml:Localize Key=HeroImageUrl}"
+                                    PlaceholderText="https://"
+                                    Text="{x:Bind ViewModel.HeroImageUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <Button
+                                    Grid.Column="1"
+                                    AutomationProperties.AutomationId="EditorHeroBrowse"
+                                    Command="{x:Bind ViewModel.BrowseImagesCommand}"
+                                    Content="{xaml:Localize Key=Browse}" />
+                            </Grid>
+                            <TextBox
+                                AutomationProperties.AutomationId="EditorHeroAlt"
+                                Header="{xaml:Localize Key=HeroImageAlt}"
+                                Text="{x:Bind ViewModel.HeroImageAlt, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+
+                        <HyperlinkButton
+                            AutomationProperties.AutomationId="EditorOpenPreview"
+                            Command="{x:Bind ViewModel.OpenPreviewCommand}"
+                            Content="{xaml:Localize Key=OpenPreview}" />
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+
+        <!--  Shown when an existing post could not be loaded; saving would otherwise create a new one.  -->
+        <Grid
+            Grid.RowSpan="2"
+            Background="{ThemeResource MzBgBaseBrush}"
+            Visibility="{x:Bind ViewModel.IsLoadFailed, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Style="{StaticResource MzEmptyStatePanelStyle}">
+                <FontIcon Glyph="{StaticResource MzGlyphWarning}" Style="{StaticResource MzEmptyStateIconStyle}" />
+                <TextBlock Style="{StaticResource MzEmptyStateTitleTextStyle}" Text="{xaml:Localize Key=CouldNotLoadData}" />
+                <TextBlock Style="{StaticResource MzEmptyStateBodyTextStyle}" Text="{xaml:Localize Key=AdminLoadErrorDescription}" />
+            </StackPanel>
+        </Grid>
     </Grid>
 </local:PostEditorViewBase>

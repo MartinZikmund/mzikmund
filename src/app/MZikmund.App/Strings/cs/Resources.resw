@@ -246,4 +246,220 @@
   <data name="OpenPreview" xml:space="preserve">
     <value>Otevřít náhled</value>
   </data>
+  <data name="Blog" xml:space="preserve">
+    <value>Blog</value>
+  </data>
+  <data name="Videos" xml:space="preserve">
+    <value>Videa</value>
+  </data>
+  <data name="ReadMore" xml:space="preserve">
+    <value>Číst dál</value>
+  </data>
+  <data name="Retry" xml:space="preserve">
+    <value>Zkusit znovu</value>
+  </data>
+  <data name="Refresh" xml:space="preserve">
+    <value>Obnovit</value>
+  </data>
+  <data name="NoPostsFound" xml:space="preserve">
+    <value>Zatím žádné příspěvky</value>
+  </data>
+  <data name="NoPostsFoundDescription" xml:space="preserve">
+    <value>Momentálně tu není nic publikováno. Zkuste to prosím později.</value>
+  </data>
+  <data name="BlogLead" xml:space="preserve">
+    <value>Články o .NET, Windows a multiplatformním vývoji.</value>
+  </data>
+  <data name="WatchOnYouTube" xml:space="preserve">
+    <value>Přehrát na YouTube</value>
+  </data>
+  <data name="Id" xml:space="preserve">
+    <value>Id</value>
+  </data>
+  <data name="AddCategory" xml:space="preserve">
+    <value>Přidat kategorii</value>
+  </data>
+  <data name="AddPost" xml:space="preserve">
+    <value>Přidat článek</value>
+  </data>
+  <data name="AddTag" xml:space="preserve">
+    <value>Přidat štítek</value>
+  </data>
+  <data name="Admin" xml:space="preserve">
+    <value>Administrace</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Zrušit</value>
+  </data>
+  <data name="Contact" xml:space="preserve">
+    <value>Kontakt</value>
+  </data>
+  <data name="DisplayName" xml:space="preserve">
+    <value>Zobrazovaný název</value>
+  </data>
+  <data name="EditCategory" xml:space="preserve">
+    <value>Upravit kategorii</value>
+  </data>
+  <data name="EditTag" xml:space="preserve">
+    <value>Upravit štítek</value>
+  </data>
+  <data name="Home" xml:space="preserve">
+    <value>Domů</value>
+  </data>
+  <data name="Localizations" xml:space="preserve">
+    <value>Lokalizace</value>
+  </data>
+  <data name="NoCategoriesSelected" xml:space="preserve">
+    <value>Nejsou vybrány žádné kategorie</value>
+  </data>
+  <data name="Ok" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Posts" xml:space="preserve">
+    <value>Články</value>
+  </data>
+  <data name="RouteName" xml:space="preserve">
+    <value>Název cesty</value>
+  </data>
+  <data name="Settings" xml:space="preserve">
+    <value>Nastavení</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>Přihlásit se</value>
+  </data>
+  <data name="Logout" xml:space="preserve">
+    <value>Odhlásit se</value>
+  </data>
+  <data name="SignInFailed" xml:space="preserve">
+    <value>Přihlášení se nezdařilo</value>
+  </data>
+  <data name="NewPost" xml:space="preserve">
+    <value>Nový článek</value>
+  </data>
+  <data name="UnsavedChanges" xml:space="preserve">
+    <value>Neuložené změny</value>
+  </data>
+  <data name="SavedAtFormat" xml:space="preserve">
+    <value>Uloženo v {0}</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>Uložení se nezdařilo</value>
+  </data>
+  <data name="HeroEyebrow" xml:space="preserve">
+    <value>Open-source vývojář a řečník</value>
+  </data>
+  <data name="HeroLead" xml:space="preserve">
+    <value>Tvořím multiplatformní aplikace v .NET a Uno Platform, přispívám do open source a sdílím, co se cestou naučím.</value>
+  </data>
+  <data name="ReadTheBlog" xml:space="preserve">
+    <value>Číst blog</value>
+  </data>
+  <data name="LatestPosts" xml:space="preserve">
+    <value>Nejnovější články</value>
+  </data>
+  <data name="LatestPostsSubtitle" xml:space="preserve">
+    <value>Postřehy o .NET, Uno Platform a open source</value>
+  </data>
+  <data name="ViewAllPosts" xml:space="preserve">
+    <value>Všechny články</value>
+  </data>
+  <data name="LatestVideos" xml:space="preserve">
+    <value>Nejnovější videa</value>
+  </data>
+  <data name="LatestVideosSubtitle" xml:space="preserve">
+    <value>Moje nejnovější videa na YouTube</value>
+  </data>
+  <data name="ViewAllVideos" xml:space="preserve">
+    <value>Všechna videa</value>
+  </data>
+  <data name="ContactLead" xml:space="preserve">
+    <value>Ozvěte se nebo mě najděte na sociálních sítích.</value>
+  </data>
+  <data name="Website" xml:space="preserve">
+    <value>Web</value>
+  </data>
+  <data name="VideosLead" xml:space="preserve">
+    <value>Přednášky, návody a živé kódování z mého YouTube kanálu.</value>
+  </data>
+  <data name="NoVideosFound" xml:space="preserve">
+    <value>Zatím žádná videa</value>
+  </data>
+  <data name="OpenInBrowser" xml:space="preserve">
+    <value>Otevřít v prohlížeči</value>
+  </data>
+  <data name="Appearance" xml:space="preserve">
+    <value>Vzhled</value>
+  </data>
+  <data name="Theme" xml:space="preserve">
+    <value>Motiv</value>
+  </data>
+  <data name="ThemeDescription" xml:space="preserve">
+    <value>Vyberte, jak má aplikace vypadat</value>
+  </data>
+  <data name="ThemeSystem" xml:space="preserve">
+    <value>Podle systému</value>
+  </data>
+  <data name="ThemeLight" xml:space="preserve">
+    <value>Světlý</value>
+  </data>
+  <data name="ThemeDark" xml:space="preserve">
+    <value>Tmavý</value>
+  </data>
+  <data name="Account" xml:space="preserve">
+    <value>Účet</value>
+  </data>
+  <data name="SignedInAsFormat" xml:space="preserve">
+    <value>Přihlášen jako {0}</value>
+  </data>
+  <data name="NotSignedIn" xml:space="preserve">
+    <value>Nepřihlášen</value>
+  </data>
+  <data name="About" xml:space="preserve">
+    <value>O aplikaci</value>
+  </data>
+  <data name="RssFeed" xml:space="preserve">
+    <value>RSS kanál</value>
+  </data>
+  <data name="SourceCode" xml:space="preserve">
+    <value>Zdrojový kód</value>
+  </data>
+  <data name="Draft" xml:space="preserve">
+    <value>Koncept</value>
+  </data>
+  <data name="SearchPosts" xml:space="preserve">
+    <value>Hledat podle názvu nebo cesty</value>
+  </data>
+  <data name="PostCountFormat" xml:space="preserve">
+    <value>Počet článků: {0}</value>
+  </data>
+  <data name="AdminLoadErrorDescription" xml:space="preserve">
+    <value>Zkontrolujte, že jste přihlášeni a API je dostupné.</value>
+  </data>
+  <data name="PostDetails" xml:space="preserve">
+    <value>Podrobnosti článku</value>
+  </data>
+  <data name="TitlePlaceholder" xml:space="preserve">
+    <value>Název článku</value>
+  </data>
+  <data name="ContentPlaceholder" xml:space="preserve">
+    <value>Pište v Markdownu…</value>
+  </data>
+  <data name="TagsPlaceholder" xml:space="preserve">
+    <value>Oddělené čárkou, např. C#, WinUI</value>
+  </data>
+  <data name="HeroImage" xml:space="preserve">
+    <value>Úvodní obrázek</value>
+  </data>
+  <data name="SearchTags" xml:space="preserve">
+    <value>Filtrovat štítky</value>
+  </data>
+  <data name="TagCountFormat" xml:space="preserve">
+    <value>Počet štítků: {0}</value>
+  </data>
+  <data name="MoreActions" xml:space="preserve">
+    <value>Další akce</value>
+  </data>
+  <data name="PickCategories" xml:space="preserve">
+    <value>Vybrat kategorie</value>
+  </data>
 </root>

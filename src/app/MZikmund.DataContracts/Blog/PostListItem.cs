@@ -23,4 +23,9 @@ public class PostListItem
 	public Category[] Categories { get; set; } = Array.Empty<Category>();
 
 	public Tag[] Tags { get; set; } = Array.Empty<Tag>();
+
+	/// <summary>
+	/// Only filled by the admin list; null when the server does not report it.
+	/// </summary>
+	public bool? IsPublished { get; set; }
 }

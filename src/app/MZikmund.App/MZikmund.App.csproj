@@ -32,16 +32,17 @@
 			Mvvm;
 			Lottie;
 			Logging;
-			Navigation;
 			Localization;
 			ThemeService;
-			SkiaRenderer;
 			WebView;
 		</UnoFeatures>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(TargetFramework)'=='net10.0-windows10.0.26100'">
 		<StartupObject>MZikmund.App.MZikmundProgram</StartupObject>
+
+		<!-- Uno.UI.HotDesign 2.0.0-dev.2 depends on _UnoAddLibraryAssets, which only exists on Uno heads -->
+		<UnoDisableHotDesign>true</UnoDisableHotDesign>
 
 		<!-- Workaround for https://github.com/unoplatform/uno/issues/18552 -->
 		<PlatformTarget Condition=" '$(PlatformTarget)' == '' AND $(Platform) == 'AnyCPU' AND '$(NETCoreSdkRuntimeIdentifier)' == 'win-x86'">x86</PlatformTarget>
@@ -51,10 +52,25 @@
 	<ItemGroup>
 		<EmbeddedResource Include="Templates\PostPreviewTemplate.html" />
 	</ItemGroup>
+
+	<!-- Uno globs Assets/** only on non-WinAppSdk heads, and the WinAppSdk glob is images-only. -->
 	<ItemGroup>
-	  <PackageReference Include="CommunityToolkit.WinUI.Converters" />
+		<Content Include="Assets\Fonts\*.ttf" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <PackageReference Include="System.Security.Cryptography.Xml" />
 	  <PackageReference Include="Tmds.DBus.Protocol" />
+	</ItemGroup>
+
+	<!--
+		Elevation shadows are Windows-only. CommunityToolkit.WinUI.Media is bound to
+		WindowsAppSDK + Win2D and fails to restore (NU1202) on the Uno TFMs, and Uno's
+		compositor has no CreateDropShadow. Other heads fall back to the paired 1px
+		stroke via the MzElevation attached property.
+	-->
+	<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
+	  <PackageReference Include="CommunityToolkit.WinUI.Media" />
 	</ItemGroup>
 
 	<ItemGroup>

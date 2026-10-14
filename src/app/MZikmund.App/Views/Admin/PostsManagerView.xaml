@@ -2,78 +2,174 @@
     x:Class="MZikmund.Views.Admin.PostsManagerView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:MZikmund.Views.Admin"
-    xmlns:dto="using:MZikmund.DataContracts.Blog"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:dto="using:MZikmund.DataContracts.Blog"
+    xmlns:local="using:MZikmund.Views.Admin"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:xaml="using:MZikmund.Extensions.Xaml"
-    mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="{ThemeResource MzBgBaseBrush}"
+    mc:Ignorable="d">
 
-	<Grid Padding="12" RowSpacing="8">
-		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="*" />
-			<RowDefinition Height="Auto" />
-		</Grid.RowDefinitions>
-		<TextBlock Style="{ThemeResource TitleTextBlockStyle}" Text="{xaml:Localize Key=Posts}" />
-		<StackPanel
-            Grid.Row="1"
-            Orientation="Horizontal"
-            Spacing="8">
-			<Button Command="{x:Bind ViewModel.AddPostCommand}">
-				<StackPanel Orientation="Horizontal" Spacing="4">
-					<SymbolIcon Symbol="Add" />
-					<TextBlock Text="{xaml:Localize Key=AddPost}" />
-				</StackPanel>
-			</Button>
-		</StackPanel>
-		<ListView
-            Grid.Row="2"
-            Padding="20,0,20,0"
-            HorizontalAlignment="Stretch"
-            IsItemClickEnabled="True"
-            ItemClick="ListView_ItemClick"
-            ItemsSource="{x:Bind ViewModel.Posts}"
-            SelectionMode="None">
-			<ListView.ItemContainerTransitions>
-				<TransitionCollection>
-					<RepositionThemeTransition IsStaggeringEnabled="False" />
-				</TransitionCollection>
-			</ListView.ItemContainerTransitions>
-			<ListView.ItemTemplate>
-				<DataTemplate x:DataType="dto:PostListItem">
-					<StackPanel
-                        Margin="4"
-                        Padding="8"
-                        Background="{ThemeResource SystemColorHighlightBrush}"
-                        CornerRadius="2">
-						<TextBlock
-                            FontWeight="Bold"
-                            Text="{x:Bind Title}"
-                            TextTrimming="CharacterEllipsis" />
-						<TextBlock
-                            Opacity="0.8"
-                            Text="{x:Bind RouteName}"
-                            TextTrimming="CharacterEllipsis" />
-					</StackPanel>
-				</DataTemplate>
-			</ListView.ItemTemplate>
-		</ListView>
-		<StackPanel
-            Grid.Row="3"
-            Margin="0,8,0,0"
-            Spacing="8">
-			<Button
-                HorizontalAlignment="Center"
-                Command="{x:Bind ViewModel.LoadMoreCommand, Mode=OneWay}"
-                Content="{xaml:Localize Key=LoadMore}"
-                Visibility="{x:Bind ViewModel.CanLoadMore, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" />
-			<ProgressRing
-                HorizontalAlignment="Center"
-                IsActive="{x:Bind ViewModel.IsLoadingMore, Mode=OneWay}"
-                Visibility="{x:Bind ViewModel.IsLoadingMore, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" />
-		</StackPanel>
-	</Grid>
+    <ScrollViewer>
+        <Grid x:Name="PageRoot" Padding="{StaticResource MzPagePaddingCompact}">
+            <StackPanel Style="{StaticResource MzPageContainerStackStyle}">
+                <Grid Margin="0,0,0,24" ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Spacing="4">
+                        <TextBlock
+                            x:Name="PageTitle"
+                            Style="{StaticResource MzTitleTextStyle}"
+                            Text="{x:Bind ViewModel.Title}" />
+                        <TextBlock Style="{StaticResource MzMetaTextStyle}" Text="{x:Bind ViewModel.CountText, Mode=OneWay}" />
+                    </StackPanel>
+                    <Button
+                        Grid.Column="1"
+                        VerticalAlignment="Bottom"
+                        AutomationProperties.AutomationId="PostsAdd"
+                        Command="{x:Bind ViewModel.AddPostCommand}"
+                        Style="{StaticResource MzAccentButtonStyle}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon
+                                FontFamily="{StaticResource MzIconFontFamily}"
+                                FontSize="16"
+                                Glyph="{StaticResource MzGlyphAdd}" />
+                            <TextBlock Text="{xaml:Localize Key=NewPost}" />
+                        </StackPanel>
+                    </Button>
+                </Grid>
+
+                <Grid Margin="0,0,0,16" ColumnSpacing="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" MaxWidth="480" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox
+                        AutomationProperties.AutomationId="PostsSearch"
+                        AutomationProperties.Name="{xaml:Localize Key=Search}"
+                        PlaceholderText="{xaml:Localize Key=SearchPosts}"
+                        Text="{x:Bind ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <Button
+                        Grid.Column="1"
+                        AutomationProperties.AutomationId="PostsRefresh"
+                        AutomationProperties.Name="{xaml:Localize Key=Refresh}"
+                        Command="{x:Bind ViewModel.RefreshCommand}"
+                        ToolTipService.ToolTip="{xaml:Localize Key=Refresh}">
+                        <FontIcon
+                            FontFamily="{StaticResource MzIconFontFamily}"
+                            FontSize="16"
+                            Glyph="{StaticResource MzGlyphArrowClockwise}" />
+                    </Button>
+                </Grid>
+
+                <Border Style="{StaticResource MzLayerSurfaceStyle}" Visibility="{x:Bind ViewModel.HasVisiblePosts, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <ItemsRepeater Margin="4" ItemsSource="{x:Bind ViewModel.VisiblePosts}">
+                        <ItemsRepeater.Layout>
+                            <StackLayout Spacing="2" />
+                        </ItemsRepeater.Layout>
+                        <ItemsRepeater.ItemTemplate>
+                            <DataTemplate x:DataType="dto:PostListItem">
+                                <Button
+                                    AutomationProperties.Name="{x:Bind Title}"
+                                    Click="PostRow_Click"
+                                    Style="{StaticResource MzListRowButtonStyle}"
+                                    Tag="{x:Bind}">
+                                    <Grid ColumnSpacing="16">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <!--  16:9 hero thumbnail, the same media ratio as the blog cards.  -->
+                                        <Border
+                                            Width="96"
+                                            Height="54"
+                                            Background="{ThemeResource MzCardMediaEmptyBrush}"
+                                            CornerRadius="{StaticResource MzControlCornerRadius}">
+                                            <Grid>
+                                                <FontIcon
+                                                    FontFamily="{StaticResource MzIconFontFamily}"
+                                                    FontSize="16"
+                                                    Foreground="{ThemeResource MzTextTertiaryBrush}"
+                                                    Glyph="{StaticResource MzGlyphImageOff}" />
+                                                <Image Source="{x:Bind local:PostsManagerView.ToThumbnail(HeroImageUrl)}" Stretch="UniformToFill" />
+                                            </Grid>
+                                        </Border>
+                                        <StackPanel
+                                            Grid.Column="1"
+                                            VerticalAlignment="Center"
+                                            Spacing="4">
+                                            <ContentControl
+                                                Content="{x:Bind local:PostsManagerView.StatusText(IsPublished)}"
+                                                Style="{x:Bind local:PostsManagerView.StatusStyle(IsPublished)}"
+                                                Visibility="{x:Bind local:PostsManagerView.HasStatus(IsPublished)}" />
+                                            <TextBlock Style="{StaticResource MzRowTitleTextStyle}" Text="{x:Bind Title}" />
+                                            <TextBlock Style="{StaticResource MzMetaTextStyle}" Text="{x:Bind local:PostsManagerView.FormatSubtitle(RouteName, Categories)}" />
+                                        </StackPanel>
+                                        <TextBlock
+                                            Grid.Column="2"
+                                            Style="{StaticResource MzCountTextStyle}"
+                                            Text="{x:Bind local:PostsManagerView.FormatDate(PublishedDate, LastModifiedDate)}" />
+                                    </Grid>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsRepeater.ItemTemplate>
+                    </ItemsRepeater>
+                </Border>
+
+                <Button
+                    Margin="0,16,0,0"
+                    HorizontalAlignment="Center"
+                    Command="{x:Bind ViewModel.LoadMoreCommand}"
+                    Content="{xaml:Localize Key=LoadMore}"
+                    Style="{StaticResource MzStandardButtonStyle}"
+                    Visibility="{x:Bind ViewModel.CanLoadMore, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+                <ProgressRing
+                    Margin="0,32"
+                    IsActive="{x:Bind local:PostsManagerView.Any(ViewModel.IsLoading, ViewModel.IsLoadingMore), Mode=OneWay}"
+                    Visibility="{x:Bind local:PostsManagerView.AnyVisible(ViewModel.IsLoading, ViewModel.IsLoadingMore), Mode=OneWay}" />
+
+                <StackPanel Style="{StaticResource MzEmptyStatePanelStyle}" Visibility="{x:Bind ViewModel.IsEmpty, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <FontIcon Glyph="{StaticResource MzGlyphNews}" Style="{StaticResource MzEmptyStateIconStyle}" />
+                    <TextBlock Style="{StaticResource MzEmptyStateTitleTextStyle}" Text="{xaml:Localize Key=NoPostsFound}" />
+                </StackPanel>
+
+                <StackPanel Style="{StaticResource MzEmptyStatePanelStyle}" Visibility="{x:Bind ViewModel.HasError, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <FontIcon Glyph="{StaticResource MzGlyphWarning}" Style="{StaticResource MzEmptyStateIconStyle}" />
+                    <TextBlock Style="{StaticResource MzEmptyStateTitleTextStyle}" Text="{xaml:Localize Key=CouldNotLoadData}" />
+                    <TextBlock Style="{StaticResource MzEmptyStateBodyTextStyle}" Text="{xaml:Localize Key=AdminLoadErrorDescription}" />
+                    <TextBlock
+                        Style="{StaticResource MzMetaTextStyle}"
+                        HorizontalAlignment="Center"
+                        MaxWidth="560"
+                        Text="{x:Bind ViewModel.ErrorDetail, Mode=OneWay}"
+                        TextAlignment="Center"
+                        TextWrapping="Wrap" />
+                    <Button
+                        HorizontalAlignment="Center"
+                        Command="{x:Bind ViewModel.RefreshCommand}"
+                        Content="{xaml:Localize Key=Retry}"
+                        Style="{StaticResource MzStandardButtonStyle}" />
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="MzTypeScale">
+                <VisualState x:Name="MzTypeScaleWide">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="768" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PageTitle.Style" Value="{StaticResource MzTitleWideTextStyle}" />
+                        <Setter Target="PageRoot.Padding" Value="{StaticResource MzPagePaddingWide}" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="MzTypeScaleCompact" />
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+    </ScrollViewer>
 </local:PostsManagerViewBase>

@@ -1,0 +1,265 @@
+<ResourceDictionary
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:theme="using:MZikmund.Theme">
+
+	<Style x:Key="MzContentCardStyle" TargetType="Button">
+		<Setter Property="Background" Value="{ThemeResource MzCardBrush}" />
+		<Setter Property="BorderBrush" Value="{ThemeResource MzStrokeCardBrush}" />
+		<Setter Property="BorderThickness" Value="1" />
+		<Setter Property="CornerRadius" Value="{StaticResource MzCardCornerRadius}" />
+		<Setter Property="Foreground" Value="{ThemeResource MzTextPrimaryBrush}" />
+		<Setter Property="Padding" Value="0" />
+		<Setter Property="HorizontalAlignment" Value="Stretch" />
+		<Setter Property="VerticalAlignment" Value="Stretch" />
+		<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+		<Setter Property="VerticalContentAlignment" Value="Stretch" />
+		<Setter Property="UseSystemFocusVisuals" Value="False" />
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="Button">
+					<Grid x:Name="CardRoot">
+						<Grid.RenderTransform>
+							<CompositeTransform x:Name="CardTransform" />
+						</Grid.RenderTransform>
+						<Border
+							x:Name="CardBorder"
+							Background="{TemplateBinding Background}"
+							BorderBrush="{TemplateBinding BorderBrush}"
+							BorderThickness="{TemplateBinding BorderThickness}"
+							CornerRadius="{TemplateBinding CornerRadius}"
+							theme:MzElevation.Level="Card">
+							<Grid>
+								<Grid.RowDefinitions>
+									<RowDefinition Height="Auto" />
+									<RowDefinition Height="*" />
+									<RowDefinition Height="Auto" />
+								</Grid.RowDefinitions>
+
+								<!--  Media: 16:9 at the 320px minimum card width.  -->
+								<Border
+									Grid.Row="0"
+									Height="180"
+									Background="{ThemeResource MzBgSecondaryBrush}"
+									CornerRadius="{StaticResource MzCardTopCornerRadius}">
+									<Grid>
+										<Border Background="{ThemeResource MzCardMediaEmptyBrush}" Visibility="{Binding HasCardImage, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+											<FontIcon
+												FontFamily="{StaticResource MzIconFontFamily}"
+												FontSize="32"
+												Foreground="{ThemeResource MzTextTertiaryBrush}"
+												Glyph="{StaticResource MzGlyphImageOff}" />
+										</Border>
+										<Image
+											x:Name="CardImage"
+											RenderTransformOrigin="0.5,0.5"
+											Source="{Binding CardImage}"
+											Stretch="UniformToFill"
+											Visibility="{Binding HasCardImage, Converter={StaticResource BoolToVisibilityConverter}}">
+											<Image.RenderTransform>
+												<CompositeTransform x:Name="CardImageTransform" />
+											</Image.RenderTransform>
+										</Image>
+
+										<Grid
+											Background="{ThemeResource MzVideoScrimBrush}"
+											IsHitTestVisible="False"
+											Visibility="{Binding IsVideo, Converter={StaticResource BoolToVisibilityConverter}}">
+											<FontIcon
+												FontFamily="{StaticResource MzIconFontFamily}"
+												FontSize="48"
+												Foreground="{ThemeResource MzOnScrimTextBrush}"
+												Glyph="{StaticResource MzGlyphPlayCircle}" />
+										</Grid>
+
+										<!--  Over a photo the badge carries its own scrim; over the tinted placeholder it does not.  -->
+										<ItemsControl
+											Margin="12"
+											HorizontalAlignment="Left"
+											VerticalAlignment="Top"
+											IsHitTestVisible="False"
+											ItemsSource="{Binding CardBadges}"
+											Visibility="{Binding HasCardImage, Converter={StaticResource BoolToVisibilityConverter}}">
+											<ItemsControl.ItemsPanel>
+												<ItemsPanelTemplate>
+													<StackPanel Orientation="Horizontal" Spacing="4" />
+												</ItemsPanelTemplate>
+											</ItemsControl.ItemsPanel>
+											<ItemsControl.ItemTemplate>
+												<DataTemplate>
+													<ContentControl Content="{Binding}" Style="{StaticResource MzBadgeOnPhotoStyle}" />
+												</DataTemplate>
+											</ItemsControl.ItemTemplate>
+										</ItemsControl>
+										<ItemsControl
+											Margin="12"
+											HorizontalAlignment="Left"
+											VerticalAlignment="Top"
+											IsHitTestVisible="False"
+											ItemsSource="{Binding CardBadges}"
+											Visibility="{Binding HasCardImage, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+											<ItemsControl.ItemsPanel>
+												<ItemsPanelTemplate>
+													<StackPanel Orientation="Horizontal" Spacing="4" />
+												</ItemsPanelTemplate>
+											</ItemsControl.ItemsPanel>
+											<ItemsControl.ItemTemplate>
+												<DataTemplate>
+													<ContentControl Content="{Binding}" Style="{StaticResource MzBadgeSubtleStrongStyle}" />
+												</DataTemplate>
+											</ItemsControl.ItemTemplate>
+										</ItemsControl>
+									</Grid>
+								</Border>
+
+								<!--  Title and excerpt reserve their clamped height so every card measures alike; UniformGridLayout sizes rows from the first realized item.  -->
+								<StackPanel
+									Grid.Row="1"
+									Padding="{StaticResource MzCardPadding}"
+									Spacing="8">
+									<StackPanel Orientation="Horizontal" Spacing="4">
+										<FontIcon
+											VerticalAlignment="Center"
+											FontFamily="{StaticResource MzIconFontFamily}"
+											FontSize="13"
+											Foreground="{ThemeResource MzTextTertiaryBrush}"
+											Glyph="{StaticResource MzGlyphCalendar}" />
+										<TextBlock Style="{StaticResource MzMetaTextStyle}" Text="{Binding CardMeta}" />
+									</StackPanel>
+									<TextBlock
+										x:Name="CardTitle"
+										MinHeight="52"
+										Foreground="{ThemeResource MzTextPrimaryBrush}"
+										Style="{StaticResource MzCardTitleTextStyle}"
+										Text="{Binding CardTitle}" />
+									<TextBlock
+										MinHeight="78"
+										Style="{StaticResource MzCardExcerptTextStyle}"
+										Text="{Binding CardSummary}" />
+								</StackPanel>
+
+								<!--  Decorative: the whole card is the button, so this must not be a nested Button.  -->
+								<Border
+									Grid.Row="2"
+									Margin="16,0,16,16"
+									Padding="{StaticResource MzButtonSmallPadding}"
+									HorizontalAlignment="Left"
+									Background="{ThemeResource MzAccentSubtleBrush}"
+									CornerRadius="{StaticResource MzControlCornerRadius}">
+									<StackPanel Orientation="Horizontal" Spacing="4">
+										<TextBlock
+											VerticalAlignment="Center"
+											FontFamily="{StaticResource MzFontFamilySemiBold}"
+											FontSize="13"
+											FontWeight="SemiBold"
+											Foreground="{ThemeResource MzAccentTextBrush}"
+											Text="{TemplateBinding Tag}" />
+										<FontIcon
+											x:Name="ReadMoreArrow"
+											VerticalAlignment="Center"
+											FontFamily="{StaticResource MzIconFontFamily}"
+											FontSize="13"
+											Foreground="{ThemeResource MzAccentTextBrush}"
+											Glyph="{StaticResource MzGlyphChevronRight}">
+											<FontIcon.RenderTransform>
+												<CompositeTransform x:Name="ReadMoreArrowTransform" />
+											</FontIcon.RenderTransform>
+										</FontIcon>
+									</StackPanel>
+								</Border>
+							</Grid>
+						</Border>
+
+						<Border
+							x:Name="FocusRing"
+							Margin="-3"
+							BorderBrush="{ThemeResource MzStrokeFocusBrush}"
+							BorderThickness="2"
+							CornerRadius="11"
+							IsHitTestVisible="False"
+							Visibility="Collapsed">
+							<Border BorderBrush="{ThemeResource MzStrokeFocusInnerBrush}" BorderThickness="1" CornerRadius="9" />
+						</Border>
+
+						<VisualStateManager.VisualStateGroups>
+							<VisualStateGroup x:Name="CommonStates">
+								<VisualState x:Name="Normal" />
+								<VisualState x:Name="PointerOver">
+									<VisualState.Setters>
+										<Setter Target="CardBorder.(theme:MzElevation.Level)" Value="Tooltip" />
+									</VisualState.Setters>
+									<Storyboard>
+										<DoubleAnimationUsingKeyFrames Storyboard.TargetName="CardTransform" Storyboard.TargetProperty="TranslateY">
+											<SplineDoubleKeyFrame
+												KeySpline="{StaticResource MzEaseStandard}"
+												KeyTime="{StaticResource MzDurationNormal}"
+												Value="-2" />
+										</DoubleAnimationUsingKeyFrames>
+										<ObjectAnimationUsingKeyFrames Storyboard.TargetName="CardBorder" Storyboard.TargetProperty="BorderBrush">
+											<DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource MzStrokeControlStrongBrush}" />
+										</ObjectAnimationUsingKeyFrames>
+										<ObjectAnimationUsingKeyFrames Storyboard.TargetName="CardTitle" Storyboard.TargetProperty="Foreground">
+											<DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource MzAccentTextBrush}" />
+										</ObjectAnimationUsingKeyFrames>
+										<DoubleAnimationUsingKeyFrames Storyboard.TargetName="CardImageTransform" Storyboard.TargetProperty="ScaleX">
+											<SplineDoubleKeyFrame
+												KeySpline="{StaticResource MzEaseStandard}"
+												KeyTime="{StaticResource MzDurationSlow}"
+												Value="1.03" />
+										</DoubleAnimationUsingKeyFrames>
+										<DoubleAnimationUsingKeyFrames Storyboard.TargetName="CardImageTransform" Storyboard.TargetProperty="ScaleY">
+											<SplineDoubleKeyFrame
+												KeySpline="{StaticResource MzEaseStandard}"
+												KeyTime="{StaticResource MzDurationSlow}"
+												Value="1.03" />
+										</DoubleAnimationUsingKeyFrames>
+										<DoubleAnimationUsingKeyFrames Storyboard.TargetName="ReadMoreArrowTransform" Storyboard.TargetProperty="TranslateX">
+											<SplineDoubleKeyFrame
+												KeySpline="{StaticResource MzEaseEntrance}"
+												KeyTime="{StaticResource MzDurationNormal}"
+												Value="3" />
+										</DoubleAnimationUsingKeyFrames>
+									</Storyboard>
+								</VisualState>
+								<VisualState x:Name="Pressed">
+									<Storyboard>
+										<DoubleAnimation
+											Storyboard.TargetName="CardTransform"
+											Storyboard.TargetProperty="TranslateY"
+											To="1"
+											Duration="{StaticResource MzDurationInstant}" />
+										<ObjectAnimationUsingKeyFrames Storyboard.TargetName="CardBorder" Storyboard.TargetProperty="BorderBrush">
+											<DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource MzStrokeControlStrongBrush}" />
+										</ObjectAnimationUsingKeyFrames>
+										<ObjectAnimationUsingKeyFrames Storyboard.TargetName="CardTitle" Storyboard.TargetProperty="Foreground">
+											<DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource MzAccentTextBrush}" />
+										</ObjectAnimationUsingKeyFrames>
+									</Storyboard>
+								</VisualState>
+								<VisualState x:Name="Disabled">
+									<Storyboard>
+										<ObjectAnimationUsingKeyFrames Storyboard.TargetName="CardRoot" Storyboard.TargetProperty="Opacity">
+											<DiscreteObjectKeyFrame KeyTime="0" Value="0.55" />
+										</ObjectAnimationUsingKeyFrames>
+									</Storyboard>
+								</VisualState>
+							</VisualStateGroup>
+							<VisualStateGroup x:Name="FocusStates">
+								<VisualState x:Name="Focused">
+									<Storyboard>
+										<ObjectAnimationUsingKeyFrames Storyboard.TargetName="FocusRing" Storyboard.TargetProperty="Visibility">
+											<DiscreteObjectKeyFrame KeyTime="0" Value="Visible" />
+										</ObjectAnimationUsingKeyFrames>
+									</Storyboard>
+								</VisualState>
+								<VisualState x:Name="PointerFocused" />
+								<VisualState x:Name="Unfocused" />
+							</VisualStateGroup>
+						</VisualStateManager.VisualStateGroups>
+					</Grid>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+
+</ResourceDictionary>

@@ -7,59 +7,106 @@
     xmlns:local="using:MZikmund.Views.Admin"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:xaml="using:MZikmund.Extensions.Xaml"
-    d:Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    Background="{ThemeResource MzBgBaseBrush}"
     mc:Ignorable="d">
 
-    <Grid Padding="12,0" RowSpacing="8">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <TextBlock Style="{ThemeResource TitleTextBlockStyle}" Text="{xaml:Localize Key=Categories}" />
-        <StackPanel
-            Grid.Row="1"
-            Orientation="Horizontal"
-            Spacing="8">
-            <Button Command="{x:Bind ViewModel.AddCategoryCommand}">
-                <StackPanel Orientation="Horizontal" Spacing="4">
-                    <SymbolIcon Symbol="Add" />
-                    <TextBlock Text="{xaml:Localize Key=AddCategory}" />
+    <ScrollViewer>
+        <Grid x:Name="PageRoot" Padding="{StaticResource MzPagePaddingCompact}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" MaxWidth="{StaticResource MzContainerNarrowWidth}" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+                <Grid Margin="0,0,0,24" ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock
+                        x:Name="PageTitle"
+                        Style="{StaticResource MzTitleTextStyle}"
+                        Text="{x:Bind ViewModel.Title}" />
+                    <Button
+                        Grid.Column="1"
+                        VerticalAlignment="Bottom"
+                        AutomationProperties.AutomationId="CategoriesAdd"
+                        Command="{x:Bind ViewModel.AddCategoryCommand}"
+                        Style="{StaticResource MzAccentButtonStyle}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon
+                                FontFamily="{StaticResource MzIconFontFamily}"
+                                FontSize="16"
+                                Glyph="{StaticResource MzGlyphAdd}" />
+                            <TextBlock Text="{xaml:Localize Key=AddCategory}" />
+                        </StackPanel>
+                    </Button>
+                </Grid>
+
+                <Border Style="{StaticResource MzLayerSurfaceStyle}" Visibility="{x:Bind ViewModel.HasItems, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <ItemsRepeater Margin="4" ItemsSource="{x:Bind ViewModel.Categories}">
+                        <ItemsRepeater.Layout>
+                            <StackLayout Spacing="2" />
+                        </ItemsRepeater.Layout>
+                        <ItemsRepeater.ItemTemplate>
+                            <DataTemplate x:DataType="dto:Category">
+                                <Button
+                                    AutomationProperties.Name="{x:Bind DisplayName}"
+                                    Click="CategoryRow_Click"
+                                    Style="{StaticResource MzListRowButtonStyle}"
+                                    Tag="{x:Bind}">
+                                    <Grid ColumnSpacing="16">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <FontIcon Glyph="{StaticResource MzGlyphFolder}" Style="{StaticResource MzRowIconStyle}" />
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            Style="{StaticResource MzRowTitleTextStyle}"
+                                            Text="{x:Bind DisplayName}" />
+                                        <TextBlock
+                                            Grid.Column="2"
+                                            Style="{StaticResource MzCountTextStyle}"
+                                            Text="{x:Bind RouteName}" />
+                                    </Grid>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsRepeater.ItemTemplate>
+                    </ItemsRepeater>
+                </Border>
+
+                <ProgressRing
+                    Margin="0,32"
+                    IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                    Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+                <StackPanel Style="{StaticResource MzEmptyStatePanelStyle}" Visibility="{x:Bind ViewModel.HasError, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <FontIcon Glyph="{StaticResource MzGlyphWarning}" Style="{StaticResource MzEmptyStateIconStyle}" />
+                    <TextBlock Style="{StaticResource MzEmptyStateTitleTextStyle}" Text="{xaml:Localize Key=CouldNotLoadData}" />
+                    <TextBlock Style="{StaticResource MzEmptyStateBodyTextStyle}" Text="{xaml:Localize Key=AdminLoadErrorDescription}" />
+                    <Button
+                        HorizontalAlignment="Center"
+                        Command="{x:Bind ViewModel.RefreshCommand}"
+                        Content="{xaml:Localize Key=Retry}"
+                        Style="{StaticResource MzStandardButtonStyle}" />
                 </StackPanel>
-            </Button>
-        </StackPanel>
-        <GridView
-            Grid.Row="2"
-            Padding="20,0,20,0"
-            HorizontalAlignment="Center"
-            IsItemClickEnabled="True"
-            ItemClick="GridView_ItemClick"
-            ItemsSource="{x:Bind ViewModel.Categories}"
-            SelectionMode="None">
-            <GridView.ItemContainerTransitions>
-                <TransitionCollection>
-                    <RepositionThemeTransition IsStaggeringEnabled="False" />
-                </TransitionCollection>
-            </GridView.ItemContainerTransitions>
-            <GridView.ItemTemplate>
-                <DataTemplate x:DataType="dto:Category">
-                    <StackPanel
-                        Width="120"
-                        Margin="4"
-                        Padding="8"
-                        Background="{ThemeResource SystemColorHighlightBrush}"
-                        CornerRadius="2">
-                        <TextBlock
-                            FontWeight="Bold"
-                            Text="{x:Bind DisplayName}"
-                            TextTrimming="CharacterEllipsis" />
-                        <TextBlock
-                            Opacity="0.8"
-                            Text="{x:Bind RouteName}"
-                            TextTrimming="CharacterEllipsis" />
-                    </StackPanel>
-                </DataTemplate>
-            </GridView.ItemTemplate>
-        </GridView>
-    </Grid>
+            </StackPanel>
+        </Grid>
+
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="MzTypeScale">
+                <VisualState x:Name="MzTypeScaleWide">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="768" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PageTitle.Style" Value="{StaticResource MzTitleWideTextStyle}" />
+                        <Setter Target="PageRoot.Padding" Value="{StaticResource MzPagePaddingWide}" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="MzTypeScaleCompact" />
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+    </ScrollViewer>
 </local:CategoriesManagerViewBase>

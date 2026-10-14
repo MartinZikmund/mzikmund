@@ -7,10 +7,12 @@ public sealed partial class CategoriesManagerView : CategoriesManagerViewBase
 {
 	public CategoriesManagerView() => InitializeComponent();
 
-	private void GridView_ItemClick(object sender, ItemClickEventArgs e)
+	private void CategoryRow_Click(object sender, RoutedEventArgs e)
 	{
-		var category = (Category)e.ClickedItem;
-		ViewModel!.UpdateCategoryCommand.Execute(category);
+		if (sender is FrameworkElement { Tag: Category category })
+		{
+			ViewModel?.UpdateCategoryCommand.Execute(category);
+		}
 	}
 }
 

@@ -1,0 +1,25 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+	<!--  Caps and centres the content column; Stretch (not Center) keeps it from collapsing to content width.  -->
+	<Style x:Key="MzPageContainerStyle" TargetType="Grid">
+		<Setter Property="MaxWidth" Value="{StaticResource MzContainerWidth}" />
+		<Setter Property="HorizontalAlignment" Value="Stretch" />
+	</Style>
+
+	<Style x:Key="MzPageContainerStackStyle" TargetType="StackPanel">
+		<Setter Property="MaxWidth" Value="{StaticResource MzContainerWidth}" />
+		<Setter Property="HorizontalAlignment" Value="Stretch" />
+	</Style>
+
+	<!--  Pages own their header: (breadcrumb) title, lead, forward actions.  -->
+	<Style x:Key="MzPageHeaderPanelStyle" TargetType="StackPanel">
+		<Setter Property="Margin" Value="0,0,0,24" />
+		<Setter Property="Spacing" Value="8" />
+	</Style>
+
+	<!--  The narrow variant, for article width content.  -->
+	<Style x:Key="MzPageContainerNarrowStyle" TargetType="Grid" BasedOn="{StaticResource MzPageContainerStyle}">
+		<Setter Property="MaxWidth" Value="{StaticResource MzContainerNarrowWidth}" />
+	</Style>
+
+</ResourceDictionary>

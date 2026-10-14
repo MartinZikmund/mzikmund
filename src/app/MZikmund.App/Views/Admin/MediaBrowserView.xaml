@@ -3,189 +3,188 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:dto="using:MZikmund.DataContracts.Blobs"
     xmlns:items="using:MZikmund.ViewModels.Items"
     xmlns:local="using:MZikmund.Views.Admin"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:vm="using:MZikmund.ViewModels.Admin"
     xmlns:xaml="using:MZikmund.Extensions.Xaml"
-    x:Name="Root"
-    d:Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    Background="{ThemeResource MzBgBaseBrush}"
     mc:Ignorable="d">
 
-    <Grid Padding="12,0" RowSpacing="8">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+    <ScrollViewer>
+        <Grid x:Name="PageRoot" Padding="{StaticResource MzPagePaddingCompact}">
+            <StackPanel Style="{StaticResource MzPageContainerStackStyle}">
+                <Grid Margin="0,0,0,24" ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock
+                        x:Name="PageTitle"
+                        Style="{StaticResource MzTitleTextStyle}"
+                        Text="{x:Bind ViewModel.Title}" />
+                    <Button
+                        Grid.Column="1"
+                        VerticalAlignment="Bottom"
+                        AutomationProperties.AutomationId="MediaUpload"
+                        Command="{x:Bind ViewModel.UploadFileCommand}"
+                        Style="{StaticResource MzAccentButtonStyle}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon
+                                FontFamily="{StaticResource MzIconFontFamily}"
+                                FontSize="16"
+                                Glyph="{StaticResource MzGlyphArrowUpload}" />
+                            <TextBlock Text="{xaml:Localize Key=Upload}" />
+                        </StackPanel>
+                    </Button>
+                </Grid>
 
-        <TextBlock Style="{ThemeResource TitleTextBlockStyle}" Text="{xaml:Localize Key=Media}" />
+                <Grid Margin="0,0,0,16" ColumnSpacing="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" MaxWidth="480" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox
+                        AutomationProperties.AutomationId="MediaSearch"
+                        AutomationProperties.Name="{xaml:Localize Key=Search}"
+                        PlaceholderText="{xaml:Localize Key=Search}"
+                        Text="{x:Bind ViewModel.SearchFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <ComboBox
+                        Grid.Column="1"
+                        MinWidth="150"
+                        AutomationProperties.AutomationId="MediaFilter"
+                        SelectedIndex="{x:Bind ViewModel.FilterMode, Mode=TwoWay, Converter={StaticResource EnumToIntConverter}}">
+                        <ComboBoxItem Content="{xaml:Localize Key=AllFiles}" />
+                        <ComboBoxItem Content="{xaml:Localize Key=Images}" />
+                        <ComboBoxItem Content="{xaml:Localize Key=Files}" />
+                    </ComboBox>
+                </Grid>
 
-        <Grid Grid.Row="1" ColumnSpacing="8">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-
-            <Button Command="{x:Bind ViewModel.UploadFileCommand}">
-                <StackPanel Orientation="Horizontal" Spacing="4">
-                    <SymbolIcon Symbol="Upload" />
-                    <TextBlock Text="{xaml:Localize Key=Upload}" />
-                </StackPanel>
-            </Button>
-
-            <TextBox
-                Grid.Column="1"
-                PlaceholderText="{xaml:Localize Key=Search}"
-                Text="{x:Bind ViewModel.SearchFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-
-            <ComboBox
-                Grid.Column="2"
-                MinWidth="150"
-                SelectedIndex="{x:Bind ViewModel.FilterMode, Mode=TwoWay, Converter={StaticResource EnumToIntConverter}}">
-                <ComboBoxItem Content="{xaml:Localize Key=AllFiles}" />
-                <ComboBoxItem Content="{xaml:Localize Key=Images}" />
-                <ComboBoxItem Content="{xaml:Localize Key=Files}" />
-            </ComboBox>
-        </Grid>
-
-        <ScrollViewer Grid.Row="2">
-            <StackPanel>
-                <ItemsControl ItemsSource="{x:Bind ViewModel.FilteredFiles, Mode=OneWay}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <ItemsWrapGrid Orientation="Horizontal" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
+                <ItemsRepeater ItemsSource="{x:Bind ViewModel.MediaFiles, Mode=OneWay}">
+                    <ItemsRepeater.Layout>
+                        <UniformGridLayout
+                            ItemsStretch="Fill"
+                            MinColumnSpacing="16"
+                            MinItemWidth="200"
+                            MinRowSpacing="16" />
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
                         <DataTemplate x:DataType="items:StorageItemInfoViewModel">
-                            <Grid
-                                Width="200"
-                                Height="200"
-                                Margin="8"
-                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                BorderThickness="1"
-                                CornerRadius="4">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="*" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
-
-                                <!--  Preview Area  -->
-                                <Border
-                                    Grid.Row="0"
-                                    Background="{ThemeResource LayerFillColorDefaultBrush}"
-                                    CornerRadius="4,4,0,0">
+                                <Border Style="{StaticResource MzLayerSurfaceStyle}">
                                     <Grid>
-                                        <!--  Image Preview (for images)  -->
-                                        <Image
-                                            Margin="8"
-                                            Stretch="Uniform"
-                                            Visibility="{x:Bind IsImage}">
-                                            <Image.Source>
-                                                <BitmapImage UriSource="{x:Bind Url}" />
-                                            </Image.Source>
-                                        </Image>
-
-                                        <!--  File Icon (for non-images)  -->
-                                        <FontIcon
-                                            FontSize="64"
-                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                            Glyph="&#xE7C3;"
-                                            Visibility="{x:Bind IsImage, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="140" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+                                        <Border Background="{ThemeResource MzBgSecondaryBrush}" CornerRadius="{StaticResource MzCardTopCornerRadius}">
+                                            <Grid>
+                                                <Image
+                                                    Margin="8"
+                                                    Stretch="Uniform"
+                                                    Visibility="{x:Bind IsImage}">
+                                                    <Image.Source>
+                                                        <BitmapImage DecodePixelWidth="400" UriSource="{x:Bind Url}" />
+                                                    </Image.Source>
+                                                </Image>
+                                                <FontIcon
+                                                    FontFamily="{StaticResource MzIconFontFamily}"
+                                                    FontSize="40"
+                                                    Foreground="{ThemeResource MzTextTertiaryBrush}"
+                                                    Glyph="{StaticResource MzGlyphDocumentPdf}"
+                                                    Visibility="{x:Bind IsImage, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
+                                            </Grid>
+                                        </Border>
+                                        <Grid
+                                            Grid.Row="1"
+                                            Padding="12,8,4,8"
+                                            ColumnSpacing="4">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel VerticalAlignment="Center" Spacing="2">
+                                                <TextBlock
+                                                    Style="{StaticResource MzRowTitleTextStyle}"
+                                                    Text="{x:Bind FileName}"
+                                                    ToolTipService.ToolTip="{x:Bind FileName}" />
+                                                <TextBlock Style="{StaticResource MzMetaTextStyle}" Text="{x:Bind FormattedSize}" />
+                                            </StackPanel>
+                                            <Button
+                                                Grid.Column="1"
+                                                VerticalAlignment="Center"
+                                                AutomationProperties.Name="{xaml:Localize Key=MoreActions}"
+                                                Style="{StaticResource MzSubtleButtonSmallStyle}"
+                                                ToolTipService.ToolTip="{xaml:Localize Key=MoreActions}">
+                                                <FontIcon
+                                                    FontFamily="{StaticResource MzIconFontFamily}"
+                                                    FontSize="16"
+                                                    Glyph="{StaticResource MzGlyphMore}" />
+                                                <Button.Flyout>
+                                                    <MenuFlyout>
+                                                        <MenuFlyoutItem
+                                                            Click="CopyUrl_Click"
+                                                            Tag="{x:Bind Url}"
+                                                            Text="{xaml:Localize Key=CopyUrl}">
+                                                            <MenuFlyoutItem.Icon>
+                                                                <FontIcon FontFamily="{StaticResource MzIconFontFamily}" Glyph="{StaticResource MzGlyphCopy}" />
+                                                            </MenuFlyoutItem.Icon>
+                                                        </MenuFlyoutItem>
+                                                        <MenuFlyoutItem
+                                                            Click="ShowVariants_Click"
+                                                            Tag="{x:Bind}"
+                                                            Text="{xaml:Localize Key=ViewVariants}"
+                                                            Visibility="{x:Bind IsImage}">
+                                                            <MenuFlyoutItem.Icon>
+                                                                <FontIcon FontFamily="{StaticResource MzIconFontFamily}" Glyph="{StaticResource MzGlyphImageMultiple}" />
+                                                            </MenuFlyoutItem.Icon>
+                                                        </MenuFlyoutItem>
+                                                        <MenuFlyoutSeparator />
+                                                        <MenuFlyoutItem
+                                                            Click="DeleteFile_Click"
+                                                            Tag="{x:Bind}"
+                                                            Text="{xaml:Localize Key=Delete}">
+                                                            <MenuFlyoutItem.Icon>
+                                                                <FontIcon FontFamily="{StaticResource MzIconFontFamily}" Glyph="{StaticResource MzGlyphDelete}" />
+                                                            </MenuFlyoutItem.Icon>
+                                                        </MenuFlyoutItem>
+                                                    </MenuFlyout>
+                                                </Button.Flyout>
+                                            </Button>
+                                        </Grid>
                                     </Grid>
                                 </Border>
-
-                                <!--  File Name  -->
-                                <TextBlock
-                                    Grid.Row="1"
-                                    Margin="8,4,8,0"
-                                    FontWeight="SemiBold"
-                                    Text="{x:Bind FileName}"
-                                    TextTrimming="CharacterEllipsis"
-                                    TextWrapping="NoWrap"
-                                    ToolTipService.ToolTip="{x:Bind FileName}" />
-
-                                <!--  File Size  -->
-                                <TextBlock
-                                    Grid.Row="2"
-                                    Margin="8,0,8,4"
-                                    FontSize="12"
-                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                    Text="{x:Bind FormattedSize}"
-                                    TextTrimming="CharacterEllipsis" />
-
-                                <!--  Actions  -->
-                                <StackPanel
-                                    Grid.Row="3"
-                                    Margin="8,0,8,8"
-                                    Orientation="Horizontal"
-                                    Spacing="4">
-                                    <Button
-                                        Padding="8,4"
-                                        Command="{Binding ElementName=Root, Path=ViewModel.ShowVariantsCommand}"
-                                        CommandParameter="{x:Bind}"
-                                        ToolTipService.ToolTip="{xaml:Localize Key=ViewVariants}"
-                                        Visibility="{x:Bind IsImage}">
-                                        <SymbolIcon Symbol="Pictures" />
-                                    </Button>
-                                    <Button
-                                        Padding="8,4"
-                                        Command="{Binding ElementName=Root, Path=ViewModel.DeleteFileCommand}"
-                                        CommandParameter="{x:Bind}"
-                                        ToolTipService.ToolTip="{xaml:Localize Key=Delete}">
-                                        <SymbolIcon Symbol="Delete" />
-                                    </Button>
-                                    <Button
-                                        Padding="8,4"
-                                        Click="CopyUrl_Click"
-                                        Tag="{x:Bind Url}"
-                                        ToolTipService.ToolTip="{xaml:Localize Key=CopyUrl}">
-                                        <SymbolIcon Symbol="Copy" />
-                                    </Button>
-                                </StackPanel>
-                            </Grid>
                         </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
 
-                <!--  Load More Button  -->
                 <Button
-                    Margin="8"
+                    Margin="0,16,0,0"
                     HorizontalAlignment="Center"
                     Command="{x:Bind ViewModel.LoadMoreCommand}"
-                    IsEnabled="{x:Bind ViewModel.HasMoreItems, Mode=OneWay}"
-                    Visibility="{x:Bind ViewModel.HasMoreItems, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <SymbolIcon Symbol="Download" Visibility="{x:Bind ViewModel.IsLoadingMore, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
-                        <ProgressRing
-                            Width="16"
-                            Height="16"
-                            IsActive="{x:Bind ViewModel.IsLoadingMore, Mode=OneWay}"
-                            Visibility="{x:Bind ViewModel.IsLoadingMore, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
-                        <TextBlock Text="{xaml:Localize Key=LoadMore}" />
-                    </StackPanel>
-                </Button>
-            </StackPanel>
-        </ScrollViewer>
+                    Content="{xaml:Localize Key=LoadMore}"
+                    IsEnabled="{x:Bind local:MediaBrowserView.Not(ViewModel.IsLoadingMore), Mode=OneWay}"
+                    Style="{StaticResource MzStandardButtonStyle}"
+                    Visibility="{x:Bind ViewModel.HasMoreItems, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
 
-        <!--  Empty State  -->
-        <StackPanel
-            Grid.Row="2"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            Spacing="8"
-            Visibility="{x:Bind ViewModel.FilteredFiles, Mode=OneWay, Converter={StaticResource EmptyCollectionToVisibilityConverter}}">
-            <SymbolIcon Foreground="{ThemeResource TextFillColorTertiaryBrush}" Symbol="Document" />
-            <TextBlock
-                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                Text="{xaml:Localize Key=NoFilesFound}"
-                TextAlignment="Center" />
-        </StackPanel>
-    </Grid>
+                <StackPanel Style="{StaticResource MzEmptyStatePanelStyle}" Visibility="{x:Bind ViewModel.HasFiles, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                    <FontIcon Glyph="{StaticResource MzGlyphImageMultiple}" Style="{StaticResource MzEmptyStateIconStyle}" />
+                    <TextBlock Style="{StaticResource MzEmptyStateTitleTextStyle}" Text="{xaml:Localize Key=NoFilesFound}" />
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="MzTypeScale">
+                <VisualState x:Name="MzTypeScaleWide">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="768" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PageTitle.Style" Value="{StaticResource MzTitleWideTextStyle}" />
+                        <Setter Target="PageRoot.Padding" Value="{StaticResource MzPagePaddingWide}" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="MzTypeScaleCompact" />
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+    </ScrollViewer>
 </local:MediaBrowserViewBase>

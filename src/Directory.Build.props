@@ -16,24 +16,27 @@
 
 		<!--
 			Adding NoWarn to remove build warnings
-			NU1507: Warning when there are multiple package sources when using CPM with no source mapping
 			NETSDK1201: Warning that specifying RID won't create self containing app
 			PRI257: Ignore default language (en) not being one of the included resources (eg en-us, en-uk)
 			CA1873: .NET 10 analyzer rule for structured logging - existing code pattern
+			NU1507 was dropped: the repo-root NuGet.config now declares a single package source.
 		-->
-		<NoWarn>$(NoWarn);NU1507;NETSDK1201;PRI257;XAOBS001;CA1873</NoWarn>
+		<NoWarn>$(NoWarn);NETSDK1201;PRI257;XAOBS001;CA1873</NoWarn>
 		<WarningsNotAsErrors>Uno0001</WarningsNotAsErrors>
 
 		<!-- Temporary workaround for https://github.com/unoplatform/uno/issues/18464 -->
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-
-		<UnoWasmBootstrapVersion>10.1.0-dev.54</UnoWasmBootstrapVersion>
 
 		<!-- Temporary workaround for Uno.Wasm.Bootstrap -->
 		<UnoGenerateAssetsManifestDependsOn>
 			$(UnoGenerateAssetsManifestDependsOn);
 			GenerateUnoWasmAssets;
 		</UnoGenerateAssetsManifestDependsOn>
+	</PropertyGroup>
+
+	<!-- Uno 7 builds against WindowsAppSDK 2.x, whose projections need CsWinRT 2.3 (the SDK default ref ships 2.2) -->
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-windows10.0.26100'">
+		<WindowsSdkPackageVersion>10.0.26100.87</WindowsSdkPackageVersion>
 	</PropertyGroup>
 
 	<ItemGroup>

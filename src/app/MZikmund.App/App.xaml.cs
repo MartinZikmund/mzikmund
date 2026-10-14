@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using CommunityToolkit.Mvvm.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using MZikmund.Api.Client;
 using MZikmund.Api.Handlers;
@@ -54,6 +55,8 @@ public partial class MZikmundApp : Application, IApplication
 						.Section<AppConfig>()
 						.Section<AuthConfig>()
 				)
+				// e.g. MZIKMUND_AppConfig__ApiUrl, MZIKMUND_AuthConfig__ClientId
+				.ConfigureAppConfiguration((_, configBuilder) => configBuilder.AddEnvironmentVariables("MZIKMUND_"))
 				.UseLogging(configure: (context, logBuilder) =>
 				{
 					// Configure log levels for different categories of logging
@@ -100,7 +103,7 @@ public partial class MZikmundApp : Application, IApplication
 			);
 		MainWindow = builder.Window;
 
-#if DEBUG
+#if DEBUG && HAS_UNO
 		MainWindow.UseStudio();
 #endif
 
@@ -116,6 +119,9 @@ public partial class MZikmundApp : Application, IApplication
 
 			// Place the frame in the current Window
 			MainWindow.Content = windowShell;
+
+			var themeManager = Host.Services.GetRequiredService<IThemeManager>();
+			themeManager.SetTheme(Host.Services.GetRequiredService<IAppPreferences>().Theme);
 		}
 
 		// Ensure the current window is active
@@ -124,7 +130,9 @@ public partial class MZikmundApp : Application, IApplication
 
 	private void ConfigureServices(IServiceCollection services)
 	{
+		services.AddScoped<HomeViewModel>();
 		services.AddScoped<BlogViewModel>();
+		services.AddScoped<ContactViewModel>();
 		services.AddScoped<VideosViewModel>();
 		services.AddScoped<SettingsViewModel>();
 		services.AddScoped<TagsManagerViewModel>();
@@ -181,7 +189,7 @@ public partial class MZikmundApp : Application, IApplication
 
 			if (userService.AccessToken is not { } accessToken)
 			{
-				throw new InvalidOperationException("Access token is not set");
+				throw new AuthenticationFailedException("Sign in to continue.");
 			}
 
 			return accessToken;

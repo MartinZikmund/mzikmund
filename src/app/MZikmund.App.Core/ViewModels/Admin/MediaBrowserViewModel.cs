@@ -83,6 +83,8 @@ public partial class MediaBrowserViewModel : PageViewModel
 
 	public StorageItemInfoViewModel[] FilteredFiles => MediaFiles.ToArray();
 
+	public bool HasFiles => MediaFiles.Count > 0;
+
 	partial void OnFilterModeChanged(MediaFilterMode value)
 	{
 		_ = RefreshListAsync();
@@ -137,13 +139,14 @@ public partial class MediaBrowserViewModel : PageViewModel
 
 			HasMoreItems = _hasMoreItems;
 			OnPropertyChanged(nameof(FilteredFiles));
+			OnPropertyChanged(nameof(HasFiles));
 		}
 		catch (Exception ex)
 		{
 			await _dialogService.ShowStatusMessageAsync(
 				StatusMessageDialogType.Error,
 				Localizer.Instance.GetString("CouldNotLoadData"),
-				$"{Localizer.Instance.GetString("ErrorLoadingData")} {ex}");
+				$"{Localizer.Instance.GetString("ErrorLoadingData")} {ex.Message}");
 		}
 		finally
 		{
@@ -176,13 +179,14 @@ public partial class MediaBrowserViewModel : PageViewModel
 
 			HasMoreItems = _hasMoreItems;
 			OnPropertyChanged(nameof(FilteredFiles));
+			OnPropertyChanged(nameof(HasFiles));
 		}
 		catch (Exception ex)
 		{
 			await _dialogService.ShowStatusMessageAsync(
 				StatusMessageDialogType.Error,
 				Localizer.Instance.GetString("CouldNotLoadData"),
-				$"{Localizer.Instance.GetString("ErrorLoadingData")} {ex}");
+				$"{Localizer.Instance.GetString("ErrorLoadingData")} {ex.Message}");
 		}
 		finally
 		{
@@ -226,7 +230,7 @@ public partial class MediaBrowserViewModel : PageViewModel
 					await _dialogService.ShowStatusMessageAsync(
 						StatusMessageDialogType.Error,
 						Localizer.Instance.GetString("UploadFailed"),
-						$"{Localizer.Instance.GetString("ErrorUploadingFile")} {ex}");
+						$"{Localizer.Instance.GetString("ErrorUploadingFile")} {ex.Message}");
 				}
 			}
 		}
@@ -235,7 +239,7 @@ public partial class MediaBrowserViewModel : PageViewModel
 			await _dialogService.ShowStatusMessageAsync(
 				StatusMessageDialogType.Error,
 				Localizer.Instance.GetString("UploadFailed"),
-				$"{Localizer.Instance.GetString("ErrorOpeningFilePicker")} {ex}");
+				$"{Localizer.Instance.GetString("ErrorOpeningFilePicker")} {ex.Message}");
 		}
 	}
 
@@ -272,7 +276,7 @@ public partial class MediaBrowserViewModel : PageViewModel
 			await _dialogService.ShowStatusMessageAsync(
 				StatusMessageDialogType.Error,
 				Localizer.Instance.GetString("DeleteFailed"),
-				$"{Localizer.Instance.GetString("ErrorDeletingFile")} {ex}");
+				$"{Localizer.Instance.GetString("ErrorDeletingFile")} {ex.Message}");
 		}
 	}
 

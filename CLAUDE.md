@@ -109,7 +109,7 @@ Use Uno APP MCP to test the desktop app.
 
 **API client**: `MZikmund.Api` project uses Refit to generate typed HTTP client from interface definitions, shared via `MZikmund.DataContracts`.
 
-**UnoFeatures**: Hosting, HttpRefit, Configuration, Serialization, Mvvm, Navigation, Localization, ThemeService, SkiaRenderer, Lottie, WebView, Logging.
+**UnoFeatures**: Hosting, HttpRefit, Configuration, Serialization, Mvvm, Localization, ThemeService, Lottie, WebView, Logging (Skia rendering is implicit in Uno 7).
 
 **Windows-specific**: Custom `StartupObject` (`MZikmundProgram`), OAuth2Manager callback handling via `OnUriCallback`.
 
@@ -124,7 +124,8 @@ Use Uno APP MCP to test the desktop app.
 - **Central Package Management**: All versions in `src/Directory.Packages.props`. Project files use `<PackageReference>` without version numbers.
 - **Shared properties** (`src/Directory.Build.props`): Nullable enabled, C# preview language, implicit usings, Nerdbank.GitVersioning.
 - **Versioning** (`version.json`): Nerdbank.GitVersioning, base version 1.0, public releases from `main` only, release branches: `release/v{version}`.
-- **SDK**: .NET 10.0.100 exact (`global.json`), Uno.Sdk 6.5.0-dev.31.
+- **SDK**: .NET 10.0.100 or later feature band (`global.json`), Uno.Sdk 7.0.0-dev.75 (see `global.json` for the current pin). Uno 7 is Skia-only and builds the Windows head against WindowsAppSDK 2.x.
+- **Package sources**: `NuGet.config` at the repo root pins restore to nuget.org only, so local restore matches CI. Do not rely on machine-level feeds — Uno.Sdk 6.7.7 exists only on the private "Uno Internal" feed and will fail CI.
 
 ### CI/CD Workflows (`.github/workflows/`)
 

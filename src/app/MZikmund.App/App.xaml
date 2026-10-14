@@ -9,13 +9,29 @@
                 <!--  Load WinUI resources  -->
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
 
-                <ResourceDictionary Source="ms-appx:///Resources/Colors.xaml" />
+                <!--  Tokens  -->
+                <ResourceDictionary Source="ms-appx:///Theme/Colors.xaml" />
+                <ResourceDictionary Source="ms-appx:///Theme/Spacing.xaml" />
+                <ResourceDictionary Source="ms-appx:///Theme/Radii.xaml" />
+                <ResourceDictionary Source="ms-appx:///Theme/Motion.xaml" />
+                <ResourceDictionary Source="ms-appx:///Theme/Icons.xaml" />
+                <ResourceDictionary Source="ms-appx:///Theme/Typography.xaml" />
+                <ResourceDictionary Source="ms-appx:///Theme/Acrylic.xaml" />
+                <ResourceDictionary Source="ms-appx:///Theme/Elevation.xaml" />
+
                 <ResourceDictionary Source="ms-appx:///Resources/Converters.xaml" />
-                <ResourceDictionary Source="ms-appx:///Resources/Fonts.xaml" />
+
+                <!--  Styles  -->
+                <ResourceDictionary Source="ms-appx:///Theme/Styles/TextBlocks.xaml" />
+                <ResourceDictionary Source="ms-appx:///Theme/Styles/Badges.xaml" />
+                <ResourceDictionary Source="ms-appx:///Theme/Styles/Buttons.xaml" />
+                <ResourceDictionary Source="ms-appx:///Theme/Styles/Cards.xaml" />
+                <ResourceDictionary Source="ms-appx:///Theme/Styles/EmptyState.xaml" />
+                <ResourceDictionary Source="ms-appx:///Theme/Styles/Layout.xaml" />
+                <ResourceDictionary Source="ms-appx:///Theme/Styles/Rows.xaml" />
+                <ResourceDictionary Source="ms-appx:///Theme/Styles/Settings.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
-
-    <!--  Add resources here  -->
 
 </Application>

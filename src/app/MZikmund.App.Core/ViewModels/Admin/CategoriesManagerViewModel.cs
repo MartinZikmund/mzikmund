@@ -6,6 +6,7 @@ using MZikmund.Models.Dialogs;
 using MZikmund.Services.Dialogs;
 using MZikmund.Services.Loading;
 using MZikmund.Services.Localization;
+using Refit;
 
 namespace MZikmund.ViewModels.Admin;
 
@@ -14,42 +15,59 @@ public partial class CategoriesManagerViewModel : PageViewModel
 	private readonly IDialogService _dialogService;
 	private readonly ILoadingIndicator _loadingIndicator;
 	private readonly IMZikmundApi _api;
+	private readonly ILogger<CategoriesManagerViewModel> _logger;
 
 	public CategoriesManagerViewModel(
 		IMZikmundApi api,
 		IDialogService dialogService,
-		ILoadingIndicator loadingIndicator)
+		ILoadingIndicator loadingIndicator,
+		ILogger<CategoriesManagerViewModel> logger)
 	{
 		_dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
 		_loadingIndicator = loadingIndicator ?? throw new ArgumentNullException(nameof(loadingIndicator));
 		_api = api ?? throw new ArgumentNullException(nameof(api));
+		_logger = logger;
 	}
 
 	public override string Title => Localizer.Instance.GetString("Categories");
 
-	public ObservableCollection<Category> Categories { get; } = new ObservableCollection<Category>();
+	public ObservableCollection<Category> Categories { get; } = new();
+
+	[ObservableProperty]
+	public partial bool IsLoading { get; set; }
+
+	[ObservableProperty]
+	public partial bool HasError { get; set; }
+
+	public bool HasItems => Categories.Count > 0;
 
 	public override async void ViewLoaded()
 	{
-		await RefreshListAsync();
+		base.ViewLoaded();
+		await RefreshAsync();
 	}
 
-	private async Task RefreshListAsync()
+	[RelayCommand]
+	private async Task RefreshAsync()
 	{
-		using var loadingScope = _loadingIndicator.BeginLoading();
+		IsLoading = true;
+		HasError = false;
 		try
 		{
-			//TODO: Refresh collection based on IDs
 			var categories = await _api.GetCategoriesAsync();
+			await categories.EnsureSuccessfulAsync();
 			Categories.Clear();
 			Categories.AddRange(categories.Content!.OrderBy(t => t.DisplayName));
 		}
 		catch (Exception ex)
 		{
-			await _dialogService.ShowStatusMessageAsync(
-				StatusMessageDialogType.Error,
-				"Could not load data",
-				$"Error occurred loading data from server. {ex}");
+			_logger.LogError(ex, "Loading categories failed");
+			HasError = true;
+		}
+		finally
+		{
+			IsLoading = false;
+			OnPropertyChanged(nameof(HasItems));
 		}
 	}
 
@@ -57,20 +75,16 @@ public partial class CategoriesManagerViewModel : PageViewModel
 	private async Task AddCategoryAsync()
 	{
 		var viewModel = new AddOrUpdateCategoryDialogViewModel();
-		var result = await _dialogService.ShowAsync(viewModel);
-		if (result != ContentDialogResult.Primary)
+		if (await _dialogService.ShowAsync(viewModel) != ContentDialogResult.Primary)
 		{
 			return;
 		}
 
-		using var loadingScope = _loadingIndicator.BeginLoading();
-		var apiResponse = await _api.AddCategoryAsync(new Category()
+		await RunAndRefreshAsync(() => _api.AddCategoryAsync(new Category()
 		{
 			DisplayName = viewModel.Category.DisplayName,
 			RouteName = viewModel.Category.RouteName,
-		});
-
-		await RefreshListAsync();
+		}));
 	}
 
 	[RelayCommand]
@@ -87,22 +101,47 @@ public partial class CategoriesManagerViewModel : PageViewModel
 			DisplayName = category.DisplayName,
 			RouteName = category.RouteName
 		});
-		var result = await _dialogService.ShowAsync(viewModel);
 
-		using var loadingScope = _loadingIndicator.BeginLoading();
+		var result = await _dialogService.ShowAsync(viewModel);
 		if (result == ContentDialogResult.Primary)
 		{
-			var apiResponse = await _api.UpdateCategoryAsync(category.Id, new Category()
+			await RunAndRefreshAsync(() => _api.UpdateCategoryAsync(category.Id, new Category()
 			{
 				DisplayName = viewModel.Category.DisplayName,
 				RouteName = viewModel.Category.RouteName,
-			});
+			}));
 		}
 		else if (result == ContentDialogResult.Secondary)
 		{
-			var apiResponse = await _api.DeleteCategoryAsync(category.Id);
+			await RunAndRefreshAsync(() => _api.DeleteCategoryAsync(category.Id));
+		}
+	}
+
+	private Task RunAndRefreshAsync<T>(Func<Task<ApiResponse<T>>> action) =>
+		RunAndRefreshAsync(async () => (IApiResponse)await action());
+
+	private async Task RunAndRefreshAsync(Func<Task<IApiResponse>> action)
+	{
+		using (_loadingIndicator.BeginLoading())
+		{
+			try
+			{
+				var response = await action();
+				if (!response.IsSuccessStatusCode)
+				{
+					throw (Exception?)response.Error ?? new InvalidOperationException(response.StatusCode.ToString());
+				}
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Saving category failed");
+				await _dialogService.ShowStatusMessageAsync(
+					StatusMessageDialogType.Error,
+					Localizer.Instance.GetString("SaveFailed"),
+					ex.Message);
+			}
 		}
 
-		await RefreshListAsync();
+		await RefreshAsync();
 	}
 }
