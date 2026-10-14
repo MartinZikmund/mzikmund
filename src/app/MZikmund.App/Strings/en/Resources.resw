@@ -654,4 +654,34 @@
   <data name="ModeratorStatusDeleted" xml:space="preserve">
     <value>Deleted</value>
   </data>
+  <data name="CommentUpvoted" xml:space="preserve">
+    <value>Upvoted, select to remove</value>
+  </data>
+  <data name="CommentEditEmpty" xml:space="preserve">
+    <value>A comment cannot be empty.</value>
+  </data>
+  <data name="CommentErrorNotFound" xml:space="preserve">
+    <value>That comment or post is no longer available.</value>
+  </data>
+  <data name="CommentErrorForbidden" xml:space="preserve">
+    <value>You are not allowed to do that.</value>
+  </data>
+  <data name="CommentErrorValidation" xml:space="preserve">
+    <value>The request is not valid.</value>
+  </data>
+  <data name="CommentErrorConflict" xml:space="preserve">
+    <value>That action is not available for this comment.</value>
+  </data>
+  <data name="CommentErrorEditWindowFormat" xml:space="preserve">
+    <value>A comment can only be edited within {0} minutes of posting.</value>
+  </data>
+  <data name="CommentErrorNotVisible" xml:space="preserve">
+    <value>That comment is no longer visible.</value>
+  </data>
+  <data name="CommentErrorOwnComment" xml:space="preserve">
+    <value>You cannot do that to your own comment.</value>
+  </data>
+  <data name="CommentErrorHidden" xml:space="preserve">
+    <value>A moderator hid this comment, so it cannot be deleted.</value>
+  </data>
 </root>

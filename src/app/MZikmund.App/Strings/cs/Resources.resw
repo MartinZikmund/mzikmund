@@ -654,4 +654,34 @@
   <data name="ModeratorStatusDeleted" xml:space="preserve">
     <value>Smazaný</value>
   </data>
+  <data name="CommentUpvoted" xml:space="preserve">
+    <value>Líbí se mi, kliknutím zrušíte</value>
+  </data>
+  <data name="CommentEditEmpty" xml:space="preserve">
+    <value>Komentář nesmí být prázdný.</value>
+  </data>
+  <data name="CommentErrorNotFound" xml:space="preserve">
+    <value>Tento komentář nebo příspěvek už není dostupný.</value>
+  </data>
+  <data name="CommentErrorForbidden" xml:space="preserve">
+    <value>To nemůžete udělat.</value>
+  </data>
+  <data name="CommentErrorValidation" xml:space="preserve">
+    <value>Požadavek není platný.</value>
+  </data>
+  <data name="CommentErrorConflict" xml:space="preserve">
+    <value>Tato akce u tohoto komentáře není dostupná.</value>
+  </data>
+  <data name="CommentErrorEditWindowFormat" xml:space="preserve">
+    <value>Komentář lze upravit nejdéle {0} min po odeslání.</value>
+  </data>
+  <data name="CommentErrorNotVisible" xml:space="preserve">
+    <value>Tento komentář už není viditelný.</value>
+  </data>
+  <data name="CommentErrorOwnComment" xml:space="preserve">
+    <value>To u vlastního komentáře nejde.</value>
+  </data>
+  <data name="CommentErrorHidden" xml:space="preserve">
+    <value>Komentář skryl moderátor, takže ho nelze smazat.</value>
+  </data>
 </root>

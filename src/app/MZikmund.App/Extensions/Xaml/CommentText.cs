@@ -72,7 +72,8 @@ public static class CommentText
 				target.Add(new LineBreak());
 				if (!(blocks[i] is ListItemBlock && blocks[i - 1] is ListItemBlock))
 				{
-					target.Add(new LineBreak());
+					// A full blank line between blocks looks like two; a small one gives a paragraph gap.
+					target.Add(new LineBreak { FontSize = 8 });
 				}
 			}
 
@@ -149,9 +150,29 @@ public static class CommentText
 
 	private static FontFamily GetMono() => (FontFamily)Application.Current.Resources["MzMonoFontFamily"];
 
-	// Application.Current.Resources follows the app theme, not the in-app override set on the window root.
-	private static Brush? GetBrush(FrameworkElement owner, string key) =>
-		FindThemed(Application.Current.Resources, owner.ActualTheme == ElementTheme.Dark ? "Dark" : "Light", key) as Brush;
+	private static Windows.UI.ViewManagement.AccessibilitySettings? _accessibilitySettings;
+
+	// ActualTheme follows the in-app override set on the window root; Application.Current.Resources would not.
+	// Inlines cannot take a {ThemeResource}, so the matching theme dictionary is looked up by hand.
+	private static Brush? GetBrush(FrameworkElement owner, string key)
+	{
+		var resources = Application.Current.Resources;
+		return (IsHighContrast() ? FindThemed(resources, "HighContrast", key) : null) as Brush
+			?? FindThemed(resources, owner.ActualTheme == ElementTheme.Dark ? "Dark" : "Light", key) as Brush;
+	}
+
+	private static bool IsHighContrast()
+	{
+		try
+		{
+			_accessibilitySettings ??= new();
+			return _accessibilitySettings.HighContrast;
+		}
+		catch (Exception)
+		{
+			return false;
+		}
+	}
 
 	private static object? FindThemed(ResourceDictionary dictionary, string theme, string key)
 	{
