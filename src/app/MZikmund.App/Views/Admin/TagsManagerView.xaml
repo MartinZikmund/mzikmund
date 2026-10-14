@@ -42,14 +42,17 @@
                     </Button>
                 </Grid>
 
-                <TextBox
-                    MaxWidth="480"
-                    Margin="0,0,0,16"
-                    HorizontalAlignment="Left"
-                    AutomationProperties.AutomationId="TagsSearch"
-                    AutomationProperties.Name="{xaml:Localize Key=Search}"
-                    PlaceholderText="{xaml:Localize Key=SearchTags}"
-                    Text="{x:Bind ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <Grid Margin="0,0,0,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" MaxWidth="480" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox
+                        AutomationProperties.AutomationId="TagsSearch"
+                        AutomationProperties.Name="{xaml:Localize Key=Search}"
+                        PlaceholderText="{xaml:Localize Key=SearchTags}"
+                        Text="{x:Bind ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                </Grid>
 
                 <Border
                     Padding="16"

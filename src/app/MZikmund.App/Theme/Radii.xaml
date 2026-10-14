@@ -3,7 +3,8 @@
 	<CornerRadius x:Key="MzControlCornerRadius">4</CornerRadius>
 	<CornerRadius x:Key="MzCardCornerRadius">8</CornerRadius>
 	<CornerRadius x:Key="MzLargeCornerRadius">12</CornerRadius>
-	<CornerRadius x:Key="MzPillCornerRadius">999</CornerRadius>
+	<!--  Half the pill height: XAML draws a radius beyond that as an elliptical cap, not a stadium.  -->
+	<CornerRadius x:Key="MzPillCornerRadius">14</CornerRadius>
 	<CornerRadius x:Key="MzCardTopCornerRadius">8,8,0,0</CornerRadius>
 
 	<StaticResource x:Key="ControlCornerRadius" ResourceKey="MzControlCornerRadius" />

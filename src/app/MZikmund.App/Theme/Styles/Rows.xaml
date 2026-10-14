@@ -112,17 +112,17 @@
 		</Setter>
 	</Style>
 
-	<!--  The web's tag pill: a pill chip whose border and label pick up the accent on hover.  -->
+	<!--  The web's .tag: transparent pill, strong stroke, secondary label; border and label pick up the accent on hover.  -->
 	<Style x:Key="MzTagPillButtonStyle" TargetType="Button">
-		<Setter Property="Background" Value="{ThemeResource MzCardBrush}" />
-		<Setter Property="Foreground" Value="{ThemeResource MzTextPrimaryBrush}" />
-		<Setter Property="BorderBrush" Value="{ThemeResource MzStrokeControlBrush}" />
+		<Setter Property="Background" Value="Transparent" />
+		<Setter Property="Foreground" Value="{ThemeResource MzTextSecondaryBrush}" />
+		<Setter Property="BorderBrush" Value="{ThemeResource MzStrokeControlStrongBrush}" />
 		<Setter Property="BorderThickness" Value="1" />
 		<Setter Property="Padding" Value="12,4" />
-		<Setter Property="MinHeight" Value="32" />
+		<Setter Property="MinHeight" Value="28" />
 		<Setter Property="CornerRadius" Value="{StaticResource MzPillCornerRadius}" />
 		<Setter Property="FontFamily" Value="{StaticResource MzFontFamilyMedium}" />
-		<Setter Property="FontSize" Value="14" />
+		<Setter Property="FontSize" Value="13" />
 		<Setter Property="FontWeight" Value="Medium" />
 		<Setter Property="UseSystemFocusVisuals" Value="False" />
 		<Setter Property="Template">
@@ -148,7 +148,7 @@
 							Margin="-3"
 							BorderBrush="{ThemeResource MzStrokeFocusBrush}"
 							BorderThickness="2"
-							CornerRadius="{StaticResource MzPillCornerRadius}"
+							CornerRadius="17"
 							IsHitTestVisible="False"
 							Visibility="Collapsed" />
 
