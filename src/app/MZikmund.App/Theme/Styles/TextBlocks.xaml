@@ -1,10 +1,5 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-	<!--  MzCardTitleTextStyle is NOT declared here — Task 15 already added it to Typography.xaml
-	      ahead of this task's Produces list (see that file's comment). Redeclaring the same x:Key
-	      in a second merged dictionary would silently shadow it depending on merge order, so the
-	      line-clamp this task needs was folded into the existing definition instead.  -->
-
 	<Style x:Key="MzCardExcerptTextStyle" TargetType="TextBlock" BasedOn="{StaticResource MzBodyTextStyle}">
 		<Setter Property="Foreground" Value="{ThemeResource MzTextSecondaryBrush}" />
 		<Setter Property="MaxLines" Value="3" />
@@ -17,9 +12,7 @@
 		<Setter Property="TextTrimming" Value="CharacterEllipsis" />
 	</Style>
 
-	<!--  _utilities.scss's .lead keeps BodyLarge's family/size but swaps in the relaxed (1.7)
-	      leading; BodyLarge itself carries the normal (1.5) ratio, so LineHeight must be restated:
-	      19 * 1.7 = 32.3 -> 32.  -->
+	<!--  The web's .lead: BodyLarge with the relaxed 1.7 leading.  -->
 	<Style x:Key="MzLeadTextStyle" TargetType="TextBlock" BasedOn="{StaticResource MzBodyLargeTextStyle}">
 		<Setter Property="LineHeight" Value="32" />
 		<Setter Property="Foreground" Value="{ThemeResource MzTextSecondaryBrush}" />

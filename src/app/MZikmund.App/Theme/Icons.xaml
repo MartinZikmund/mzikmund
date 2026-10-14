@@ -1,5 +1,6 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
+	<!--  Subset of Fluent System Icons; Assets/Fonts/icons.txt lists the codepoints and subset-icons.ps1 regenerates it.  -->
 	<FontFamily x:Key="MzIconFontFamily">ms-appx:///Assets/Fonts/FluentSystemIcons-Resizable.ttf#FluentSystemIcons-Resizable</FontFamily>
 
 	<x:String x:Key="MzGlyphHome">&#xEA32;</x:String>
@@ -12,18 +13,39 @@
 	<x:String x:Key="MzGlyphFolder">&#xE8EB;</x:String>
 	<x:String x:Key="MzGlyphTag">&#xF283;</x:String>
 	<x:String x:Key="MzGlyphImageMultiple">&#xEA6A;</x:String>
+	<x:String x:Key="MzGlyphImage">&#xEA52;</x:String>
 	<x:String x:Key="MzGlyphImageOff">&#xEA6E;</x:String>
+	<x:String x:Key="MzGlyphAdd">&#xE00D;</x:String>
+	<x:String x:Key="MzGlyphSave">&#xEF99;</x:String>
+	<x:String x:Key="MzGlyphDelete">&#xE66D;</x:String>
+	<x:String x:Key="MzGlyphEdit">&#xE837;</x:String>
+	<x:String x:Key="MzGlyphSearch">&#xEFD7;</x:String>
+	<x:String x:Key="MzGlyphFilter">&#xE8A7;</x:String>
+	<x:String x:Key="MzGlyphSort">&#xE14F;</x:String>
 	<x:String x:Key="MzGlyphCalendar">&#xE35E;</x:String>
+	<x:String x:Key="MzGlyphClock">&#xE508;</x:String>
+	<x:String x:Key="MzGlyphArrowLeft">&#xE115;</x:String>
+	<x:String x:Key="MzGlyphArrowUp">&#xE1A7;</x:String>
+	<x:String x:Key="MzGlyphArrowUpload">&#xE1B1;</x:String>
+	<x:String x:Key="MzGlyphArrowClockwise">&#xE0BF;</x:String>
 	<x:String x:Key="MzGlyphChevronRight">&#xE48E;</x:String>
 	<x:String x:Key="MzGlyphChevronDown">&#xE488;</x:String>
-	<x:String x:Key="MzGlyphArrowClockwise">&#xE0BF;</x:String>
-	<x:String x:Key="MzGlyphWarning">&#xF561;</x:String>
-	<x:String x:Key="MzGlyphSearch">&#xEFD7;</x:String>
+	<x:String x:Key="MzGlyphOpen">&#xECF4;</x:String>
+	<x:String x:Key="MzGlyphRss">&#xEF91;</x:String>
+	<x:String x:Key="MzGlyphWeatherSunny">&#xF597;</x:String>
+	<x:String x:Key="MzGlyphWeatherMoon">&#xF57D;</x:String>
+	<x:String x:Key="MzGlyphCircleHalfFill">&#xE49A;</x:String>
+	<x:String x:Key="MzGlyphDocumentPdf">&#xE783;</x:String>
+	<x:String x:Key="MzGlyphList">&#xF318;</x:String>
+	<x:String x:Key="MzGlyphLink">&#xEB68;</x:String>
+	<x:String x:Key="MzGlyphCheckmark">&#xE460;</x:String>
 	<x:String x:Key="MzGlyphMore">&#xEC72;</x:String>
-
-	<!-- Required by later redesign tasks; not in the original Task 12 brief. -->
-	<x:String x:Key="MzGlyphError">&#xE876;</x:String>
-	<x:String x:Key="MzGlyphImage">&#xEA52;</x:String>
+	<x:String x:Key="MzGlyphCopy">&#xE5D7;</x:String>
+	<x:String x:Key="MzGlyphPerson">&#xEDB3;</x:String>
 	<x:String x:Key="MzGlyphSignOut">&#xF08D;</x:String>
+	<x:String x:Key="MzGlyphDismiss">&#xE6D3;</x:String>
+	<x:String x:Key="MzGlyphWarning">&#xF561;</x:String>
+	<x:String x:Key="MzGlyphInfo">&#xEA88;</x:String>
+	<x:String x:Key="MzGlyphError">&#xE877;</x:String>
 
 </ResourceDictionary>

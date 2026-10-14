@@ -38,6 +38,7 @@
 			<!--  Theme-invariant: badges over photography must survive any upload.  -->
 			<SolidColorBrush x:Key="MzScrimBrush" Color="#B8000000" />
 			<SolidColorBrush x:Key="MzOnScrimTextBrush" Color="#FFFFFFFF" />
+			<SolidColorBrush x:Key="MzVideoScrimBrush" Color="#40000000" />
 
 			<!--  Fluent's ControlElevationBorderBrush: bottom edge darker than the sides.  -->
 			<LinearGradientBrush x:Key="MzControlElevationBorderBrush" StartPoint="0,0" EndPoint="0,1">
@@ -51,6 +52,11 @@
 				<GradientStop Offset="0.92" Color="#14FFFFFF" />
 				<GradientStop Offset="0.92" Color="#24000000" />
 				<GradientStop Offset="1.0" Color="#24000000" />
+			</LinearGradientBrush>
+
+			<LinearGradientBrush x:Key="MzHeroGlowBrush" StartPoint="1,0" EndPoint="0.45,0.8">
+				<GradientStop Offset="0.0" Color="#260078D4" />
+				<GradientStop Offset="1.0" Color="#000078D4" />
 			</LinearGradientBrush>
 
 			<LinearGradientBrush x:Key="MzCardMediaEmptyBrush" StartPoint="0,0" EndPoint="1,1">
@@ -104,7 +110,7 @@
 			<StaticResource x:Key="AccentButtonBorderBrush" ResourceKey="MzAccentControlElevationBorderBrush" />
 		</ResourceDictionary>
 
-		<ResourceDictionary x:Key="Default">
+		<ResourceDictionary x:Key="Dark">
 			<Color x:Key="MzAcrylicTintColor">#2C2C2C</Color>
 
 			<SolidColorBrush x:Key="MzBgBaseBrush" Color="#FF202020" />
@@ -140,6 +146,7 @@
 
 			<SolidColorBrush x:Key="MzScrimBrush" Color="#B8000000" />
 			<SolidColorBrush x:Key="MzOnScrimTextBrush" Color="#FFFFFFFF" />
+			<SolidColorBrush x:Key="MzVideoScrimBrush" Color="#40000000" />
 
 			<LinearGradientBrush x:Key="MzControlElevationBorderBrush" StartPoint="0,0" EndPoint="0,1">
 				<GradientStop Offset="0.0" Color="#12FFFFFF" />
@@ -152,6 +159,11 @@
 				<GradientStop Offset="0.92" Color="#14FFFFFF" />
 				<GradientStop Offset="0.92" Color="#24000000" />
 				<GradientStop Offset="1.0" Color="#24000000" />
+			</LinearGradientBrush>
+
+			<LinearGradientBrush x:Key="MzHeroGlowBrush" StartPoint="1,0" EndPoint="0.45,0.8">
+				<GradientStop Offset="0.0" Color="#3376B9ED" />
+				<GradientStop Offset="1.0" Color="#0076B9ED" />
 			</LinearGradientBrush>
 
 			<LinearGradientBrush x:Key="MzCardMediaEmptyBrush" StartPoint="0,0" EndPoint="1,1">
@@ -206,45 +218,46 @@
 		</ResourceDictionary>
 
 		<ResourceDictionary x:Key="HighContrast">
-			<!--  Corrected from a hardcoded #FFFFFF in the brief: HC permits only the 8 system colours, no hardcoded values.  -->
 			<StaticResource x:Key="MzAcrylicTintColor" ResourceKey="SystemColorWindowColor" />
 
-			<SolidColorBrush x:Key="MzBgBaseBrush" Color="{StaticResource SystemColorWindowColor}" />
-			<SolidColorBrush x:Key="MzBgSecondaryBrush" Color="{StaticResource SystemColorWindowColor}" />
-			<SolidColorBrush x:Key="MzBgTertiaryBrush" Color="{StaticResource SystemColorWindowColor}" />
-			<SolidColorBrush x:Key="MzBgElevatedBrush" Color="{StaticResource SystemColorWindowColor}" />
-			<SolidColorBrush x:Key="MzLayerBrush" Color="{StaticResource SystemColorWindowColor}" />
-			<SolidColorBrush x:Key="MzCardBrush" Color="{StaticResource SystemColorWindowColor}" />
-			<SolidColorBrush x:Key="MzCardSecondaryBrush" Color="{StaticResource SystemColorWindowColor}" />
+			<StaticResource x:Key="MzBgBaseBrush" ResourceKey="SystemColorWindowColorBrush" />
+			<StaticResource x:Key="MzBgSecondaryBrush" ResourceKey="SystemColorWindowColorBrush" />
+			<StaticResource x:Key="MzBgTertiaryBrush" ResourceKey="SystemColorWindowColorBrush" />
+			<StaticResource x:Key="MzBgElevatedBrush" ResourceKey="SystemColorWindowColorBrush" />
+			<StaticResource x:Key="MzLayerBrush" ResourceKey="SystemColorWindowColorBrush" />
+			<StaticResource x:Key="MzCardBrush" ResourceKey="SystemColorWindowColorBrush" />
+			<StaticResource x:Key="MzCardSecondaryBrush" ResourceKey="SystemColorWindowColorBrush" />
 
-			<SolidColorBrush x:Key="MzTextPrimaryBrush" Color="{StaticResource SystemColorWindowTextColor}" />
-			<SolidColorBrush x:Key="MzTextSecondaryBrush" Color="{StaticResource SystemColorWindowTextColor}" />
-			<SolidColorBrush x:Key="MzTextTertiaryBrush" Color="{StaticResource SystemColorGrayTextColor}" />
-			<SolidColorBrush x:Key="MzTextDisabledBrush" Color="{StaticResource SystemColorGrayTextColor}" />
-			<SolidColorBrush x:Key="MzTextOnAccentBrush" Color="{StaticResource SystemColorHighlightTextColor}" />
-			<SolidColorBrush x:Key="MzTextOnAccentPressedBrush" Color="{StaticResource SystemColorHighlightTextColor}" />
+			<StaticResource x:Key="MzTextPrimaryBrush" ResourceKey="SystemColorWindowTextColorBrush" />
+			<StaticResource x:Key="MzTextSecondaryBrush" ResourceKey="SystemColorWindowTextColorBrush" />
+			<StaticResource x:Key="MzTextTertiaryBrush" ResourceKey="SystemColorGrayTextColorBrush" />
+			<StaticResource x:Key="MzTextDisabledBrush" ResourceKey="SystemColorGrayTextColorBrush" />
+			<StaticResource x:Key="MzTextOnAccentBrush" ResourceKey="SystemColorHighlightTextColorBrush" />
+			<StaticResource x:Key="MzTextOnAccentPressedBrush" ResourceKey="SystemColorHighlightTextColorBrush" />
 
-			<SolidColorBrush x:Key="MzStrokeCardBrush" Color="{StaticResource SystemColorWindowTextColor}" />
-			<SolidColorBrush x:Key="MzStrokeControlBrush" Color="{StaticResource SystemColorWindowTextColor}" />
-			<SolidColorBrush x:Key="MzStrokeControlStrongBrush" Color="{StaticResource SystemColorWindowTextColor}" />
-			<SolidColorBrush x:Key="MzStrokeDividerBrush" Color="{StaticResource SystemColorWindowTextColor}" />
-			<SolidColorBrush x:Key="MzStrokeFocusBrush" Color="{StaticResource SystemColorWindowTextColor}" />
-			<SolidColorBrush x:Key="MzStrokeFocusInnerBrush" Color="{StaticResource SystemColorWindowColor}" />
+			<StaticResource x:Key="MzStrokeCardBrush" ResourceKey="SystemColorWindowTextColorBrush" />
+			<StaticResource x:Key="MzStrokeControlBrush" ResourceKey="SystemColorWindowTextColorBrush" />
+			<StaticResource x:Key="MzStrokeControlStrongBrush" ResourceKey="SystemColorWindowTextColorBrush" />
+			<StaticResource x:Key="MzStrokeDividerBrush" ResourceKey="SystemColorWindowTextColorBrush" />
+			<StaticResource x:Key="MzStrokeFocusBrush" ResourceKey="SystemColorWindowTextColorBrush" />
+			<StaticResource x:Key="MzStrokeFocusInnerBrush" ResourceKey="SystemColorWindowColorBrush" />
 
-			<SolidColorBrush x:Key="MzAccentTextBrush" Color="{StaticResource SystemColorHotlightColor}" />
-			<SolidColorBrush x:Key="MzAccentFillBrush" Color="{StaticResource SystemColorHighlightColor}" />
-			<SolidColorBrush x:Key="MzAccentFillHoverBrush" Color="{StaticResource SystemColorHighlightColor}" />
-			<SolidColorBrush x:Key="MzAccentFillActiveBrush" Color="{StaticResource SystemColorHighlightColor}" />
-			<SolidColorBrush x:Key="MzAccentSubtleBrush" Color="{StaticResource SystemColorWindowColor}" />
-			<SolidColorBrush x:Key="MzAccentSubtleStrongBrush" Color="{StaticResource SystemColorWindowColor}" />
-			<SolidColorBrush x:Key="MzShimmerBrush" Color="{StaticResource SystemColorWindowColor}" />
+			<StaticResource x:Key="MzAccentTextBrush" ResourceKey="SystemColorHotlightColorBrush" />
+			<StaticResource x:Key="MzAccentFillBrush" ResourceKey="SystemColorHighlightColorBrush" />
+			<StaticResource x:Key="MzAccentFillHoverBrush" ResourceKey="SystemColorHighlightColorBrush" />
+			<StaticResource x:Key="MzAccentFillActiveBrush" ResourceKey="SystemColorHighlightColorBrush" />
+			<StaticResource x:Key="MzAccentSubtleBrush" ResourceKey="SystemColorWindowColorBrush" />
+			<StaticResource x:Key="MzAccentSubtleStrongBrush" ResourceKey="SystemColorWindowColorBrush" />
+			<StaticResource x:Key="MzShimmerBrush" ResourceKey="SystemColorWindowColorBrush" />
 
-			<SolidColorBrush x:Key="MzScrimBrush" Color="{StaticResource SystemColorWindowColor}" />
-			<SolidColorBrush x:Key="MzOnScrimTextBrush" Color="{StaticResource SystemColorWindowTextColor}" />
+			<StaticResource x:Key="MzScrimBrush" ResourceKey="SystemColorWindowColorBrush" />
+			<StaticResource x:Key="MzOnScrimTextBrush" ResourceKey="SystemColorWindowTextColorBrush" />
+			<SolidColorBrush x:Key="MzVideoScrimBrush" Color="Transparent" />
 
-			<SolidColorBrush x:Key="MzControlElevationBorderBrush" Color="{StaticResource SystemColorWindowTextColor}" />
-			<SolidColorBrush x:Key="MzAccentControlElevationBorderBrush" Color="{StaticResource SystemColorWindowTextColor}" />
-			<SolidColorBrush x:Key="MzCardMediaEmptyBrush" Color="{StaticResource SystemColorWindowColor}" />
+			<StaticResource x:Key="MzControlElevationBorderBrush" ResourceKey="SystemColorWindowTextColorBrush" />
+			<StaticResource x:Key="MzAccentControlElevationBorderBrush" ResourceKey="SystemColorWindowTextColorBrush" />
+			<StaticResource x:Key="MzCardMediaEmptyBrush" ResourceKey="SystemColorWindowColorBrush" />
+			<StaticResource x:Key="MzHeroGlowBrush" ResourceKey="SystemColorWindowColorBrush" />
 
 			<!--  SystemAccentColor* is redirected theme-invariantly at the root (below) so no stock style
 			      can pull in the personalization accent. Without an override here that hardcoded ramp
@@ -279,7 +292,7 @@
 	<StaticResource x:Key="SystemAccentColorDark2" ResourceKey="MzAccentDark2" />
 	<StaticResource x:Key="SystemAccentColorDark3" ResourceKey="MzAccentDark3" />
 
-	<!--  Kept: Resources/ColorResoruces.cs reads this key by name.  -->
+	<!--  Resources/ColorResoruces.cs reads this key by name.  -->
 	<StaticResource x:Key="BrandColor" ResourceKey="MzAccent" />
 	<SolidColorBrush x:Key="BrandBrush" Color="{StaticResource MzAccent}" />
 

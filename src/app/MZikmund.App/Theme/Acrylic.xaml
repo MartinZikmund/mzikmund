@@ -12,7 +12,7 @@
 				TintOpacity="0.85" />
 		</ResourceDictionary>
 
-		<ResourceDictionary x:Key="Default">
+		<ResourceDictionary x:Key="Dark">
 			<AcrylicBrush
 				x:Key="MzAcrylicBrush"
 				AlwaysUseFallback="False"
@@ -22,7 +22,7 @@
 		</ResourceDictionary>
 
 		<ResourceDictionary x:Key="HighContrast">
-			<SolidColorBrush x:Key="MzAcrylicBrush" Color="{ThemeResource MzAcrylicTintColor}" />
+			<StaticResource x:Key="MzAcrylicBrush" ResourceKey="SystemColorWindowColorBrush" />
 		</ResourceDictionary>
 
 	</ResourceDictionary.ThemeDictionaries>

@@ -1,11 +1,6 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-	<!--  Fluent presses a control down rather than scaling it: TranslateY = 1 at MzDurationInstant
-	      (0ms). {StaticResource MzDurationInstant} resolves fine here even though it's typed as
-	      x:String — Cards.xaml proves the same token flows into Duration/KeySpline/KeyTime. Object
-	      AnimationUsingKeyFrames is unconditionally independent regardless of duration, so the brush
-	      swaps below need no EnableDependentAnimation — only true for genuinely dependent Double/Color
-	      animations on non-GPU properties (Width, Height, Margin), which none of these are.  -->
+	<!--  Fluent presses a control down (TranslateY 1, instantly) rather than scaling it.  -->
 
 	<Style x:Key="MzStandardButtonStyle" TargetType="Button">
 		<Setter Property="Background" Value="{ThemeResource MzCardBrush}" />
@@ -110,14 +105,7 @@
 		</Setter>
 	</Style>
 
-	<!--  Reproduces Fluent's ControlElevationBorderBrush by reusing MzAccentControlElevationBorderBrush
-	      (Colors.xaml) as-is: it already encodes the website's box-shadow pair — inset 0 -1px black14%
-	      on the bottom, inset 0 1px white8% on top — as a single vertical LinearGradientBrush. Press
-	      removes it by swapping BorderBrush to the flat active fill, which is this style's translation
-	      of the website's ":active { box-shadow: none; }".
-	      Dark-theme hover/pressed flips the foreground to black: white on the dark theme's hover/active
-	      fills is 2.96:1 / fails AA. MzTextOnAccentPressedBrush is white in Light and black in Dark, so
-	      this one brush swap is theme-correct without an explicit theme check.  -->
+	<!--  Dark hover/pressed fills are light, so the foreground flips to black there (white fails AA).  -->
 	<Style x:Key="MzAccentButtonStyle" TargetType="Button" BasedOn="{StaticResource MzStandardButtonStyle}">
 		<Setter Property="Background" Value="{ThemeResource MzAccentFillBrush}" />
 		<Setter Property="Foreground" Value="{ThemeResource MzTextOnAccentBrush}" />
@@ -301,16 +289,7 @@
 		</Setter>
 	</Style>
 
-	<!--  Corrected from the brief: a plain two-Setter BasedOn="{StaticResource MzSubtleButtonStyle}"
-	      (no Template override) would inherit Subtle's ControlTemplate as-is, whose PointerOver/Pressed
-	      Storyboards hard-code ButtonFill.Background to MzShimmerBrush and, on Pressed, ButtonContent's
-	      Foreground to MzTextSecondaryBrush — those values are baked into the template's Storyboards,
-	      not bound back to this Style's Background/Foreground Setters. The result would be a gray
-	      "read more" button that ignores its own accent tint on hover/press. _controls.scss's
-	      accent-subtle button hover swaps to mz-accent-subtle-strong and never changes the text color,
-	      so this variant needs its own template with that hover fill and a foreground that stays
-	      MzAccentTextBrush throughout (Pressed reuses the hover fill, matching :hover and :active
-	      applying together on a pointer device, since the site defines no separate :active rule).  -->
+	<!--  Own template: Subtle's storyboards hard-code a grey hover fill and would drop the accent tint.  -->
 	<Style x:Key="MzAccentSubtleButtonStyle" TargetType="Button" BasedOn="{StaticResource MzSubtleButtonStyle}">
 		<Setter Property="Background" Value="{ThemeResource MzAccentSubtleBrush}" />
 		<Setter Property="Foreground" Value="{ThemeResource MzAccentTextBrush}" />
@@ -397,9 +376,6 @@
 		</Setter>
 	</Style>
 
-	<!--  Size variants only restate Padding/MinHeight/FontSize — FontFamily and FontWeight stay
-	      whatever the BasedOn chain already set on the base style, so they're never touched in
-	      isolation.  -->
 	<Style x:Key="MzStandardButtonSmallStyle" TargetType="Button" BasedOn="{StaticResource MzStandardButtonStyle}">
 		<Setter Property="Padding" Value="{StaticResource MzButtonSmallPadding}" />
 		<Setter Property="MinHeight" Value="28" />

@@ -61,6 +61,17 @@
 											</Image.RenderTransform>
 										</Image>
 
+										<Grid
+											Background="{ThemeResource MzVideoScrimBrush}"
+											IsHitTestVisible="False"
+											Visibility="{Binding IsVideo, Converter={StaticResource BoolToVisibilityConverter}}">
+											<FontIcon
+												FontFamily="{StaticResource MzIconFontFamily}"
+												FontSize="48"
+												Foreground="{ThemeResource MzOnScrimTextBrush}"
+												Glyph="{StaticResource MzGlyphPlayCircle}" />
+										</Grid>
+
 										<!--  Over a photo the badge carries its own scrim; over the tinted placeholder it does not.  -->
 										<ItemsControl
 											Margin="12"
@@ -101,10 +112,7 @@
 									</Grid>
 								</Border>
 
-								<!--  .card__body puts the meta row above the title. The title and the excerpt reserve
-								      their clamped height (2 and 3 lines of 26), so every card measures to the same
-								      height: UniformGridLayout gives every row the height of the item it realizes
-								      first, and a shorter first card would crop all the others.  -->
+								<!--  Title and excerpt reserve their clamped height so every card measures alike; UniformGridLayout sizes rows from the first realized item.  -->
 								<StackPanel
 									Grid.Row="1"
 									Padding="{StaticResource MzCardPadding}"

@@ -28,6 +28,8 @@
                 <ResourceDictionary Source="ms-appx:///Theme/Styles/Cards.xaml" />
                 <ResourceDictionary Source="ms-appx:///Theme/Styles/EmptyState.xaml" />
                 <ResourceDictionary Source="ms-appx:///Theme/Styles/Layout.xaml" />
+                <ResourceDictionary Source="ms-appx:///Theme/Styles/Rows.xaml" />
+                <ResourceDictionary Source="ms-appx:///Theme/Styles/Settings.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

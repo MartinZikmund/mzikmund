@@ -1,0 +1,73 @@
+<ResourceDictionary
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:controls="using:MZikmund.Controls">
+
+	<Style TargetType="controls:MzSettingsCard">
+		<Setter Property="Background" Value="{ThemeResource MzCardBrush}" />
+		<Setter Property="BorderBrush" Value="{ThemeResource MzStrokeCardBrush}" />
+		<Setter Property="BorderThickness" Value="1" />
+		<Setter Property="CornerRadius" Value="{StaticResource MzCardCornerRadius}" />
+		<Setter Property="Padding" Value="16,12" />
+		<Setter Property="MinHeight" Value="68" />
+		<Setter Property="HorizontalAlignment" Value="Stretch" />
+		<Setter Property="HorizontalContentAlignment" Value="Right" />
+		<Setter Property="VerticalContentAlignment" Value="Center" />
+		<Setter Property="IsTabStop" Value="False" />
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="controls:MzSettingsCard">
+					<Border
+						MinHeight="{TemplateBinding MinHeight}"
+						Padding="{TemplateBinding Padding}"
+						Background="{TemplateBinding Background}"
+						BorderBrush="{TemplateBinding BorderBrush}"
+						BorderThickness="{TemplateBinding BorderThickness}"
+						CornerRadius="{TemplateBinding CornerRadius}">
+						<Grid ColumnSpacing="16">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="Auto" />
+								<ColumnDefinition Width="*" />
+								<ColumnDefinition Width="Auto" />
+							</Grid.ColumnDefinitions>
+							<FontIcon
+								VerticalAlignment="Center"
+								FontFamily="{StaticResource MzIconFontFamily}"
+								FontSize="20"
+								Foreground="{ThemeResource MzTextPrimaryBrush}"
+								Glyph="{TemplateBinding Glyph}" />
+							<StackPanel
+								Grid.Column="1"
+								VerticalAlignment="Center"
+								Spacing="2">
+								<TextBlock
+									FontSize="15"
+									Foreground="{ThemeResource MzTextPrimaryBrush}"
+									Text="{TemplateBinding Header}"
+									TextWrapping="Wrap" />
+								<TextBlock
+									FontSize="13"
+									Foreground="{ThemeResource MzTextSecondaryBrush}"
+									Text="{TemplateBinding Description}"
+									TextWrapping="Wrap" />
+							</StackPanel>
+							<ContentPresenter
+								Grid.Column="2"
+								HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+								VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+								Content="{TemplateBinding Content}"
+								ContentTemplate="{TemplateBinding ContentTemplate}" />
+						</Grid>
+					</Border>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+
+	<Style x:Key="MzSettingsSectionHeaderTextStyle" TargetType="TextBlock" BasedOn="{StaticResource MzBodyTextStyle}">
+		<Setter Property="FontFamily" Value="{StaticResource MzFontFamilySemiBold}" />
+		<Setter Property="FontWeight" Value="SemiBold" />
+		<Setter Property="Margin" Value="0,24,0,8" />
+	</Style>
+
+</ResourceDictionary>
