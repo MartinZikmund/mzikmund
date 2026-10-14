@@ -45,6 +45,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 	services.AddSingleton<IConnectionStringProvider, ConnectionStringProvider>();
 	services.AddSingleton<IMarkdownConverter, MarkdownConverter>();
 	services.AddSingleton<IPostContentProcessor, PostContentProcessor>();
+	services.AddSingleton<ICommentContentRenderer, CommentContentRenderer>();
 	services.AddSingleton<IBlobUrlProvider, BlobUrlProvider>();
 	services.AddSingleton<IFeedGenerator, FeedGenerator>();
 	services.AddScoped<ISyndicationDataSource, SyndicationDataSource>();
