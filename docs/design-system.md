@@ -229,7 +229,9 @@ Sizes: `.icon` (1em), `.icon--lg` (1.25em). Available ids: `i-github`,
 `i-arrow-left`, `i-arrow-up`, `i-inbox`, `i-circle-half`, `i-sun`,
 `i-moon-stars`, `i-play-circle`, `i-play-fill`, `i-file-earmark-pdf`, `i-list`,
 `i-link-45deg`, `i-check-lg`, `i-image`, `i-rss`, `i-tag`, `i-folder2-open`,
-`i-chevron-right`.
+`i-chevron-right`, `i-chat-left-text`, `i-hand-thumbs-up`,
+`i-hand-thumbs-up-fill`, `i-reply`, `i-flag`, `i-trash3`, `i-person-circle`,
+`i-google`, `i-apple`, `i-envelope`, `i-x-lg`, `i-pencil`.
 
 To add one: edit the `ICONS` array in `Scripts/build-assets.mjs`, run
 `npm run build:assets`, and **commit the regenerated sprite**.
