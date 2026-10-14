@@ -39,8 +39,9 @@ export class CommentTurnstile {
 		// callback to define before an async script can call it.
 		const script = document.createElement("script");
 		script.src = ScriptUrl;
-		script.async = true;
-		script.addEventListener("load", () => turnstile.ready(draw));
+		// Not async/defer: Cloudflare only allows turnstile.ready() on a synchronously loaded tag,
+		// and an explicit render() after `load` needs no ready() at all.
+		script.addEventListener("load", draw);
 		document.head.appendChild(script);
 	}
 
