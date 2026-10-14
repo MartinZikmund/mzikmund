@@ -22,8 +22,8 @@ dotnet build
 ```bash
 cd src/web/MZikmund.Web
 npm install   # Required first time for frontend dependencies
-dotnet run
-# Accessible at https://localhost:5001
+dotnet run --launch-profile https
+# Accessible at https://localhost:7007
 ```
 
 ### Run Uno Platform App
@@ -47,7 +47,7 @@ dotnet test
 ```
 
 ### Verifying Web App Changes
-After making changes to the web application, run the app locally and use the Playwright MCP to verify the changes visually in the browser (navigate to `https://localhost:5001`, take snapshots/screenshots, and confirm the UI renders correctly).
+After making changes to the web application, run the app locally and use the Playwright MCP to verify the changes visually in the browser (navigate to `https://localhost:7007`, take snapshots/screenshots, and confirm the UI renders correctly).
 
 ### Database Migrations
 ```bash
