@@ -104,7 +104,15 @@ internal static class CommentProjection
 	/// <param name="comment">Entity with its <see cref="CommentEntity.Author"/> navigation loaded.</param>
 	/// <param name="currentAuthorId">Author the flags are resolved for, or <c>null</c> when anonymous.</param>
 	/// <param name="includeReplies">When <c>false</c>, <see cref="CommentDto.Replies"/> is empty.</param>
-	public static CommentDto ToDto(CommentEntity comment, Guid? currentAuthorId, bool includeReplies) => new()
+	/// <param name="includeModeratedContent">
+	/// When <c>true</c> (moderation surfaces only), the text of hidden comments is kept so moderators
+	/// can read what they moderate. Author-deleted comments stay blank regardless.
+	/// </param>
+	public static CommentDto ToDto(
+		CommentEntity comment,
+		Guid? currentAuthorId,
+		bool includeReplies,
+		bool includeModeratedContent = false) => new()
 	{
 		Id = comment.Id,
 		PostId = comment.PostId,
@@ -112,8 +120,8 @@ internal static class CommentProjection
 		AuthorDisplayName = comment.Author.DisplayName,
 		AuthorAvatarUrl = comment.Author.AvatarUrl,
 		MentionedDisplayName = comment.MentionedDisplayName,
-		Content = comment.Status == DataCommentStatus.Visible ? comment.Content : "",
-		ContentHtml = comment.Status == DataCommentStatus.Visible ? comment.ContentHtml : "",
+		Content = ShowsContent(comment.Status, includeModeratedContent) ? comment.Content : "",
+		ContentHtml = ShowsContent(comment.Status, includeModeratedContent) ? comment.ContentHtml : "",
 		Status = MapStatus(comment.Status),
 		CreatedOn = comment.CreatedOn,
 		EditedOn = comment.EditedOn,
@@ -130,6 +138,10 @@ internal static class CommentProjection
 				.ToArray()
 			: Array.Empty<CommentDto>(),
 	};
+
+	private static bool ShowsContent(DataCommentStatus status, bool includeModeratedContent) =>
+		status == DataCommentStatus.Visible
+		|| (includeModeratedContent && status == DataCommentStatus.HiddenByModerator);
 
 	private static DtoCommentStatus MapStatus(DataCommentStatus status) => status switch
 	{
