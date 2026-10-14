@@ -91,6 +91,29 @@ public class AuthoredRequestBehaviorTests : IDisposable
 		Assert.Equal(Now.UtcDateTime, author.LastSeenOn);
 	}
 
+	[Theory]
+	[InlineData(true)]
+	[InlineData(false)]
+	public async Task Handle_PersistsTheAdminFlagFromTheCaller(bool isAdmin)
+	{
+		// Arrange
+		await SeedAuthorAsync(isBanned: false);
+		_mockCurrentUserAccessor
+			.Setup(a => a.Current)
+			.Returns(new CommentAuthorInfo(AuthorId, "Martin", null, "martin@example.com", isAdmin));
+
+		using var context = _fixture.CreateContext();
+		var behavior = CreateBehavior(context);
+
+		// Act
+		await behavior.Handle(new TestAuthoredRequest("payload"), _ => Task.FromResult("handled"), CancellationToken.None);
+
+		// Assert
+		using var assertContext = _fixture.CreateContext();
+		var author = await assertContext.CommentAuthor.SingleAsync(a => a.Id == AuthorId, CancellationToken.None);
+		Assert.Equal(isAdmin, author.IsAdmin);
+	}
+
 	[Fact]
 	public async Task Handle_WhenAuthorExists_RefreshesProfileAndLastSeen()
 	{

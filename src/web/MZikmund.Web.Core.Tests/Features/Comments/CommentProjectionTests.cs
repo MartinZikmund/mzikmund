@@ -151,7 +151,7 @@ public class CommentProjectionTests : IClassFixture<CommentsDbFixture>
 			ParentId: null,
 			AuthorDisplayName: "Homer",
 			AuthorAvatarUrl: "https://example.com/avatar.png",
-			AuthorIsAdmin: false,
+			AuthorIsAdmin: true,
 			MentionedDisplayName: "Lisa",
 			Content: "d'oh",
 			ContentHtml: "<p>d'oh</p>",
@@ -172,6 +172,7 @@ public class CommentProjectionTests : IClassFixture<CommentsDbFixture>
 		Assert.Null(dto.ParentId);
 		Assert.Equal("Homer", dto.AuthorDisplayName);
 		Assert.Equal("https://example.com/avatar.png", dto.AuthorAvatarUrl);
+		Assert.True(dto.AuthorIsAdmin);
 		Assert.Equal("Lisa", dto.MentionedDisplayName);
 		Assert.Equal("d'oh", dto.Content);
 		Assert.Equal("<p>d'oh</p>", dto.ContentHtml);
