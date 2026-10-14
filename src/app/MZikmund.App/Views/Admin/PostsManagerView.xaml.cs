@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using Microsoft.UI.Xaml.Media.Imaging;
 using MZikmund.DataContracts.Blog;
 using MZikmund.Services.Localization;
 using MZikmund.ViewModels.Admin;
@@ -33,6 +34,12 @@ public sealed partial class PostsManagerView : PostsManagerViewBase
 
 	public static string FormatDate(DateTimeOffset? publishedDate, DateTimeOffset? lastModifiedDate) =>
 		(publishedDate ?? lastModifiedDate)?.ToLocalTime().ToString("d", CultureInfo.CurrentCulture) ?? "";
+
+	// Decoded at thumbnail size; the rows are virtualized, so only visible heroes are fetched.
+	public static ImageSource? ToThumbnail(string? heroImageUrl) =>
+		Uri.TryCreate(heroImageUrl, UriKind.Absolute, out var uri) ?
+			new BitmapImage(uri) { DecodePixelWidth = 192, DecodePixelType = DecodePixelType.Logical } :
+			null;
 
 	public static bool Any(bool first, bool second) => first || second;
 

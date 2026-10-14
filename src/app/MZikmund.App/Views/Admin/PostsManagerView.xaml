@@ -78,19 +78,33 @@
                                     Tag="{x:Bind}">
                                     <Grid ColumnSpacing="16">
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" MinWidth="0" />
+                                            <ColumnDefinition Width="Auto" />
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
-                                        <ContentControl
-                                            VerticalAlignment="Center"
-                                            Content="{x:Bind local:PostsManagerView.StatusText(IsPublished)}"
-                                            Style="{x:Bind local:PostsManagerView.StatusStyle(IsPublished)}"
-                                            Visibility="{x:Bind local:PostsManagerView.HasStatus(IsPublished)}" />
+                                        <!--  16:9 hero thumbnail, the same media ratio as the blog cards.  -->
+                                        <Border
+                                            Width="96"
+                                            Height="54"
+                                            Background="{ThemeResource MzCardMediaEmptyBrush}"
+                                            CornerRadius="{StaticResource MzControlCornerRadius}">
+                                            <Grid>
+                                                <FontIcon
+                                                    FontFamily="{StaticResource MzIconFontFamily}"
+                                                    FontSize="16"
+                                                    Foreground="{ThemeResource MzTextTertiaryBrush}"
+                                                    Glyph="{StaticResource MzGlyphImageOff}" />
+                                                <Image Source="{x:Bind local:PostsManagerView.ToThumbnail(HeroImageUrl)}" Stretch="UniformToFill" />
+                                            </Grid>
+                                        </Border>
                                         <StackPanel
                                             Grid.Column="1"
                                             VerticalAlignment="Center"
-                                            Spacing="2">
+                                            Spacing="4">
+                                            <ContentControl
+                                                Content="{x:Bind local:PostsManagerView.StatusText(IsPublished)}"
+                                                Style="{x:Bind local:PostsManagerView.StatusStyle(IsPublished)}"
+                                                Visibility="{x:Bind local:PostsManagerView.HasStatus(IsPublished)}" />
                                             <TextBlock Style="{StaticResource MzRowTitleTextStyle}" Text="{x:Bind Title}" />
                                             <TextBlock Style="{StaticResource MzMetaTextStyle}" Text="{x:Bind local:PostsManagerView.FormatSubtitle(RouteName, Categories)}" />
                                         </StackPanel>
