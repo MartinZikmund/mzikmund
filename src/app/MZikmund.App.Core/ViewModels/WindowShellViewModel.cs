@@ -14,10 +14,12 @@ public partial class WindowShellViewModel : ViewModelBase
 	private readonly INavigationService _navigationService;
 	private readonly IUserService _userService;
 	private readonly IDialogService _dialogService;
+	private readonly ISignInPrompt _signInPrompt;
 	private RefCountDisposable? _refCountDisposable;
 
-	public WindowShellViewModel(IWindowShellProvider provider, INavigationService navigationService, IUserService userService, IDialogService dialogService)
+	public WindowShellViewModel(IWindowShellProvider provider, INavigationService navigationService, IUserService userService, IDialogService dialogService, ISignInPrompt signInPrompt)
 	{
+		_signInPrompt = signInPrompt ?? throw new ArgumentNullException(nameof(signInPrompt));
 		_dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
 		_provider = provider ?? throw new ArgumentNullException(nameof(provider));
 		_navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
@@ -45,12 +47,15 @@ public partial class WindowShellViewModel : ViewModelBase
 	[ObservableProperty]
 	public partial bool IsLoggedIn { get; set; }
 
+	[ObservableProperty]
+	public partial bool IsAdmin { get; set; }
+
 	[RelayCommand]
 	private async Task LoginAsync()
 	{
 		try
 		{
-			await _userService.AuthenticateAsync();
+			await _signInPrompt.EnsureSignedInAsync();
 		}
 		catch (AuthenticationFailedException ex)
 		{
@@ -88,6 +93,7 @@ public partial class WindowShellViewModel : ViewModelBase
 	private void UpdateAuthenticationState()
 	{
 		IsLoggedIn = _userService.IsLoggedIn;
+		IsAdmin = _userService.IsAdmin;
 		UserName = _userService.UserName;
 	}
 

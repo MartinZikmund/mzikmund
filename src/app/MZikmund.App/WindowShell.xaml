@@ -79,7 +79,7 @@
                     Content="{extensions:Localize Key=Admin}"
                     Icon="{extensions:MzFontIcon GlyphKey=MzGlyphShield}"
                     SelectsOnInvoked="False"
-                    Visibility="{x:Bind ViewModel.IsLoggedIn, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                     <mux:NavigationViewItem.MenuItems>
                         <mux:NavigationViewItem
                             AutomationProperties.AutomationId="NavAdminPosts"

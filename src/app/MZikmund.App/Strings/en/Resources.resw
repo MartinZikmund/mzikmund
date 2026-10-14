@@ -462,4 +462,40 @@
   <data name="PickCategories" xml:space="preserve">
     <value>Pick categories</value>
   </data>
+  <data name="SignInTitle" xml:space="preserve">
+    <value>Sign in</value>
+  </data>
+  <data name="SignInWithGoogle" xml:space="preserve">
+    <value>Continue with Google</value>
+  </data>
+  <data name="SignInWithApple" xml:space="preserve">
+    <value>Continue with Apple</value>
+  </data>
+  <data name="SignInWithEmail" xml:space="preserve">
+    <value>Continue with email</value>
+  </data>
+  <data name="SignInPrivacyNote" xml:space="preserve">
+    <value>Your account is only used to sign you in.</value>
+  </data>
+  <data name="PrivacyPolicy" xml:space="preserve">
+    <value>Privacy policy</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="SendCode" xml:space="preserve">
+    <value>Send code</value>
+  </data>
+  <data name="SignInCode" xml:space="preserve">
+    <value>6-digit code</value>
+  </data>
+  <data name="SignInCodePromptFormat" xml:space="preserve">
+    <value>We sent a 6-digit code to {0}.</value>
+  </data>
+  <data name="Verify" xml:space="preserve">
+    <value>Verify</value>
+  </data>
+  <data name="UseDifferentEmail" xml:space="preserve">
+    <value>Use a different email</value>
+  </data>
 </root>

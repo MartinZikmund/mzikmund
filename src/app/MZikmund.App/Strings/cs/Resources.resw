@@ -462,4 +462,40 @@
   <data name="PickCategories" xml:space="preserve">
     <value>Vybrat kategorie</value>
   </data>
+  <data name="SignInTitle" xml:space="preserve">
+    <value>Přihlášení</value>
+  </data>
+  <data name="SignInWithGoogle" xml:space="preserve">
+    <value>Pokračovat přes Google</value>
+  </data>
+  <data name="SignInWithApple" xml:space="preserve">
+    <value>Pokračovat přes Apple</value>
+  </data>
+  <data name="SignInWithEmail" xml:space="preserve">
+    <value>Pokračovat e-mailem</value>
+  </data>
+  <data name="SignInPrivacyNote" xml:space="preserve">
+    <value>Účet slouží jen k přihlášení.</value>
+  </data>
+  <data name="PrivacyPolicy" xml:space="preserve">
+    <value>Zásady ochrany soukromí</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>E-mail</value>
+  </data>
+  <data name="SendCode" xml:space="preserve">
+    <value>Poslat kód</value>
+  </data>
+  <data name="SignInCode" xml:space="preserve">
+    <value>6místný kód</value>
+  </data>
+  <data name="SignInCodePromptFormat" xml:space="preserve">
+    <value>We sent a 6místný kód to {0}.</value>
+  </data>
+  <data name="Verify" xml:space="preserve">
+    <value>Ověřit</value>
+  </data>
+  <data name="UseDifferentEmail" xml:space="preserve">
+    <value>Použít jiný e-mail</value>
+  </data>
 </root>
