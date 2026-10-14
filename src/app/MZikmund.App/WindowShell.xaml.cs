@@ -83,6 +83,11 @@ public sealed partial class WindowShell : Page, IWindowShell
 			return;
 		}
 
+		if (args.InvokedItemContainer == NavAdminItem)
+		{
+			ViewModel.RefreshCommentsBadge();
+		}
+
 		switch ((args.InvokedItemContainer as FrameworkElement)?.Tag as string)
 		{
 			case "Home":
@@ -108,6 +113,9 @@ public sealed partial class WindowShell : Page, IWindowShell
 				break;
 			case "CategoriesManager":
 				NavigateTopLevel<CategoriesManagerViewModel>();
+				break;
+			case "CommentsModerator":
+				NavigateTopLevel<CommentsModeratorViewModel>();
 				break;
 			case "Login":
 				await ViewModel.LoginCommand.ExecuteAsync(null);

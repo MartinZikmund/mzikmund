@@ -8,6 +8,7 @@ public class AppPreferences : IAppPreferences
 	private const string UserIdKey = "UserId";
 	private const string DisplayNameKey = "DisplayName";
 	private const string TokenExpiresOnKey = "TokenExpiresOn";
+	private const string CommentsLastSeenOnKey = "CommentsLastSeenOn";
 
 	private readonly IPreferencesService _preferences;
 
@@ -50,5 +51,11 @@ public class AppPreferences : IAppPreferences
 	{
 		get => _preferences.GetComplex(TokenExpiresOnKey, () => (DateTimeOffset?)null, true);
 		set => _preferences.SetComplex(TokenExpiresOnKey, value, true);
+	}
+
+	public DateTimeOffset? CommentsLastSeenOn
+	{
+		get => _preferences.GetComplex(CommentsLastSeenOnKey, () => (DateTimeOffset?)null, true);
+		set => _preferences.SetComplex(CommentsLastSeenOnKey, value, true);
 	}
 }

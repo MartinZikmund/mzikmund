@@ -13,4 +13,6 @@ public interface IAppPreferences
 	string? DisplayName { get; set; }
 
 	DateTimeOffset? TokenExpiresOn { get; set; }
+
+	DateTimeOffset? CommentsLastSeenOn { get; set; }
 }
