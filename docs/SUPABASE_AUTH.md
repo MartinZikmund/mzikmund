@@ -27,8 +27,9 @@ Endpoints once started:
 | Studio | `http://127.0.0.1:54323` |
 | Mailpit (mail catcher) | `http://127.0.0.1:54324` |
 
-The local API keys are fixed constants baked into the CLI, so they are safe to commit:
-`sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH` and `<local-secret-key>`.
+The local publishable key is a fixed CLI constant and public by design:
+`sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH`. The local secret key is not committed; scripts read it
+from `npx supabase status -o env` (`SECRET_KEY`) when they need it.
 
 ## Docker is optional for anonymous browsing
 

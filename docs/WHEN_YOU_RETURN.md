@@ -14,8 +14,9 @@ Two pull requests, stacked:
 Merge PR 1 first. PR 2 is based on it, so GitHub retargets PR 2 to `main` once PR 1 is merged.
 
 **Nothing was deployed and no hosted account was touched.** No real secrets are committed: production
-values are placeholders, and the only keys in the repo are the Supabase CLI's standard local-dev keys
-and Cloudflare's published Turnstile test keys.
+values are placeholders, and the only keys in the repo are the Supabase CLI's public local publishable
+key and Cloudflare's published Turnstile test keys. The local Supabase secret key is read at runtime
+(`npx supabase status -o env`), never committed.
 
 ## 1. PR 1: the redesign (about an hour)
 
