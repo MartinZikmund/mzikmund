@@ -108,6 +108,91 @@ public class CurrentUserAccessorTests
 		Assert.True(current!.IsAdmin);
 	}
 
+	[Theory]
+	[InlineData("http://cdn.example/a.png")]
+	[InlineData("javascript:alert(1)")]
+	[InlineData("data:image/png;base64,AAAA")]
+	[InlineData("//cdn.example/a.png")]
+	[InlineData("/relative/a.png")]
+	[InlineData("https://user:secret@cdn.example/a.png")]
+	[InlineData("not a url")]
+	public void Current_NonHttpsOrUnsafeAvatarUrl_IsDropped(string avatarUrl)
+	{
+		// Arrange
+		var principal = CreateSupabaseUser(
+			ReaderAppMetadata,
+			$"{{\"full_name\":\"Martin\",\"avatar_url\":\"{avatarUrl}\"}}");
+		var currentUserAccessor = CreateAccessor(principal);
+
+		// Act
+		var current = currentUserAccessor.Current;
+
+		// Assert
+		Assert.NotNull(current);
+		Assert.Null(current!.AvatarUrl);
+	}
+
+	[Fact]
+	public void Current_OverlongAvatarUrl_IsDropped()
+	{
+		// Arrange
+		var url = "https://cdn.example/" + new string('a', 2040);
+		var principal = CreateSupabaseUser(ReaderAppMetadata, $"{{\"full_name\":\"Martin\",\"avatar_url\":\"{url}\"}}");
+		var currentUserAccessor = CreateAccessor(principal);
+
+		// Act
+		var current = currentUserAccessor.Current;
+
+		// Assert
+		Assert.Null(current!.AvatarUrl);
+	}
+
+	[Fact]
+	public void Current_DisplayName_IsTrimmedStrippedOfControlCharactersAndCappedAt256()
+	{
+		// Arrange
+		var name = "  Mar\\u0000tin\\n" + new string('x', 400);
+		var principal = CreateSupabaseUser(ReaderAppMetadata, $"{{\"full_name\":\"{name}\"}}");
+		var currentUserAccessor = CreateAccessor(principal);
+
+		// Act
+		var current = currentUserAccessor.Current;
+
+		// Assert
+		Assert.NotNull(current);
+		Assert.Equal(256, current!.DisplayName.Length);
+		Assert.StartsWith("Martinxxx", current.DisplayName);
+	}
+
+	[Fact]
+	public void Current_WhitespaceOnlyDisplayName_FallsBackToEmailLocalPart()
+	{
+		// Arrange
+		var principal = CreateSupabaseUser(ReaderAppMetadata, "{\"full_name\":\"  \t \"}");
+		var currentUserAccessor = CreateAccessor(principal);
+
+		// Act
+		var current = currentUserAccessor.Current;
+
+		// Assert
+		Assert.Equal("martin", current!.DisplayName);
+	}
+
+	[Fact]
+	public void Current_DisplayNameCutInsideASurrogatePair_DoesNotSplitIt()
+	{
+		// Arrange
+		var name = new string('a', 255) + "😀";
+		var principal = CreateSupabaseUser(ReaderAppMetadata, $"{{\"full_name\":\"{name}\"}}");
+		var currentUserAccessor = CreateAccessor(principal);
+
+		// Act
+		var current = currentUserAccessor.Current;
+
+		// Assert
+		Assert.Equal(255, current!.DisplayName.Length);
+	}
+
 	private static CurrentUserAccessor CreateAccessor(ClaimsPrincipal principal)
 	{
 		DefaultHttpContext httpContext = new() { User = principal };
