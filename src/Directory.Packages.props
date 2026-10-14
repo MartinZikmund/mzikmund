@@ -1,7 +1,6 @@
 <Project ToolsVersion="15.0">
   <ItemGroup>
     <!-- Build Tools -->
-    <PackageVersion Include="CommunityToolkit.WinUI.Converters" Version="8.2.251219" />
     <PackageVersion Include="Nerdbank.GitVersioning" Version="3.9.50" />
     <!-- Web -->
     <PackageVersion Include="Auth0.OidcClient.MAUI" Version="1.4.0" />
@@ -65,7 +64,7 @@
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="10.1.2" />
     <!--
       WinUI 3 legacy migration tool (src/tools/MZikmund.LegacyMigration) only.
-      These are NOT used by the Uno app - Uno 6.8 builds against WindowsAppSDK 1.7.x
+      These are NOT used by the Uno app - Uno 7 builds against WindowsAppSDK 2.x
       and manages its own versions implicitly.
     -->
     <PackageVersion Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.7705" />
@@ -75,7 +74,6 @@
     <!-- Uno app -->
     <PackageVersion Include="System.Security.Cryptography.Xml" Version="10.0.10" />
     <PackageVersion Include="Tmds.DBus.Protocol" Version="0.93.0" />
-    <PackageVersion Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="8.2.251219" />
     <!-- Windows head only - Media is WindowsAppSDK/Win2D-bound and does not restore on Uno TFMs -->
     <PackageVersion Include="CommunityToolkit.WinUI.Media" Version="8.2.251219" />
   </ItemGroup>

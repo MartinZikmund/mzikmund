@@ -34,13 +34,15 @@
 			Logging;
 			Localization;
 			ThemeService;
-			SkiaRenderer;
 			WebView;
 		</UnoFeatures>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(TargetFramework)'=='net10.0-windows10.0.26100'">
 		<StartupObject>MZikmund.App.MZikmundProgram</StartupObject>
+
+		<!-- Uno.UI.HotDesign 2.0.0-dev.2 depends on _UnoAddLibraryAssets, which only exists on Uno heads -->
+		<UnoDisableHotDesign>true</UnoDisableHotDesign>
 
 		<!-- Workaround for https://github.com/unoplatform/uno/issues/18552 -->
 		<PlatformTarget Condition=" '$(PlatformTarget)' == '' AND $(Platform) == 'AnyCPU' AND '$(NETCoreSdkRuntimeIdentifier)' == 'win-x86'">x86</PlatformTarget>
@@ -57,8 +59,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="CommunityToolkit.WinUI.Converters" />
-	  <PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" />
 	  <PackageReference Include="System.Security.Cryptography.Xml" />
 	  <PackageReference Include="Tmds.DBus.Protocol" />
 	</ItemGroup>

@@ -100,7 +100,7 @@ public partial class MZikmundApp : Application, IApplication
 			);
 		MainWindow = builder.Window;
 
-#if DEBUG
+#if DEBUG && HAS_UNO
 		MainWindow.UseStudio();
 #endif
 
