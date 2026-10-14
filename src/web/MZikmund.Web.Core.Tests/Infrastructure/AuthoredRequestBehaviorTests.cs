@@ -115,6 +115,50 @@ public class AuthoredRequestBehaviorTests : IDisposable
 	}
 
 	[Fact]
+	public async Task Handle_WhenTheSameNewAuthorIsInsertedConcurrently_CarriesOnWithTheExistingRow()
+	{
+		// Arrange
+		_mockCurrentUserAccessor
+			.Setup(a => a.Current)
+			.Returns(new CommentAuthorInfo(AuthorId, "Martin", null, "martin@example.com", false));
+
+		using var competitor = _fixture.CreateContext();
+		await competitor.CommentAuthor.AnyAsync(CancellationToken.None);
+		RaceInterceptor race = new("FROM \"CommentAuthor\"", async () =>
+		{
+			competitor.CommentAuthor.Add(new CommentAuthorEntity
+			{
+				Id = AuthorId,
+				DisplayName = "Martin",
+				Email = "martin@example.com",
+				NotifyOnReply = true,
+				CreatedOn = Now.UtcDateTime,
+				LastSeenOn = Now.UtcDateTime,
+			});
+			await competitor.SaveChangesAsync(CancellationToken.None);
+		});
+		using var context = _fixture.CreateContext(race);
+		var behavior = CreateBehavior(context);
+		var nextCalled = false;
+
+		// Act
+		await behavior.Handle(
+			new TestAuthoredRequest("payload"),
+			_ =>
+			{
+				nextCalled = true;
+				return Task.FromResult("handled");
+			},
+			CancellationToken.None);
+
+		// Assert
+		Assert.True(race.Fired);
+		Assert.True(nextCalled);
+		using var assertContext = _fixture.CreateContext();
+		Assert.Equal(1, await assertContext.CommentAuthor.CountAsync(a => a.Id == AuthorId, CancellationToken.None));
+	}
+
+	[Fact]
 	public async Task Handle_WhenAuthorExists_RefreshesProfileAndLastSeen()
 	{
 		// Arrange

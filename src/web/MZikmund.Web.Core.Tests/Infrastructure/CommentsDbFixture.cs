@@ -1,5 +1,6 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using MZikmund.Web.Data;
 
 namespace MZikmund.Web.Core.Tests.Infrastructure;
@@ -55,6 +56,12 @@ public sealed class CommentsDbFixture : IDisposable
 	/// Creates a new context over this fixture's database. Callers own the returned instance.
 	/// </summary>
 	public DatabaseContext CreateContext() => new(_options);
+
+	/// <summary>
+	/// Creates a context that also runs the given interceptors, for tests that simulate a race.
+	/// </summary>
+	public DatabaseContext CreateContext(params IInterceptor[] interceptors) =>
+		new(new DbContextOptionsBuilder<DatabaseContext>(_options).AddInterceptors(interceptors).Options);
 
 	public void Dispose() => _connection.Dispose();
 }

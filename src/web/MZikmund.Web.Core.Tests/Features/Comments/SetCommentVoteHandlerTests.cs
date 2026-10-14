@@ -3,6 +3,7 @@ using MZikmund.Web.Core.Features.Comments;
 using MZikmund.Web.Core.Services.Comments;
 using MZikmund.Web.Core.Tests.Infrastructure;
 using MZikmund.Web.Data;
+using MZikmund.Web.Data.Entities;
 using static MZikmund.Web.Core.Tests.Features.Comments.CommentSeed;
 using DataCommentStatus = MZikmund.Web.Data.Entities.CommentStatus;
 
@@ -125,6 +126,83 @@ public class SetCommentVoteHandlerTests
 		await Assert.ThrowsAsync<CommentConflictException>(
 			() => handler.Handle(new SetCommentVoteCommand(commentId, true), CancellationToken.None));
 		Assert.Equal(0, await db.CommentVote.CountAsync(CancellationToken.None));
+	}
+
+	[Fact]
+	public async Task Handle_AnotherVoterCommitsBetweenCheckAndWrite_DoesNotLoseTheirIncrement()
+	{
+		// Arrange
+		using CommentsDbFixture fixture = new();
+		using var seedDb = fixture.CreateContext();
+		var commentId = await SeedCommentAsync(seedDb, _commentAuthorId);
+		var otherVoterId = Guid.NewGuid();
+		AddAuthor(seedDb, otherVoterId, "Other");
+		await seedDb.SaveChangesAsync(CancellationToken.None);
+
+		using var competitor = await CreateWarmContextAsync(fixture);
+		RaceInterceptor race = new("FROM \"CommentVote\"", async () =>
+		{
+			competitor.CommentVote.Add(new CommentVoteEntity { CommentId = commentId, AuthorId = otherVoterId, CreatedOn = Day(2) });
+			await competitor.SaveChangesAsync(CancellationToken.None);
+			await competitor.Comment
+				.Where(c => c.Id == commentId)
+				.ExecuteUpdateAsync(s => s.SetProperty(c => c.UpvoteCount, 1), CancellationToken.None);
+		});
+		using var db = fixture.CreateContext(race);
+		var handler = CreateHandler(db);
+
+		// Act
+		var result = await handler.Handle(new SetCommentVoteCommand(commentId, true), CancellationToken.None);
+
+		// Assert
+		Assert.True(race.Fired);
+		using var assertDb = fixture.CreateContext();
+		Assert.Equal(2, await assertDb.CommentVote.CountAsync(v => v.CommentId == commentId, CancellationToken.None));
+		var stored = await assertDb.Comment.FirstAsync(c => c.Id == commentId, CancellationToken.None);
+		Assert.Equal(2, stored.UpvoteCount);
+		Assert.Equal(2, result.UpvoteCount);
+	}
+
+	[Fact]
+	public async Task Handle_SameUserVoteInsertedConcurrently_IsAnIdempotentNoOpInsteadOfAnError()
+	{
+		// Arrange
+		using CommentsDbFixture fixture = new();
+		using var seedDb = fixture.CreateContext();
+		var commentId = await SeedCommentAsync(seedDb, _commentAuthorId);
+
+		using var competitor = await CreateWarmContextAsync(fixture);
+		RaceInterceptor race = new("FROM \"CommentVote\"", async () =>
+		{
+			competitor.CommentVote.Add(new CommentVoteEntity { CommentId = commentId, AuthorId = _voterId, CreatedOn = Day(2) });
+			await competitor.SaveChangesAsync(CancellationToken.None);
+			await competitor.Comment
+				.Where(c => c.Id == commentId)
+				.ExecuteUpdateAsync(s => s.SetProperty(c => c.UpvoteCount, 1), CancellationToken.None);
+		});
+		using var db = fixture.CreateContext(race);
+		var handler = CreateHandler(db);
+
+		// Act
+		var result = await handler.Handle(new SetCommentVoteCommand(commentId, true), CancellationToken.None);
+
+		// Assert
+		Assert.True(race.Fired);
+		using var assertDb = fixture.CreateContext();
+		Assert.Equal(1, await assertDb.CommentVote.CountAsync(v => v.CommentId == commentId, CancellationToken.None));
+		var stored = await assertDb.Comment.FirstAsync(c => c.Id == commentId, CancellationToken.None);
+		Assert.Equal(1, stored.UpvoteCount);
+		Assert.True(result.HasUpvoted);
+		Assert.Equal(1, result.UpvoteCount);
+	}
+
+	// A context first touched while another statement is open on the shared connection fails to
+	// initialize, so the competing context is warmed up before the race starts.
+	private static async Task<DatabaseContext> CreateWarmContextAsync(CommentsDbFixture fixture)
+	{
+		var context = fixture.CreateContext();
+		await context.Comment.AnyAsync(CancellationToken.None);
+		return context;
 	}
 
 	private async Task<Guid> SeedCommentAsync(

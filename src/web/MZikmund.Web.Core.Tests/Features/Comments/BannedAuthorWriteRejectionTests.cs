@@ -30,6 +30,40 @@ public class BannedAuthorWriteRejectionTests
 		AssertRejectedAsync<SetCommentVoteCommand, CommentDto>(new(Guid.NewGuid(), true));
 
 	[Fact]
+	public async Task Handle_BannedAuthorDeletingAComment_IsLetThroughToTheHandler()
+	{
+		// Arrange
+		using CommentsDbFixture fixture = new();
+		using var db = fixture.CreateContext();
+		AddAuthor(db, _authorId, "Troublemaker");
+		await db.SaveChangesAsync(CancellationToken.None);
+		await new BanAuthorHandler(db, Logger<BanAuthorHandler>().Object)
+			.Handle(new BanAuthorCommand(_authorId), CancellationToken.None);
+
+		AuthoredRequestBehavior<DeleteCommentCommand, Unit> behavior = new(
+			db,
+			CurrentUser(_authorId, "Troublemaker").Object,
+			FixedClock().Object,
+			Logger<AuthoredRequestBehavior<DeleteCommentCommand, Unit>>().Object);
+		var handlerReached = false;
+
+		// Act
+		await behavior.Handle(
+			new DeleteCommentCommand(Guid.NewGuid()),
+			_ =>
+			{
+				handlerReached = true;
+				return Task.FromResult(Unit.Value);
+			},
+			CancellationToken.None);
+
+		// Assert
+		Assert.True(handlerReached);
+		var stored = await db.CommentAuthor.AsNoTracking().FirstAsync(a => a.Id == _authorId, CancellationToken.None);
+		Assert.True(stored.IsBanned);
+	}
+
+	[Fact]
 	public Task Handle_BannedAuthorReportingAComment_IsRejected() =>
 		AssertRejectedAsync<ReportCommentCommand, Unit>(new(Guid.NewGuid(), CommentReportReason.Spam, null));
 

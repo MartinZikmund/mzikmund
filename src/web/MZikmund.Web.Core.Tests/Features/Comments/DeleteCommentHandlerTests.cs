@@ -139,6 +139,39 @@ public class DeleteCommentHandlerTests
 		Assert.Equal(DataCommentStatus.HiddenByModerator, stored.Status);
 	}
 
+	[Fact]
+	public async Task Handle_ModeratorHidesTheReplyBetweenReadAndWrite_ParentIsDecrementedOnlyOnce()
+	{
+		// Arrange
+		using CommentsDbFixture fixture = new();
+		using var seedDb = fixture.CreateContext();
+		await SeedAsync(seedDb);
+		var parent = AddComment(seedDb, _postId, _otherAuthorId, replyCount: 1);
+		var reply = AddComment(seedDb, _postId, _authorId, parentId: parent.Id);
+		await seedDb.SaveChangesAsync(CancellationToken.None);
+
+		using var moderator = fixture.CreateContext();
+		await moderator.Comment.AnyAsync(CancellationToken.None);
+		RaceInterceptor race = new("FROM \"Comment\"", async () =>
+		{
+			var hide = new HideCommentHandler(moderator, FixedClock().Object, Logger<HideCommentHandler>().Object);
+			await hide.Handle(new HideCommentCommand(reply.Id), CancellationToken.None);
+		});
+		using var db = fixture.CreateContext(race);
+		var handler = CreateHandler(db);
+
+		// Act
+		await handler.Handle(new DeleteCommentCommand(reply.Id), CancellationToken.None);
+
+		// Assert
+		Assert.True(race.Fired);
+		using var assertDb = fixture.CreateContext();
+		var storedParent = await assertDb.Comment.FirstAsync(c => c.Id == parent.Id, CancellationToken.None);
+		Assert.Equal(0, storedParent.ReplyCount);
+		var storedReply = await assertDb.Comment.FirstAsync(c => c.Id == reply.Id, CancellationToken.None);
+		Assert.Equal(DataCommentStatus.HiddenByModerator, storedReply.Status);
+	}
+
 	private async Task SeedAsync(DatabaseContext db)
 	{
 		AddPost(db, _postId);
