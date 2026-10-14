@@ -357,9 +357,16 @@
                             <TextBlock
                                 Grid.Column="1"
                                 VerticalAlignment="Center"
-                                Foreground="{x:Bind local:CommentsView.CounterBrush(ViewModel.IsDraftTooLong), Mode=OneWay}"
                                 Style="{StaticResource MzMetaTextStyle}"
-                                Text="{x:Bind ViewModel.DraftLengthText, Mode=OneWay}" />
+                                Text="{x:Bind ViewModel.DraftLengthText, Mode=OneWay}"
+                                Visibility="{x:Bind ViewModel.IsDraftTooLong, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
+                            <TextBlock
+                                Grid.Column="1"
+                                VerticalAlignment="Center"
+                                Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                Style="{StaticResource MzMetaTextStyle}"
+                                Text="{x:Bind ViewModel.DraftLengthText, Mode=OneWay}"
+                                Visibility="{x:Bind ViewModel.IsDraftTooLong, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
                             <Button
                                 Grid.Column="2"
                                 AutomationProperties.AutomationId="CommentPost"
