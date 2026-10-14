@@ -1,8 +1,7 @@
-// Bundled to wwwroot/js/comments.js as an ES module, loaded on post pages only.
-//
-// Deliberately empty for now: the comments UI arrives in a later phase. The
-// exported no-op keeps the bundle non-empty so the file survives the wwwroot
-// publish glob.
-export function initComments(): void {
-	// The comments UI lands in a later phase.
+// Bundled to wwwroot/js/comments.js as an ES module and loaded only on post pages.
+// It carries @supabase/supabase-js, which is why it is a separate entry point from site.js.
+import { getSession } from "./Auth/SupabaseAuth";
+
+if (document.querySelector("[data-comments-root]")) {
+	void getSession();
 }
