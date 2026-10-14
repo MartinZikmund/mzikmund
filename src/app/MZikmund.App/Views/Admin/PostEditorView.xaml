@@ -52,14 +52,14 @@
                 </Button>
             </Grid>
             <TextBlock Text="{xaml:Localize Key=HeroImageAlt}" />
-            <TextBox Text="{x:Bind ViewModel.Post.HeroImageAlt, Mode=TwoWay}" />
+            <TextBox Text="{x:Bind ViewModel.HeroImageAlt, Mode=TwoWay}" />
         </StackPanel>
         <TextBox
             Grid.Row="1"
             AcceptsReturn="True"
             FontFamily="{StaticResource CodeFont}"
             Header="{xaml:Localize Key=Abstract}"
-            Text="{x:Bind ViewModel.Post.Abstract, Mode=TwoWay}"
+            Text="{x:Bind ViewModel.PostAbstract, Mode=TwoWay}"
             TextWrapping="Wrap" />
         <Grid
             Grid.Row="2"
