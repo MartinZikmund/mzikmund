@@ -12,13 +12,73 @@ through MediatR handlers that inject `DatabaseContext` directly so denormalized 
 transaction. Supabase is an identity provider only — no Supabase database, storage or realtime. The
 web renders comments server-side for crawlers and hydrates them with an esbuild-bundled TypeScript
 module that talks to `@supabase/supabase-js`; the Uno app consumes the same `/api/v1` endpoints
-through the existing Refit client.
+through the existing Refit client and signs in against GoTrue with the app's existing PKCE helpers.
 
 **Tech Stack:** .NET 10, ASP.NET Core Razor Pages + Web API, EF Core (SQL Server; SQLite in tests),
-MediatR 14, AutoMapper 16.1.1, Markdig 0.45.0 + Ganss.Xss, Cloudflare Turnstile, Supabase Auth
-(GoTrue), Uno Platform 6.7.0-dev.48, esbuild 0.28.2, `@supabase/supabase-js` 2.112.3, xUnit v2 + Moq.
+MediatR 14, AutoMapper 16.1.1, Markdig 0.45.0 + HtmlSanitizer (Ganss.Xss), Cloudflare Turnstile,
+Supabase Auth (GoTrue; direct HTTP from the app, `@supabase/supabase-js` 2.112.3 on the web),
+Uno.Sdk 7.0.0-dev.75 (Skia-only; WindowsAppSDK 2.x on the Windows head; `Mz*` design vocabulary),
+esbuild 0.28.2, xUnit v2 + Moq.
 
 **Source spec:** `docs/superpowers/specs/2026-08-11-comments-system-design.md`
+
+---
+
+## Execution status and owner-gated steps (updated 2026-10-14)
+
+**Done (committed on `worktree-comments`):** Tasks 0.3, 0.4, 0.5, 0.6, 0.7. Their text is kept below for
+reference; do not redo them. Later tasks consume the real code — read the files, not the plan text,
+when in doubt (`src/web/MZikmund.Web.Configuration/{Comments,Supabase,Turnstile}Options.cs`,
+`src/web/MZikmund.Web.Core/Infrastructure/SupabaseJwksConfigurationRetriever.cs`,
+`src/web/MZikmund.Web/Infrastructure/Auth/`, the Supabase block in `Program.cs`,
+`src/web/MZikmund.Web.Core.Tests/Infrastructure/CommentsDbFixture.cs`).
+
+**Already true on this branch, which changes what "keep things working" means:** the API accepts only
+Supabase tokens (Task 0.6 replaced the Auth0 JwtBearer). The Auth0 *configuration* (web `Auth0`
+section, `Auth0.AspNetCore.Authentication` package, app `AuthConfig`, `docs/AUTH0_MIGRATION.md`) is
+still present and stays until the owner releases it.
+
+**Needs Docker Desktop** (being installed): Tasks 0.1, 0.2, 2.3 Step 1, the manual checks in 2.4/10.5,
+and 9.9. The Supabase CLI is **not** installed globally — every `supabase …` command in this plan means
+`npx supabase …`, run from the worktree root. If Docker is not running when a chunk reaches one of
+these steps, do the code/tests, skip the live check, and list it as pending in the chunk report.
+
+**Implementers must NOT execute (owner-gated):**
+
+| Item | Why | What the owner does |
+|---|---|---|
+| Task 1.1 (hosted project proof) | needs the owner's Supabase account | Create the hosted project; confirm asymmetric (ES256) JWT signing keys are active and the discovery doc has an absolute issuer; create his own user and set `app_metadata.role = "admin"` (SQL editor: `update auth.users set raw_app_meta_data = raw_app_meta_data \|\| '{"role":"admin"}' where email = '…'`); enable Google + Apple + email OTP (6-digit template) providers; add every redirect URL from `docs/SUPABASE_AUTH.md`; hand over the project ref + publishable key. |
+| Task 1.5 hosted-token steps | same | Mint a hosted admin token and confirm `GET /api/v1/admin/...` returns 200 against a local run pointed at the hosted project. The code move in 1.5 **is** done by implementers. |
+| Task 1.6, Task 2.7 (Auth0 removal) | lock-out risk | Say "go" after the hosted admin token works. |
+| Real values in committed config | secrets/ownership | Fill `Supabase:ProjectRef`/`PublishableKey` (web) and `SupabaseConfig:Url`/`PublishableKey` (app) — implementers keep the placeholders. |
+| Turnstile keys | Cloudflare account | Create the Turnstile widget; put the site key in config and the secret in user-secrets / App Service. Local work uses Cloudflare's documented test keys. |
+| Apple Service ID, key, domain verification; Google OAuth client | provider portals | Per `docs/SUPABASE_AUTH.md`. |
+| Task 11.6 (execute the dark launch), any deploy, App Service setting, `git push`, PR | production | Follow `docs/COMMENTS_ROLLOUT.md` (Task 11.5). |
+
+---
+
+## Execution chunks
+
+Run sequentially; one implementer agent per chunk. Every chunk ends with the solution building
+(`MSBUILDDISABLENODEREUSE=1 dotnet build MZikmund.slnx`, or at least every project it touched plus the
+app's desktop head when app code changed), all tests green, `dotnet format` clean, and its work
+committed (implementation and tests in separate commits). Owner-gated steps inside a chunk are skipped
+and listed in the chunk report.
+
+| # | Chunk | Tasks | Notes |
+|---|---|---|---|
+| 1 | Local stack and API auth finish | 0.1, 0.2, 1.2, 1.3, 1.4, 1.5 (code only) | 0.1/0.2 need Docker; 1.1 and 1.5's hosted proof are owner-gated |
+| 2 | App sign-in on Supabase | 2.1–2.6 | security gate (IsAdmin) lands with sign-in in 2.4 |
+| 3 | Comment data layer | 3.1–3.5 | includes the EF migration |
+| 4 | Comment services | 4.1–4.3, 5.1, 5.2 | renderer, Turnstile, pipeline behavior, limits, projection |
+| 5 | Comment handlers | 5.3–5.10 | phase gate 5.10 includes the execution-strategy check |
+| 6 | Moderation handlers | 6.1–6.7 | |
+| 7 | HTTP surface | 7.0–7.5 | exception mapping, controllers, rate limiting, feature gate, Refit |
+| 8 | Web asset pipeline on esbuild | 8.1–8.6 | behavioural parity gate in 8.6; commit 8.2+8.3 together |
+| 9 | Web comments UI | 9.1–9.9 | 9.9 needs Docker + Playwright MCP |
+| 10 | App comments panel | 10.1–10.4 | |
+| 11 | App post integration, moderation, badge | 10.5–10.7 | |
+| 12 | Privacy policy and rollout docs | 11.1–11.5 | 11.6 is owner-only |
 
 ---
 
@@ -29,38 +89,67 @@ Every task's requirements implicitly include this section.
 ### Environment
 
 - Work ONLY in the worktree `D:\Personal\mzikmund\.claude\worktrees\comments`, branch
-  `worktree-comments`, based on `dev/mazi/fluent-redesign`. Never `cd` to the main clone.
+  `worktree-comments`, based on `dev/mazi/appredesign` (the Uno 7 migration + app redesign, on top of
+  `main` with the web Fluent redesign). Never `cd` to the main clone.
 - Solution file is `MZikmund.slnx` at the repo root (XML solution format).
-- Docker Desktop must be running for any task that touches the local Supabase stack.
+- Docker Desktop must be running for any task that touches the local Supabase stack. The Supabase CLI
+  runs as `npx supabase …` (no global install) — read every `supabase …` command below that way.
+- `$SCRATCH` in commands means your own session scratchpad directory (never a repo path). Paths from an
+  older session have been replaced with it.
+- `global.json` pins .NET SDK 10.0.100 with `rollForward: latestFeature` and `Uno.Sdk 7.0.0-dev.75`.
 
 ### Code style — enforced by `.editorconfig`, will fail the build or the format check
+
+- Source files are **CRLF** in the working tree; this plan is LF. Multi-line "replace X with Y" anchors
+  below match only after normalising line endings — compare ignoring `\r`, write CRLF back.
 
 - **TABS** for indentation (width 4). CRLF line endings.
 - Allman braces — `csharp_new_line_before_open_brace = all`.
 - File-scoped namespaces (`csharp_style_namespace_declarations = file_scoped:warning`).
 - `using` directives OUTSIDE the namespace.
 - Private fields `_camelCase`; interfaces `IPascalCase`; constants `PascalCase`.
-- **No primary constructors** — there is not one in the entire repository. Use explicit constructors.
+- **No primary constructors.** Use explicit constructors (the one nested exception type in the old
+  `UserService.cs` goes away in Phase 2; do not copy it).
 - Always use curly braces, even for single-line `if`/`for`/`foreach`/`while`.
 - Prefer expression bodies for single-line methods and properties.
 - Target-typed `new()` with an explicit type on the left; `var` only when the type is not on the left.
-- Run `dotnet format MZikmund.slnx` at the end of any task that changed .NET code.
+- Run `dotnet format MZikmund.slnx` at the end of any task that changed .NET code (there is no
+  formatting pre-commit hook in this repo — `git config core.hooksPath` is unset; re-check once).
+
+### Commits
+
+- **Implementation and tests go in separate commits — production code first, then tests**
+  (`feat:`/`fix:` then `test:`), even when a task's commit step below stages both in one `git add`.
+  Split that step into two commits. Do it TDD anyway: write the failing test first, just commit it second.
+- Conventional prefixes as used in the repo history (`feat:`, `fix:`, `test:`, `docs:`, `chore:`,
+  optional scope such as `feat(app):`). End every commit message with the session's attribution
+  trailer lines if your harness provides them.
+- Never push, never open a PR, never deploy.
 
 ### Commands
+
+Always build/test with `MSBUILDDISABLENODEREUSE=1` set (avoids the local MSBuild node-reuse deadlock).
+**Never** pass `-nodeReuse:false` to `dotnet test` (it silently runs zero tests). Other worktrees build
+in parallel on this machine: never blanket-kill `dotnet`/MSBuild processes and never run
+`dotnet build-server shutdown` — scope any kill by command line.
 
 | Purpose | Command |
 |---|---|
 | Build | `dotnet build MZikmund.slnx` |
+| Web only | `dotnet build src/web/MZikmund.Web/MZikmund.Web.csproj` (runs `npm run build` via the `NpmBuild` target — run `npm ci` in `src/web/MZikmund.Web` once first) |
+| App head | `dotnet build src/app/MZikmund.App/MZikmund.App.csproj -f net10.0-desktop` (also `-f net10.0-windows10.0.26100`, `-f net10.0-browserwasm` for XAML changes) |
+| Shared tests | `dotnet test src/shared/MZikmund.Shared.Tests/MZikmund.Shared.Tests.csproj` |
+| Web tests | `dotnet test src/web/MZikmund.Web.Tests/MZikmund.Web.Tests.csproj` |
 | Core tests | `dotnet test src/web/MZikmund.Web.Core.Tests/MZikmund.Web.Core.Tests.csproj` |
 | One test | append `--filter "FullyQualifiedName~ClassName.MethodName"` |
 | All comment tests | append `--filter "FullyQualifiedName~MZikmund.Web.Core.Tests.Features.Comments"` |
 | EF migration | from `src/web/MZikmund.Web`: `dotnet ef migrations add <Name> -p ../MZikmund.Web.Data -s .` |
 | Web assets | from `src/web/MZikmund.Web`: `npm run build` |
 | Run the site | from `src/web/MZikmund.Web`: `dotnet run` → `https://localhost:7007` |
-| Local Supabase | `supabase start` (repo root) → API `http://127.0.0.1:54321`, Mailpit `http://127.0.0.1:54324` |
+| Local Supabase | `npx supabase start` (worktree root) → API `http://127.0.0.1:54321`, Mailpit `http://127.0.0.1:54324` |
 
-> The dev URL is **7007**, not the `5001` written in `CLAUDE.md` — that documentation is stale and is
-> corrected in Phase 11.
+> The dev URL is **7007** (`dotnet run --launch-profile https`; a bare `dotnet run` picks the `http`
+> profile on 5245), not the `5001` written in `CLAUDE.md` — corrected in Task 11.4.
 
 ### Package management
 
@@ -85,7 +174,12 @@ These are intentional. Do not "fix" them back.
    `_dbContext.Database.CreateExecutionStrategy().ExecuteAsync(...)`. The context is configured with
    `EnableRetryOnFailure`, and EF throws `InvalidOperationException` on a user-initiated transaction
    otherwise. This passes silently on SQLite in tests and fails against real SQL Server — so it is a
-   verification step in Phase 5, not an afterthought.
+   verification step in Phase 5, not an afterthought. **The lambda must be safe to re-run:** on a
+   transient failure EF re-invokes it against the *same* tracked entities, so an in-memory
+   `ReplyCount += 1` / `UpvoteCount -= 1` would be applied twice. Start the lambda with
+   `_dbContext.ChangeTracker.Clear()` and (re)load every entity it mutates inside it, or use
+   `ExecuteUpdateAsync` for counters. This applies to Tasks 5.5–5.9 and 6.1–6.3 even where their code
+   samples mutate outside-loaded entities.
 4. **`CommentsController` mixes anonymous GET with authenticated writes** via class-level
    `[Authorize]` plus `[AllowAnonymous]` on the GETs. No existing controller does this.
 5. **`ICommentContentRenderer` does not reuse the shared `IMarkdownConverter`.** That converter lives
@@ -98,6 +192,12 @@ These are intentional. Do not "fix" them back.
 - **Routes are `api/v1/…`.** Every existing controller is versioned and the Refit client targets
   `/v1/…` against a base address ending in `/api`. An unversioned route 404s the Uno app.
 - **Inject `IMediator`, never `ISender`.** There is no `ISender` anywhere in the repository.
+- **Handler exceptions become HTTP statuses only through Task 7.0's filter** on the two comment
+  controllers: `KeyNotFoundException`→404, `UnauthorizedAccessException`→403, `ArgumentException`→400,
+  `InvalidOperationException`→409. Without it every one of them is a 500.
+- **Comment timestamps are UTC end to end.** Entity/DTO members are `DateTime`; Task 3.3 adds a UTC
+  `ValueConverter` (SQL Server returns `Kind=Unspecified`, which serialises without `Z`), and query
+  parameters such as `since` are normalised with `ToUniversalTime()` in the controller.
 - **Register every new Refit-crossing type** in
   `src/shared/MZikmund.Api/Serialization/MZikmundApiSerializerContext.cs`. A missing registration
   fails at **runtime**, not compile time.
@@ -118,9 +218,9 @@ These are intentional. Do not "fix" them back.
 
 ### Security-critical items
 
-- The Uno app's Admin navigation section is currently gated on `IsLoggedIn`, which becomes true for
-  **every commenter** the moment readers can sign in. Phase 2 adds an `IsAdmin` flag before any reader
-  can obtain a token. This ordering is not optional.
+- The Uno app's Admin navigation item (`NavAdmin` in `WindowShell.xaml`) is currently gated on
+  `IsLoggedIn`, which becomes true for **every commenter** the moment readers can sign in. Task 2.4
+  switches it to `IsAdmin` in the same commit that lets a reader sign in. This ordering is not optional.
 - Prove the Supabase admin token works end-to-end **before** deleting Auth0 configuration, or you can
   lock yourself out of your own admin surface.
 - Turnstile enforcement predicate: **if a token is present it must verify, or the write is rejected;
@@ -133,7 +233,9 @@ Testcontainers are absent from the repo — do not add one. Tests live in
 `src/web/MZikmund.Web.Core.Tests/Features/Comments/` with namespace
 `MZikmund.Web.Core.Tests.Features.Comments` (namespace must mirror folder — enforced). Class
 `{Handler}Tests`, method `Handle_{Condition}_{ExpectedResult}`, literal `// Arrange` / `// Act` /
-`// Assert` comment lines, and `CancellationToken.None` passed explicitly.
+`// Assert` comment lines, and `CancellationToken.None` passed explicitly. App-side pure logic is
+tested in `src/shared/MZikmund.Shared.Tests` (namespace `MZikmund.Shared.Tests.<Folder>`); there is
+no app test project and none is to be created (App.Core targets Uno TFMs only).
 
 Build a real `IMapper` from the production profiles rather than mocking it — AutoMapper 16.1.1
 **requires** the `ILoggerFactory` argument:
@@ -155,7 +257,7 @@ new MapperConfiguration(
 >
 > 1. The spec says the local stack "signs tokens with a fixed HS256 secret while the hosted project uses ES256 via JWKS, so `AddJwtBearer` must be environment-conditional." **That premise is out of date.** Supabase CLI ≥ v2.71.1 signs *user access tokens* with a built-in ES256 dev key and publishes it at `/auth/v1/.well-known/jwks.json`. Development and Production therefore use the **same algorithm and the same JWKS mechanism**. There is exactly **one** `AddJwtBearer` registration and **no HS256 branch**. The publicly-known HS256 secret still exists locally (it signs the legacy `anon`/`service_role` API keys), which is precisely why `ValidAlgorithms` is pinned to ES256/RS256.
 > 2. The contract defines `SupabaseOptions` with `ProjectRef` and `PublishableKey`. Task 0.3 adds **one** extra property, `LocalUrl`, plus three computed members (`BaseUrl`, `Issuer`, `JwksUri`). A project ref cannot address `http://127.0.0.1:54321`, and this keeps the environment difference entirely in configuration instead of in code. **Task 0.3 is the one and only place `SupabaseOptions` is created; no later phase re-declares it.**
-> 3. Phase 0 wires up the bearer scheme and rewrites `AdminPolicy`. Without it the seeded `app_metadata.role = "admin"` user proves nothing and every admin route would 403 the moment the bearer scheme is swapped. The claim constants and the claims transformation themselves are **owned by Task 0.5** (`MZikmund.Web.Infrastructure.Auth.SupabaseClaims` / `SupabaseAppMetadataClaimsTransformation`, in `src/web/MZikmund.Web/Infrastructure/Auth/`), which places them in `MZikmund.Web` rather than `MZikmund.Web.Core` because the latter is a plain `Microsoft.NET.Sdk` project with no `Microsoft.AspNetCore.App` framework reference and cannot see `IClaimsTransformation`. Task 0.6 **consumes** those types. Phase 0 therefore has no backward dependency on Phase 1. **Phase 1 still owns** removing the Auth0 packages/config, the Uno app's sign-in swap, `docs/AUTH0_MIGRATION.md` deletion, and the `IsAdmin` shell gating.
+> 3. Phase 0 wires up the bearer scheme and rewrites `AdminPolicy`. Without it the seeded `app_metadata.role = "admin"` user proves nothing and every admin route would 403 the moment the bearer scheme is swapped. The claim constants and the claims transformation themselves are **owned by Task 0.5** (`MZikmund.Web.Infrastructure.Auth.SupabaseClaims` / `SupabaseAppMetadataClaimsTransformation`, in `src/web/MZikmund.Web/Infrastructure/Auth/`), which places them in `MZikmund.Web` rather than `MZikmund.Web.Core` because the latter is a plain `Microsoft.NET.Sdk` project with no `Microsoft.AspNetCore.App` framework reference and cannot see `IClaimsTransformation`. Task 0.6 **consumes** those types. Phase 0 therefore has no backward dependency on Phase 1. **Phase 1 still owns** removing the Auth0 packages/config and `docs/AUTH0_MIGRATION.md` (owner-gated, Task 1.6); **Phase 2** owns the Uno app's sign-in swap and the `IsAdmin` shell gating.
 
 ---
 
@@ -241,8 +343,8 @@ additional_redirect_urls = [
   "http://localhost:5245/**",
   "http://localhost:5000",
   "http://localhost:5000/**",
-  "https://localhost/callback",
-  "dev.mzikmund.MZikmund.App://callback"
+  "mzikmund-app://oauthcallback",
+  "http://127.0.0.1:51842/callback"
 ]
 jwt_expiry = 3600
 enable_signup = true
@@ -638,7 +740,7 @@ git commit -m "chore: Seed local Supabase admin test user and document the stack
 
 ---
 
-### Task 0.3: `CommentsOptions`, `SupabaseOptions`, `TurnstileOptions` and their binding
+### Task 0.3: `CommentsOptions`, `SupabaseOptions`, `TurnstileOptions` and their binding — DONE (committed; do not redo)
 
 **Files:**
 - Create: `src/web/MZikmund.Web.Configuration/CommentsOptions.cs`
@@ -946,7 +1048,7 @@ git commit -m "feat: Add Comments, Supabase and Turnstile configuration options"
 
 ---
 
-### Task 0.4: `SupabaseJwksConfigurationRetriever`
+### Task 0.4: `SupabaseJwksConfigurationRetriever` — DONE (committed; do not redo)
 
 **Files:**
 - Create: `src/web/MZikmund.Web.Core/Infrastructure/SupabaseJwksConfigurationRetriever.cs`
@@ -1150,7 +1252,7 @@ git commit -m "feat: Add Supabase JWKS configuration retriever"
 
 ---
 
-### Task 0.5: Supabase claim constants and the `app_metadata` claims transformation
+### Task 0.5: Supabase claim constants and the `app_metadata` claims transformation — DONE (committed; do not redo)
 
 `RequireClaim` cannot reach `app_metadata.role`: Microsoft.IdentityModel surfaces a nested JSON object as **one** claim whose `Value` is the entire serialized object (`{"provider":"email","providers":["email"],"role":"admin"}`). This task projects the members we authorize on into first-class claims.
 
@@ -1522,7 +1624,7 @@ git commit -m "feat: Project Supabase app_metadata.role into a first-class claim
 
 ---
 
-### Task 0.6: The single environment-conditional `AddJwtBearer` registration
+### Task 0.6: The single environment-conditional `AddJwtBearer` registration — DONE (committed; do not redo)
 
 **Files:**
 - Modify: `src/web/MZikmund.Web/Program.cs` (replace the whole Auth0 `AddJwtBearer` + `AddAuthorization` block, currently lines 70-107; add four usings)
@@ -1716,7 +1818,7 @@ git commit -m "feat: Validate Supabase ES256 access tokens and gate AdminPolicy 
 
 ---
 
-### Task 0.7: `Microsoft.EntityFrameworkCore.Sqlite` under CPM and the `CommentsDbFixture`
+### Task 0.7: `Microsoft.EntityFrameworkCore.Sqlite` under CPM and the `CommentsDbFixture` — DONE (committed; do not redo)
 
 **Files:**
 - Modify: `src/Directory.Packages.props` (add one `PackageVersion` next to the other EF Core entries)
@@ -2013,6 +2115,9 @@ git commit -m "test: Add SQLite-backed CommentsDbFixture for database-backed han
 
 ### Task 1.1: Supabase project proof and configuration keys
 
+> **OWNER-GATED:** Do not execute. This needs the owner's hosted Supabase project (see the
+> owner-gated table at the top). Implementers leave the `REPLACE_WITH_…` placeholders in `appsettings.json`.
+
 **Files:**
 - Modify: `src/web/MZikmund.Web/appsettings.json` (fill the real values into the `Supabase` section Phase 0 Task 0.3 Step 8 already created; leave the `Auth0` section untouched)
 - Test: none — this task's test is a live curl round-trip against the Supabase project (Steps 1–7)
@@ -2028,7 +2133,7 @@ In the Supabase dashboard for the project, open **Project Settings → API Keys*
 Run in Git Bash:
 
 ```bash
-export SCRATCH="C:/Users/Martin/AppData/Local/Temp/claude/D--Personal-mzikmund/876f8c04-94e6-4eda-91de-cdf93d49d494/scratchpad"
+export SCRATCH="<your session scratchpad, forward slashes>"
 cat > "$SCRATCH/supabase.env" <<'EOF'
 SUPABASE_PROJECT_REF=PASTE_PROJECT_REF_HERE
 SUPABASE_PUBLISHABLE_KEY=PASTE_sb_publishable_KEY_HERE
@@ -2041,7 +2146,7 @@ Then edit `$SCRATCH/supabase.env` and replace the three `PASTE_…` values.
 - [ ] **Step 2: Verify the discovery document serves an absolute, correct issuer**
 
 ```bash
-export SCRATCH="C:/Users/Martin/AppData/Local/Temp/claude/D--Personal-mzikmund/876f8c04-94e6-4eda-91de-cdf93d49d494/scratchpad"
+export SCRATCH="<your session scratchpad, forward slashes>"
 set -a; . "$SCRATCH/supabase.env"; set +a
 curl -s "https://$SUPABASE_PROJECT_REF.supabase.co/auth/v1/.well-known/openid-configuration"
 ```
@@ -2057,7 +2162,7 @@ If `"issuer":""` or the endpoint URLs are relative, STOP — the project's JWT i
 - [ ] **Step 3: Verify the JWKS endpoint returns a non-empty asymmetric key set**
 
 ```bash
-export SCRATCH="C:/Users/Martin/AppData/Local/Temp/claude/D--Personal-mzikmund/876f8c04-94e6-4eda-91de-cdf93d49d494/scratchpad"
+export SCRATCH="<your session scratchpad, forward slashes>"
 set -a; . "$SCRATCH/supabase.env"; set +a
 curl -s "https://$SUPABASE_PROJECT_REF.supabase.co/auth/v1/.well-known/jwks.json"
 ```
@@ -2073,7 +2178,7 @@ In the dashboard first open **Authentication → Emails → Magic Link** and mak
 Request the code:
 
 ```bash
-export SCRATCH="C:/Users/Martin/AppData/Local/Temp/claude/D--Personal-mzikmund/876f8c04-94e6-4eda-91de-cdf93d49d494/scratchpad"
+export SCRATCH="<your session scratchpad, forward slashes>"
 set -a; . "$SCRATCH/supabase.env"; set +a
 curl -s -X POST "https://$SUPABASE_PROJECT_REF.supabase.co/auth/v1/otp" \
   -H "apikey: $SUPABASE_PUBLISHABLE_KEY" \
@@ -2084,7 +2189,7 @@ curl -s -X POST "https://$SUPABASE_PROJECT_REF.supabase.co/auth/v1/otp" \
 Expected output: `{"message_id":null}` or `{"message_id":"<id>"}` (HTTP 200). Read the 6-digit code from the inbox, then redeem it:
 
 ```bash
-export SCRATCH="C:/Users/Martin/AppData/Local/Temp/claude/D--Personal-mzikmund/876f8c04-94e6-4eda-91de-cdf93d49d494/scratchpad"
+export SCRATCH="<your session scratchpad, forward slashes>"
 set -a; . "$SCRATCH/supabase.env"; set +a
 read -p "6-digit code: " OTP
 RESP=$(curl -s -X POST "https://$SUPABASE_PROJECT_REF.supabase.co/auth/v1/verify" \
@@ -2099,7 +2204,7 @@ Expected: JSON starting with `{"access_token":"eyJ…","token_type":"bearer","ex
 Record the reader token, refresh token and user id (`type` **must** be `email`, not `magiclink` — `magiclink` rejects a 6-digit code):
 
 ```bash
-export SCRATCH="C:/Users/Martin/AppData/Local/Temp/claude/D--Personal-mzikmund/876f8c04-94e6-4eda-91de-cdf93d49d494/scratchpad"
+export SCRATCH="<your session scratchpad, forward slashes>"
 python -c "import json,sys; d=json.load(sys.stdin); print('READER_TOKEN='+d['access_token']); print('REFRESH_TOKEN='+d['refresh_token']); print('SUPABASE_USER_ID='+d['user']['id'])" <<< "$RESP" >> "$SCRATCH/supabase.env"
 cat "$SCRATCH/supabase.env"
 ```
@@ -2109,7 +2214,7 @@ cat "$SCRATCH/supabase.env"
 Send **only** `app_metadata`. The same endpoint accepts a top-level `role` field that rewrites the Postgres role claim and can lock the account out of PostgREST.
 
 ```bash
-export SCRATCH="C:/Users/Martin/AppData/Local/Temp/claude/D--Personal-mzikmund/876f8c04-94e6-4eda-91de-cdf93d49d494/scratchpad"
+export SCRATCH="<your session scratchpad, forward slashes>"
 set -a; . "$SCRATCH/supabase.env"; set +a
 curl -s -X PUT "https://$SUPABASE_PROJECT_REF.supabase.co/auth/v1/admin/users/$SUPABASE_USER_ID" \
   -H "apikey: $SUPABASE_SECRET_KEY" \
@@ -2129,7 +2234,7 @@ Expected output (key order may vary, `provider`/`providers` are preserved becaus
 `app_metadata` changes never reach an already-issued token.
 
 ```bash
-export SCRATCH="C:/Users/Martin/AppData/Local/Temp/claude/D--Personal-mzikmund/876f8c04-94e6-4eda-91de-cdf93d49d494/scratchpad"
+export SCRATCH="<your session scratchpad, forward slashes>"
 set -a; . "$SCRATCH/supabase.env"; set +a
 curl -s -X POST "https://$SUPABASE_PROJECT_REF.supabase.co/auth/v1/token?grant_type=refresh_token" \
   -H "apikey: $SUPABASE_PUBLISHABLE_KEY" \
@@ -2144,7 +2249,7 @@ Expected: a line starting `ADMIN_TOKEN=eyJ`.
 - [ ] **Step 7: Decode both tokens and prove the claim shape the API will have to parse**
 
 ```bash
-export SCRATCH="C:/Users/Martin/AppData/Local/Temp/claude/D--Personal-mzikmund/876f8c04-94e6-4eda-91de-cdf93d49d494/scratchpad"
+export SCRATCH="<your session scratchpad, forward slashes>"
 set -a; . "$SCRATCH/supabase.env"; set +a
 decode_jwt() { local p; p=$(echo "$1" | cut -d. -f2 | tr '_-' '/+'); while [ $(( ${#p} % 4 )) -ne 0 ]; do p="$p="; done; echo "$p" | base64 -d; }
 echo "--- READER ---"; decode_jwt "$READER_TOKEN"  | python -m json.tool
@@ -2180,7 +2285,7 @@ Do **not** add a second `Supabase` section. Edit the two placeholder values in p
 - [ ] **Step 9: Confirm the section binds and the values match the live project**
 
 ```bash
-export SCRATCH="C:/Users/Martin/AppData/Local/Temp/claude/D--Personal-mzikmund/876f8c04-94e6-4eda-91de-cdf93d49d494/scratchpad"
+export SCRATCH="<your session scratchpad, forward slashes>"
 set -a; . "$SCRATCH/supabase.env"; set +a
 cd "D:/Personal/mzikmund/.claude/worktrees/comments"
 python -c "import json;d=json.load(open('src/web/MZikmund.Web/appsettings.json'));print(d['Supabase']['ProjectRef']);print(d['Supabase']['PublishableKey'][:14])"
@@ -2341,6 +2446,12 @@ Expected: prints **nothing**. This is a verification-only task — there is no `
 ---
 
 ### Task 1.3: Supabase JwtBearer registration and the rewritten `AdminPolicy`
+
+> **Review correction (2026-10-14):** Do **not** throw at startup when `ProjectRef` is a placeholder and `LocalUrl`
+> is empty. `Program.cs` deliberately keeps the JWKS lazy so `dotnet run` without Supabase still serves
+> every anonymous page, and production boots before the owner fills real values. Log a warning
+> instead (or do nothing) and drop/adjust any test step that asserts the throw. The error message must not
+> point at `docs/SUPABASE_AUTH.md` unless Task 0.2 has created it.
 
 > **This extension method is the single home of the JwtBearer registration.** Its body is Phase 0 Task 0.6 Step 2's block, moved here unchanged: no `options.Authority`, a `ConfigurationManager<OpenIdConnectConfiguration>` over `SupabaseOptions.JwksUri` with `SupabaseJwksConfigurationRetriever`, and `RequireHttpsMetadata` derived from whether the resolved base URL is loopback HTTP. Do **not** "simplify" it to `options.Authority` + `RequireHttpsMetadata = true` — that permanently breaks the local `http://127.0.0.1:54321` stack that Phase 0 and Phase 9 Task 9.9 verify against.
 
@@ -2988,6 +3099,13 @@ git commit -m "feat: Add ICurrentUserAccessor over IHttpContextAccessor"
 
 ### Task 1.5: Move the registration out of `Program.cs` and prove the hosted admin token end to end
 
+> **Review correction (2026-10-14):** Do the code move and the **local-stack** verification only. The steps that
+> source `$SCRATCH/supabase.env` / use the hosted project ref and `ADMIN_TOKEN` are owner-gated — list
+> them as pending. For local tokens use `supabase/get-test-token.ps1` from Task 0.2. In PowerShell,
+> `$env:Supabase__LocalUrl = ""` *deletes* the variable (so `appsettings.Development.json` wins); stay
+> in Git Bash (`export Supabase__LocalUrl=`) for those steps. Same applies to Tasks 7.3 Step 6 and 7.4
+> Step 5.
+
 **This is the gate.** Nothing in Task 1.6 may start until Step 6 of this task passes.
 
 > **What `Program.cs` looks like when this task starts.** Phase 0 Task 0.6 already replaced the Auth0 `AddJwtBearer` + `AddAuthorization` block with an inline **Supabase** block, and already added four usings: `using Microsoft.AspNetCore.Authentication;`, `using Microsoft.IdentityModel.Protocols;`, `using Microsoft.IdentityModel.Protocols.OpenIdConnect;` and `using MZikmund.Web.Infrastructure.Auth;`. There is no Auth0 code left in this file, so grepping for `Auth0` here proves nothing. This task moves that inline block into `AddSupabaseAuthentication` (Task 1.3) and leaves a one-line call behind.
@@ -3110,7 +3228,7 @@ Expected: the console prints `Now listening on: https://localhost:7007` (and `ht
 `GET /api/v1/admin/posts` is an existing endpoint guarded by `[Authorize(Policy = "AdminPolicy")]`, so it exercises the whole chain: JWKS validation → claims transformation → policy.
 
 ```bash
-export SCRATCH="C:/Users/Martin/AppData/Local/Temp/claude/D--Personal-mzikmund/876f8c04-94e6-4eda-91de-cdf93d49d494/scratchpad"
+export SCRATCH="<your session scratchpad, forward slashes>"
 set -a; . "$SCRATCH/supabase.env"; set +a
 echo -n "no token  -> "; curl -sk -o /dev/null -w "%{http_code}\n" "https://localhost:7007/api/v1/admin/posts"
 echo -n "reader    -> "; curl -sk -o /dev/null -w "%{http_code}\n" -H "Authorization: Bearer $READER_TOKEN" "https://localhost:7007/api/v1/admin/posts"
@@ -3171,6 +3289,12 @@ git commit -m "refactor: Call AddSupabaseAuthentication from Program.cs"
 ---
 
 ### Task 1.6: Remove Auth0 configuration, packages and documentation
+
+> **OWNER-GATED:** Do not execute until the owner confirms the hosted admin token (Task 1.5's
+> hosted steps) and says go; run it together with Task 2.7. Its anchors predate Phase 2 (the
+> `UserService.cs` line in Step 8 no longer exists after Task 2.4) — re-derive every anchor with `grep -rn
+> Auth0` at execution time, and also fix the Auth0 mentions in `CLAUDE.md` outside the Authentication
+> section.
 
 Only run this after Task 1.5 Step 6 printed `401 / 403 / 200`.
 
@@ -3492,7 +3616,7 @@ dotnet run --launch-profile https
 and in a second terminal:
 
 ```bash
-export SCRATCH="C:/Users/Martin/AppData/Local/Temp/claude/D--Personal-mzikmund/876f8c04-94e6-4eda-91de-cdf93d49d494/scratchpad"
+export SCRATCH="<your session scratchpad, forward slashes>"
 set -a; . "$SCRATCH/supabase.env"; set +a
 echo -n "no token  -> "; curl -sk -o /dev/null -w "%{http_code}\n" "https://localhost:7007/api/v1/admin/posts"
 echo -n "reader    -> "; curl -sk -o /dev/null -w "%{http_code}\n" -H "Authorization: Bearer $READER_TOKEN" "https://localhost:7007/api/v1/admin/posts"
@@ -3522,1617 +3646,220 @@ git commit -m "chore: Remove Auth0 configuration, packages and migration guide"
 
 ## Phase 2: Replace Auth0 with Supabase in the Uno app
 
-> **Deliberate deviations from the contract / repo convention, stated up front:**
->
-> 1. The contract does not define the app's `SupabaseConfig`. This phase defines it (Task 2.1 Produces) with **five** members — `ProjectRef`, `PublishableKey`, `CallbackUri`, `DesktopCallbackUri`, `WasmCallbackUri` — because the OAuth redirect differs per head and cannot be a single constant. It is bound with `.Section<SupabaseConfig>()`, which binds the JSON object literally named `SupabaseConfig`, and `appsettings.json` is an `EmbeddedResource` so every value ships inside the binary. Only the publishable key (public by design) and the callback URIs go there — no secret key, ever.
-> 2. `IUserService` is re-registered as a **singleton** (it is `AddScoped` today). Auth state is app-global and now raises an event; a scoped instance per window would fork it. Scoped consumers (`WindowShellViewModel`, the Refit factory) may consume a singleton, so `ValidateScopes = true` still passes.
-> 3. This phase creates the repository's **first app-side test project**, `src/app/MZikmund.App.Core.Tests` (plain `net10.0`). It cannot `ProjectReference` `MZikmund.App.Core` (that project only multi-targets Uno TFMs), so it `<Compile Include>`-links the specific Uno-free source files under test. Everything that can be a pure function — claim reading, callback parsing, session persistence — is written that way precisely so it is testable; the platform-specific browser plumbing is verified by build + manual run.
-> 4. `Supabase.Gotrue` 6.3.0 is added, **not** the `supabase` metapackage — the metapackage drags in Postgrest/Realtime/Storage/Functions, none of which this design uses.
-> 5. The Windows redirect keeps the **existing** `mzikmund-app://oauthcallback` scheme already registered in `Package.appxmanifest` and already dispatched by `Platforms/Windows/Program.cs`. Only `MZikmundApp.OnUriCallback` changes (from `OAuth2Manager.CompleteAuthRequest` to the new broker). Android and iOS reuse the same scheme so Supabase needs one native redirect entry.
+> **Rewritten 2026-10-14** against the current app (Uno.Sdk 7.0.0-dev.75, redesigned shell). The
+> original Phase 2 (Supabase.Gotrue package, a new `MZikmund.App.Core.Tests` project, a separate
+> callback broker) is obsolete: the app already ships PKCE sign-in on every head
+> (`src/app/MZikmund.App.Core/Services/Account/UserService.cs`) with tested helpers in
+> `src/shared/MZikmund.Shared/Authentication` (`Pkce`, `OAuthCallback`) and tests in
+> `src/shared/MZikmund.Shared.Tests/Authentication`. This phase **re-points that machinery at GoTrue**
+> instead of introducing a second stack.
+
+**Decisions (do not relitigate):**
+
+1. **No `Supabase.Gotrue` / `supabase` NuGet.** The surface we need is five HTTP calls (PKCE exchange,
+   refresh, email OTP send, OTP verify, logout). The package is community-maintained, pulls
+   Newtonsoft + reflection JSON (trimming/AOT risk on WASM/iOS) and does not help with the per-head
+   browser leg, which is where the real work is. Direct `HttpClient` calls against GoTrue with the
+   existing `Pkce` helper are smaller and fully testable.
+2. **All pure logic goes into `MZikmund.Shared/Authentication` and is tested in
+   `MZikmund.Shared.Tests`** (plain `net10.0`, already in the solution). No new test project.
+3. **Per-head browser leg stays as it is today**, with one change on Windows: `OAuth2Manager` cannot
+   drive GoTrue (its token request is form-encoded RFC 6749; GoTrue's PKCE exchange is
+   `POST /auth/v1/token?grant_type=pkce` with a JSON body and an `apikey` header, and GoTrue does not
+   echo a client `state` back on the redirect). Windows therefore launches the system browser itself
+   and awaits the existing `mzikmund-app://oauthcallback` protocol activation
+   (`Platforms/Windows/Program.cs` → `MZikmundApp.OnUriCallback`). Desktop keeps the loopback
+   `HttpListener`; Android/iOS/WASM keep `WebAuthenticationBroker`.
+4. **State:** GoTrue keeps its own `state` with the upstream provider and redirects to
+   `redirect_to?code=…` without a client state. The authorization code is bound to our PKCE
+   verifier, which is the protection that matters. `OAuthCallback.Parse` gains a "no state expected"
+   mode (Task 2.2) rather than a second parser.
+5. **Sign-in keeps working at every commit.** The web API on this branch already accepts only
+   Supabase tokens (Task 0.6), so the Auth0 sign-in in the app is already dead against this branch's
+   API. Task 2.4 swaps the implementation in one commit together with the sign-in dialog and the
+   `IsAdmin` gate. **Auth0 *configuration* stays in the tree** (`AuthConfig.cs`, the `AuthConfig`
+   section in `appsettings.json`/`.sample` and its `.Section<AuthConfig>()` binding,
+   `docs/AUTH0_MIGRATION.md`) until the owner-gated Task 2.7.
+6. `IUserService` becomes a **singleton** (it is `AddScoped` today). Its dependencies (`IApplication`,
+   `IAppPreferences`, `IOptions<…>`) are all singletons, and auth state is app-global.
+7. Supabase base URL is configured as a **full URL** (`SupabaseConfig:Url`), not a project ref, so the
+   app can point at `http://127.0.0.1:54321` (local stack; `http://10.0.2.2:54321` from the Android
+   emulator) or `https://<ref>.supabase.co` without code changes. Override with
+   `MZIKMUND_SupabaseConfig__Url` / `MZIKMUND_SupabaseConfig__PublishableKey` (the existing
+   `AddEnvironmentVariables("MZIKMUND_")` hook in `App.xaml.cs`).
+
+**GoTrue endpoints used** (all relative to `{Url}/auth/v1`, all with header `apikey: {PublishableKey}`;
+verify against the running local stack in Task 2.3 Step 1 — do not trust memory):
+
+| Purpose | Request | Success body |
+|---|---|---|
+| Authorize (browser) | `GET /authorize?provider={google\|apple}&redirect_to={uri}&code_challenge={S256 challenge}&code_challenge_method=s256` | redirect to `{uri}?code={auth_code}` (or `?error=…&error_description=…`) |
+| PKCE exchange | `POST /token?grant_type=pkce` JSON `{"auth_code":…,"code_verifier":…}` | session JSON |
+| Refresh | `POST /token?grant_type=refresh_token` JSON `{"refresh_token":…}` | session JSON |
+| Email code send | `POST /otp` JSON `{"email":…,"create_user":true}` | `{}` |
+| Email code verify | `POST /verify` JSON `{"type":"email","email":…,"token":"123456"}` | session JSON |
+| Sign out | `POST /logout?scope=local` + `Authorization: Bearer {access}` | 204 |
+
+Session JSON: `access_token`, `token_type`, `expires_in`, `expires_at`, `refresh_token`, `user`.
+Refresh tokens are **single-use** (short reuse window) — the existing single-flight
+`SemaphoreSlim` in `UserService` is load-bearing; keep it.
 
 ---
 
-### Task 2.1: Supabase package, `SupabaseConfig`, and embedded configuration
+### Task 2.1: `SupabaseConfig` and its configuration section
 
 **Files:**
-- Modify: `src/Directory.Packages.props` (add `Supabase.Gotrue`)
-- Modify: `src/app/MZikmund.App.Core/MZikmund.App.Core.csproj` (package references)
 - Create: `src/app/MZikmund.App.Core/Models/SupabaseConfig.cs`
-- Delete: `src/app/MZikmund.App.Core/Models/AuthConfig.cs`
-- Delete: `src/app/MZikmund.App.Core/Services/Account/AuthenticationConstants.cs`
-- Modify: `src/app/MZikmund.App/appsettings.json` (replace the `AuthConfig` object)
-- Modify: `src/app/MZikmund.App/appsettings.development.json.sample` (replace the `AuthConfig` object)
-- Modify: `src/app/MZikmund.App/App.xaml.cs` (the `.UseConfiguration(...)` section list only)
+- Modify: `src/app/MZikmund.App/appsettings.json`, `src/app/MZikmund.App/appsettings.development.json.sample` (add a `SupabaseConfig` object; keep `AuthConfig`)
+- Modify: `src/app/MZikmund.App/App.xaml.cs` (`.Section<SupabaseConfig>()` next to `.Section<AuthConfig>()`; update the env-var comment)
 
-**Interfaces:**
-- Consumes: `src/Directory.Packages.props` **as Phase 1 Task 1.6 Step 3 left it** — both `<PackageVersion Include="Auth0.OidcClient.MAUI" Version="1.4.0" />` and `<PackageVersion Include="Auth0.AspNetCore.Authentication" Version="1.6.1" />` are already gone by the time this task runs. This task only ADDS a line; it removes nothing.
-- Produces: `public record SupabaseConfig` in namespace `MZikmund.Services.Account` with `string ProjectRef { get; init; }`, `string PublishableKey { get; init; }`, `string CallbackUri { get; init; }`, `string DesktopCallbackUri { get; init; }`, `string WasmCallbackUri { get; init; }` — all non-nullable, all defaulted. Consumed everywhere as `IOptions<SupabaseConfig>`.
-
-- [ ] **Step 1: Add the `Supabase.Gotrue` package version**
-
-In `src/Directory.Packages.props`, add this line immediately after the `<!-- Uno -->` comment:
-
-```xml
-    <PackageVersion Include="Supabase.Gotrue" Version="6.3.0" />
-```
-
-Phase 1 Task 1.6 Step 3 already deleted the two `Auth0.*` `<PackageVersion>` lines, so there is nothing to remove here. Verify that is still true before moving on:
-
-```bash
-grep -n "Auth0" src/Directory.Packages.props
-```
-
-Expected: no output.
-
-- [ ] **Step 2: Swap the JWT package for Supabase.Gotrue in `MZikmund.App.Core`**
-
-In `src/app/MZikmund.App.Core/MZikmund.App.Core.csproj`, replace this item group:
-
-```xml
-	<ItemGroup>
-		<PackageReference Include="Newtonsoft.Json" />
-		<PackageReference Include="Humanizer" />
-		<PackageReference Include="System.IdentityModel.Tokens.Jwt" />
-	</ItemGroup>
-```
-
-with:
-
-```xml
-	<ItemGroup>
-		<PackageReference Include="Newtonsoft.Json" />
-		<PackageReference Include="Humanizer" />
-		<PackageReference Include="Supabase.Gotrue" />
-	</ItemGroup>
-```
-
-The new claim reader decodes the JWT payload with `System.Text.Json` and needs no identity-model package.
-
-- [ ] **Step 3: Create the configuration record**
-
-Create `src/app/MZikmund.App.Core/Models/SupabaseConfig.cs`. The namespace is `MZikmund.Services.Account`, not `MZikmund.Business.Models` — this mirrors the file it replaces (`Models/AuthConfig.cs` also declared `namespace MZikmund.Services.Account;`).
+**Produces:** `public record SupabaseConfig` in namespace `MZikmund.Services.Account` (same namespace
+as `AuthConfig.cs`, which also lives in `Models/`):
 
 ```csharp
 namespace MZikmund.Services.Account;
 
-/// <summary>
-/// Supabase settings, bound by type name from the "SupabaseConfig" object in appsettings.json.
-/// </summary>
 public record SupabaseConfig
 {
 	/// <summary>
-	/// Gets the Supabase project reference. Every Supabase URL is derived from it.
+	/// Base URL of the Supabase project, e.g. https://abcd.supabase.co or http://127.0.0.1:54321.
 	/// </summary>
-	public string ProjectRef { get; init; } = "";
+	public string? Url { get; init; }
 
 	/// <summary>
-	/// Gets the publishable ("sb_publishable_...") key sent as the apikey header. Public by design.
+	/// Publishable (sb_publishable_...) key sent as the apikey header. Public by design.
 	/// </summary>
-	public string PublishableKey { get; init; } = "";
+	public string? PublishableKey { get; init; }
 
 	/// <summary>
-	/// Gets the custom-scheme callback used by the Windows, Android and iOS heads.
+	/// Loopback port for the desktop sign-in redirect. Supabase must allow http://127.0.0.1:{port}/callback.
 	/// </summary>
-	public string CallbackUri { get; init; } = "mzikmund-app://oauthcallback";
+	public int DesktopCallbackPort { get; init; } = 51842;
 
-	/// <summary>
-	/// Gets the loopback callback used by the desktop head, which has no custom-scheme registration.
-	/// </summary>
-	public string DesktopCallbackUri { get; init; } = "http://localhost:52619/callback/";
-
-	/// <summary>
-	/// Gets the callback used by the WASM head, which must be an https URL on the app's own origin.
-	/// </summary>
-	public string WasmCallbackUri { get; init; } = "https://mzikmund.dev/authentication-callback";
+	public bool IsConfigured =>
+		Uri.TryCreate(Url, UriKind.Absolute, out _) &&
+		!string.IsNullOrWhiteSpace(PublishableKey) &&
+		!PublishableKey.Contains("Placeholder", StringComparison.OrdinalIgnoreCase);
 }
 ```
 
-- [ ] **Step 4: Delete the two Auth0 files**
+`appsettings.json` gets `"SupabaseConfig": { "Url": "SupabaseConfig_Url_Placeholder", "PublishableKey": "SupabaseConfig_PublishableKey_Placeholder" }`
+(the embedded file ships in the binary: never a secret key). The `.sample` gets
+`"Url": "http://127.0.0.1:54321"` and the local stack's publishable key placeholder
+(`"sb_publishable_from_npx_supabase_status"`).
 
-```bash
-git rm src/app/MZikmund.App.Core/Models/AuthConfig.cs
-git rm src/app/MZikmund.App.Core/Services/Account/AuthenticationConstants.cs
-```
-
-The solution will not compile again until Task 2.6 rewrites `UserService.cs`. That is expected.
-
-- [ ] **Step 5: Replace the `AuthConfig` object in the embedded `appsettings.json`**
-
-Write `src/app/MZikmund.App/appsettings.json` in full:
-
-```json
-{
-	"AppConfig": {
-		"Environment": "Production",
-		"ApiUrl": "https://mzikmund.dev/api",
-		"WebUrl": "https://mzikmund.dev",
-		"CdnUrl": "https://cdn.mzikmund.dev"
-	},
-	"SupabaseConfig": {
-		"ProjectRef": "SupabaseConfig_ProjectRef_Placeholder",
-		"PublishableKey": "SupabaseConfig_PublishableKey_Placeholder",
-		"CallbackUri": "mzikmund-app://oauthcallback",
-		"DesktopCallbackUri": "http://localhost:52619/callback/",
-		"WasmCallbackUri": "https://mzikmund.dev/authentication-callback"
-	},
-	"LocalizationConfiguration": {
-		"Cultures": [
-			"en"
-		]
-	}
-}
-```
-
-The two placeholders are replaced with the real project ref and `sb_publishable_...` key in Task 2.9's rollout checklist. Task 2.7 makes the client factory throw a readable exception while they are still placeholders.
-
-- [ ] **Step 6: Replace the `AuthConfig` object in the development sample**
-
-Write `src/app/MZikmund.App/appsettings.development.json.sample` in full:
-
-```json
-{
-	"AppConfig": {
-		"Environment": "Development",
-		"ApiUrl": "https://localhost:7007/api",
-		"WebUrl": "https://localhost:7007/",
-		"CdnUrl": "AZURE_STORAGE_OR_CDN_URL"
-	},
-	"SupabaseConfig": {
-		"ProjectRef": "your-supabase-project-ref",
-		"PublishableKey": "sb_publishable_your_key_here",
-		"CallbackUri": "mzikmund-app://oauthcallback",
-		"DesktopCallbackUri": "http://localhost:52619/callback/",
-		"WasmCallbackUri": "http://localhost:5000/authentication-callback"
-	}
-}
-```
-
-- [ ] **Step 7: Bind the new section instead of `AuthConfig`**
-
-In `src/app/MZikmund.App/App.xaml.cs`, replace:
-
-```csharp
-				.UseConfiguration(configure: configBuilder =>
-					configBuilder
-						.EmbeddedSource<MZikmundApp>()
-						.Section<AppConfig>()
-						.Section<AuthConfig>()
-				)
-```
-
-with:
-
-```csharp
-				.UseConfiguration(configure: configBuilder =>
-					configBuilder
-						.EmbeddedSource<MZikmundApp>()
-						.Section<AppConfig>()
-						.Section<SupabaseConfig>()
-				)
-```
-
-`.Section<T>()` binds the JSON object whose key equals the **type name**, so this only works because the JSON object is named `SupabaseConfig` and not `Supabase`.
-
-- [ ] **Step 8: Verify the package resolves**
-
-```bash
-dotnet restore src/app/MZikmund.App.Core/MZikmund.App.Core.csproj
-```
-
-Expected: `Restored ...MZikmund.App.Core.csproj`, with no `NU1101`/`NU1102` errors for `Supabase.Gotrue`.
-
-- [ ] **Step 9: Commit**
-
-```bash
-git add src/Directory.Packages.props src/app/MZikmund.App.Core/MZikmund.App.Core.csproj src/app/MZikmund.App.Core/Models/SupabaseConfig.cs src/app/MZikmund.App/appsettings.json src/app/MZikmund.App/appsettings.development.json.sample src/app/MZikmund.App/App.xaml.cs
-git commit -m "feat(app): add Supabase.Gotrue package and SupabaseConfig section"
-```
+- [ ] Steps: create the record; add the JSON objects; add `.Section<SupabaseConfig>()`; build
+  `src/app/MZikmund.App/MZikmund.App.csproj -f net10.0-desktop` (with `MSBUILDDISABLENODEREUSE=1`);
+  `dotnet format`; commit `feat(app): Add the SupabaseConfig section`.
 
 ---
 
-### Task 2.2: `SupabaseClaimsReader` — read identity out of the access token (test-first)
-
-The security fix in Task 2.8 hangs entirely off this class, so it is written test-first and lives in a plain, Uno-free file.
+### Task 2.2: Shared GoTrue helpers (test-first, `MZikmund.Shared`)
 
 **Files:**
-- Create: `src/app/MZikmund.App.Core.Tests/MZikmund.App.Core.Tests.csproj`
-- Modify: `MZikmund.slnx` (register the new project under the `/App/` folder)
-- Create: `src/app/MZikmund.App.Core.Tests/Services/Account/SupabaseClaimsReaderTests.cs`
-- Create: `src/app/MZikmund.App.Core/Services/Account/SupabaseClaims.cs`
-- Create: `src/app/MZikmund.App.Core/Services/Account/SupabaseClaimsReader.cs`
-- Test: `src/app/MZikmund.App.Core.Tests/Services/Account/SupabaseClaimsReaderTests.cs`
-
-**Interfaces:**
-- Consumes: nothing.
-- Produces:
-  - `public sealed record SupabaseClaims` in `MZikmund.Services.Account` with `required string UserId { get; init; }`, `required string Email { get; init; }`, `required string DisplayName { get; init; }`, `string? AvatarUrl { get; init; }`, `required bool IsAdmin { get; init; }`.
-  - `public static class SupabaseClaimsReader` in `MZikmund.Services.Account` with `public static SupabaseClaims Read(string accessToken)`.
-
-- [ ] **Step 1: Create the test project**
-
-Create `src/app/MZikmund.App.Core.Tests/MZikmund.App.Core.Tests.csproj`:
-
-```xml
-<Project Sdk="Microsoft.NET.Sdk">
-
-	<PropertyGroup>
-		<TargetFramework>net10.0</TargetFramework>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>enable</Nullable>
-
-		<IsPackable>false</IsPackable>
-		<IsTestProject>true</IsTestProject>
-	</PropertyGroup>
-
-	<!--
-		MZikmund.App.Core only multi-targets Uno TFMs, so it cannot be referenced from a plain
-		net10.0 test project. The Uno-free files under test are linked in directly instead.
-	-->
-	<ItemGroup>
-		<Compile Include="..\MZikmund.App.Core\Services\Account\SupabaseClaims.cs" Link="Linked\SupabaseClaims.cs" />
-		<Compile Include="..\MZikmund.App.Core\Services\Account\SupabaseClaimsReader.cs" Link="Linked\SupabaseClaimsReader.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<PackageReference Include="Microsoft.NET.Test.Sdk" />
-		<PackageReference Include="Moq" />
-		<PackageReference Include="xunit" />
-		<PackageReference Include="xunit.runner.visualstudio">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-		<PackageReference Include="coverlet.collector">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-	</ItemGroup>
-
-</Project>
-```
-
-- [ ] **Step 2: Register the test project in the solution**
-
-In `MZikmund.slnx`, inside `<Folder Name="/App/">`, add a third project entry after the `MZikmund.App` entry so the folder reads:
-
-```xml
-  <Folder Name="/App/">
-    <Project Path="src/app/MZikmund.App.Core/MZikmund.App.Core.csproj">
-      <BuildType Solution="Ad-Hoc|*" Project="Debug" />
-      <BuildType Solution="AppStore|*" Project="Debug" />
-    </Project>
-    <Project Path="src/app/MZikmund.App.Core.Tests/MZikmund.App.Core.Tests.csproj">
-      <BuildType Solution="Ad-Hoc|*" Project="Debug" />
-      <BuildType Solution="AppStore|*" Project="Debug" />
-    </Project>
-    <Project Path="src/app/MZikmund.App/MZikmund.App.csproj">
-      <BuildType Solution="Ad-Hoc|*" Project="Debug" />
-      <BuildType Solution="AppStore|*" Project="Debug" />
-      <Deploy />
-    </Project>
-  </Folder>
-```
-
-- [ ] **Step 3: Write the failing tests**
-
-Create `src/app/MZikmund.App.Core.Tests/Services/Account/SupabaseClaimsReaderTests.cs`:
-
-```csharp
-using System.Text;
-using MZikmund.Services.Account;
-using Xunit;
-
-namespace MZikmund.App.Core.Tests.Services.Account;
-
-public class SupabaseClaimsReaderTests
-{
-	[Fact]
-	public void Read_AppMetadataRoleIsAdmin_ReportsAdmin()
-	{
-		// Arrange
-		var token = CreateToken(
-			"""
-			{"sub":"6f9619ff-8b86-d011-b42d-00c04fc964ff","email":"martin@zikmund.dev","app_metadata":{"provider":"google","role":"admin"},"user_metadata":{"full_name":"Martin Zikmund"}}
-			""");
-
-		// Act
-		var claims = SupabaseClaimsReader.Read(token);
-
-		// Assert
-		Assert.True(claims.IsAdmin);
-		Assert.Equal("6f9619ff-8b86-d011-b42d-00c04fc964ff", claims.UserId);
-		Assert.Equal("martin@zikmund.dev", claims.Email);
-	}
-
-	[Fact]
-	public void Read_NoRoleInAppMetadata_IsNotAdmin()
-	{
-		// Arrange
-		var token = CreateToken(
-			"""
-			{"sub":"11111111-1111-1111-1111-111111111111","email":"reader@example.com","app_metadata":{"provider":"google","providers":["google"]},"user_metadata":{"full_name":"A Reader"}}
-			""");
-
-		// Act
-		var claims = SupabaseClaimsReader.Read(token);
-
-		// Assert
-		Assert.False(claims.IsAdmin);
-	}
-
-	[Fact]
-	public void Read_RoleOnlyInUserMetadata_IsNotAdmin()
-	{
-		// Arrange - user_metadata is user-editable in Supabase and must never grant admin.
-		var token = CreateToken(
-			"""
-			{"sub":"22222222-2222-2222-2222-222222222222","email":"attacker@example.com","app_metadata":{},"user_metadata":{"role":"admin","full_name":"Not An Admin"}}
-			""");
-
-		// Act
-		var claims = SupabaseClaimsReader.Read(token);
-
-		// Assert
-		Assert.False(claims.IsAdmin);
-	}
-
-	[Fact]
-	public void Read_TopLevelRoleClaimIsAuthenticated_IsNotAdmin()
-	{
-		// Arrange - Supabase's top-level "role" is the Postgres role, not an application role.
-		var token = CreateToken(
-			"""
-			{"sub":"33333333-3333-3333-3333-333333333333","email":"reader@example.com","role":"authenticated","app_metadata":{},"user_metadata":{}}
-			""");
-
-		// Act
-		var claims = SupabaseClaimsReader.Read(token);
-
-		// Assert
-		Assert.False(claims.IsAdmin);
-	}
-
-	[Fact]
-	public void Read_FullNameInUserMetadata_UsesItAsDisplayName()
-	{
-		// Arrange
-		var token = CreateToken(
-			"""
-			{"sub":"44444444-4444-4444-4444-444444444444","email":"martin@zikmund.dev","app_metadata":{},"user_metadata":{"full_name":"Martin Zikmund","name":"mzikmund"}}
-			""");
-
-		// Act
-		var claims = SupabaseClaimsReader.Read(token);
-
-		// Assert
-		Assert.Equal("Martin Zikmund", claims.DisplayName);
-	}
-
-	[Fact]
-	public void Read_OnlyNameInUserMetadata_FallsBackToName()
-	{
-		// Arrange
-		var token = CreateToken(
-			"""
-			{"sub":"55555555-5555-5555-5555-555555555555","email":"martin@zikmund.dev","app_metadata":{},"user_metadata":{"name":"mzikmund"}}
-			""");
-
-		// Act
-		var claims = SupabaseClaimsReader.Read(token);
-
-		// Assert
-		Assert.Equal("mzikmund", claims.DisplayName);
-	}
-
-	[Fact]
-	public void Read_NoNameAtAll_FallsBackToEmailLocalPart()
-	{
-		// Arrange - Apple never returns a name in the web OAuth response.
-		var token = CreateToken(
-			"""
-			{"sub":"66666666-6666-6666-6666-666666666666","email":"martin@zikmund.dev","app_metadata":{},"user_metadata":{}}
-			""");
-
-		// Act
-		var claims = SupabaseClaimsReader.Read(token);
-
-		// Assert
-		Assert.Equal("martin", claims.DisplayName);
-	}
-
-	[Fact]
-	public void Read_AvatarUrlInUserMetadata_IsReturned()
-	{
-		// Arrange
-		var token = CreateToken(
-			"""
-			{"sub":"77777777-7777-7777-7777-777777777777","email":"martin@zikmund.dev","app_metadata":{},"user_metadata":{"avatar_url":"https://example.com/a.png","picture":"https://example.com/p.png"}}
-			""");
-
-		// Act
-		var claims = SupabaseClaimsReader.Read(token);
-
-		// Assert
-		Assert.Equal("https://example.com/a.png", claims.AvatarUrl);
-	}
-
-	[Fact]
-	public void Read_OnlyPictureInUserMetadata_FallsBackToPicture()
-	{
-		// Arrange
-		var token = CreateToken(
-			"""
-			{"sub":"88888888-8888-8888-8888-888888888888","email":"martin@zikmund.dev","app_metadata":{},"user_metadata":{"picture":"https://example.com/p.png"}}
-			""");
-
-		// Act
-		var claims = SupabaseClaimsReader.Read(token);
-
-		// Assert
-		Assert.Equal("https://example.com/p.png", claims.AvatarUrl);
-	}
-
-	[Fact]
-	public void Read_NoAvatar_ReturnsNull()
-	{
-		// Arrange
-		var token = CreateToken(
-			"""
-			{"sub":"99999999-9999-9999-9999-999999999999","email":"martin@zikmund.dev","app_metadata":{},"user_metadata":{}}
-			""");
-
-		// Act
-		var claims = SupabaseClaimsReader.Read(token);
-
-		// Assert
-		Assert.Null(claims.AvatarUrl);
-	}
-
-	[Fact]
-	public void Read_EmptyToken_Throws()
-	{
-		// Arrange
-		var token = "";
-
-		// Act & Assert
-		Assert.Throws<ArgumentException>(() => SupabaseClaimsReader.Read(token));
-	}
-
-	[Fact]
-	public void Read_TokenWithoutPayloadSegment_Throws()
-	{
-		// Arrange
-		var token = "onlyonesegment";
-
-		// Act & Assert
-		Assert.Throws<FormatException>(() => SupabaseClaimsReader.Read(token));
-	}
-
-	/// <summary>
-	/// Builds an unsigned JWT with the supplied payload. The reader never validates the
-	/// signature - the API does that - so a placeholder signature segment is enough.
-	/// </summary>
-	private static string CreateToken(string payloadJson)
-	{
-		static string Encode(string value) =>
-			Convert.ToBase64String(Encoding.UTF8.GetBytes(value))
-				.TrimEnd('=')
-				.Replace('+', '-')
-				.Replace('/', '_');
-
-		return $"{Encode("{\"alg\":\"none\",\"typ\":\"JWT\"}")}.{Encode(payloadJson)}.";
-	}
-}
-```
-
-- [ ] **Step 4: Run the tests and watch them fail to compile**
-
-```bash
-dotnet test src/app/MZikmund.App.Core.Tests/MZikmund.App.Core.Tests.csproj
-```
-
-Expected failure — the linked files do not exist yet, so the build fails first on the missing `<Compile Include>` items and then on:
-
-```
-error CS0103: The name 'SupabaseClaimsReader' does not exist in the current context
-```
-
-- [ ] **Step 5: Create the claims record**
-
-Create `src/app/MZikmund.App.Core/Services/Account/SupabaseClaims.cs`:
-
-```csharp
-namespace MZikmund.Services.Account;
-
-/// <summary>
-/// The identity fields the app reads out of a Supabase access token.
-/// </summary>
-public sealed record SupabaseClaims
-{
-	/// <summary>
-	/// Gets the Supabase user id (the "sub" claim).
-	/// </summary>
-	public required string UserId { get; init; }
-
-	/// <summary>
-	/// Gets the user's email address.
-	/// </summary>
-	public required string Email { get; init; }
-
-	/// <summary>
-	/// Gets a non-empty display name, falling back to the email local part.
-	/// </summary>
-	public required string DisplayName { get; init; }
-
-	/// <summary>
-	/// Gets the avatar URL, or <c>null</c> when the provider supplied none.
-	/// </summary>
-	public string? AvatarUrl { get; init; }
-
-	/// <summary>
-	/// Gets a value indicating whether app_metadata.role is "admin".
-	/// </summary>
-	public required bool IsAdmin { get; init; }
-}
-```
-
-- [ ] **Step 6: Create the reader**
-
-Create `src/app/MZikmund.App.Core/Services/Account/SupabaseClaimsReader.cs`:
-
-```csharp
-using System.Text.Json;
-
-namespace MZikmund.Services.Account;
-
-/// <summary>
-/// Reads identity fields out of a Supabase access token for UI purposes.
-/// </summary>
-/// <remarks>
-/// Supabase emits app_metadata and user_metadata as nested JSON objects, so their members are not
-/// reachable as claims of their own and have to be parsed by hand. The admin flag comes from
-/// app_metadata (server-controlled) and never from user_metadata (user-editable). This is a UI
-/// gate only - the API enforces the real boundary.
-/// </remarks>
-public static class SupabaseClaimsReader
-{
-	public static SupabaseClaims Read(string accessToken)
-	{
-		if (string.IsNullOrWhiteSpace(accessToken))
-		{
-			throw new ArgumentException("Access token must not be empty.", nameof(accessToken));
-		}
-
-		var segments = accessToken.Split('.');
-		if (segments.Length < 2)
-		{
-			throw new FormatException("Access token is not a JWT.");
-		}
-
-		using var payload = JsonDocument.Parse(DecodeSegment(segments[1]));
-		var root = payload.RootElement;
-
-		var email = ReadString(root, "email") ?? "";
-		var appMetadata = ReadObject(root, "app_metadata");
-		var userMetadata = ReadObject(root, "user_metadata");
-
-		return new SupabaseClaims
-		{
-			UserId = ReadString(root, "sub") ?? "",
-			Email = email,
-			DisplayName =
-				ReadString(userMetadata, "full_name") ??
-				ReadString(userMetadata, "name") ??
-				LocalPart(email),
-			AvatarUrl =
-				ReadString(userMetadata, "avatar_url") ??
-				ReadString(userMetadata, "picture"),
-			IsAdmin = string.Equals(ReadString(appMetadata, "role"), "admin", StringComparison.Ordinal)
-		};
-	}
-
-	private static byte[] DecodeSegment(string segment)
-	{
-		var value = segment.Replace('-', '+').Replace('_', '/');
-		value += (value.Length % 4) switch
-		{
-			2 => "==",
-			3 => "=",
-			_ => ""
-		};
-
-		try
-		{
-			return Convert.FromBase64String(value);
-		}
-		catch (FormatException)
-		{
-			throw new FormatException("Access token payload is not valid base64url.");
-		}
-	}
-
-	private static JsonElement? ReadObject(JsonElement parent, string propertyName) =>
-		parent.ValueKind == JsonValueKind.Object &&
-		parent.TryGetProperty(propertyName, out var element) &&
-		element.ValueKind == JsonValueKind.Object
-			? element
-			: null;
-
-	private static string? ReadString(JsonElement? parent, string propertyName)
-	{
-		if (parent is not { } element || element.ValueKind != JsonValueKind.Object)
-		{
-			return null;
-		}
-
-		if (!element.TryGetProperty(propertyName, out var value) || value.ValueKind != JsonValueKind.String)
-		{
-			return null;
-		}
-
-		var result = value.GetString();
-		return string.IsNullOrWhiteSpace(result) ? null : result;
-	}
-
-	private static string LocalPart(string email)
-	{
-		if (string.IsNullOrWhiteSpace(email))
-		{
-			return "User";
-		}
-
-		var separator = email.IndexOf('@');
-		return separator > 0 ? email.Substring(0, separator) : email;
-	}
-}
-```
-
-- [ ] **Step 7: Run the tests and watch them pass**
-
-```bash
-dotnet test src/app/MZikmund.App.Core.Tests/MZikmund.App.Core.Tests.csproj
-```
-
-Expected: `Passed!  - Failed: 0, Passed: 12, Skipped: 0`
-
-- [ ] **Step 8: Format and commit**
-
-```bash
-dotnet format MZikmund.slnx
-git add MZikmund.slnx src/app/MZikmund.App.Core.Tests src/app/MZikmund.App.Core/Services/Account/SupabaseClaims.cs src/app/MZikmund.App.Core/Services/Account/SupabaseClaimsReader.cs
-git commit -m "feat(app): read Supabase identity claims from the access token"
-```
+- Modify: `src/shared/MZikmund.Shared/Authentication/OAuthCallback.cs`
+- Create: `src/shared/MZikmund.Shared/Authentication/SupabaseAuthUris.cs`
+- Create: `src/shared/MZikmund.Shared/Authentication/SupabaseIdentity.cs`
+- Create: `src/shared/MZikmund.Shared/Authentication/SupabaseAccessToken.cs`
+- Test: `src/shared/MZikmund.Shared.Tests/Authentication/OAuthCallbackTests.cs` (extend), `SupabaseAuthUrisTests.cs`, `SupabaseAccessTokenTests.cs`
+
+**Produces (namespace `MZikmund.Shared.Authentication`):**
+- `OAuthCallback.Parse(Uri callbackUri, string? expectedState)` — when `expectedState` is `null` the
+  state check is skipped; existing behaviour (and the existing tests) unchanged for non-null.
+  Also accept `error`/`error_description` from the URI **fragment** (GoTrue reports some failures
+  there) — add a test for it.
+- `public enum SupabaseOAuthProvider { Google, Apple }` and
+  `public static class SupabaseAuthUris` with
+  `Uri Authorize(string baseUrl, SupabaseOAuthProvider provider, Uri redirectUri, string codeChallenge)`
+  (lower-case provider name, all values `Uri.EscapeDataString`d, `code_challenge_method=s256`,
+  tolerant of a trailing `/` on `baseUrl`) and `Uri Endpoint(string baseUrl, string relative)`
+  (→ `{base}/auth/v1/{relative}`).
+- `public sealed record SupabaseIdentity(string UserId, string? Email, string DisplayName, string? AvatarUrl, bool IsAdmin, string Issuer, DateTimeOffset ExpiresOn)`.
+- `public static class SupabaseAccessToken` with `SupabaseIdentity Read(string accessToken)` —
+  base64url-decodes the JWT payload with `System.Text.Json` (`JsonDocument`, no identity-model
+  package, no signature check: the API validates; the app only reads its own token). Rules:
+  - `UserId` = `sub`; `Issuer` = `iss`; `ExpiresOn` = `exp` (Unix seconds).
+  - `DisplayName` = `user_metadata.full_name` ?? `user_metadata.name` ?? `email` ?? `"User"`.
+  - `AvatarUrl` = `user_metadata.avatar_url` ?? `user_metadata.picture`.
+  - `IsAdmin` = `app_metadata.role == "admin"` **only**. A `role` inside `user_metadata` and the
+    top-level Postgres `role` claim (`"authenticated"`) must both yield `false`.
+  - Malformed token → `FormatException`.
+
+Tests (xUnit v2, `// Arrange / Act / Assert`, build tokens in the test with a small
+`CreateToken(object payload)` helper that base64url-encodes `{"alg":"ES256"}.{payload}.sig`):
+admin via app_metadata → true; role only in user_metadata → false; top-level role "authenticated" →
+false; full_name precedence; email fallback; avatar fallback to `picture`; exp/iss mapping;
+malformed → throws; authorize URI shape (escaped redirect, lower-case provider, s256); callback
+without state accepted when `expectedState` is null; error in fragment surfaced.
+
+- [ ] TDD loop: write tests → run
+  `dotnet test src/shared/MZikmund.Shared.Tests/MZikmund.Shared.Tests.csproj` (red) → implement →
+  green → `dotnet format` → commit implementation first
+  (`feat: Add GoTrue URI, callback and access-token helpers`) then tests
+  (`test: Cover the GoTrue helpers`), per the fix-then-test split rule.
 
 ---
 
-### Task 2.3: `SupabaseCallbackParser` — parse the OAuth callback URI (test-first)
+### Task 2.3: `SupabaseAuthClient` — the GoTrue HTTP calls (test-first)
 
 **Files:**
-- Create: `src/app/MZikmund.App.Core.Tests/Services/Account/SupabaseCallbackParserTests.cs`
-- Create: `src/app/MZikmund.App.Core/Services/Account/SupabaseCallbackParser.cs`
-- Modify: `src/app/MZikmund.App.Core.Tests/MZikmund.App.Core.Tests.csproj` (add one `<Compile Include>`)
-- Test: `src/app/MZikmund.App.Core.Tests/Services/Account/SupabaseCallbackParserTests.cs`
+- Create: `src/shared/MZikmund.Shared/Authentication/SupabaseAuthClient.cs`
+- Create: `src/shared/MZikmund.Shared/Authentication/SupabaseSession.cs`
+- Create: `src/shared/MZikmund.Shared/Authentication/SupabaseAuthException.cs`
+- Create: `src/shared/MZikmund.Shared/Authentication/SupabaseAuthJsonContext.cs` (source-generated `JsonSerializerContext` — reflection JSON is not safe under WASM/iOS trimming)
+- Test: `src/shared/MZikmund.Shared.Tests/Authentication/SupabaseAuthClientTests.cs` (stub `HttpMessageHandler`, no network)
 
-**Interfaces:**
-- Consumes: nothing.
-- Produces:
-  - `public sealed record SupabaseCallbackResult` in `MZikmund.Services.Account` with `string? Code { get; init; }`, `string? State { get; init; }`, `string? Error { get; init; }`, `string? ErrorDescription { get; init; }`.
-  - `public static class SupabaseCallbackParser` in `MZikmund.Services.Account` with `public static SupabaseCallbackResult Parse(Uri callbackUri)`.
+**Produces:**
+- `public sealed record SupabaseSession(string AccessToken, string RefreshToken, int ExpiresIn)`.
+- `public class SupabaseAuthException : Exception` with `bool IsRejected` (true for HTTP 4xx — the
+  refresh token / code / OTP was refused; false for 5xx). Transport failures surface as the original
+  `HttpRequestException` so callers can keep a cached session on a flaky network (same policy as
+  today's `TokenRequestRejectedException`).
+- `public sealed class SupabaseAuthClient` — ctor `SupabaseAuthClient(HttpClient httpClient, string baseUrl, string publishableKey)`;
+  methods `Task<SupabaseSession> ExchangeCodeAsync(string authCode, string codeVerifier, CancellationToken ct)`,
+  `RefreshAsync(string refreshToken, ct)`, `Task SendEmailCodeAsync(string email, ct)`,
+  `Task<SupabaseSession> VerifyEmailCodeAsync(string email, string code, ct)`,
+  `Task SignOutAsync(string accessToken, ct)`. Every request carries `apikey`; JSON bodies exactly as
+  in the endpoint table; error bodies (`{"code":…,"error_code":…,"msg":…}` or
+  `{"error":…,"error_description":…}`) are folded into the exception message.
 
-- [ ] **Step 1: Link the not-yet-written file into the test project**
-
-In `src/app/MZikmund.App.Core.Tests/MZikmund.App.Core.Tests.csproj`, replace the linked-sources item group with:
-
-```xml
-	<ItemGroup>
-		<Compile Include="..\MZikmund.App.Core\Services\Account\SupabaseClaims.cs" Link="Linked\SupabaseClaims.cs" />
-		<Compile Include="..\MZikmund.App.Core\Services\Account\SupabaseClaimsReader.cs" Link="Linked\SupabaseClaimsReader.cs" />
-		<Compile Include="..\MZikmund.App.Core\Services\Account\SupabaseCallbackParser.cs" Link="Linked\SupabaseCallbackParser.cs" />
-	</ItemGroup>
-```
-
-- [ ] **Step 2: Write the failing tests**
-
-Create `src/app/MZikmund.App.Core.Tests/Services/Account/SupabaseCallbackParserTests.cs`:
-
-```csharp
-using MZikmund.Services.Account;
-using Xunit;
-
-namespace MZikmund.App.Core.Tests.Services.Account;
-
-public class SupabaseCallbackParserTests
-{
-	[Fact]
-	public void Parse_CustomSchemeWithCodeAndState_ReturnsBoth()
-	{
-		// Arrange
-		var uri = new Uri("mzikmund-app://oauthcallback?code=009e5066-fc11-4eca-8c8c-6fd82aa263f2&state=abc123");
-
-		// Act
-		var result = SupabaseCallbackParser.Parse(uri);
-
-		// Assert
-		Assert.Equal("009e5066-fc11-4eca-8c8c-6fd82aa263f2", result.Code);
-		Assert.Equal("abc123", result.State);
-		Assert.Null(result.Error);
-	}
-
-	[Fact]
-	public void Parse_LoopbackUriWithCode_ReturnsCode()
-	{
-		// Arrange
-		var uri = new Uri("http://localhost:52619/callback/?code=009e5066-fc11-4eca-8c8c-6fd82aa263f2");
-
-		// Act
-		var result = SupabaseCallbackParser.Parse(uri);
-
-		// Assert
-		Assert.Equal("009e5066-fc11-4eca-8c8c-6fd82aa263f2", result.Code);
-		Assert.Null(result.State);
-	}
-
-	[Fact]
-	public void Parse_ErrorInQuery_ReturnsErrorAndDescription()
-	{
-		// Arrange
-		var uri = new Uri("mzikmund-app://oauthcallback?error=access_denied&error_description=User%20cancelled");
-
-		// Act
-		var result = SupabaseCallbackParser.Parse(uri);
-
-		// Assert
-		Assert.Equal("access_denied", result.Error);
-		Assert.Equal("User cancelled", result.ErrorDescription);
-		Assert.Null(result.Code);
-	}
-
-	[Fact]
-	public void Parse_ErrorInFragment_IsStillFound()
-	{
-		// Arrange - GoTrue returns some provider errors in the fragment rather than the query.
-		var uri = new Uri("mzikmund-app://oauthcallback#error=server_error&error_description=Bad+gateway");
-
-		// Act
-		var result = SupabaseCallbackParser.Parse(uri);
-
-		// Assert
-		Assert.Equal("server_error", result.Error);
-		Assert.Equal("Bad gateway", result.ErrorDescription);
-	}
-
-	[Fact]
-	public void Parse_QueryWinsOverFragment_ForTheSameKey()
-	{
-		// Arrange
-		var uri = new Uri("mzikmund-app://oauthcallback?code=from-query#code=from-fragment");
-
-		// Act
-		var result = SupabaseCallbackParser.Parse(uri);
-
-		// Assert
-		Assert.Equal("from-query", result.Code);
-	}
-
-	[Fact]
-	public void Parse_NoParameters_ReturnsAllNull()
-	{
-		// Arrange
-		var uri = new Uri("mzikmund-app://oauthcallback");
-
-		// Act
-		var result = SupabaseCallbackParser.Parse(uri);
-
-		// Assert
-		Assert.Null(result.Code);
-		Assert.Null(result.State);
-		Assert.Null(result.Error);
-		Assert.Null(result.ErrorDescription);
-	}
-
-	[Fact]
-	public void Parse_EmptyCodeValue_IsTreatedAsMissing()
-	{
-		// Arrange
-		var uri = new Uri("mzikmund-app://oauthcallback?code=&state=abc123");
-
-		// Act
-		var result = SupabaseCallbackParser.Parse(uri);
-
-		// Assert
-		Assert.Null(result.Code);
-		Assert.Equal("abc123", result.State);
-	}
-
-	[Fact]
-	public void Parse_NullUri_Throws()
-	{
-		// Arrange
-		Uri? uri = null;
-
-		// Act & Assert
-		Assert.Throws<ArgumentNullException>(() => SupabaseCallbackParser.Parse(uri!));
-	}
-}
-```
-
-- [ ] **Step 3: Run the tests and watch them fail**
-
-```bash
-dotnet test src/app/MZikmund.App.Core.Tests/MZikmund.App.Core.Tests.csproj
-```
-
-Expected failure:
-
-```
-error CS0103: The name 'SupabaseCallbackParser' does not exist in the current context
-```
-
-- [ ] **Step 4: Implement the parser**
-
-Create `src/app/MZikmund.App.Core/Services/Account/SupabaseCallbackParser.cs`:
-
-```csharp
-namespace MZikmund.Services.Account;
-
-/// <summary>
-/// The values GoTrue sends back to the redirect URI once the browser leg is finished.
-/// </summary>
-public sealed record SupabaseCallbackResult
-{
-	/// <summary>
-	/// Gets the PKCE authorization code, or <c>null</c> when none was returned.
-	/// </summary>
-	public string? Code { get; init; }
-
-	/// <summary>
-	/// Gets the echoed state value, or <c>null</c> when the provider did not echo one.
-	/// </summary>
-	public string? State { get; init; }
-
-	/// <summary>
-	/// Gets the error code, or <c>null</c> when the callback succeeded.
-	/// </summary>
-	public string? Error { get; init; }
-
-	/// <summary>
-	/// Gets the human-readable error description, when one was supplied.
-	/// </summary>
-	public string? ErrorDescription { get; init; }
-}
-
-/// <summary>
-/// Parses an OAuth callback URI. Values are read from the query first and from the fragment second,
-/// because GoTrue puts PKCE results in the query but surfaces some provider errors in the fragment.
-/// </summary>
-public static class SupabaseCallbackParser
-{
-	public static SupabaseCallbackResult Parse(Uri callbackUri)
-	{
-		if (callbackUri is null)
-		{
-			throw new ArgumentNullException(nameof(callbackUri));
-		}
-
-		var values = ParsePairs(callbackUri.Query);
-		foreach (var pair in ParsePairs(callbackUri.Fragment))
-		{
-			if (!values.ContainsKey(pair.Key))
-			{
-				values[pair.Key] = pair.Value;
-			}
-		}
-
-		return new SupabaseCallbackResult
-		{
-			Code = Get(values, "code"),
-			State = Get(values, "state"),
-			Error = Get(values, "error"),
-			ErrorDescription = Get(values, "error_description")
-		};
-	}
-
-	private static Dictionary<string, string> ParsePairs(string value)
-	{
-		Dictionary<string, string> result = new(StringComparer.OrdinalIgnoreCase);
-		if (string.IsNullOrEmpty(value))
-		{
-			return result;
-		}
-
-		foreach (var pair in value.TrimStart('?', '#').Split('&', StringSplitOptions.RemoveEmptyEntries))
-		{
-			var separator = pair.IndexOf('=');
-			if (separator <= 0)
-			{
-				continue;
-			}
-
-			var key = Uri.UnescapeDataString(pair.Substring(0, separator));
-			var item = Uri.UnescapeDataString(pair.Substring(separator + 1).Replace('+', ' '));
-			result[key] = item;
-		}
-
-		return result;
-	}
-
-	private static string? Get(Dictionary<string, string> values, string key) =>
-		values.TryGetValue(key, out var value) && value.Length > 0 ? value : null;
-}
-```
-
-- [ ] **Step 5: Run the tests and watch them pass**
-
-```bash
-dotnet test src/app/MZikmund.App.Core.Tests/MZikmund.App.Core.Tests.csproj
-```
-
-Expected: `Passed!  - Failed: 0, Passed: 20, Skipped: 0`
-
-- [ ] **Step 6: Format and commit**
-
-```bash
-dotnet format MZikmund.slnx
-git add src/app/MZikmund.App.Core.Tests src/app/MZikmund.App.Core/Services/Account/SupabaseCallbackParser.cs
-git commit -m "feat(app): parse OAuth callback URIs from query and fragment"
-```
+- [ ] **Step 1 (needs Docker; skip with a note if the local stack is not up):** with
+  `npx supabase start` running, confirm the endpoint shapes with curl — send an OTP to
+  `test@example.com`, read the 6-digit code from Mailpit (`http://127.0.0.1:54324`), `POST /verify`,
+  then `POST /token?grant_type=refresh_token`. Record any deviation from the table in this task
+  before coding.
+- [ ] TDD: tests assert method/URL/headers/body per call, 4xx → `IsRejected == true`, 5xx →
+  `IsRejected == false`, session JSON parsed. Commit implementation, then tests.
 
 ---
 
-### Task 2.4: Session persistence over app preferences (test-first)
+### Task 2.4: Supabase `UserService`, the sign-in dialog and the `IsAdmin` gate (SECURITY ORDERING)
+
+Readers must never see the Admin menu. The gate lands **in the same commit** that lets a reader sign
+in. Today `WindowShell.xaml` binds the Admin item's `Visibility` to `ViewModel.IsLoggedIn`.
 
 **Files:**
-- Create: `src/app/MZikmund.App.Core.Tests/Services/Account/SupabaseSessionPersistenceTests.cs`
-- Create: `src/app/MZikmund.App.Core/Services/Account/ISupabaseSessionStore.cs`
-- Create: `src/app/MZikmund.App.Core/Services/Account/SupabaseSessionPersistence.cs`
-- Create: `src/app/MZikmund.App.Core/Services/Account/AppPreferencesSessionStore.cs`
-- Modify: `src/app/MZikmund.App.Core/Services/Preferences/IAppPreferences.cs` (replace the five Auth0 token members)
-- Modify: `src/app/MZikmund.App.Core/Services/Preferences/AppPreferences.cs` (same)
-- Modify: `src/app/MZikmund.App.Core.Tests/MZikmund.App.Core.Tests.csproj` (two `<Compile Include>`, one `<PackageReference>`)
-- Test: `src/app/MZikmund.App.Core.Tests/Services/Account/SupabaseSessionPersistenceTests.cs`
+- Modify: `src/app/MZikmund.App.Core/Services/Account/IUserService.cs`, `UserService.cs` (rewrite in place; keep the file names)
+- Delete: `src/app/MZikmund.App.Core/Services/Account/AuthenticationInfo.cs` (replaced by `SupabaseIdentity`); `AuthenticationConstants.cs` stays until Task 2.7 only if still referenced — otherwise delete it here (it is an Auth0 scope list, not configuration)
+- Create: `src/app/MZikmund.App.Core/Services/Account/ISignInPrompt.cs` (`Task<bool> EnsureSignedInAsync()`)
+- Create: `src/app/MZikmund.App.Core/ViewModels/SignInDialogViewModel.cs`
+- Create: `src/app/MZikmund.App/Dialogs/SignInDialog.xaml` + `.xaml.cs` (`SignInDialogBase : DialogBase<SignInDialogViewModel>`)
+- Create: `src/app/MZikmund.App.Core/Services/Account/SignInPrompt.cs` (needs only `IDialogService` and `IUserService`)
+- Modify: `src/app/MZikmund.App.Core/ViewModels/WindowShellViewModel.cs`, `src/app/MZikmund.App/WindowShell.xaml`
+- Modify: `src/app/MZikmund.App.Core/ViewModels/SettingsViewModel.cs` if it uses removed members
+- Modify: `src/app/MZikmund.App/App.xaml.cs` (`ConfigureServices`, `GetTokenAsync`, `OnUriCallback`)
+- Modify: `src/app/MZikmund.App/Strings/en/Resources.resw`, `Strings/cs/Resources.resw`
+- Modify: `src/app/MZikmund.App/Assets/Fonts/icons.txt`, `subset-icons.ps1`, `FluentSystemIcons-Resizable.ttf`, `Theme/Icons.xaml` only if the dialog needs a glyph that is missing (mail and person exist)
 
-**Interfaces:**
-- Consumes: nothing from earlier tasks.
-- Produces:
-  - `public interface ISupabaseSessionStore` in `MZikmund.Services.Account` with `string? Read()`, `void Write(string sessionJson)`, `void Clear()`.
-  - `public sealed class SupabaseSessionPersistence : IGotrueSessionPersistence<Supabase.Gotrue.Session>` in `MZikmund.Services.Account`, ctor `SupabaseSessionPersistence(ISupabaseSessionStore store)`.
-  - `public sealed class AppPreferencesSessionStore : ISupabaseSessionStore` in `MZikmund.Services.Account`, ctor `AppPreferencesSessionStore(IAppPreferences appPreferences)`.
-  - `IAppPreferences` gains `string? SupabaseSession { get; set; }` and loses `AccessToken`, `RefreshToken`, `UserId`, `DisplayName`, `TokenExpiresOn`.
-
-> **Anchor notice for later phases — Steps 7 and 8 rewrite `IAppPreferences.cs` and `AppPreferences.cs` IN FULL.**
-> After this task, `IAppPreferences` has exactly TWO members — `AppTheme Theme { get; set; }` and
-> `string? SupabaseSession { get; set; }` — and `AppPreferences` has exactly TWO constants —
-> `private const string AppThemeKey = "AppTheme";` and `private const string SupabaseSessionKey = "SupabaseSession";`.
-> Every Auth0-era member (`AccessToken`, `RefreshToken`, `UserId`, `DisplayName`, `TokenExpiresOn`) and
-> every Auth0-era key constant (including `private const string TokenExpiresOnKey = "TokenExpiresOn";`) is GONE.
-> Any later phase that adds a preference MUST anchor its insertion on `string? SupabaseSession { get; set; }`
-> (interface) and on `private const string SupabaseSessionKey = "SupabaseSession";` (implementation).
-> Anchoring on `DateTimeOffset? TokenExpiresOn { get; set; }` or `TokenExpiresOnKey` will not match anything.
-
-- [ ] **Step 1: Wire the new sources and package into the test project**
-
-In `src/app/MZikmund.App.Core.Tests/MZikmund.App.Core.Tests.csproj`, replace the linked-sources item group with:
-
-```xml
-	<ItemGroup>
-		<Compile Include="..\MZikmund.App.Core\Services\Account\SupabaseClaims.cs" Link="Linked\SupabaseClaims.cs" />
-		<Compile Include="..\MZikmund.App.Core\Services\Account\SupabaseClaimsReader.cs" Link="Linked\SupabaseClaimsReader.cs" />
-		<Compile Include="..\MZikmund.App.Core\Services\Account\SupabaseCallbackParser.cs" Link="Linked\SupabaseCallbackParser.cs" />
-		<Compile Include="..\MZikmund.App.Core\Services\Account\ISupabaseSessionStore.cs" Link="Linked\ISupabaseSessionStore.cs" />
-		<Compile Include="..\MZikmund.App.Core\Services\Account\SupabaseSessionPersistence.cs" Link="Linked\SupabaseSessionPersistence.cs" />
-	</ItemGroup>
-```
-
-and add these two package references to the existing package item group:
-
-```xml
-		<PackageReference Include="Supabase.Gotrue" />
-		<PackageReference Include="Newtonsoft.Json" />
-```
-
-- [ ] **Step 2: Write the failing tests**
-
-Create `src/app/MZikmund.App.Core.Tests/Services/Account/SupabaseSessionPersistenceTests.cs`:
+**`IUserService` after this task** (namespace `MZikmund.Services.Account`; later phases bind to
+exactly these names):
 
 ```csharp
-using MZikmund.Services.Account;
-using Supabase.Gotrue;
-using Xunit;
-
-namespace MZikmund.App.Core.Tests.Services.Account;
-
-public class SupabaseSessionPersistenceTests
-{
-	[Fact]
-	public void SaveSession_ThenLoadSession_RoundTripsTheTokens()
-	{
-		// Arrange
-		InMemorySessionStore store = new();
-		SupabaseSessionPersistence persistence = new(store);
-		Session session = new()
-		{
-			AccessToken = "header.payload.signature",
-			RefreshToken = "4nYUCw0wZR_DNOTSDbSGMQ",
-			TokenType = "bearer",
-			ExpiresIn = 3600
-		};
-
-		// Act
-		persistence.SaveSession(session);
-		var loaded = persistence.LoadSession();
-
-		// Assert
-		Assert.NotNull(loaded);
-		Assert.Equal("header.payload.signature", loaded!.AccessToken);
-		Assert.Equal("4nYUCw0wZR_DNOTSDbSGMQ", loaded.RefreshToken);
-		Assert.Equal(3600, loaded.ExpiresIn);
-	}
-
-	[Fact]
-	public void LoadSession_NothingStored_ReturnsNull()
-	{
-		// Arrange
-		InMemorySessionStore store = new();
-		SupabaseSessionPersistence persistence = new(store);
-
-		// Act
-		var loaded = persistence.LoadSession();
-
-		// Assert
-		Assert.Null(loaded);
-	}
-
-	[Fact]
-	public void DestroySession_ClearsTheStore()
-	{
-		// Arrange
-		InMemorySessionStore store = new();
-		SupabaseSessionPersistence persistence = new(store);
-		persistence.SaveSession(new Session { AccessToken = "a.b.c" });
-
-		// Act
-		persistence.DestroySession();
-
-		// Assert
-		Assert.Null(store.Value);
-		Assert.Null(persistence.LoadSession());
-	}
-
-	[Fact]
-	public void LoadSession_StoredValueIsGarbage_ReturnsNullAndClearsTheStore()
-	{
-		// Arrange
-		InMemorySessionStore store = new();
-		store.Write("this is not json");
-		SupabaseSessionPersistence persistence = new(store);
-
-		// Act
-		var loaded = persistence.LoadSession();
-
-		// Assert
-		Assert.Null(loaded);
-		Assert.Null(store.Value);
-	}
-
-	private sealed class InMemorySessionStore : ISupabaseSessionStore
-	{
-		public string? Value { get; private set; }
-
-		public string? Read() => Value;
-
-		public void Write(string sessionJson) => Value = sessionJson;
-
-		public void Clear() => Value = null;
-	}
-}
-```
-
-- [ ] **Step 3: Run the tests and watch them fail**
-
-```bash
-dotnet test src/app/MZikmund.App.Core.Tests/MZikmund.App.Core.Tests.csproj
-```
-
-Expected failure:
-
-```
-error CS0246: The type or namespace name 'ISupabaseSessionStore' could not be found
-```
-
-- [ ] **Step 4: Create the store abstraction**
-
-Create `src/app/MZikmund.App.Core/Services/Account/ISupabaseSessionStore.cs`:
-
-```csharp
-namespace MZikmund.Services.Account;
-
-/// <summary>
-/// Persists the serialized Supabase session. Kept separate from the persistence adapter so the
-/// adapter can be unit tested without touching platform settings storage.
-/// </summary>
-public interface ISupabaseSessionStore
-{
-	string? Read();
-
-	void Write(string sessionJson);
-
-	void Clear();
-}
-```
-
-- [ ] **Step 5: Create the GoTrue persistence adapter**
-
-Create `src/app/MZikmund.App.Core/Services/Account/SupabaseSessionPersistence.cs`:
-
-```csharp
-using Newtonsoft.Json;
-using Supabase.Gotrue;
-using Supabase.Gotrue.Interfaces;
-
-namespace MZikmund.Services.Account;
-
-/// <summary>
-/// Stores the GoTrue session so a signed-in user survives an app restart. Supabase.Gotrue
-/// serializes with Newtonsoft, so this uses the same serializer for a faithful round trip.
-/// </summary>
-public sealed class SupabaseSessionPersistence : IGotrueSessionPersistence<Session>
-{
-	private readonly ISupabaseSessionStore _store;
-
-	public SupabaseSessionPersistence(ISupabaseSessionStore store)
-	{
-		_store = store ?? throw new ArgumentNullException(nameof(store));
-	}
-
-	public void SaveSession(Session session)
-	{
-		if (session is null)
-		{
-			DestroySession();
-			return;
-		}
-
-		_store.Write(JsonConvert.SerializeObject(session));
-	}
-
-	public void DestroySession() => _store.Clear();
-
-	public Session? LoadSession()
-	{
-		var json = _store.Read();
-		if (string.IsNullOrWhiteSpace(json))
-		{
-			return null;
-		}
-
-		try
-		{
-			return JsonConvert.DeserializeObject<Session>(json);
-		}
-		catch (JsonException)
-		{
-			// A session written by an older build is unusable - drop it rather than fail startup.
-			_store.Clear();
-			return null;
-		}
-	}
-}
-```
-
-- [ ] **Step 6: Run the tests and watch them pass**
-
-```bash
-dotnet test src/app/MZikmund.App.Core.Tests/MZikmund.App.Core.Tests.csproj
-```
-
-Expected: `Passed!  - Failed: 0, Passed: 24, Skipped: 0`
-
-- [ ] **Step 7: Replace the Auth0 token members on `IAppPreferences`**
-
-Write `src/app/MZikmund.App.Core/Services/Preferences/IAppPreferences.cs` in full:
-
-```csharp
-namespace MZikmund.Services.Preferences;
-
-public interface IAppPreferences
-{
-	AppTheme Theme { get; set; }
-
-	/// <summary>
-	/// Gets or sets the serialized Supabase session. Deliberately not roamed - it carries a
-	/// refresh token and roaming settings are plain text synced across the user's devices.
-	/// </summary>
-	string? SupabaseSession { get; set; }
-}
-```
-
-- [ ] **Step 8: Replace the Auth0 token members on `AppPreferences`**
-
-Write `src/app/MZikmund.App.Core/Services/Preferences/AppPreferences.cs` in full:
-
-```csharp
-namespace MZikmund.Services.Preferences;
-
-public class AppPreferences : IAppPreferences
-{
-	private const string AppThemeKey = "AppTheme";
-	private const string SupabaseSessionKey = "SupabaseSession";
-
-	private readonly IPreferencesService _preferences;
-
-	public AppPreferences(IPreferencesService preferences)
-	{
-		_preferences = preferences ?? throw new ArgumentNullException(nameof(preferences));
-	}
-
-	public AppTheme Theme
-	{
-		get => _preferences.GetComplex(AppThemeKey, () => AppTheme.System, true);
-		set => _preferences.SetComplex(AppThemeKey, value, true);
-	}
-
-	public string? SupabaseSession
-	{
-		get => _preferences.GetSetting(SupabaseSessionKey, () => (string?)null, false);
-		set => _preferences.SetSetting(SupabaseSessionKey, value, false);
-	}
-}
-```
-
-`SupabaseSessionKey` is a brand-new key, so `PreferencesService`'s DEBUG-only "stored value does not match expected type" throw cannot fire on machines carrying old Auth0 settings.
-
-- [ ] **Step 9: Create the preferences-backed store**
-
-Create `src/app/MZikmund.App.Core/Services/Account/AppPreferencesSessionStore.cs`:
-
-```csharp
-using MZikmund.Services.Preferences;
-
-namespace MZikmund.Services.Account;
-
-public sealed class AppPreferencesSessionStore : ISupabaseSessionStore
-{
-	private readonly IAppPreferences _appPreferences;
-
-	public AppPreferencesSessionStore(IAppPreferences appPreferences)
-	{
-		_appPreferences = appPreferences ?? throw new ArgumentNullException(nameof(appPreferences));
-	}
-
-	public string? Read() => _appPreferences.SupabaseSession;
-
-	public void Write(string sessionJson) => _appPreferences.SupabaseSession = sessionJson;
-
-	public void Clear() => _appPreferences.SupabaseSession = null;
-}
-```
-
-- [ ] **Step 10: Format and commit**
-
-```bash
-dotnet format MZikmund.slnx
-git add src/app/MZikmund.App.Core.Tests src/app/MZikmund.App.Core/Services/Account src/app/MZikmund.App.Core/Services/Preferences
-git commit -m "feat(app): persist the Supabase session in app preferences"
-```
-
----
-
-### Task 2.5: Platform OAuth callback broker and per-platform redirect registration
-
-Uno's `WebAuthenticationBroker` covers Android, iOS and WASM. It is **not implemented on Skia desktop** (`WebAuthenticationBrokerProvider.skia.cs` throws `NotImplementedException`) and is unsupported on WinAppSDK, so those two heads get their own paths: the existing `mzikmund-app://oauthcallback` protocol activation on Windows, and a loopback `HttpListener` on desktop.
-
-**Files:**
-- Create: `src/app/MZikmund.App.Core/Services/Account/IOAuthCallbackBroker.cs`
-- Create: `src/app/MZikmund.App.Core/Services/Account/OAuthCallbackBroker.cs`
-- Create: `src/app/MZikmund.App/Platforms/Android/WebAuthenticationBrokerActivity.Android.cs`
-- Modify: `src/app/MZikmund.App/Platforms/iOS/Info.plist` (add `CFBundleURLTypes`)
-- Verify only, no edit: `src/app/MZikmund.App/Package.appxmanifest`, `src/app/MZikmund.App/Platforms/Windows/Program.cs`
-- Test: covered by `src/app/MZikmund.App.Core.Tests/Services/Account/SupabaseCallbackParserTests.cs` (Task 2.3) for the parsing behaviour; the browser plumbing is verified by build and manual run.
-
-**Interfaces:**
-- Consumes: `SupabaseConfig` (Task 2.1).
-- Produces: `public interface IOAuthCallbackBroker` in `MZikmund.Services.Account` with `Uri CallbackUri { get; }`, `Task<Uri> AuthenticateAsync(Uri authorizeUri, Uri callbackUri, CancellationToken cancellationToken)`, `void CompleteCallback(Uri callbackUri)`; and `public sealed class OAuthCallbackBroker : IOAuthCallbackBroker` with ctor `OAuthCallbackBroker(IOptions<SupabaseConfig> config)`.
-
-- [ ] **Step 1: Create the broker interface**
-
-Create `src/app/MZikmund.App.Core/Services/Account/IOAuthCallbackBroker.cs`:
-
-```csharp
-namespace MZikmund.Services.Account;
-
-/// <summary>
-/// Drives the browser leg of the OAuth flow and returns the callback URI the provider redirected to.
-/// </summary>
-public interface IOAuthCallbackBroker
-{
-	/// <summary>
-	/// Gets the redirect URI for the current platform head. Every value must be allow-listed in
-	/// Supabase under Authentication &gt; URL Configuration &gt; Redirect URLs.
-	/// </summary>
-	Uri CallbackUri { get; }
-
-	Task<Uri> AuthenticateAsync(Uri authorizeUri, Uri callbackUri, CancellationToken cancellationToken);
-
-	/// <summary>
-	/// Completes a pending Windows sign-in. Called from protocol activation; a no-op elsewhere.
-	/// </summary>
-	void CompleteCallback(Uri callbackUri);
-}
-```
-
-- [ ] **Step 2: Create the broker implementation**
-
-Create `src/app/MZikmund.App.Core/Services/Account/OAuthCallbackBroker.cs`:
-
-```csharp
-using Microsoft.Extensions.Options;
-
-#if __ANDROID__ || __IOS__ || __WASM__
-using Windows.Security.Authentication.Web;
-#endif
-
-namespace MZikmund.Services.Account;
-
-public sealed class OAuthCallbackBroker : IOAuthCallbackBroker
-{
-	private readonly IOptions<SupabaseConfig> _config;
-	private TaskCompletionSource<Uri>? _pendingCallback;
-
-	public OAuthCallbackBroker(IOptions<SupabaseConfig> config)
-	{
-		_config = config ?? throw new ArgumentNullException(nameof(config));
-	}
-
-	public Uri CallbackUri =>
-#if __WASM__
-		new Uri(_config.Value.WasmCallbackUri);
-#elif WINDOWS || __ANDROID__ || __IOS__
-		new Uri(_config.Value.CallbackUri);
-#else
-		new Uri(_config.Value.DesktopCallbackUri);
-#endif
-
-	public async Task<Uri> AuthenticateAsync(Uri authorizeUri, Uri callbackUri, CancellationToken cancellationToken)
-	{
-		if (authorizeUri is null)
-		{
-			throw new ArgumentNullException(nameof(authorizeUri));
-		}
-
-		if (callbackUri is null)
-		{
-			throw new ArgumentNullException(nameof(callbackUri));
-		}
-
-#if WINDOWS
-		// WinAppSDK has no WebAuthenticationBroker. The system browser redirects to the
-		// mzikmund-app:// scheme declared in Package.appxmanifest, which reactivates the app and
-		// lands in MZikmundApp.OnUriCallback -> CompleteCallback.
-		TaskCompletionSource<Uri> pending = new(TaskCreationOptions.RunContinuationsAsynchronously);
-		_pendingCallback = pending;
-
-		try
-		{
-			if (!await Windows.System.Launcher.LaunchUriAsync(authorizeUri))
-			{
-				throw new InvalidOperationException("Could not open the browser to sign in.");
-			}
-
-			using var registration = cancellationToken.Register(() => pending.TrySetCanceled(cancellationToken));
-			return await pending.Task;
-		}
-		finally
-		{
-			_pendingCallback = null;
-		}
-#elif __ANDROID__ || __IOS__ || __WASM__
-		var result = await WebAuthenticationBroker.AuthenticateAsync(
-			WebAuthenticationOptions.None,
-			authorizeUri,
-			callbackUri);
-
-		if (result.ResponseStatus != WebAuthenticationStatus.Success)
-		{
-			throw new InvalidOperationException(
-				$"Sign-in did not complete ({result.ResponseStatus}, detail {result.ResponseErrorDetail}).");
-		}
-
-		return new Uri(result.ResponseData);
-#else
-		// Skia desktop: Uno's WebAuthenticationBroker is not implemented there, so use the
-		// standard desktop pattern - system browser plus a loopback listener on a fixed port.
-		using System.Net.HttpListener listener = new();
-		listener.Prefixes.Add(callbackUri.GetLeftPart(UriPartial.Path).TrimEnd('/') + "/");
-		listener.Start();
-
-		try
-		{
-			if (!await Windows.System.Launcher.LaunchUriAsync(authorizeUri))
-			{
-				throw new InvalidOperationException("Could not open the browser to sign in.");
-			}
-
-			var context = await listener.GetContextAsync().WaitAsync(cancellationToken);
-			var requestUri = context.Request.Url ?? throw new InvalidOperationException("The callback carried no URI.");
-
-			var body = System.Text.Encoding.UTF8.GetBytes(
-				"<html><body>You are signed in. You can close this tab and return to the app.</body></html>");
-			context.Response.ContentType = "text/html; charset=utf-8";
-			context.Response.ContentLength64 = body.Length;
-			await context.Response.OutputStream.WriteAsync(body, cancellationToken);
-			context.Response.Close();
-
-			return requestUri;
-		}
-		finally
-		{
-			listener.Stop();
-		}
-#endif
-	}
-
-	public void CompleteCallback(Uri callbackUri)
-	{
-		if (callbackUri is null)
-		{
-			throw new ArgumentNullException(nameof(callbackUri));
-		}
-
-		_pendingCallback?.TrySetResult(callbackUri);
-	}
-}
-```
-
-- [ ] **Step 3: Add the Android activity that receives the custom-scheme redirect**
-
-Create `src/app/MZikmund.App/Platforms/Android/WebAuthenticationBrokerActivity.Android.cs`:
-
-```csharp
-using Android.App;
-using Android.Content.PM;
-using Uno.AuthenticationBroker;
-
-namespace MZikmund.App.Droid;
-
-/// <summary>
-/// Receives the mzikmund-app:// redirect and hands it to Uno's WebAuthenticationBroker.
-/// The class name is irrelevant; the IntentFilter attribute is what matters.
-/// </summary>
-[Activity(NoHistory = true, LaunchMode = LaunchMode.SingleTop, Exported = true)]
-[IntentFilter(
-	new[] { Android.Content.Intent.ActionView },
-	Categories = new[] { Android.Content.Intent.CategoryDefault, Android.Content.Intent.CategoryBrowsable },
-	DataScheme = "mzikmund-app")]
-public class WebAuthenticationBrokerActivity : WebAuthenticationBrokerActivityBase
-{
-}
-```
-
-`Exported = true` is required from Android 12 onwards. `Platforms/Android/**` is compiled only into the android head, so this file does not affect the other TFMs.
-
-- [ ] **Step 4: Register the custom scheme in `Info.plist`**
-
-In `src/app/MZikmund.App/Platforms/iOS/Info.plist`, insert this block immediately after the `<key>UIApplicationSupportsIndirectInputEvents</key><true/>` pair and before the closing `</dict>`:
-
-```xml
-		<key>CFBundleURLTypes</key>
-		<array>
-			<dict>
-				<key>CFBundleTypeRole</key>
-				<string>Editor</string>
-				<key>CFBundleURLName</key>
-				<string>dev.mzikmund.MZikmund.App</string>
-				<key>CFBundleURLSchemes</key>
-				<array>
-					<string>mzikmund-app</string>
-				</array>
-			</dict>
-		</array>
-```
-
-- [ ] **Step 5: Confirm the Windows scheme registration is already correct — do not edit**
-
-```bash
-grep -n "mzikmund-app" src/app/MZikmund.App/Package.appxmanifest src/app/MZikmund.App/Platforms/Windows/Program.cs
-```
-
-Expected output:
-
-```
-src/app/MZikmund.App/Package.appxmanifest:                  <uap:Protocol Name="mzikmund-app">
-```
-
-`Platforms/Windows/Program.cs` matches on `protocolArgs.Uri.Authority == "oauthcallback"`, which is exactly the authority of `mzikmund-app://oauthcallback`, so the `StartupObject` needs **no change**. Only `MZikmundApp.OnUriCallback` changes, in Task 2.7.
-
-- [ ] **Step 6: Build the desktop head to prove the broker compiles**
-
-```bash
-dotnet build src/app/MZikmund.App/MZikmund.App.csproj -f net10.0-desktop
-```
-
-Expected: the build still fails inside `UserService.cs` (Auth0 constants were deleted in Task 2.1) but produces **no** errors in `OAuthCallbackBroker.cs`. Confirm with:
-
-```bash
-dotnet build src/app/MZikmund.App/MZikmund.App.csproj -f net10.0-desktop 2>&1 | grep "OAuthCallbackBroker"
-```
-
-Expected: no output.
-
-- [ ] **Step 7: Commit**
-
-```bash
-git add src/app/MZikmund.App.Core/Services/Account/IOAuthCallbackBroker.cs src/app/MZikmund.App.Core/Services/Account/OAuthCallbackBroker.cs src/app/MZikmund.App/Platforms/Android/WebAuthenticationBrokerActivity.Android.cs src/app/MZikmund.App/Platforms/iOS/Info.plist
-git commit -m "feat(app): per-platform OAuth callback broker and redirect registration"
-```
-
----
-
-### Task 2.6: Rewrite `IUserService` / `UserService` on Supabase.Gotrue
-
-**Files:**
-- Modify: `src/app/MZikmund.App.Core/Services/Account/IUserService.cs` (replaced in full)
-- Modify: `src/app/MZikmund.App.Core/Services/Account/UserService.cs` (replaced in full)
-- Delete: `src/app/MZikmund.App.Core/Services/Account/AuthenticationInfo.cs`
-- Test: none — this class is a thin orchestration over `Supabase.Gotrue.Client`, which cannot be constructed without network configuration. Every branch that *can* be pure was already extracted and tested in Tasks 2.2–2.4.
-
-**Interfaces:**
-- Consumes: `SupabaseClaimsReader.Read(string)` (2.2), `SupabaseCallbackParser.Parse(Uri)` and `SupabaseCallbackResult` (2.3), `ISupabaseSessionStore` (2.4), `IOAuthCallbackBroker` (2.5).
-- Produces: `public enum SupabaseSignInProvider { Google, Apple }` and `public interface IUserService` in `MZikmund.Services.Account` with:
-  - `bool IsLoggedIn { get; }`, `bool IsAdmin { get; }`, `bool NeedsRefresh { get; }`
-  - `string? UserId { get; }`, `string? UserName { get; }`, `string? AvatarUrl { get; }`, `string? AccessToken { get; }`
-  - `event EventHandler? AuthenticationStateChanged;`
-  - `Task<bool> TryRestoreSessionAsync()`, `Task SignInAsync(SupabaseSignInProvider provider)`, `Task SendEmailCodeAsync(string email)`, `Task VerifyEmailCodeAsync(string email, string code)`, `Task SignOutAsync()`
-  - and `public sealed class UserService : IUserService` with ctor `UserService(Supabase.Gotrue.Client client, IOAuthCallbackBroker callbackBroker, ISupabaseSessionStore sessionStore, ILogger<UserService> logger)`.
-
-> **THIS IS THE AUTHORITATIVE `IUserService` SURFACE. EVERY LATER PHASE BINDS TO EXACTLY THESE NAMES.**
-> The four auth methods and the provider enum are, verbatim:
->
-> ```csharp
-> Task SignInAsync(SupabaseSignInProvider provider);
-> Task SendEmailCodeAsync(string email);
-> Task VerifyEmailCodeAsync(string email, string code);
-> Task SignOutAsync();
->
-> public enum SupabaseSignInProvider { Google, Apple }
-> ```
->
-> `SupabaseSignInProvider` lives in namespace `MZikmund.Services.Account` and has exactly TWO members,
-> `Google` and `Apple` — there is deliberately **no** `Email` member, because email OTP is not an OAuth
-> provider and never flows through `SignInAsync`. A sign-in sheet offering email must call
-> `SendEmailCodeAsync(email)` and then `VerifyEmailCodeAsync(email, code)` directly.
->
-> The following names do **not** exist anywhere after this task and must never be called by a later
-> phase: `AuthenticateAsync(...)`, `LogoutAsync()`, `SendEmailOtpAsync(...)`, `VerifyEmailOtpAsync(...)`,
-> and the type `SignInProvider`. They are Auth0-era or invented names; Step 1 below deletes the Auth0
-> contract in full. Phase 10 in particular MUST use `SignInAsync(SupabaseSignInProvider)`,
-> `SendEmailCodeAsync`, `VerifyEmailCodeAsync`, `SignOutAsync` and `SupabaseSignInProvider`.
-
-- [ ] **Step 1: Replace the service contract**
-
-Write `src/app/MZikmund.App.Core/Services/Account/IUserService.cs` in full:
-
-```csharp
-namespace MZikmund.Services.Account;
-
-/// <summary>
-/// The identity providers offered by the app. Password sign-in stays disabled in Supabase.
-/// </summary>
-public enum SupabaseSignInProvider
-{
-	Google,
-	Apple
-}
-
 public interface IUserService
 {
 	bool IsLoggedIn { get; }
 
-	/// <summary>
-	/// Gets a value indicating whether the signed-in user carries app_metadata.role == "admin".
-	/// This gates UI only; the API enforces the real boundary.
-	/// </summary>
 	bool IsAdmin { get; }
-
-	bool NeedsRefresh { get; }
 
 	string? UserId { get; }
 
@@ -5140,816 +3867,146 @@ public interface IUserService
 
 	string? AvatarUrl { get; }
 
-	string? AccessToken { get; }
+	event EventHandler? AuthenticationChanged;
 
 	/// <summary>
-	/// Raised whenever the signed-in state changes. May be raised from a background thread.
+	/// Returns a fresh access token, refreshing it first when it expires within five minutes.
+	/// Throws AuthenticationFailedException when signed out or when the refresh is rejected.
 	/// </summary>
-	event EventHandler? AuthenticationStateChanged;
+	Task<string> GetAccessTokenAsync(CancellationToken cancellationToken = default);
 
-	/// <summary>
-	/// Restores and, if needed, refreshes a persisted session. Never interactive and never throws.
-	/// </summary>
-	Task<bool> TryRestoreSessionAsync();
+	Task SignInWithProviderAsync(SupabaseOAuthProvider provider);
 
-	/// <summary>
-	/// Runs the interactive PKCE sign-in for the given provider.
-	/// </summary>
-	Task SignInAsync(SupabaseSignInProvider provider);
-
-	/// <summary>
-	/// Emails a six-digit sign-in code.
-	/// </summary>
 	Task SendEmailCodeAsync(string email);
 
-	/// <summary>
-	/// Redeems a six-digit sign-in code.
-	/// </summary>
 	Task VerifyEmailCodeAsync(string email, string code);
 
-	Task SignOutAsync();
+	Task LogoutAsync();
 }
 ```
 
-- [ ] **Step 2: Delete the Auth0 token DTO**
+`AuthenticateAsync()` and `NeedsRefresh` are removed (interactive sign-in now needs a provider
+choice, so it can no longer hide behind a token getter).
 
-```bash
-git rm src/app/MZikmund.App.Core/Services/Account/AuthenticationInfo.cs
-```
+**`UserService` requirements:**
+- Ctor keeps the `#if WINDOWS IApplication` parameter pattern; injects `IAppPreferences`,
+  `IOptions<SupabaseConfig>`; owns one `HttpClient` + `SupabaseAuthClient` (created lazily so an
+  unconfigured app still starts; unconfigured sign-in throws
+  `AuthenticationFailedException("Sign-in is not configured. Set SupabaseConfig:Url and SupabaseConfig:PublishableKey (MZIKMUND_SupabaseConfig__Url / __PublishableKey). See docs/SUPABASE_AUTH.md.")`).
+- Session cache reuses the existing `IAppPreferences` members (`AccessToken`, `RefreshToken`,
+  `TokenExpiresOn`, `UserId`, `DisplayName`) — no preference schema change. On load, read the cached
+  access token with `SupabaseAccessToken.Read`; **discard the cache when `Issuer` is not
+  `{Url}/auth/v1`** (a leftover Auth0 session or a session from a different Supabase project) or when
+  it cannot be parsed.
+- `GetAccessTokenAsync`: single-flight via the existing `SemaphoreSlim`; refresh when
+  `ExpiresOn < now + 5 min`; `SupabaseAuthException { IsRejected: true }` → clear session, raise
+  `AuthenticationChanged`, throw `AuthenticationFailedException`; transport errors propagate and keep
+  the session.
+- `SignInWithProviderAsync`: `Pkce.CreateCodeVerifier()` → `SupabaseAuthUris.Authorize(...)` →
+  per-head browser leg → `OAuthCallback.Parse(uri, expectedState: null)` → `ExchangeCodeAsync`.
+  Per head (reuse the existing code paths and `SignInTimeout`):
+  - `WINDOWS`: redirect `mzikmund-app://oauthcallback`. `Launcher.LaunchUriAsync(authUri)`, then await
+    a `TaskCompletionSource<Uri>` that a new `public static bool TryCompleteProtocolCallback(Uri uri)`
+    on `UserService` completes. `MZikmundApp.OnUriCallback` calls it instead of
+    `OAuth2Manager.CompleteAuthRequest`. Delete the `Microsoft.Security.Authentication.OAuth` usages.
+  - `__DESKTOP__`: unchanged loopback listener on `http://127.0.0.1:{DesktopCallbackPort}/callback`.
+  - others: unchanged `WebAuthenticationBroker` with `GetCurrentApplicationCallbackUri()`.
+  - User cancel returns without throwing (as today).
+- `VerifyEmailCodeAsync` stores the session; `SendEmailCodeAsync` maps 429 to a friendly
+  `AuthenticationFailedException` ("Too many codes requested, wait a minute").
+- `LogoutAsync`: best-effort `SignOutAsync` (swallow + log failures), clear cache, raise
+  `AuthenticationChanged`. No browser launch (Supabase has no hosted session page to end).
+- Raise `AuthenticationChanged` whenever `IsLoggedIn`, `IsAdmin` or the user changes.
 
-- [ ] **Step 3: Replace the implementation**
+**Sign-in dialog** (`SignInDialog`, follows `Dialogs/Admin/AddOrUpdateTagDialog.xaml`:
+`DialogBase<T>`, `Style="{StaticResource DefaultContentDialogStyle}"`, `xaml:Localize` strings,
+`CloseButtonText` = Cancel, no primary button):
+- State A: three full-width buttons — "Continue with Google", "Continue with Apple"
+  (`MzStandardButtonStyle`), "Continue with email" (`MzAccentButtonStyle`), plus a one-line
+  `MzMetaTextStyle` privacy note linking to `{WebUrl}/privacy`.
+- State B (email): `TextBox` (InputScope `EmailSmtpAddress`) + "Send code" → State C: 6-digit
+  `TextBox` (InputScope `Number`, MaxLength 6) + "Verify", "Use a different email" link button.
+- Busy `ProgressRing`, inline error `TextBlock` (`MzTextSecondaryBrush`-style meta text in the
+  error colour of the existing `StatusMessageDialog`, or an `InfoBar` if it already renders in the
+  app — check `StatusMessageDialog.xaml`).
+- Visibility of the three states: VM exposes `bool` properties bound with
+  `Converter={StaticResource BoolToVisibilityConverter}` (the existing pattern). **Do not** use x:Bind
+  functions that return `bool` into `Visibility` (breaks the WinUI generator), and no function
+  bindings with `BindBack` (WMC9999).
+- On success the VM calls `sender.Hide()` (keep a reference from `OnOpened`) and exposes
+  `bool IsSignedIn` for `SignInPrompt`.
+- `SignInPrompt.EnsureSignedInAsync()` returns `true` immediately when signed in, else shows the dialog
+  via `IDialogService.ShowAsync(new SignInDialogViewModel(...))` and returns `IUserService.IsLoggedIn`.
 
-Write `src/app/MZikmund.App.Core/Services/Account/UserService.cs` in full:
+**Shell:**
+- `WindowShellViewModel`: inject `ISignInPrompt`; `LoginAsync` → `EnsureSignedInAsync()` (keep the
+  `AuthenticationFailedException` → `ShowStatusMessageAsync(..."SignInFailed"...)` handling); add
+  `[ObservableProperty] public partial bool IsAdmin { get; set; }` set in `UpdateAuthenticationState()`
+  next to `IsLoggedIn`/`UserName`. Keep the dispatcher marshalling in `OnAuthenticationChanged`.
+- `WindowShell.xaml`: the `NavAdmin` item's `Visibility` binds to `ViewModel.IsAdmin` (same converter).
+  Login/Logout footer items keep binding to `IsLoggedIn`.
+- `App.xaml.cs`: `services.AddSingleton<IUserService, UserService>()`,
+  `services.AddScoped<ISignInPrompt, SignInPrompt>()`; `GetTokenAsync` becomes
+  `provider.GetRequiredService<IUserService>().GetAccessTokenAsync(cancellationToken)` (no interactive
+  sign-in from the token getter — admin VMs already catch `AuthenticationFailedException`).
 
-```csharp
-using Microsoft.Extensions.Logging;
-using Supabase.Gotrue;
-using static Supabase.Gotrue.Constants;
-
-namespace MZikmund.Services.Account;
-
-public sealed class UserService : IUserService
-{
-	private readonly Client _client;
-	private readonly IOAuthCallbackBroker _callbackBroker;
-	private readonly ISupabaseSessionStore _sessionStore;
-	private readonly ILogger<UserService> _logger;
-	private SupabaseClaims? _claims;
-
-	public UserService(
-		Client client,
-		IOAuthCallbackBroker callbackBroker,
-		ISupabaseSessionStore sessionStore,
-		ILogger<UserService> logger)
-	{
-		_client = client ?? throw new ArgumentNullException(nameof(client));
-		_callbackBroker = callbackBroker ?? throw new ArgumentNullException(nameof(callbackBroker));
-		_sessionStore = sessionStore ?? throw new ArgumentNullException(nameof(sessionStore));
-		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-
-		ReadClaims(_client.CurrentSession);
-	}
-
-	public bool IsLoggedIn => _claims is not null;
-
-	public bool IsAdmin => _claims?.IsAdmin == true;
-
-	public string? UserId => _claims?.UserId;
-
-	public string? UserName => _claims?.DisplayName;
-
-	public string? AvatarUrl => _claims?.AvatarUrl;
-
-	public string? AccessToken => _client.CurrentSession?.AccessToken;
-
-	public event EventHandler? AuthenticationStateChanged;
-
-	public bool NeedsRefresh
-	{
-		get
-		{
-			if (_client.CurrentSession is not { } session)
-			{
-				return false;
-			}
-
-			// The old Auth0 implementation had this comparison inverted, so it only ever reported
-			// "needs refresh" five minutes AFTER expiry - every expiry produced a burst of 401s.
-			var expiresOn = session.CreatedAt.ToUniversalTime().AddSeconds(session.ExpiresIn);
-			return expiresOn <= DateTime.UtcNow.AddMinutes(5);
-		}
-	}
-
-	public async Task<bool> TryRestoreSessionAsync()
-	{
-		try
-		{
-			var session = await _client.RetrieveSessionAsync();
-			ApplySession(session);
-		}
-		catch (Exception ex)
-		{
-			_logger.LogError(ex, "Could not restore the Supabase session.");
-			ApplySession(null);
-		}
-
-		return IsLoggedIn;
-	}
-
-	public async Task SignInAsync(SupabaseSignInProvider provider)
-	{
-		var callbackUri = _callbackBroker.CallbackUri;
-
-		var authState = await _client.SignIn(ToProvider(provider), new SignInOptions
-		{
-			// SignInOptions.FlowType defaults to Implicit, which yields a null PKCEVerifier and an
-			// authorize URL with no challenge. PKCE must be set explicitly.
-			FlowType = OAuthFlowType.PKCE,
-			RedirectTo = callbackUri.OriginalString,
-			Scopes = provider == SupabaseSignInProvider.Apple ? "email name" : "email profile"
-		});
-
-		var returnedUri = await _callbackBroker.AuthenticateAsync(authState.Uri, callbackUri, CancellationToken.None);
-		var callback = SupabaseCallbackParser.Parse(returnedUri);
-
-		if (callback.Error is { } error)
-		{
-			throw new InvalidOperationException($"Sign-in failed: {error} {callback.ErrorDescription}".TrimEnd());
-		}
-
-		// Validate the state only when the provider actually echoed one - GoTrue does not always
-		// round-trip it. PKCE already binds the exchange to the verifier held in this process.
-		if (callback.State is { } returnedState &&
-			!string.Equals(returnedState, authState.State, StringComparison.Ordinal))
-		{
-			throw new InvalidOperationException("Sign-in failed: the returned OAuth state did not match.");
-		}
-
-		if (callback.Code is not { } code)
-		{
-			throw new InvalidOperationException("Sign-in failed: no authorization code was returned.");
-		}
-
-		if (authState.PKCEVerifier is not { Length: > 0 } verifier)
-		{
-			throw new InvalidOperationException("Sign-in failed: the PKCE verifier was not generated.");
-		}
-
-		var session = await _client.ExchangeCodeForSession(verifier, code);
-		ApplySession(session);
-	}
-
-	public async Task SendEmailCodeAsync(string email)
-	{
-		if (string.IsNullOrWhiteSpace(email))
-		{
-			throw new ArgumentException("Email must not be empty.", nameof(email));
-		}
-
-		await _client.SignInWithOtp(new SignInWithPasswordlessEmailOptions(email)
-		{
-			ShouldCreateUser = true
-		});
-	}
-
-	public async Task VerifyEmailCodeAsync(string email, string code)
-	{
-		if (string.IsNullOrWhiteSpace(email))
-		{
-			throw new ArgumentException("Email must not be empty.", nameof(email));
-		}
-
-		if (string.IsNullOrWhiteSpace(code))
-		{
-			throw new ArgumentException("Code must not be empty.", nameof(code));
-		}
-
-		// EmailOtpType.MagicLink is the method default and is the wrong wire type for a
-		// six-digit code - it must be EmailOtpType.Email.
-		var session = await _client.VerifyOTP(email, code, EmailOtpType.Email);
-		ApplySession(session);
-	}
-
-	public async Task SignOutAsync()
-	{
-		try
-		{
-			await _client.SignOut(SignOutScope.Global);
-		}
-		catch (Exception ex)
-		{
-			_logger.LogError(ex, "Supabase sign-out failed; clearing the local session anyway.");
-		}
-
-		_sessionStore.Clear();
-		ApplySession(null);
-	}
-
-	private void ApplySession(Session? session)
-	{
-		ReadClaims(session);
-		AuthenticationStateChanged?.Invoke(this, EventArgs.Empty);
-	}
-
-	private void ReadClaims(Session? session)
-	{
-		if (session?.AccessToken is not { Length: > 0 } accessToken)
-		{
-			_claims = null;
-			return;
-		}
-
-		try
-		{
-			_claims = SupabaseClaimsReader.Read(accessToken);
-		}
-		catch (Exception ex)
-		{
-			_logger.LogError(ex, "Could not read the Supabase access token.");
-			_claims = null;
-		}
-	}
-
-	private static Provider ToProvider(SupabaseSignInProvider provider) => provider switch
-	{
-		SupabaseSignInProvider.Google => Provider.Google,
-		SupabaseSignInProvider.Apple => Provider.Apple,
-		_ => throw new ArgumentOutOfRangeException(nameof(provider), provider, "Unsupported sign-in provider.")
-	};
-}
-```
-
-- [ ] **Step 4: Commit (the app still will not build until Task 2.7 rewires DI)**
-
-```bash
-git add src/app/MZikmund.App.Core/Services/Account/IUserService.cs src/app/MZikmund.App.Core/Services/Account/UserService.cs
-git commit -m "feat(app): rewrite UserService on Supabase.Gotrue PKCE and email OTP"
-```
+- [ ] Steps: implement; build every head you can locally
+  (`dotnet build src/app/MZikmund.App/MZikmund.App.csproj -f net10.0-desktop` and
+  `-f net10.0-windows10.0.26100`, `-f net10.0-browserwasm`; set `MSBUILDDISABLENODEREUSE=1`);
+  `dotnet test src/shared/MZikmund.Shared.Tests/...` green; manual check on desktop against the local
+  stack with email OTP (Mailpit): sign in → footer shows Logout, **Admin menu hidden for a reader**,
+  visible for the seeded admin (`admin@mzikmund.test` from Task 0.2), admin Posts list loads;
+  restart the app → session restored; sign out → Admin hidden. If Docker is not available, do the
+  build + tests and record the manual check as pending in the chunk report.
+- [ ] Commit: `feat(app): Sign in with Supabase and gate the Admin menu on the admin role`.
 
 ---
 
-### Task 2.7: DI wiring, Refit authorization header, and the Windows URI callback
+### Task 2.5: Per-head redirect registration and Supabase allow-list values
 
 **Files:**
-- Modify: `src/app/MZikmund.App/App.xaml.cs` (`ConfigureServices`, new `CreateSupabaseClient` factory, `GetTokenAsync`, `OnUriCallback`)
-- Test: none directly — verified by a successful build plus the manual desktop sign-in run in Step 6.
+- Verify only: `src/app/MZikmund.App/Package.appxmanifest` (`mzikmund-app` protocol already registered), `Platforms/Windows/Program.cs` (dispatches `oauthcallback`)
+- Modify if missing: Android `WebAuthenticationBroker` callback activity (Uno requires an
+  `Activity` subclass of `WebAuthenticationBrokerActivityBase` with an intent filter for the callback
+  scheme — check what the Auth0 setup already added in `Platforms/Android`; reuse it),
+  iOS `Info.plist` `CFBundleURLTypes` for the same scheme.
+- Modify: `supabase/config.toml` `[auth] additional_redirect_urls` (local stack). Task 0.1 already
+  lists `mzikmund-app://oauthcallback` and `http://127.0.0.1:51842/callback`; add the Android/iOS
+  callback URI and the WASM `<origin>/authentication-callback` you observe below, then
+  `npx supabase stop && npx supabase start`.
+- Note: there is currently **no** Android callback activity in `Platforms/Android`, so the Auth0-era
+  Android sign-in could not have completed either — add it here.
 
-**Interfaces:**
-- Consumes: `SupabaseConfig` (2.1), `SupabaseSessionPersistence` + `AppPreferencesSessionStore` + `ISupabaseSessionStore` (2.4), `IOAuthCallbackBroker` + `OAuthCallbackBroker` (2.5), `IUserService` + `UserService` (2.6).
-- Produces: a singleton `Supabase.Gotrue.Client` in the container, with persistence attached and `LoadSession()` already called.
-
-- [ ] **Step 1: Register the Supabase services**
-
-In `src/app/MZikmund.App/App.xaml.cs`, inside `ConfigureServices`, replace this line:
-
-```csharp
-		services.AddScoped<IUserService, UserService>();
-```
-
-with:
-
-```csharp
-		services.AddSingleton<ISupabaseSessionStore, AppPreferencesSessionStore>();
-		services.AddSingleton<SupabaseSessionPersistence>();
-		services.AddSingleton<IOAuthCallbackBroker, OAuthCallbackBroker>();
-		services.AddSingleton(CreateSupabaseClient);
-		services.AddSingleton<IUserService, UserService>();
-```
-
-Auth state is app-global and now raises an event, so `IUserService` becomes a singleton. `WindowShellViewModel` and the Refit factory are scoped and may consume it; `ValidateScopes = true` still passes.
-
-- [ ] **Step 2: Add the Supabase client factory**
-
-In the same file, add this method immediately after `ConfigureServices`:
-
-```csharp
-	private static Supabase.Gotrue.Client CreateSupabaseClient(IServiceProvider provider)
-	{
-		var config = provider.GetRequiredService<IOptions<SupabaseConfig>>().Value;
-
-		if (string.IsNullOrWhiteSpace(config.ProjectRef) || config.ProjectRef.Contains("Placeholder") ||
-			string.IsNullOrWhiteSpace(config.PublishableKey) || config.PublishableKey.Contains("Placeholder"))
-		{
-			throw new InvalidOperationException(
-				"SupabaseConfig:ProjectRef and SupabaseConfig:PublishableKey are not configured. " +
-				"See docs/SUPABASE_AUTH.md.");
-		}
-
-		Supabase.Gotrue.ClientOptions options = new()
-		{
-			Url = $"https://{config.ProjectRef}.supabase.co/auth/v1",
-			AutoRefreshToken = true
-		};
-
-		// New-format publishable keys go in the apikey header only - never in Authorization.
-		options.Headers["apikey"] = config.PublishableKey;
-
-		Supabase.Gotrue.Client client = new(options);
-		client.SetPersistence(provider.GetRequiredService<SupabaseSessionPersistence>());
-		client.LoadSession();
-		return client;
-	}
-```
-
-- [ ] **Step 3: Fix the Refit authorization header getter**
-
-In the same file, replace the local function inside `CreateApi`:
-
-```csharp
-		async Task<string> GetTokenAsync(HttpRequestMessage message, CancellationToken cancellationToken)
-		{
-			var userService = provider.GetRequiredService<IUserService>();
-			if (!userService.IsLoggedIn || userService.NeedsRefresh)
-			{
-				await userService.AuthenticateAsync();
-			}
-
-			if (userService.AccessToken is not { } accessToken)
-			{
-				throw new InvalidOperationException("Access token is not set");
-			}
-
-			return accessToken;
-		}
-```
-
-with:
-
-```csharp
-		async Task<string> GetTokenAsync(HttpRequestMessage message, CancellationToken cancellationToken)
-		{
-			var userService = provider.GetRequiredService<IUserService>();
-
-			if (!userService.IsLoggedIn || userService.NeedsRefresh)
-			{
-				// Restore or refresh only. An HTTP call must never open a browser sign-in window.
-				await userService.TryRestoreSessionAsync();
-			}
-
-			if (userService.AccessToken is not { Length: > 0 } accessToken)
-			{
-				throw new InvalidOperationException(
-					"Not signed in. Sign in before calling an authenticated API endpoint.");
-			}
-
-			return accessToken;
-		}
-```
-
-Anonymous comment reads must therefore be declared on `IMZikmundApi` **without** `[Headers("Authorization: Bearer")]`, or they will throw here for signed-out readers.
-
-- [ ] **Step 4: Rewire the Windows URI callback**
-
-In the same file, replace:
-
-```csharp
-#if WINDOWS
-	internal void OnUriCallback(Uri uri)
-	{
-		if (!Microsoft.Security.Authentication.OAuth.OAuth2Manager.CompleteAuthRequest(uri))
-		{
-			this.Log().LogError("Could not authenticate");
-		}
-	}
-#endif
-```
-
-with:
-
-```csharp
-#if WINDOWS
-	internal void OnUriCallback(Uri uri)
-	{
-		// Dispatched from MZikmundProgram.OnActivated for mzikmund-app://oauthcallback.
-		Host?.Services.GetRequiredService<IOAuthCallbackBroker>().CompleteCallback(uri);
-	}
-#endif
-```
-
-- [ ] **Step 5: Build the desktop head**
-
-```bash
-dotnet build src/app/MZikmund.App/MZikmund.App.csproj -f net10.0-desktop
-```
-
-Expected: `Build succeeded.` with 0 errors.
-
-- [ ] **Step 6: Build the Windows head and run the app**
-
-```bash
-dotnet build src/app/MZikmund.App/MZikmund.App.csproj -f net10.0-windows10.0.26100
-```
-
-Expected: `Build succeeded.`
-
-Then, once real Supabase values are in place (Task 2.9 rollout checklist), run the desktop head and click **Login** in the navigation footer. Expected: the system browser opens on `https://<ref>.supabase.co/auth/v1/authorize?provider=google&...&code_challenge_method=s256`, and after Google consent the browser lands on `http://localhost:52619/callback/?code=...` showing "You are signed in.", and the app's footer switches from Login to Logout.
-
-- [ ] **Step 7: Format and commit**
-
-```bash
-dotnet format MZikmund.slnx
-git add src/app/MZikmund.App/App.xaml.cs
-git commit -m "feat(app): wire Supabase client, auth header and URI callback into DI"
-```
+Print the actual `WebAuthenticationBroker.GetCurrentApplicationCallbackUri()` per head once (debug
+log at sign-in start) and write the full table into `docs/SUPABASE_AUTH.md` (Task 2.6). Commit
+`feat(app): Register the Supabase redirect URIs on every head`.
 
 ---
 
-### Task 2.8: SECURITY FIX — gate the Admin navigation on `IsAdmin`, not `IsLoggedIn`
-
-Today `WindowShell.xaml` binds the whole Admin section's `Visibility` to `ViewModel.IsLoggedIn`. Once readers can sign in to comment, that section becomes visible to every reader. The API would still reject them, but the UI must not offer it.
+### Task 2.6: Document the app's Supabase setup
 
 **Files:**
-- Modify: `src/app/MZikmund.App.Core/ViewModels/WindowShellViewModel.cs` (replaced in full)
-- Modify: `src/app/MZikmund.App/WindowShell.xaml` (the `AdminNavigationViewItem` visibility binding)
-- Test: `IsAdmin` derives from `SupabaseClaimsReader`, whose `app_metadata`-vs-`user_metadata` behaviour is already covered by `Read_RoleOnlyInUserMetadata_IsNotAdmin` and `Read_TopLevelRoleClaimIsAuthenticated_IsNotAdmin` in `src/app/MZikmund.App.Core.Tests/Services/Account/SupabaseClaimsReaderTests.cs`.
+- Modify: `docs/SUPABASE_AUTH.md` (created in Task 0.2; append an "Uno app" section: config keys,
+  env overrides, per-head redirect table, local-stack recipe incl. Android emulator `10.0.2.2`,
+  Google/Apple provider setup steps the owner performs in the hosted dashboard)
+- Modify: `CLAUDE.md` "Authentication → Uno App" bullet (Supabase PKCE + email OTP; point to
+  `docs/SUPABASE_AUTH.md`; leave a one-line note that Auth0 config is pending removal)
 
-**Interfaces:**
-- Consumes: `IUserService.IsAdmin`, `IUserService.AuthenticationStateChanged`, `IUserService.SignInAsync`, `IUserService.SignOutAsync`, `IUserService.TryRestoreSessionAsync` (2.6); `IDialogService.ShowStatusMessageAsync` (existing).
-- Produces: `WindowShellViewModel.IsAdmin` (`[ObservableProperty] public partial bool IsAdmin { get; set; }`), bound by `WindowShell.xaml`.
-
-> **THE FILE STEP 2 WRITES IS THE BASE VERSION OF `WindowShellViewModel`. LATER PHASES MUST *ADD* TO IT, NEVER REPLACE IT.**
-> Phase 10 extends this ViewModel (unread-comment count and friends). That edit MUST be additive —
-> new constructor parameters appended to the existing parameter list, new members appended to the
-> existing class body — applied on top of the file written here. A "write the file in full" rewrite in
-> Phase 10 silently deletes the security fix and the session bootstrap.
->
-> These members MUST survive verbatim into every later version of the file:
->
-> - the constructor parameters `IWindowShellProvider provider`, `INavigationService navigationService`,
->   `IUserService userService`, `IDialogService dialogService`, and their four null-guarded field
->   assignments (`_provider`, `_navigationService`, `_userService`, `_dialogService`)
-> - the subscription `_userService.AuthenticationStateChanged += OnAuthenticationStateChanged;` in the constructor
-> - the constructor call `UpdateAuthenticationState();`
-> - the constructor call `_ = _userService.TryRestoreSessionAsync();`
-> - `IDialogService` and its use in `LoginAsync`'s `catch` (`_dialogService.ShowStatusMessageAsync(StatusMessageDialogType.Error, ...)`)
-> - `OnAuthenticationStateChanged` with its `#if __WASM__` / `_provider.DispatcherQueue.HasThreadAccess` /
->   `_provider.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Normal, ...)` dispatcher marshaling
-> - `UpdateAuthenticationState()` setting BOTH `IsLoggedIn` and `IsAdmin`
-> - the `IsAdmin` observable property itself, plus `LoginAsync`/`LogoutAsync`, `BeginLoading()` and `BackRequested()`
-
-- [ ] **Step 1: Re-run the two claim tests that back this gate, to confirm they still pass**
-
-```bash
-dotnet test src/app/MZikmund.App.Core.Tests/MZikmund.App.Core.Tests.csproj --filter "FullyQualifiedName~SupabaseClaimsReaderTests"
-```
-
-Expected: `Passed!  - Failed: 0, Passed: 12, Skipped: 0`
-
-- [ ] **Step 2: Replace the shell ViewModel**
-
-Write `src/app/MZikmund.App.Core/ViewModels/WindowShellViewModel.cs` in full:
-
-```csharp
-using Microsoft.UI.Dispatching;
-using MZikmund.Models.Dialogs;
-using MZikmund.Services.Account;
-using MZikmund.Services.Dialogs;
-using MZikmund.Services.Navigation;
-using Uno.Disposables;
-
-namespace MZikmund.ViewModels;
-
-public partial class WindowShellViewModel : ViewModelBase
-{
-	private readonly IWindowShellProvider _provider;
-	private readonly INavigationService _navigationService;
-	private readonly IUserService _userService;
-	private readonly IDialogService _dialogService;
-	private RefCountDisposable? _refCountDisposable;
-
-	public WindowShellViewModel(
-		IWindowShellProvider provider,
-		INavigationService navigationService,
-		IUserService userService,
-		IDialogService dialogService)
-	{
-		_provider = provider ?? throw new ArgumentNullException(nameof(provider));
-		_navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
-		_userService = userService ?? throw new ArgumentNullException(nameof(userService));
-		_dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
-
-		_userService.AuthenticationStateChanged += OnAuthenticationStateChanged;
-		UpdateAuthenticationState();
-
-		// TryRestoreSessionAsync never throws; it logs and reports false instead.
-		_ = _userService.TryRestoreSessionAsync();
-	}
-
-	public string Title { get; set; } = "Martin Zikmund";
-
-	[ObservableProperty]
-	public partial bool IsLoading { get; set; }
-
-	[ObservableProperty]
-	public partial string LoadingStatusMessage { get; set; } = "";
-
-	[ObservableProperty]
-	public partial bool IsLoggedIn { get; set; }
-
-	/// <summary>
-	/// Gets a value indicating whether the signed-in user is an administrator. The Admin navigation
-	/// section binds to this and NOT to <see cref="IsLoggedIn"/> - with Supabase every commenter
-	/// signs in, so an IsLoggedIn gate would expose the moderation UI to every reader.
-	/// </summary>
-	[ObservableProperty]
-	public partial bool IsAdmin { get; set; }
-
-	[RelayCommand]
-	private async Task LoginAsync()
-	{
-		try
-		{
-			await _userService.SignInAsync(SupabaseSignInProvider.Google);
-		}
-		catch (Exception ex)
-		{
-			await _dialogService.ShowStatusMessageAsync(
-				StatusMessageDialogType.Error,
-				"Could not sign in",
-				$"Sign-in did not complete. {ex.Message}");
-		}
-
-		UpdateAuthenticationState();
-	}
-
-	[RelayCommand]
-	private async Task LogoutAsync()
-	{
-		await _userService.SignOutAsync();
-		UpdateAuthenticationState();
-		_navigationService.Navigate<BlogViewModel>();
-	}
-
-	private void OnAuthenticationStateChanged(object? sender, EventArgs e)
-	{
-#if __WASM__
-		UpdateAuthenticationState();
-#else
-		if (_provider.DispatcherQueue.HasThreadAccess)
-		{
-			UpdateAuthenticationState();
-		}
-		else
-		{
-			_provider.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Normal, UpdateAuthenticationState);
-		}
-#endif
-	}
-
-	private void UpdateAuthenticationState()
-	{
-		IsLoggedIn = _userService.IsLoggedIn;
-		IsAdmin = _userService.IsAdmin;
-	}
-
-	public IDisposable BeginLoading()
-	{
-		LoadingStatusMessage = "";
-		if (_refCountDisposable != null && !_refCountDisposable.IsDisposed)
-		{
-			return _refCountDisposable.GetDisposable();
-		}
-
-		IsLoading = true;
-		_refCountDisposable = new RefCountDisposable(Disposable.Create(
-			() => // TODO: Await TryEnequeAsync
-			{
-#if __WASM__
-				IsLoading = false;
-				return;
-#else
-				if (_provider.DispatcherQueue.HasThreadAccess)
-				{
-					IsLoading = false;
-				}
-				else
-				{
-					_provider.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Normal, () =>
-					{
-						if (_refCountDisposable == null || _refCountDisposable.IsDisposed)
-						{
-							IsLoading = false;
-						}
-					});
-				}
-#endif
-			}));
-		return _refCountDisposable;
-	}
-
-	public void BackRequested() => _navigationService.GoBack();
-}
-```
-
-- [ ] **Step 3: Rebind the Admin navigation item**
-
-In `src/app/MZikmund.App/WindowShell.xaml`, replace this opening tag:
-
-```xml
-                <mux:NavigationViewItem x:Name="AdminNavigationViewItem" Content="{extensions:Localize Key=Admin}" Visibility="{x:Bind ViewModel.IsLoggedIn, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-```
-
-with:
-
-```xml
-                <mux:NavigationViewItem x:Name="AdminNavigationViewItem" Content="{extensions:Localize Key=Admin}" Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-```
-
-Leave the two footer items (`LoginNavigationViewItem`, `LogoutNavigationViewItem`) bound to `IsLoggedIn` — those are correct as they are.
-
-- [ ] **Step 4: Confirm no other Admin surface is gated on `IsLoggedIn`**
-
-```bash
-grep -n "IsLoggedIn" src/app/MZikmund.App/WindowShell.xaml
-```
-
-Expected output — exactly two lines, both in `NavigationView.FooterMenuItems`:
-
-```
-src/app/MZikmund.App/WindowShell.xaml:                <mux:NavigationViewItem x:Name="LoginNavigationViewItem" Content="{extensions:Localize Key=Login}" Visibility="{x:Bind ViewModel.IsLoggedIn, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-src/app/MZikmund.App/WindowShell.xaml:                <mux:NavigationViewItem x:Name="LogoutNavigationViewItem" Content="{extensions:Localize Key=Logout}" Visibility="{x:Bind ViewModel.IsLoggedIn, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-```
-
-- [ ] **Step 5: Build the desktop head**
-
-```bash
-dotnet build src/app/MZikmund.App/MZikmund.App.csproj -f net10.0-desktop
-```
-
-Expected: `Build succeeded.` with 0 errors.
-
-- [ ] **Step 6: Format and commit**
-
-```bash
-dotnet format MZikmund.slnx
-git add src/app/MZikmund.App.Core/ViewModels/WindowShellViewModel.cs src/app/MZikmund.App/WindowShell.xaml
-git commit -m "fix(app): gate the Admin navigation section on IsAdmin instead of IsLoggedIn"
-```
+Commit `docs: Describe the app's Supabase sign-in`.
 
 ---
 
-### Task 2.9: Remove the last Auth0 traces from the app and document the Supabase setup
+### Task 2.7: OWNER-GATED — remove Auth0 from the app
 
-**Files:**
-- Modify: `CLAUDE.md` (the "Uno App" bullet under "Authentication")
-- Delete: `docs/AUTH0_MIGRATION.md`
-- Modify/Create: `docs/SUPABASE_AUTH.md` (append the app section)
-- Test: `dotnet test src/app/MZikmund.App.Core.Tests/MZikmund.App.Core.Tests.csproj` — the whole suite, one final time.
-
-**Interfaces:**
-- Consumes: everything above.
-- Produces: nothing consumed by later phases except `docs/SUPABASE_AUTH.md`, which Phase 6 references for the sign-in sheet.
-
-- [ ] **Step 1: Confirm no Auth0 symbol survives in the app**
-
-```bash
-grep -rn "Auth0\|auth0\|OAuth2Manager\|AuthenticationConstants\|AuthConfig" src/app
-```
-
-Expected: no output. If `OAuth2Manager` still appears anywhere, an earlier task was left half-applied.
-
-- [ ] **Step 2: Update the app authentication bullet in `CLAUDE.md`**
-
-Replace this line — note it already ends in `docs/SUPABASE_AUTH.md`, **not** `docs/AUTH0_MIGRATION.md`,
-because Phase 1 Task 1.6 Step 8 rewrote that trailing reference when it deleted the Auth0 document.
-Anchoring on the original Auth0 wording will match nothing:
-
-```
-**Uno App**: Platform-native OAuth2 with PKCE. Windows uses `OAuth2Manager`, other platforms use Uno's `WebAuthenticator`. Callback URIs: `https://localhost/callback` (Windows), `dev.mzikmund.MZikmund.App://callback` (mobile). See `docs/SUPABASE_AUTH.md`.
-```
-
-with:
-
-```
-**Uno App**: Supabase (GoTrue) PKCE via `Supabase.Gotrue`. Android/iOS/WASM use Uno's `WebAuthenticationBroker`; Windows uses `mzikmund-app://oauthcallback` protocol activation (`Platforms/Windows/Program.cs` → `MZikmundApp.OnUriCallback`); desktop uses a loopback listener on `http://localhost:52619/callback/`. Configuration binds by type name from the `SupabaseConfig` object in the embedded `appsettings.json`. See `docs/SUPABASE_AUTH.md`.
-```
-
-Leave the web/API bullets alone — Phase 1 owns those.
-
-- [ ] **Step 3: Delete the Auth0 migration document**
-
-```bash
-git rm -f --ignore-unmatch docs/AUTH0_MIGRATION.md
-```
-
-`--ignore-unmatch` keeps this idempotent in case Phase 1 already removed it.
-
-- [ ] **Step 4: Append the app section to the Supabase document**
-
-```bash
-cat >> docs/SUPABASE_AUTH.md <<'EOF'
-
-## Uno app
-
-The app uses the `Supabase.Gotrue` NuGet package (identity only — no Postgrest, Realtime, Storage
-or Functions). Configuration lives in the `SupabaseConfig` object of the **embedded**
-`src/app/MZikmund.App/appsettings.json`, bound by type name via `.Section<SupabaseConfig>()`.
-Everything in that file ships inside the binary, which is fine for the publishable key and
-unacceptable for anything else. No secret key ever goes in the app.
-
-| Key | Value |
-|---|---|
-| `SupabaseConfig:ProjectRef` | the project ref; every Supabase URL is derived from it |
-| `SupabaseConfig:PublishableKey` | `sb_publishable_...`, sent as the `apikey` header |
-| `SupabaseConfig:CallbackUri` | `mzikmund-app://oauthcallback` (Windows, Android, iOS) |
-| `SupabaseConfig:DesktopCallbackUri` | `http://localhost:52619/callback/` (Skia desktop) |
-| `SupabaseConfig:WasmCallbackUri` | `https://<wasm-origin>/authentication-callback` |
-
-### Redirect URLs to allow-list
-
-In the dashboard under **Authentication > URL Configuration > Redirect URLs** add all of:
-
-```
-mzikmund-app://oauthcallback
-http://localhost:52619/**
-https://mzikmund.dev/**
-http://localhost:5000/**
-```
-
-Glob rules: `*` matches non-separator characters, `**` matches anything.
-
-### Where each redirect is registered in the repository
-
-| Head | Mechanism | File |
-|---|---|---|
-| Windows | `windows.protocol` extension, name `mzikmund-app`; activation routed by `MZikmundProgram.OnActivated` | `src/app/MZikmund.App/Package.appxmanifest`, `src/app/MZikmund.App/Platforms/Windows/Program.cs` |
-| Android | `[IntentFilter(DataScheme = "mzikmund-app")]` on an activity deriving from `Uno.AuthenticationBroker.WebAuthenticationBrokerActivityBase` | `src/app/MZikmund.App/Platforms/Android/WebAuthenticationBrokerActivity.Android.cs` |
-| iOS | `CFBundleURLTypes` / `CFBundleURLSchemes` entry `mzikmund-app` | `src/app/MZikmund.App/Platforms/iOS/Info.plist` |
-| WASM | no custom scheme is possible; the redirect must be an https URL on the app's own origin | `SupabaseConfig:WasmCallbackUri` |
-| Desktop (Skia) | Uno's `WebAuthenticationBroker` is not implemented; a loopback `HttpListener` on a fixed port is used instead | `src/app/MZikmund.App.Core/Services/Account/OAuthCallbackBroker.cs` |
-
-### Session persistence and refresh
-
-`SupabaseSessionPersistence` implements `IGotrueSessionPersistence<Session>` over
-`IAppPreferences.SupabaseSession`. That preference is stored with `roamed: false` on purpose — it
-carries a refresh token and roaming settings are plain text synced across the user's devices.
-The client is created with `AutoRefreshToken = true`, `client.SetPersistence(...)` and
-`client.LoadSession()` in `MZikmundApp.CreateSupabaseClient`. `WindowShellViewModel` calls
-`IUserService.TryRestoreSessionAsync()` once at startup, which restores and refreshes.
-
-### Rollout checklist
-
-- [ ] Migrate the project to an asymmetric (ES256) signing key. While the project is still on the
-      legacy HS256 secret, `/auth/v1/.well-known/jwks.json` returns `{"keys":[]}` and every API
-      call 401s with what looks like a network error.
-- [ ] Enable the Google provider: create a **Web application** OAuth client, add
-      `https://<ref>.supabase.co/auth/v1/callback` as an authorized redirect URI, paste the client
-      id and secret into the dashboard.
-- [ ] Enable the Apple provider: App ID with the "Sign in with Apple" capability, a Services ID
-      whose return URL is `https://<ref>.supabase.co/auth/v1/callback`, and a Sign in with Apple
-      key. Keep the `.p8` — Apple lets you download it once and it is needed for every rotation.
-      Enter the **Services ID first** in the dashboard's Client IDs list.
-- [ ] Calendar reminder: the Apple client secret expires every 6 months and breaks Apple sign-in
-      silently.
-- [ ] Enable email OTP and edit the Magic Link template to contain `{{ .Token }}` instead of
-      `{{ .ConfirmationURL }}`, otherwise Supabase mails a link and no six-digit code is visible.
-- [ ] Add every redirect URL listed above.
-- [ ] Paste the real project ref and `sb_publishable_...` key into
-      `src/app/MZikmund.App/appsettings.json`, replacing the two `..._Placeholder` values.
-- [ ] Grant yourself the admin role, then sign out and back in — `app_metadata` changes only reach
-      the client after the access token is re-minted:
-
-```bash
-curl -X PUT "https://<project-ref>.supabase.co/auth/v1/admin/users/<user-uuid>" \
-  -H "apikey: sb_secret_xxxxxxxxxxxxxxxx" \
-  -H "Authorization: Bearer sb_secret_xxxxxxxxxxxxxxxx" \
-  -H "Content-Type: application/json" \
-  -d '{"app_metadata": {"role": "admin"}}'
-```
-
-  Send **only** `app_metadata`. The same endpoint accepts a top-level `role` field that rewrites
-  the Postgres role claim and can lock the account out of PostgREST.
-- [ ] Verify in the app that the Admin navigation section appears for you and does **not** appear
-      for a second, non-admin test account.
-EOF
-```
-
-- [ ] **Step 5: Run the whole app test suite**
-
-```bash
-dotnet test src/app/MZikmund.App.Core.Tests/MZikmund.App.Core.Tests.csproj
-```
-
-Expected: `Passed!  - Failed: 0, Passed: 24, Skipped: 0`
-
-- [ ] **Step 6: Build every app head**
-
-```bash
-dotnet build src/app/MZikmund.App/MZikmund.App.csproj
-```
-
-Expected: `Build succeeded.` with 0 errors across `net10.0-windows10.0.26100`, `net10.0-android`, `net10.0-ios`, `net10.0-browserwasm` and `net10.0-desktop`.
-
-- [ ] **Step 7: Format and commit**
-
-```bash
-dotnet format MZikmund.slnx
-git add CLAUDE.md docs/SUPABASE_AUTH.md
-git commit -m "docs: replace the Auth0 app guide with Supabase setup and rollout checklist"
-```
+**Do not execute** until the owner confirms the hosted Supabase admin token works end-to-end
+(Task 1.5's hosted proof) and asks for it. Then, together with Task 1.6: delete
+`src/app/MZikmund.App.Core/Models/AuthConfig.cs`, the `AuthConfig` objects in
+`appsettings.json`/`.sample`, `.Section<AuthConfig>()`, any remaining `AuthenticationConstants.cs`,
+`System.IdentityModel.Tokens.Jwt` from `MZikmund.App.Core.csproj` if unused, the
+`Auth0.OidcClient.MAUI` `PackageVersion`, and `docs/AUTH0_MIGRATION.md`; fix references in `CLAUDE.md`.
+Commit `chore: Remove Auth0 from the app`.
 
 ---
-
 ## Phase 3: Comment Data Contracts, Entities, EF Configurations, Migration, and AutoMapper Profile
 
 > **Deliberate deviations from repo convention introduced in this phase (state them in the PR body, do not do them silently):**
@@ -6798,6 +4855,14 @@ git commit -m "feat: Add comment entities to the data layer"
 
 ### Task 3.3: EF configurations and `DatabaseContext` registration
 
+> **Review correction (2026-10-14):** Two additions. (1) Add a UTC `ValueConverter<DateTime, DateTime>`
+> (`v => v.ToUniversalTime()` on write — `DateTime.SpecifyKind(v, DateTimeKind.Utc)` on read) to every
+> `DateTime`/`DateTime?` property of the four comment entities, with a test that a value read back has
+> `Kind == Utc`. (2) `Comment.PostId` is `Restrict`, so `DeletePostHandler`'s hard-delete path
+> (`softDelete == false`) would now fail with an FK violation for any post with comments. Make that path
+> delete the post's `CommentVote`, `CommentReport` and `Comment` rows first (inject `DatabaseContext`,
+> `ExecuteDeleteAsync`, inside an execution-strategy transaction), with a `CommentsDbFixture` test.
+
 **Files:**
 - Test: `src/web/MZikmund.Web.Core.Tests/Data/CommentModelTests.cs` (create)
 - Create: `src/web/MZikmund.Web.Data/Entities/Configurations/CommentConfiguration.cs`
@@ -7271,6 +5336,10 @@ git commit -m "feat: Configure comment entities and register them on DatabaseCon
 
 ### Task 3.4: The `Comments` EF migration
 
+> **Review correction (2026-10-14):** If `dotnet ef --version` reports an older tool (9.x is installed globally on
+> the owner's machine), use `dotnet tool update --global dotnet-ef --version 10.0.3` — `install` fails
+> when the tool already exists. The migration timestamp will be today's date, not 20260811.
+
 **Files:**
 - Create (generated): `src/web/MZikmund.Web.Data/Migrations/{timestamp}_Comments.cs`
 - Create (generated): `src/web/MZikmund.Web.Data/Migrations/{timestamp}_Comments.Designer.cs`
@@ -7654,6 +5723,10 @@ git commit -m "feat: Add CommentMap AutoMapper profile"
 ---
 
 ### Task 4.1: Comment content renderer (restricted Markdig pipeline + HtmlSanitizer)
+
+> **Review correction (2026-10-14):** Materialise `document.Descendants<…>().ToList()` before calling `ReplaceBy`
+> (mutating Markdig's lazy enumeration is fragile). `Program.cs` line numbers quoted below are stale —
+> anchor on text. Add the `MZikmund.Web.Core.Services.Comments` using only if it is not already present.
 
 **Files:**
 - Modify: `src/Directory.Packages.props` (add one `<PackageVersion>` line in the `<!-- Web -->` group)
@@ -8081,6 +6154,9 @@ git commit -m "feat: Add restricted comment markdown renderer with HTML sanitiza
 ---
 
 ### Task 4.2: Cloudflare Turnstile verifier
+
+> **Review correction (2026-10-14):** The `catch (… or TaskCanceledException)` must not swallow a caller-initiated
+> cancellation: add `when (!cancellationToken.IsCancellationRequested)`.
 
 **Files:**
 - Modify: `src/web/MZikmund.Web.Configuration/TurnstileOptions.cs` (add the `ExpectedAction` property to the file Phase 0 Task 0.3 Step 4 created — do **not** recreate the file)
@@ -8583,6 +6659,10 @@ git commit -m "feat: Add Cloudflare Turnstile server-side verification"
 
 ### Task 4.3: `IAuthoredRequest` marker and the `AuthoredRequestBehavior` pipeline behavior
 
+> **Review correction (2026-10-14):** `CommentsDbFixture` exists now (Task 0.7); use it instead of a bespoke
+> SQLite setup where that removes duplication. State in the behavior's XML doc that the author upsert is
+> saved before the handler's transaction (not rolled back with a failed write) — acceptable by design.
+
 **Files:**
 - Verify (do **not** create or overwrite): `src/web/MZikmund.Web.Core/Services/Comments/ICurrentUserAccessor.cs` — created by Phase 1 Task 1.4, Step 1; checked in Step 2 below
 - Create: `src/web/MZikmund.Web.Core/Infrastructure/IAuthoredRequest.cs`
@@ -9071,6 +7151,12 @@ recreates them:
 
 ### Task 5.1: Shared comment limits and test-project internals visibility
 
+> **Review correction (2026-10-14):** The test project mocks `ILogger<THandler>` for `internal sealed` handlers.
+> Castle DynamicProxy cannot proxy a generic over an internal type unless the assembly also grants
+> `[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]`. Add that line next to the test-project
+> `InternalsVisibleTo`, and update the "exactly two lines" grep expectations here and in Task 6.1 Step 1
+> to three.
+
 **Files:**
 - Create: `src/app/MZikmund.DataContracts/Blog/Comments/CommentLimits.cs`
 - Create: `src/web/MZikmund.Web.Core/Properties/InternalsVisibleTo.cs` (git mv of `Properties/AssemblyInfo.cs`)
@@ -9238,6 +7324,10 @@ git commit -m "feat: Comment size limits shared by API, web and app"
 ---
 
 ### Task 5.2: `CommentRow` and the shared `CommentProjection` helper
+
+> **Review correction (2026-10-14):** Mask bodies for non-visible rows in the projection: when `Status !=
+> Visible`, `Content` and `ContentHtml` are `""` in `CommentDto` (tombstone), regardless of what the row
+> holds. Add a test.
 
 **Files:**
 - Create: `src/web/MZikmund.Web.Core/Features/Comments/CommentRow.cs`
@@ -9883,6 +7973,11 @@ git commit -m "feat: Shared comment projection with per-caller vote state and bo
 ---
 
 ### Task 5.3: `GetPostCommentsQuery` and `GetPostCommentsHandler`
+
+> **Review correction (2026-10-14):** Throw `KeyNotFoundException` when the post does not exist or is not public
+> (`PostEntityExtensions.IsPublishedAndVisible(DateTimeOffset.UtcNow)`, already used by
+> `GetPostByIdHandler`), so the controller's declared 404 is real (Task 7.0 maps it). Same in Task 5.4
+> for the parent comment's post.
 
 **Files:**
 - Create: `src/web/MZikmund.Web.Core/Features/Comments/GetPostCommentsQuery.cs`
@@ -10807,6 +8902,11 @@ produced above.
 ---
 
 ### Task 5.5: `CreateCommentCommand` / `CreateCommentHandler`
+
+> **Review correction (2026-10-14):** Validate the post with `IsPublishedAndVisible` (→ `KeyNotFoundException`), and
+> reject a reply whose target is not `Visible` (→ `InvalidOperationException`, mapped to 409). Add tests
+> for draft post, future-dated post and hidden/deleted target. See the re-runnable-lambda rule in
+> Deliberate deviation 3.
 
 **Files:**
 - Create: `src/web/MZikmund.Web.Core/Features/Comments/CreateCommentCommand.cs`
@@ -11749,6 +9849,9 @@ git commit -m "feat: Add UpdateCommentCommand handler with a 15-minute edit wind
 ---
 
 ### Task 5.7: `DeleteCommentCommand` / `DeleteCommentHandler`
+
+> **Review correction (2026-10-14):** Author delete must also blank `Content` and `ContentHtml` (as admin delete in
+> Task 6.2 does) — the author asked for it to be gone. Assert it in the test.
 
 **Files:**
 - Create: `src/web/MZikmund.Web.Core/Features/Comments/DeleteCommentCommand.cs`
@@ -12895,6 +10998,9 @@ git commit -m "feat: Add ReportCommentCommand handler with duplicate-report supp
 ---
 
 ### Task 5.10: Phase gate — the whole comment handler suite green
+
+> **Review correction (2026-10-14):** Do not chase exact pass counts (Step 1 and Step 2 disagree, and Phase 0 added
+> tests); the gate is `Failed: 0` plus the listed files present.
 
 **Files:**
 - Modify: none (verification only; fix whichever handler or test file the run indicts)
@@ -14233,7 +12339,7 @@ git commit -m "feat: Ban comment author handler and banned-author write rejectio
 
 **Interfaces:**
 - Consumes: `DatabaseContext` (DbSets `Comment`, `CommentAuthor`, `CommentReport`), `CommentEntity.Author` navigation and `CommentEntity.AuthorId`, `MZikmund.DataContracts.PagedResponse<T>` ctor `(IEnumerable<T> data, int pageNumber, int pageSize, int totalCount)`, `CommentDto`, `CommentReportReason`, `MZikmund.Web.Core.Tests.Infrastructure.CommentsDbFixture` (Phase 0 Task 0.7), `ModerationTestData` (Task 6.1).
-  - `MZikmund.DataContracts.Blog.Comments.CommentReportDto` **as the DTO task in Phase 3 defines it — that version wins and is not redefined here** — including its `public required Guid AuthorId { get; init; }` member alongside `CommentId`, `Comment`, `OpenReportCount`, `Reasons` and `FirstReportedOn`. This handler is the only producer of that member, and Phase 10 Task 10.8's "ban this author" button on the report queue is its only consumer, so it must be populated here (audit item 3.4).
+  - `MZikmund.DataContracts.Blog.Comments.CommentReportDto` **as the DTO task in Phase 3 defines it — that version wins and is not redefined here** — including its `public required Guid AuthorId { get; init; }` member alongside `CommentId`, `Comment`, `OpenReportCount`, `Reasons` and `FirstReportedOn`. This handler is the only producer of that member, and Phase 10 Task 10.6's "ban this author" action on the report queue is its only consumer, so it must be populated here (audit item 3.4).
 - Produces:
   - `public record GetCommentReportsQuery(int PageNumber, int PageSize) : IRequest<PagedResponse<CommentReportDto>>;`
   - `internal sealed class GetCommentReportsHandler : IRequestHandler<GetCommentReportsQuery, PagedResponse<CommentReportDto>>` with ctor `(DatabaseContext dbContext)`. Returns **one row per reported comment**, only for unresolved reports, ordered by `FirstReportedOn` ascending then `CommentId`; `TotalCount` is the number of distinct reported comments, not the number of reports. Every returned `CommentReportDto` carries `AuthorId` — the `CommentEntity.AuthorId` of the reported comment.
@@ -15542,6 +13648,30 @@ git commit -m "feat: New comment count query for the moderation badge"
 
 ---
 
+### Task 7.0: Map comment handler exceptions to HTTP statuses
+
+Added by the 2026-10-14 review. Handlers throw BCL exceptions; nothing maps them, and the site's only
+handler is `UseExceptionHandler("/Error")` (non-Development), so a banned author would get a 500 HTML
+page instead of a 403.
+
+**Files:**
+- Create: `src/web/MZikmund.Web/Filters/CommentsExceptionFilter.cs` (an `IExceptionFilter` attribute, namespace `MZikmund.Web.Filters`, same folder Task 7.1 uses)
+- Test: `src/web/MZikmund.Web.Tests/Filters/CommentsExceptionFilterTests.cs`
+
+**Produces:** `public sealed class CommentsExceptionFilterAttribute : ExceptionFilterAttribute` that
+sets `context.Result` to a `ProblemDetails` `ObjectResult` and `ExceptionHandled = true` for:
+`KeyNotFoundException`→404, `UnauthorizedAccessException`→403, `ArgumentException` (incl.
+`ArgumentOutOfRangeException`)→400, `InvalidOperationException`→409. Anything else is left unhandled.
+Log handled ones at `Information`, with the exception message as `detail` (handler messages are
+written for users; do not include stack traces). Tasks 7.3 and 7.4 put `[CommentsExceptionFilter]` on
+`CommentsController` and `CommentsAdminController` — scoped there on purpose so existing controllers
+keep their behaviour.
+
+- [ ] TDD: one theory row per mapping + "unrelated exception stays unhandled"; implement; commit
+  implementation, then tests.
+
+---
+
 ### Task 7.1: Comments Feature Gate (`CommentsEnabledFilter`)
 
 **Files:**
@@ -15771,6 +13901,12 @@ git commit -m "feat: Comments feature gate returning 404 on public routes when d
 ---
 
 ### Task 7.2: Rate Limiting (configurable, partitioned on user id with IP fallback, 429 + Retry-After)
+
+> **Review correction (2026-10-14):** Scope the write limiter to **comment endpoints only** (a named policy applied with
+> `[EnableRateLimiting]` on the comment write actions), not a global limiter over every
+> POST/PUT/PATCH/DELETE — that would throttle admin media uploads and post saves. Step 11's anchor
+> includes `using Microsoft.AspNetCore.Authentication.JwtBearer;`, which Task 1.5 removed: drop that line
+> from both the find and the replacement text.
 
 **Files:**
 - Create: `src/web/MZikmund.Web.Configuration/RateLimitRule.cs`
@@ -16391,6 +14527,12 @@ Known limitations, not addressed here:
 ---
 
 ### Task 7.3: `CommentsController` (public routes, mixed anonymous/authenticated, Turnstile)
+
+> **Review correction (2026-10-14):** Add `[CommentsExceptionFilter]` (Task 7.0) to the controller. The smoke steps
+> that use the hosted project / `$SCRATCH/supabase.env` are owner-gated; run them against the local stack
+> with a token from `supabase/get-test-token.ps1`. Turnstile stays optional-when-absent by spec
+> decision (the Uno app cannot send one) — rate limits and moderation are the mitigation; the owner may
+> revisit (open question).
 
 **Files:**
 - Create: `src/web/MZikmund.Web/Controllers/CommentsController.cs`
@@ -17095,7 +15237,7 @@ Expected: `Now listening on: https://localhost:7007`. Leave it running.
 Terminal 2 — grab a real post id, then post six comments:
 
 ```bash
-export SCRATCH="C:/Users/Martin/AppData/Local/Temp/claude/D--Personal-mzikmund/876f8c04-94e6-4eda-91de-cdf93d49d494/scratchpad"
+export SCRATCH="<your session scratchpad, forward slashes>"
 set -a; . "$SCRATCH/supabase.env"; set +a
 POST_ID=$(curl -sk "https://localhost:7007/api/v1/posts?pageNumber=1" \
   | python -c "import json,sys; print(json.load(sys.stdin)['data'][0]['id'])")
@@ -17163,6 +15305,10 @@ git commit -m "feat: Public CommentsController with anonymous reads and Turnstil
 ---
 
 ### Task 7.4: `Admin/CommentsAdminController` (moderation surface, deliberately ungated)
+
+> **Review correction (2026-10-14):** Add `[CommentsExceptionFilter]` to the controller, and normalise `since` with
+> `since?.ToUniversalTime()` before sending the query (model binding yields `Kind=Local`/`Unspecified`).
+> Hosted-token smoke steps → local stack, as in Task 7.3.
 
 **Files:**
 - Create: `src/web/MZikmund.Web/Controllers/Admin/CommentsAdminController.cs`
@@ -17603,7 +15749,7 @@ Expected: `Now listening on: https://localhost:7007`. Leave it running.
 Terminal 2:
 
 ```bash
-export SCRATCH="C:/Users/Martin/AppData/Local/Temp/claude/D--Personal-mzikmund/876f8c04-94e6-4eda-91de-cdf93d49d494/scratchpad"
+export SCRATCH="<your session scratchpad, forward slashes>"
 set -a; . "$SCRATCH/supabase.env"; set +a
 echo -n "no token  -> "; curl -sk -o /dev/null -w "%{http_code}\n" "https://localhost:7007/api/v1/admin/comments"
 echo -n "reader    -> "; curl -sk -o /dev/null -w "%{http_code}\n" -H "Authorization: Bearer $READER_TOKEN" "https://localhost:7007/api/v1/admin/comments"
@@ -18004,6 +16150,12 @@ IsOwn are populated."
 
 Phase 8 changes **how** the site's JavaScript is built and loaded. It adds **no** comments UI and **no** C# whatsoever. The acceptance bar is behavioural parity: the site must render and behave identically before and after, including the no-flash-of-wrong-theme guarantee.
 
+> **Review correction (2026-10-14):** the base moved since this phase was written (fluent-polish:
+> popover APIs in `SiteNav.ts`/`ThemeSwitchManager.ts`, a `chevron-right` icon, the `_comment:build`
+> note). The specific fixes are marked in Tasks 8.1, 8.2, 8.3 and 8.6. `node_modules` already exists in
+> this worktree (`npm ci` simply reinstalls). Commit Tasks 8.2 and 8.3 together — between them the
+> site has no `site.js`.
+
 Everything below was validated against a real copy of `Scripts/` in a scratchpad probe: `tsc 5.9.3 --noEmit` exits 0 over the converted tree, and `esbuild 0.28.2` emits `theme-init.js` 3.5 kb (IIFE), `site.js` 13.5 kb (flat ESM), `comments.js` 41 b.
 
 Deliberate deviations from the researched proposal, stated up front:
@@ -18070,7 +16222,7 @@ asp.net@1.0.0 D:\Personal\mzikmund\.claude\worktrees\comments\src\web\MZikmund.W
 `-- esbuild@0.28.2
 ```
 
-- [ ] **Step 5: Fix the `scripts/` casing bug in `package.json`**
+- [ ] **Step 5: ALREADY DONE — `package.json` already says `node Scripts/build-assets.mjs`; verify and move on**
 
 The directory on disk is `Scripts`. `node scripts/build-assets.mjs` only resolves because every workflow runs on `windows-latest`; on Linux it fails outright. In `src/web/MZikmund.Web/package.json`, replace:
 
@@ -18118,6 +16270,10 @@ git commit -m "chore(web): add esbuild and supabase-js, fix build:assets path ca
 ---
 
 ### Task 8.2: tsconfig for ES modules and the namespace → ES module conversion
+
+> **Review correction (2026-10-14):** The "exactly N errors" / clean `tsc --noEmit` expectations were measured
+> before the popover-API changes and with `noImplicitAny` off; treat Step 11 (a clean typecheck of the
+> converted tree) as the real gate and fix any new errors in place.
 
 **Files:**
 - Modify: `src/web/MZikmund.Web/tsconfig.json` (complete replacement)
@@ -18200,7 +16356,7 @@ Scripts/ThemeSwitchManager.ts(12,20): error TS1280: ...
 
 - [ ] **Step 3: Write the throwaway conversion script into the scratchpad**
 
-The edit is mechanical and identical for all six files: delete the `namespace X {` line, delete the matching final `}`, dedent the body one level. `ReadingProgressBar.ts` uses 4 spaces, the other five use tabs — the script handles both and preserves CRLF. Write this to `C:\Users\Martin\AppData\Local\Temp\claude\D--Personal-mzikmund\876f8c04-94e6-4eda-91de-cdf93d49d494\scratchpad\convert-namespaces.mjs`:
+The edit is mechanical and identical for all six files: delete the `namespace X {` line, delete the matching final `}`, dedent the body one level. `ReadingProgressBar.ts` uses 4 spaces, the other five use tabs — the script handles both and preserves CRLF. Write this to `$SCRATCH\convert-namespaces.mjs`:
 
 ```javascript
 // One-shot, throwaway: turns `namespace X { export class Y }` files into plain
@@ -18243,7 +16399,7 @@ for (const file of process.argv.slice(2)) {
 From `src/web/MZikmund.Web`:
 
 ```
-node "C:\Users\Martin\AppData\Local\Temp\claude\D--Personal-mzikmund\876f8c04-94e6-4eda-91de-cdf93d49d494\scratchpad\convert-namespaces.mjs" Scripts/HeadingLinks.ts Scripts/Motion.ts Scripts/ReadingProgressBar.ts Scripts/SiteNav.ts Scripts/TableOfContents.ts Scripts/ThemeSwitchManager.ts
+node "$SCRATCH\convert-namespaces.mjs" Scripts/HeadingLinks.ts Scripts/Motion.ts Scripts/ReadingProgressBar.ts Scripts/SiteNav.ts Scripts/TableOfContents.ts Scripts/ThemeSwitchManager.ts
 ```
 
 Expected output, exit code 0:
@@ -18650,7 +16806,8 @@ check:js OK - theme-init.js (iife), site.js, comments.js
 		"typecheck": "tsc --noEmit",
 		"build:js": "node Scripts/build-js.mjs --prod",
 		"check:js": "node Scripts/check-bundles.mjs",
-		"build": "npm run build:assets && npm run build:css && npm run build:css:prod && npm run typecheck && npm run build:js && npm run check:js",
+		"_comment:build": "build:assets is deliberately NOT part of build. Its outputs (wwwroot/fonts, _IconSprite.cshtml) are committed, and MSBuild globs Content/Razor items at evaluation time - before any target runs - so regenerating them mid-build lands one build late and silently ships a stale sprite. Run `npm run build:assets` explicitly and commit the result when changing the font packages or the icon list.",
+		"build": "npm run build:css && npm run build:css:prod && npm run typecheck && npm run build:js && npm run check:js",
 		"watch:css": "sass Styles/site.scss wwwroot/css/site.css --style=expanded --source-map --watch",
 		"watch:js": "node Scripts/build-js.mjs --watch",
 		"watch": "npm run watch:css & npm run watch:js"
@@ -18827,6 +16984,8 @@ git commit -m "feat(web): load theme-init.js blocking and site.js as a module"
 
 ### Task 8.5: `npm ci` in the csproj and in both CI workflows
 
+> **Review correction (2026-10-14):** In `fullbuild.yml` the npm step is at lines 62–65 (not 49–52); anchor on text.
+
 **Files:**
 - Modify: `src/web/MZikmund.Web/MZikmund.Web.csproj` (add an `NpmInstall` target before `NpmBuild`)
 - Modify: `.github/workflows/fullbuild.yml` (the "Restore Node.js dependencies" step, lines 49–52)
@@ -18978,9 +17137,12 @@ git commit -m "build: run npm ci from MSBuild and pin Node 22 in CI"
 - Consumes: everything from Tasks 8.1–8.5.
 - Produces: nothing consumed by later phases; this task is the phase's acceptance gate.
 
-- [ ] **Step 1: Fix the stale generator path in `docs/design-system.md`**
+- [ ] **Step 1: SKIP — already fixed upstream** (`docs/design-system.md` already points at
+`Scripts/build-assets.mjs`). Instead fix the two remaining stale references: `docs/design-system.md`
+"`Scripts/index.ts` initialises `TableOfContents` before `HeadingLinks`" → `Scripts/site.ts`, and the
+"site.js sets it render-blocking" comment at the top of `Pages/Shared/_Layout.cshtml` → `theme-init.js`.
 
-The referenced file does not exist. Replace:
+(Original, obsolete instruction kept for context:) Replace:
 
 ```markdown
 To add one: edit the `ICONS` array in `scripts/gen-sprite.mjs` and re-run it.
@@ -19013,9 +17175,10 @@ Prefer letting a component own its spacing over reaching for a utility.
 ## Asset pipeline
 
 `npm run build` (run automatically by `dotnet build` via the `NpmBuild` MSBuild
-target) does five things: generates fonts and the icon sprite, compiles SCSS to
-`site.css` and `site.min.css`, type-checks with `tsc --noEmit`, bundles
-TypeScript with esbuild, and verifies the bundles.
+target) does four things: compiles SCSS to `site.css` and `site.min.css`,
+type-checks with `tsc --noEmit`, bundles TypeScript with esbuild, and verifies
+the bundles. Fonts and the icon sprite are generated separately by
+`npm run build:assets` and committed (see the Icons section).
 
 TypeScript is bundled by esbuild into three fixed, unhashed entry points:
 
@@ -19162,6 +17325,7 @@ const ICONS = [
 	'circle-half', 'sun', 'moon-stars',
 	'play-circle', 'play-fill', 'file-earmark-pdf',
 	'list', 'link-45deg', 'check-lg', 'image', 'rss', 'tag', 'folder2-open',
+	'chevron-right',
 	// Comments UI.
 	'chat-left-text', 'hand-thumbs-up', 'hand-thumbs-up-fill', 'reply', 'flag',
 	'trash3', 'person-circle', 'google', 'apple', 'envelope', 'x-lg',
@@ -19177,7 +17341,7 @@ cd D:/Personal/mzikmund/.claude/worktrees/comments/src/web/MZikmund.Web && npm r
 Expected output ends with:
 
 ```
-icons: wrote 33 symbols (...)
+icons: wrote 34 symbols (...)
 ```
 
 A `MISSING ICON: <name>` line means the name is not in `node_modules/bootstrap-icons/icons/` and the script exits 1 — fix the name, do not proceed.
@@ -19191,8 +17355,11 @@ cd D:/Personal/mzikmund/.claude/worktrees/comments && grep -c 'id="i-' src/web/M
 Expected output:
 
 ```
-33
+34
 ```
+
+Also append the eleven new ids to the "Available ids" list in `docs/design-system.md` (Icons section)
+and stage that file in the commit.
 
 - [ ] **Step 5: Commit**
 
@@ -20208,6 +18375,15 @@ cd D:/Personal/mzikmund/.claude/worktrees/comments && dotnet format MZikmund.sln
 
 ### Task 9.5: `_comments.scss`, the Smoke token, and the design-system contract
 
+> **Review correction (2026-10-14):** There is **no global `[hidden] { display: none }` rule** in `Styles/**`, and this
+> partial sets `display` on elements the markup hides with `hidden` (`.comment-composer`,
+> `.comment-composer__reply-to`, `.signin-dialog__step`, `.comment__action`, `[data-load-more]`). Add
+> `[hidden] { display: none !important; }` at the top of the `@layer components` block in
+> `_comments.scss`. The elevation tokens are `--mz-elev-{layer,control,card,tooltip,flyout,dialog}`
+> (fixed below). Add a rule for `.comments__composer-notice` (caption size, `--mz-text-tertiary`), used by
+> Task 11.3. In `docs/design-system.md` also add `--mz-smoke` to the Tokens section and the new component
+> classes to the Components "Other" list / Files list.
+
 **Files:**
 - Create: `src/web/MZikmund.Web/Styles/components/_comments.scss`
 - Modify: `src/web/MZikmund.Web/Styles/site.scss` (add `@use "components/comments";`)
@@ -20246,11 +18422,13 @@ Immediately after `--mz-shimmer: rgb(255 255 255 / 0.05);` inside `@media (prefe
 
 - [ ] **Step 4: Add it to the forced-colors block**
 
-Inside `@media (forced-colors: active) { :root { ... } }`, immediately after `--mz-elev-4: none;`, add:
+Inside `@media (forced-colors: active) { :root { ... } }`, immediately after `--mz-elev-dialog: none;`, add:
 
 ```scss
-			--mz-smoke: Canvas;
+			--mz-smoke: transparent;
 ```
+
+(`Canvas` would paint an opaque scrim over the page in forced-colours mode.)
 
 - [ ] **Step 5: Create the component partial**
 
@@ -20326,7 +18504,7 @@ Create `src/web/MZikmund.Web/Styles/components/_comments.scss`:
 			background-color: var(--mz-card);
 			color: var(--mz-text-primary);
 			font-weight: var(--mz-weight-semibold);
-			box-shadow: var(--mz-elev-1);
+			box-shadow: var(--mz-elev-control);
 		}
 	}
 
@@ -20613,7 +18791,7 @@ Create `src/web/MZikmund.Web/Styles/components/_comments.scss`:
 		border-radius: var(--mz-radius-overlay);
 		background-color: var(--mz-acrylic);
 		color: var(--mz-text-primary);
-		box-shadow: var(--mz-elev-4);
+		box-shadow: var(--mz-elev-dialog);
 
 		@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
 			-webkit-backdrop-filter: var(--mz-acrylic-blur);
@@ -21136,6 +19314,10 @@ cd D:/Personal/mzikmund/.claude/worktrees/comments && git add src/web/MZikmund.W
 ---
 
 ### Task 9.7: The Turnstile widget wrapper and the sign-in dialog
+
+> **Review correction (2026-10-14):** Define `window.mzTurnstileReady` **before** the async Turnstile script can run
+> (set it at module top level, and keep the `typeof turnstile !== "undefined"` fallback), otherwise
+> Cloudflare logs a console error that fails Step 6's "no console errors" check.
 
 **Files:**
 - Create: `src/web/MZikmund.Web/Scripts/TurnstileTypes.d.ts`
@@ -22422,3657 +20604,288 @@ it is the plan's marker that Steps 2-13 were actually run, and this task by desi
 
 ---
 
-## Phase 10: Uno App Comments UI and Windows Markdown Rendering
+## Phase 10: Uno App Comments UI
 
-**Phase notes — read before starting.**
+> **Rewritten 2026-10-14** for the redesigned app (Uno.Sdk 7.0.0-dev.75, `Mz*` design vocabulary in
+> `src/app/MZikmund.App/Theme/**`). The original Tasks 10.1–10.12 targeted the pre-redesign views, a
+> different `IUserService`, and CommunityToolkit Labs `MarkdownTextBlock` — none of which apply now.
+> Tasks are specified by **files, interfaces and behaviour**, with the existing view each one must
+> imitate. Copy structure from the named existing view; do not invent new styling.
 
-1. **No test project can reference the Uno app's UI layer.** The repo has `src/web/MZikmund.Web.Core.Tests` and `src/web/MZikmund.Web.Tests`, and Phase 2 Task 2.2 adds `src/app/MZikmund.App.Core.Tests` — but none of them can host XAML/ViewModel tests for `MZikmund.App`, which multi-targets `net10.0-windows10.0.26100`, `net10.0-android`, `net10.0-ios`, `net10.0-browserwasm`, `net10.0-desktop`. Task 10.1 therefore pushes every piece of comment logic that is testable *without a UI thread* into `src/shared/MZikmund.Shared` (plain `net10.0`, already referenced by `MZikmund.Web.Core` and therefore by the test project) and tests it test-first there. Everything downstream of that is XAML/ViewModel glue whose executable verification is a per-TFM build plus a scripted runtime smoke check; each such step gives the exact command and the exact expected output.
-2. **Contract gap, already closed upstream — do not close it again here.** The "ban author" action in the moderation queue needs an author identifier to pass to `POST api/v1/admin/authors/{id}/ban`. `CommentReportDto` carries `public required Guid AuthorId { get; init; }` from **Phase 3 Task 3.1**, and **Phase 6 Task 6.4** already both widens the `commentRows` projection with `c.AuthorId,` and assigns `AuthorId = comment.AuthorId,` in `GetCommentReportsHandler`. It lives on the admin-only report DTO only, so no author GUID leaks onto the public `CommentDto`. Task 10.8 Step 1 **verifies** both and edits neither; this is declared in that task's **Consumes**.
-3. **Deliberate deviation from the researched recommendation:** research recommended *not* taking the `MarkdownTextBlock` path. The owner has decided to take it anyway, Windows-only. Tasks 10.11 and 10.12 implement it exactly as decided, including the Markdig-version smoke check the research demanded.
-4. `CLAUDE.md` says "Uno.Sdk 6.5.0-dev.31"; `global.json` actually pins `6.7.0-dev.48`. Task 10.11 corrects the doc.
+**Phase rules — read before starting.**
+
+1. **Design vocabulary only.** Pages: `MzPageContainerStackStyle`, `MzPagePaddingCompact/Wide`, page
+   title `MzTitleTextStyle` swapped to `MzTitleWideTextStyle` by an `MzTypeScale` VSM group at
+   `MinWindowWidth="768"` (copy `Views/Admin/TagsManagerView.xaml`). Lists: `MzLayerSurfaceStyle` border
+   + `ItemsRepeater` + `MzListRowButtonStyle` rows (copy `Views/Admin/PostsManagerView.xaml`). Text:
+   `MzBodyTextStyle`, `MzMetaTextStyle`, `MzRowTitleTextStyle`, `MzCountTextStyle`,
+   `MzSectionHeadingTextStyle`. Buttons: `MzAccentButtonStyle`, `MzStandardButtonStyle`,
+   `MzSubtleButtonSmallStyle`, `MzAccentSubtleButtonSmallStyle`. Badges: `MzBadge*Style`. Empty/error
+   states: `MzEmptyStatePanelStyle` + `MzEmptyStateIconStyle` + `MzEmptyStateTitleTextStyle` +
+   `MzEmptyStateBodyTextStyle`. Icons: `FontIcon FontFamily="{StaticResource MzIconFontFamily}"
+   Glyph="{StaticResource MzGlyph…}"` or `{extensions:MzFontIcon GlyphKey=…}`. Brushes: `Mz*Brush`
+   only. Spacing: `MzSpace*` / literal multiples of 4. Strings: `{xaml:Localize Key=…}` with keys added
+   to **both** `Strings/en/Resources.resw` and `Strings/cs/Resources.resw`.
+2. **WinUI pitfalls already paid for in this repo:**
+   - `x:Bind` DataTemplates inside `ItemsRepeater` do not get a `DataContext` on WinUI — put the item in
+     `Tag="{x:Bind}"` and resolve it in a code-behind `Click` handler (see `PostRow_Click`,
+     `TagPill_Click`).
+   - `MenuFlyout` items cannot `ElementName`-bind to the page — handle `Click` in code-behind, reading
+     the item from the flyout target's `Tag`.
+   - No `x:Bind` function bindings with `BindBack` (WMC9999 compiler crash).
+   - `x:Bind` functions feeding `Visibility` must **return `Visibility`**, never `bool`. For properties,
+     use `Converter={StaticResource BoolToVisibilityConverter}` (the existing pattern).
+3. **New glyphs** (comment, reply, flag, eye-off, person-prohibited, arrow-up filled for the voted
+   state if wanted): add the Regular codepoints from the pinned upstream
+   `FluentSystemIcons-Resizable.json` (same SHA as `Assets/Fonts/subset-icons.ps1`) to
+   `Assets/Fonts/icons.txt` and the script's `$unicodes`, re-run `subset-icons.ps1`
+   (`pip install fonttools`), commit the regenerated `.ttf`, and add `MzGlyph*` keys to
+   `Theme/Icons.xaml`. One task does this for the whole phase (Task 10.1).
+4. **Testing:** no test project can reference `MZikmund.App`/`MZikmund.App.Core` (Uno TFMs only). Push
+   every testable rule into `src/shared/MZikmund.Shared` and test it in
+   `src/shared/MZikmund.Shared.Tests` test-first. Views/VMs are verified by building the desktop,
+   Windows and WASM heads (`MSBUILDDISABLENODEREUSE=1`) and a runtime smoke run on desktop against the
+   local stack (use the Uno app MCP if available; otherwise run the app and screenshot).
+5. **Reads:** call `GetPostCommentsAuthenticatedAsync` / `GetCommentRepliesAuthenticatedAsync` when
+   `IUserService.IsLoggedIn`, the plain variants otherwise (Task 7.5). Writes go through
+   `ISignInPrompt.EnsureSignedInAsync()` first (write-then-auth: the draft survives the dialog).
+6. **Limits:** use `MZikmund.DataContracts.Blog.Comments.CommentLimits` (Task 5.1); never redeclare.
 
 ---
 
-### Task 10.1: Comment display helpers (shared, test-first)
+### Task 10.1: Shared display + markdown model (test-first) and the comment glyphs
 
 **Files:**
 - Create: `src/shared/MZikmund.Shared/Blog/CommentDisplay.cs`
-- Create: `src/web/MZikmund.Web.Core.Tests/Blog/CommentDisplayTests.cs`
-- Test: `src/web/MZikmund.Web.Core.Tests/Blog/CommentDisplayTests.cs`
+- Create: `src/shared/MZikmund.Shared/Blog/CommentMarkdown.cs`
+- Test: `src/shared/MZikmund.Shared.Tests/Blog/CommentDisplayTests.cs`, `CommentMarkdownTests.cs`
+- Modify: `src/app/MZikmund.App/Assets/Fonts/icons.txt`, `subset-icons.ps1`, `FluentSystemIcons-Resizable.ttf`, `Theme/Icons.xaml`
 
-**Interfaces:**
-- Consumes: nothing from earlier tasks. `MZikmund.Shared` is a plain `net10.0` library referenced by `MZikmund.Web.Core` (verified at `src/web/MZikmund.Web.Core/MZikmund.Web.Core.csproj:24`) and by `MZikmund.App.Core` (verified in `MZikmund.App.Core.csproj`), so one implementation serves both the web and all five app TFMs.
-- Produces: `public static class MZikmund.Shared.Blog.CommentDisplay` with
-  `public static string MentionPrefix(string? mentionedDisplayName)`,
-  `public static int RemainingReplyCount(int replyCount, int shownReplyCount)`,
-  `public static string FormatBadgeCount(int count)`.
+**Produces (namespace `MZikmund.Shared.Blog`):**
+- `public static class CommentDisplay` — `string MentionPrefix(string? mentionedDisplayName)`
+  (`"@Name "` or `""`), `int RemainingReplyCount(int replyCount, int shownReplyCount)` (never
+  negative), `string FormatBadgeCount(int count)` (`""` for ≤0, `"99+"` above 99).
+- `public static class CommentMarkdown` with `IReadOnlyList<CommentBlock> Parse(string markdown)`.
+  A tiny neutral model so the app can render native inlines without HTML:
+  `abstract record CommentBlock`; `ParagraphBlock(IReadOnlyList<CommentInline> Inlines)`,
+  `CodeBlock(string Code)`, `QuoteBlock(IReadOnlyList<CommentBlock> Blocks)`,
+  `ListItemBlock(string Marker, IReadOnlyList<CommentBlock> Blocks)`;
+  `abstract record CommentInline`; `TextInline(string Text)`, `StrongInline(...)`, `EmphasisInline(...)`,
+  `StrikeInline(...)`, `CodeInline(string Code)`, `LinkInline(Uri Url, IReadOnlyList<CommentInline> Children)`,
+  `LineBreakInline`.
+  Built with Markdig (already referenced by `MZikmund.Shared`) using a pipeline that mirrors Task 4.1's
+  restricted renderer: `DisableHtml()`, strikethrough, autolinks — nothing else. Raw HTML,
+  images and unknown nodes degrade to their literal text. **Links only for `http`, `https`, `mailto`**;
+  anything else (e.g. `javascript:`) becomes plain text. Never throws on any input.
+  Tests: bold/italic/strike nesting, inline + fenced code, quote, ordered/unordered list markers,
+  `javascript:` link → text, image → alt text, raw `<script>` → literal text, empty → empty list.
+- Glyph keys `MzGlyphComment`, `MzGlyphReply`, `MzGlyphFlag`, `MzGlyphEyeOff`,
+  `MzGlyphPersonProhibited` (+ `MzGlyphArrowUpFilled` if you use a filled voted state).
 
-- [ ] **Step 1: Write the failing test file.**
-
-Create `src/web/MZikmund.Web.Core.Tests/Blog/CommentDisplayTests.cs`:
-
-```csharp
-using MZikmund.Shared.Blog;
-
-namespace MZikmund.Web.Core.Tests.Blog;
-
-public class CommentDisplayTests
-{
-	[Fact]
-	public void MentionPrefix_NullName_ReturnsEmpty()
-	{
-		// Arrange
-		string? name = null;
-
-		// Act
-		var result = CommentDisplay.MentionPrefix(name);
-
-		// Assert
-		Assert.Equal("", result);
-	}
-
-	[Theory]
-	[InlineData("")]
-	[InlineData("   ")]
-	public void MentionPrefix_BlankName_ReturnsEmpty(string name)
-	{
-		// Arrange
-
-		// Act
-		var result = CommentDisplay.MentionPrefix(name);
-
-		// Assert
-		Assert.Equal("", result);
-	}
-
-	[Fact]
-	public void MentionPrefix_Name_ReturnsAtNameWithTrailingSpace()
-	{
-		// Arrange
-		var name = "Martin Zikmund";
-
-		// Act
-		var result = CommentDisplay.MentionPrefix(name);
-
-		// Assert
-		Assert.Equal("@Martin Zikmund ", result);
-	}
-
-	[Theory]
-	[InlineData(0, 0, 0)]
-	[InlineData(3, 3, 0)]
-	[InlineData(2, 3, 0)]
-	[InlineData(7, 3, 4)]
-	public void RemainingReplyCount_ReturnsNonNegativeDifference(int replyCount, int shownReplyCount, int expected)
-	{
-		// Arrange
-
-		// Act
-		var result = CommentDisplay.RemainingReplyCount(replyCount, shownReplyCount);
-
-		// Assert
-		Assert.Equal(expected, result);
-	}
-
-	[Theory]
-	[InlineData(0, "")]
-	[InlineData(-5, "")]
-	[InlineData(1, "1")]
-	[InlineData(99, "99")]
-	[InlineData(100, "99+")]
-	[InlineData(4321, "99+")]
-	public void FormatBadgeCount_ClampsAtNinetyNinePlus(int count, string expected)
-	{
-		// Arrange
-
-		// Act
-		var result = CommentDisplay.FormatBadgeCount(count);
-
-		// Assert
-		Assert.Equal(expected, result);
-	}
-}
-```
-
-- [ ] **Step 2: Run the test and watch it fail to compile.**
-
-```
-dotnet test src/web/MZikmund.Web.Core.Tests/MZikmund.Web.Core.Tests.csproj --filter "FullyQualifiedName~CommentDisplayTests"
-```
-
-Expected: the build fails with
-`error CS0234: The type or namespace name 'Blog' does not exist in the namespace 'MZikmund.Shared'`
-(and `CS0103: The name 'CommentDisplay' does not exist in the current context`). No tests run.
-
-- [ ] **Step 3: Create the implementation.**
-
-Create `src/shared/MZikmund.Shared/Blog/CommentDisplay.cs`:
-
-```csharp
-using System.Globalization;
-
-namespace MZikmund.Shared.Blog;
-
-/// <summary>
-/// Pure display helpers shared by the web and the Uno app comment UIs.
-/// </summary>
-public static class CommentDisplay
-{
-	private const int MaxBadgeCount = 99;
-
-	public static string MentionPrefix(string? mentionedDisplayName)
-	{
-		if (string.IsNullOrWhiteSpace(mentionedDisplayName))
-		{
-			return "";
-		}
-
-		return $"@{mentionedDisplayName} ";
-	}
-
-	public static int RemainingReplyCount(int replyCount, int shownReplyCount)
-	{
-		var remaining = replyCount - shownReplyCount;
-		return remaining > 0 ? remaining : 0;
-	}
-
-	public static string FormatBadgeCount(int count)
-	{
-		if (count <= 0)
-		{
-			return "";
-		}
-
-		if (count > MaxBadgeCount)
-		{
-			return $"{MaxBadgeCount}+";
-		}
-
-		return count.ToString(CultureInfo.InvariantCulture);
-	}
-}
-```
-
-- [ ] **Step 4: Run the test again and watch it pass.**
-
-```
-dotnet test src/web/MZikmund.Web.Core.Tests/MZikmund.Web.Core.Tests.csproj --filter "FullyQualifiedName~CommentDisplayTests"
-```
-
-Expected: `Passed!  - Failed: 0, Passed: 14, Skipped: 0`.
-
-- [ ] **Step 5: Format.**
-
-```
-dotnet format MZikmund.slnx
-```
-
-- [ ] **Step 6: Commit.**
-
-```
-git add src/shared/MZikmund.Shared/Blog/CommentDisplay.cs src/web/MZikmund.Web.Core.Tests/Blog/CommentDisplayTests.cs
-git commit -m "feat(comments): add shared comment display helpers"
-```
+Commits: `feat: Add the comment display helpers and markdown model` → `test: Cover the comment display helpers and markdown model` → `feat(app): Add the comment glyphs to the icon subset`.
 
 ---
 
-### Task 10.2: CommentItemViewModel and ICommentActions
+### Task 10.2: `CommentText` — render comment markdown into `TextBlock.Inlines`
+
+Replaces the old Tasks 10.11/10.12 (CommunityToolkit Labs `MarkdownTextBlock` + a Labs NuGet feed).
+CommunityToolkit has no Uno 7 build, and `NuGet.config` pins nuget.org only. A plain `TextBlock`
+with `Inlines` (`Run`, `Bold`, `Italic`, `Span`, `Hyperlink`, `LineBreak`) renders on every head today.
 
 **Files:**
-- Create: `src/app/MZikmund.App.Core/ViewModels/Items/ICommentActions.cs`
+- Create: `src/app/MZikmund.App/Extensions/Xaml/CommentText.cs` (namespace `MZikmund.Extensions.Xaml`, next to `Localize.cs`/`MzFontIcon.cs`)
+
+**Produces:** attached property `CommentText.Markdown` (`string`) for `TextBlock`. On change: clear
+`Inlines`, `CommentMarkdown.Parse`, then map: paragraphs separated by a blank line (two
+`LineBreak`s); `StrongInline`→`Bold`; `EmphasisInline`→`Italic`; `StrikeInline`→`Span` with
+`TextDecorations = Strikethrough`; `CodeInline`/`CodeBlock`→`Run` with
+`FontFamily = MzMonoFontFamily` (resolve from `Application.Current.Resources`); `QuoteBlock`→runs
+prefixed with `"│ "` in `MzTextSecondaryBrush`; `ListItemBlock`→`Marker + " "` prefix;
+`LinkInline`→`Hyperlink { NavigateUri = Url }`. `TextWrapping="Wrap"` and `IsTextSelectionEnabled`
+stay on the consumer.
+
+Usage in a template: `<TextBlock xaml:CommentText.Markdown="{x:Bind Content}" Style="{StaticResource MzBodyTextStyle}" TextWrapping="Wrap" />`.
+
+Verify by building desktop + Windows + WASM. Commit `feat(app): Render comment markdown as native inlines`.
+
+> If `RichTextBlock` is later preferred (paragraph spacing, block quotes with a real indent), the same
+> `CommentMarkdown` model maps onto it; do not add a package for it.
+
+---
+
+### Task 10.3: `CommentItemViewModel`, `CommentsViewModel`, `ISignInPrompt` usage
+
+**Files:**
 - Create: `src/app/MZikmund.App.Core/ViewModels/Items/CommentItemViewModel.cs`
-
-**Interfaces:**
-- Consumes:
-  - `MZikmund.Shared.Blog.CommentDisplay.MentionPrefix(string?)`, `.RemainingReplyCount(int, int)` (Task 10.1).
-  - From `MZikmund.DataContracts.Blog.Comments` (earlier phase, per contract): `record CommentDto` with `Guid Id`, `Guid PostId`, `Guid? ParentId`, `string AuthorDisplayName`, `string? AuthorAvatarUrl`, `string? MentionedDisplayName`, `string Content`, `string ContentHtml`, `CommentStatus Status`, `DateTime CreatedOn`, `DateTime? EditedOn`, `int UpvoteCount`, `int ReplyCount`, `bool HasUpvoted`, `bool IsOwn`, `CommentDto[] Replies`; `enum CommentStatus { Visible, DeletedByAuthor, HiddenByModerator }`.
-- Produces:
-  - `public interface MZikmund.ViewModels.Items.ICommentActions` with
-    `Task ToggleUpvoteAsync(CommentItemViewModel comment)`,
-    `Task BeginReplyAsync(CommentItemViewModel comment)`,
-    `Task ReportAsync(CommentItemViewModel comment)`,
-    `Task DeleteAsync(CommentItemViewModel comment)`,
-    `Task LoadMoreRepliesAsync(CommentItemViewModel comment)`.
-  - `public sealed partial class MZikmund.ViewModels.Items.CommentItemViewModel : ObservableObject` with ctor `CommentItemViewModel(CommentDto item, ICommentActions actions)`, properties `CommentDto Item`, `Guid Id`, `string DisplayName`, `Uri? AvatarUri`, `string Content`, `string CreatedOnHumanized`, `bool IsEdited`, `bool IsTombstone`, `bool CanReply`, `bool IsOwn`, `Thickness IndentMargin`, `ObservableCollection<CommentItemViewModel> Replies`, observable `int UpvoteCount`, `bool HasUpvoted`, `int RemainingReplies`, and commands `ToggleUpvoteCommand`, `ReplyCommand`, `ReportCommand`, `DeleteCommand`, `LoadMoreRepliesCommand`.
-
-- [ ] **Step 1: Verify the DTO the ViewModel binds to actually exists with the contract's shape.**
-
-```
-dotnet build src/app/MZikmund.DataContracts/MZikmund.DataContracts.csproj
-```
-
-Expected: `Build succeeded`. Then:
-
-```
-git grep -n "public required string Content { get; init; }" -- src/app/MZikmund.DataContracts/Blog/Comments/CommentDto.cs
-```
-
-Expected output: a single line
-`src/app/MZikmund.DataContracts/Blog/Comments/CommentDto.cs:<n>:    public required string Content { get; init; }`
-If this prints nothing, stop — the DTO phase is not complete and this task cannot proceed.
-
-- [ ] **Step 2: Create the action seam.**
-
-Create `src/app/MZikmund.App.Core/ViewModels/Items/ICommentActions.cs`:
-
-```csharp
-namespace MZikmund.ViewModels.Items;
-
-/// <summary>
-/// Callbacks a comment item raises on the owning list view model.
-/// </summary>
-public interface ICommentActions
-{
-	Task ToggleUpvoteAsync(CommentItemViewModel comment);
-
-	Task BeginReplyAsync(CommentItemViewModel comment);
-
-	Task ReportAsync(CommentItemViewModel comment);
-
-	Task DeleteAsync(CommentItemViewModel comment);
-
-	Task LoadMoreRepliesAsync(CommentItemViewModel comment);
-}
-```
-
-- [ ] **Step 3: Create the item ViewModel.**
-
-Create `src/app/MZikmund.App.Core/ViewModels/Items/CommentItemViewModel.cs`:
-
-```csharp
-using System.Collections.ObjectModel;
-using Humanizer;
-using Microsoft.UI.Xaml;
-using MZikmund.DataContracts.Blog.Comments;
-using MZikmund.Shared.Blog;
-
-namespace MZikmund.ViewModels.Items;
-
-public sealed partial class CommentItemViewModel : ObservableObject
-{
-	private readonly ICommentActions _actions;
-
-	public CommentItemViewModel(CommentDto item, ICommentActions actions)
-	{
-		Item = item ?? throw new ArgumentNullException(nameof(item));
-		_actions = actions ?? throw new ArgumentNullException(nameof(actions));
-
-		UpvoteCount = item.UpvoteCount;
-		HasUpvoted = item.HasUpvoted;
-		RemainingReplies = CommentDisplay.RemainingReplyCount(item.ReplyCount, item.Replies.Length);
-
-		foreach (var reply in item.Replies)
-		{
-			Replies.Add(new CommentItemViewModel(reply, actions));
-		}
-	}
-
-	public CommentDto Item { get; }
-
-	public Guid Id => Item.Id;
-
-	public string DisplayName => Item.AuthorDisplayName;
-
-	public Uri? AvatarUri => Item.AuthorAvatarUrl is not null ? new Uri(Item.AuthorAvatarUrl) : null;
-
-	/// <summary>
-	/// Raw markdown with the mention prefix applied for display only. The prefix is never
-	/// stored in <see cref="CommentDto.Content"/>, so an edit round trip cannot double it.
-	/// </summary>
-	public string Content => CommentDisplay.MentionPrefix(Item.MentionedDisplayName) + Item.Content;
-
-	public string CreatedOnHumanized => Item.CreatedOn.Humanize();
-
-	public bool IsEdited => Item.EditedOn is not null;
-
-	public bool IsTombstone => Item.Status != CommentStatus.Visible;
-
-	/// <summary>One level of threading only, so a reply cannot be replied to.</summary>
-	public bool CanReply => Item.ParentId is null && !IsTombstone;
-
-	public bool IsOwn => Item.IsOwn && !IsTombstone;
-
-	public Thickness IndentMargin => new(Item.ParentId is null ? 0 : 32, 0, 0, 0);
-
-	public ObservableCollection<CommentItemViewModel> Replies { get; } = new();
-
-	[ObservableProperty]
-	public partial int UpvoteCount { get; set; }
-
-	[ObservableProperty]
-	public partial bool HasUpvoted { get; set; }
-
-	[ObservableProperty]
-	[NotifyPropertyChangedFor(nameof(HasMoreReplies))]
-	public partial int RemainingReplies { get; set; }
-
-	public bool HasMoreReplies => RemainingReplies > 0;
-
-	[RelayCommand]
-	private async Task ToggleUpvoteAsync() => await _actions.ToggleUpvoteAsync(this);
-
-	[RelayCommand]
-	private async Task ReplyAsync() => await _actions.BeginReplyAsync(this);
-
-	[RelayCommand]
-	private async Task ReportAsync() => await _actions.ReportAsync(this);
-
-	[RelayCommand]
-	private async Task DeleteAsync() => await _actions.DeleteAsync(this);
-
-	[RelayCommand]
-	private async Task LoadMoreRepliesAsync() => await _actions.LoadMoreRepliesAsync(this);
-}
-```
-
-- [ ] **Step 4: Build the core library and confirm it compiles on a non-Windows head.**
-
-```
-dotnet build src/app/MZikmund.App.Core/MZikmund.App.Core.csproj -f net10.0-desktop
-```
-
-Expected: `Build succeeded` with `0 Error(s)`.
-
-- [ ] **Step 5: Format.**
-
-```
-dotnet format MZikmund.slnx
-```
-
-- [ ] **Step 6: Commit.**
-
-```
-git add src/app/MZikmund.App.Core/ViewModels/Items/ICommentActions.cs src/app/MZikmund.App.Core/ViewModels/Items/CommentItemViewModel.cs
-git commit -m "feat(comments): add CommentItemViewModel and ICommentActions"
-```
-
----
-
-### Task 10.3: CommentsViewModel
-
-**Files:**
 - Create: `src/app/MZikmund.App.Core/ViewModels/CommentsViewModel.cs`
-
-**Interfaces:**
-- Consumes (all from earlier phases — verify in Step 1):
-  - `MZikmund.Api.Client.IMZikmundApi` partial members:
-    `Task<ApiResponse<PagedResponse<CommentDto>>> GetPostCommentsAsync(Guid postId, CommentSortOrder sort, int pageNumber = 1)`,
-    `Task<ApiResponse<PagedResponse<CommentDto>>> GetPostCommentsAuthenticatedAsync(Guid postId, CommentSortOrder sort, int pageNumber = 1)`,
-    `Task<ApiResponse<PagedResponse<CommentDto>>> GetCommentRepliesAsync(Guid commentId, int pageNumber = 1)`,
-    `Task<ApiResponse<PagedResponse<CommentDto>>> GetCommentRepliesAuthenticatedAsync(Guid commentId, int pageNumber = 1)`,
-    `Task<ApiResponse<CommentDto>> CreateCommentAsync(Guid postId, CreateCommentRequest request)`,
-    `Task<ApiResponse<object?>> DeleteCommentAsync(Guid commentId)`,
-    `Task<ApiResponse<CommentDto>> AddCommentVoteAsync(Guid id)`,
-    `Task<ApiResponse<CommentDto>> RemoveCommentVoteAsync(Guid id)`,
-    `Task<ApiResponse<object?>> ReportCommentAsync(Guid commentId, ReportCommentRequest request)`.
-    (The vote methods are named `AddCommentVoteAsync` / `RemoveCommentVoteAsync` — those are the names Phase 7 Task 7.5 actually declares on the partial interface, and they win.)
-    **Two variants per read endpoint, and picking the wrong one silently breaks the UI.** Phase 7 Task 7.5 declares the plain `GetPostCommentsAsync` / `GetCommentRepliesAsync` *without* `[Headers("Authorization: Bearer")]` so that browsing a post anonymously never triggers `AuthorizationHeaderValueGetter` and its interactive sign-in — but because the server sees no identity, those responses always come back with `HasUpvoted = false` and `IsOwn = false`. Only `GetPostCommentsAuthenticatedAsync` / `GetCommentRepliesAuthenticatedAsync` carry the bearer header and populate those two flags. This ViewModel therefore branches on `IUserService.IsLoggedIn` at **every** read call site: authenticated variant when signed in, plain variant when signed out. Calling the plain variant unconditionally would leave the vote toggle permanently un-filled and hide every `IsOwn` affordance.
-  - `MZikmund.DataContracts.Blog.Comments.CommentLimits.MaxCommentLength` (`public const int` = 4000, Phase 5 Task 5.1). This ViewModel does **not** declare its own copy — `CommentLimits` is the single source of truth shared by the API, the web front-end and the app.
-  - `MZikmund.Services.Account.IUserService` with `bool IsLoggedIn { get; }`.
-  - `MZikmund.ViewModels.Items.ICommentActions` / `CommentItemViewModel` (Task 10.2).
-  - Existing repo services: `MZikmund.Services.Dialogs.IDialogService`, `MZikmund.Services.Loading.ILoadingIndicator`, `MZikmund.Services.Localization.Localizer`, `MZikmund.Extensions.ObservableCollectionExtensions.AddRange`, `MZikmund.Models.Dialogs.StatusMessageDialogType`.
-- Produces: `public partial class MZikmund.ViewModels.CommentsViewModel : ViewModelBase, ICommentActions` with
-  `ObservableCollection<CommentItemViewModel> Comments`,
-  `Task InitializeAsync(Guid postId)`,
-  `Task SetSortAsync(CommentSortOrder sort)`,
-  `ICommand LoadMoreCommand`, `bool CanLoadMore`, `bool IsLoadingMore`,
-  observable `string DraftText`, `CommentItemViewModel? ReplyingTo`, `bool IsBusy`,
-  `int DraftLength`, `bool IsDraftTooLong`, `bool IsEmpty`,
-  commands `PostCommentCommand`, `CancelReplyCommand`,
-  and two seams filled in by later tasks: `Func<Task<bool>>? EnsureSignedInAsync` and `Func<CommentItemViewModel, Task<ReportCommentRequest?>>? RequestReportAsync`.
-
-- [ ] **Step 1: Verify the Refit surface this ViewModel calls.**
-
-```
-git grep -n "GetPostCommentsAsync\|GetPostCommentsAuthenticatedAsync\|CreateCommentAsync\|AddCommentVoteAsync\|RemoveCommentVoteAsync\|GetCommentRepliesAsync\|GetCommentRepliesAuthenticatedAsync\|ReportCommentAsync\|DeleteCommentAsync" -- src/shared/MZikmund.Api/IMZikmundApi.Comments.cs
-```
-
-Expected: nine or more lines, one per method above. Both `...AuthenticatedAsync` names must appear; if either is missing, stop — Phase 7 Task 7.5 is incomplete and the signed-in read path cannot be written.
-
-Then confirm the shared limit constant exists:
-
-```
-git grep -n "MaxCommentLength" -- src/app/MZikmund.DataContracts/Blog/Comments/CommentLimits.cs
-```
-
-Expected output: a single line
-`src/app/MZikmund.DataContracts/Blog/Comments/CommentLimits.cs:<n>:	public const int MaxCommentLength = 4000;`
-If this prints nothing, stop — Phase 5 Task 5.1 is not complete.
-
-- [ ] **Step 2: Create the ViewModel file with loading and paging only.**
-
-Create `src/app/MZikmund.App.Core/ViewModels/CommentsViewModel.cs`:
-
-```csharp
-using System.Collections.ObjectModel;
-using System.Windows.Input;
-using MZikmund.Api.Client;
-using MZikmund.DataContracts.Blog.Comments;
-using MZikmund.Extensions;
-using MZikmund.Models.Dialogs;
-using MZikmund.Services.Account;
-using MZikmund.Services.Dialogs;
-using MZikmund.Services.Loading;
-using MZikmund.Services.Localization;
-using MZikmund.ViewModels.Items;
-
-namespace MZikmund.ViewModels;
-
-public partial class CommentsViewModel : ViewModelBase, ICommentActions
-{
-	private readonly IMZikmundApi _api;
-	private readonly IDialogService _dialogService;
-	private readonly ILoadingIndicator _loadingIndicator;
-	private readonly IUserService _userService;
-
-	private Guid _postId;
-	private int _currentPage = 1;
-	private int _totalPages = 1;
-	private bool _isLoadingMore;
-
-	public CommentsViewModel(
-		IMZikmundApi api,
-		IDialogService dialogService,
-		ILoadingIndicator loadingIndicator,
-		IUserService userService)
-	{
-		_api = api ?? throw new ArgumentNullException(nameof(api));
-		_dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
-		_loadingIndicator = loadingIndicator ?? throw new ArgumentNullException(nameof(loadingIndicator));
-		_userService = userService ?? throw new ArgumentNullException(nameof(userService));
-		LoadMoreCommand = new AsyncRelayCommand(LoadMoreAsync, () => CanLoadMore);
-	}
-
-	/// <summary>
-	/// Set by the view once the sign-in sheet exists. Returns true when a user is signed in.
-	/// </summary>
-	public Func<Task<bool>>? EnsureSignedInAsync { get; set; }
-
-	/// <summary>
-	/// Set by the view once the report dialog exists. Returns null when the user cancels.
-	/// </summary>
-	public Func<CommentItemViewModel, Task<ReportCommentRequest?>>? RequestReportAsync { get; set; }
-
-	public ObservableCollection<CommentItemViewModel> Comments { get; } = new();
-
-	public CommentSortOrder Sort { get; private set; } = CommentSortOrder.Top;
-
-	public ICommand LoadMoreCommand { get; }
-
-	public bool IsLoadingMore
-	{
-		get => _isLoadingMore;
-		private set
-		{
-			SetProperty(ref _isLoadingMore, value);
-			(LoadMoreCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
-			OnPropertyChanged(nameof(CanLoadMore));
-		}
-	}
-
-	public bool CanLoadMore => _currentPage < _totalPages && !IsLoadingMore;
-
-	[ObservableProperty]
-	[NotifyPropertyChangedFor(nameof(DraftLength))]
-	[NotifyPropertyChangedFor(nameof(IsDraftTooLong))]
-	public partial string DraftText { get; set; } = "";
-
-	[ObservableProperty]
-	[NotifyPropertyChangedFor(nameof(IsReplying))]
-	public partial CommentItemViewModel? ReplyingTo { get; set; }
-
-	[ObservableProperty]
-	public partial bool IsBusy { get; set; }
-
-	[ObservableProperty]
-	public partial bool IsEmpty { get; set; } = true;
-
-	public bool IsReplying => ReplyingTo is not null;
-
-	public int DraftLength => DraftText.Length;
-
-	public bool IsDraftTooLong => DraftText.Length > CommentLimits.MaxCommentLength;
-
-	public async Task InitializeAsync(Guid postId)
-	{
-		_postId = postId;
-		await RefreshAsync();
-	}
-
-	public async Task SetSortAsync(CommentSortOrder sort)
-	{
-		if (Sort == sort)
-		{
-			return;
-		}
-
-		Sort = sort;
-		await RefreshAsync();
-	}
-
-	private async Task RefreshAsync()
-	{
-		using var loadingScope = _loadingIndicator.BeginLoading();
-		try
-		{
-			Comments.Clear();
-			_currentPage = 1;
-			_totalPages = 1;
-			await LoadPageAsync(1);
-		}
-		catch (Exception ex)
-		{
-			await ShowErrorAsync(ex);
-		}
-	}
-
-	private async Task LoadPageAsync(int pageNumber)
-	{
-		// Signed in => authenticated variant, which is the only one that fills HasUpvoted / IsOwn.
-		// Signed out => plain variant, so browsing never triggers an interactive sign-in.
-		var response = _userService.IsLoggedIn
-			? await _api.GetPostCommentsAuthenticatedAsync(_postId, Sort, pageNumber)
-			: await _api.GetPostCommentsAsync(_postId, Sort, pageNumber);
-		await response.EnsureSuccessfulAsync();
-
-		if (response.Content is null)
-		{
-			return;
-		}
-
-		Comments.AddRange(response.Content.Data.Select(dto => new CommentItemViewModel(dto, this)));
-		_currentPage = response.Content.PageNumber;
-		_totalPages = response.Content.PageSize > 0
-			? (int)Math.Ceiling((double)response.Content.TotalCount / response.Content.PageSize)
-			: 1;
-		IsEmpty = Comments.Count == 0;
-		OnPropertyChanged(nameof(CanLoadMore));
-	}
-
-	private async Task LoadMoreAsync()
-	{
-		if (!CanLoadMore)
-		{
-			return;
-		}
-
-		IsLoadingMore = true;
-		try
-		{
-			await LoadPageAsync(_currentPage + 1);
-		}
-		catch (Exception ex)
-		{
-			await ShowErrorAsync(ex);
-		}
-		finally
-		{
-			IsLoadingMore = false;
-		}
-	}
-
-	private async Task ShowErrorAsync(Exception ex) =>
-		await _dialogService.ShowStatusMessageAsync(
-			StatusMessageDialogType.Error,
-			Localizer.Instance.GetString("CouldNotLoadData"),
-			$"{Localizer.Instance.GetString("ErrorLoadingData")} {ex}");
-}
-```
-
-- [ ] **Step 3: Build to confirm the paging half compiles.**
-
-```
-dotnet build src/app/MZikmund.App.Core/MZikmund.App.Core.csproj -f net10.0-desktop
-```
-
-Expected: `Build succeeded` with `0 Error(s)`.
-
-- [ ] **Step 4: Append the write actions to the same file.**
-
-Insert the following members immediately before the closing brace of `CommentsViewModel` in `src/app/MZikmund.App.Core/ViewModels/CommentsViewModel.cs`:
-
-```csharp
-	[RelayCommand]
-	private async Task PostCommentAsync()
-	{
-		if (IsBusy || string.IsNullOrWhiteSpace(DraftText) || IsDraftTooLong)
-		{
-			return;
-		}
-
-		if (!await EnsureSignedInCoreAsync())
-		{
-			return;
-		}
-
-		IsBusy = true;
-		try
-		{
-			var request = new CreateCommentRequest
-			{
-				Content = DraftText,
-				ParentId = ReplyingTo?.Id
-			};
-
-			var response = await _api.CreateCommentAsync(_postId, request);
-			await response.EnsureSuccessfulAsync();
-
-			DraftText = "";
-			ReplyingTo = null;
-			await RefreshAsync();
-		}
-		catch (Exception ex)
-		{
-			await ShowErrorAsync(ex);
-		}
-		finally
-		{
-			IsBusy = false;
-		}
-	}
-
-	[RelayCommand]
-	private void CancelReply() => ReplyingTo = null;
-
-	public async Task BeginReplyAsync(CommentItemViewModel comment)
-	{
-		if (!await EnsureSignedInCoreAsync())
-		{
-			return;
-		}
-
-		ReplyingTo = comment;
-	}
-
-	public async Task ToggleUpvoteAsync(CommentItemViewModel comment)
-	{
-		if (!await EnsureSignedInCoreAsync())
-		{
-			return;
-		}
-
-		// Optimistic: flip locally first, roll back if the server refuses.
-		var previousHasUpvoted = comment.HasUpvoted;
-		var previousCount = comment.UpvoteCount;
-		comment.HasUpvoted = !previousHasUpvoted;
-		comment.UpvoteCount = previousHasUpvoted ? previousCount - 1 : previousCount + 1;
-
-		try
-		{
-			var response = previousHasUpvoted
-				? await _api.RemoveCommentVoteAsync(comment.Id)
-				: await _api.AddCommentVoteAsync(comment.Id);
-			await response.EnsureSuccessfulAsync();
-
-			if (response.Content is not null)
-			{
-				comment.UpvoteCount = response.Content.UpvoteCount;
-				comment.HasUpvoted = response.Content.HasUpvoted;
-			}
-		}
-		catch (Exception ex)
-		{
-			comment.HasUpvoted = previousHasUpvoted;
-			comment.UpvoteCount = previousCount;
-			await ShowErrorAsync(ex);
-		}
-	}
-
-	public async Task ReportAsync(CommentItemViewModel comment)
-	{
-		if (!await EnsureSignedInCoreAsync())
-		{
-			return;
-		}
-
-		if (RequestReportAsync is null)
-		{
-			return;
-		}
-
-		var request = await RequestReportAsync(comment);
-		if (request is null)
-		{
-			return;
-		}
-
-		try
-		{
-			var response = await _api.ReportCommentAsync(comment.Id, request);
-			await response.EnsureSuccessfulAsync();
-		}
-		catch (Exception ex)
-		{
-			await ShowErrorAsync(ex);
-		}
-	}
-
-	public async Task DeleteAsync(CommentItemViewModel comment)
-	{
-		var confirmation = await _dialogService.ShowConfirmationDialogAsync(
-			Localizer.Instance.GetString("DeleteComment"),
-			Localizer.Instance.GetString("ConfirmDeleteComment"));
-
-		if (confirmation != ContentDialogResult.Primary)
-		{
-			return;
-		}
-
-		try
-		{
-			var response = await _api.DeleteCommentAsync(comment.Id);
-			await response.EnsureSuccessfulAsync();
-			await RefreshAsync();
-		}
-		catch (Exception ex)
-		{
-			await ShowErrorAsync(ex);
-		}
-	}
-
-	public async Task LoadMoreRepliesAsync(CommentItemViewModel comment)
-	{
-		try
-		{
-			var page = 1;
-			// Same branch as LoadPageAsync: replies must carry HasUpvoted / IsOwn when signed in.
-			var response = _userService.IsLoggedIn
-				? await _api.GetCommentRepliesAuthenticatedAsync(comment.Id, page)
-				: await _api.GetCommentRepliesAsync(comment.Id, page);
-			await response.EnsureSuccessfulAsync();
-
-			if (response.Content is null)
-			{
-				return;
-			}
-
-			comment.Replies.Clear();
-			comment.Replies.AddRange(response.Content.Data.Select(dto => new CommentItemViewModel(dto, this)));
-			comment.RemainingReplies = 0;
-		}
-		catch (Exception ex)
-		{
-			await ShowErrorAsync(ex);
-		}
-	}
-
-	private async Task<bool> EnsureSignedInCoreAsync()
-	{
-		if (_userService.IsLoggedIn)
-		{
-			return true;
-		}
-
-		if (EnsureSignedInAsync is null)
-		{
-			return false;
-		}
-
-		return await EnsureSignedInAsync();
-	}
-```
-
-- [ ] **Step 5: Build again.**
-
-```
-dotnet build src/app/MZikmund.App.Core/MZikmund.App.Core.csproj -f net10.0-desktop
-```
-
-Expected: `Build succeeded` with `0 Error(s)`.
-
-- [ ] **Step 6: Verify every read call site branches on sign-in state.**
-
-This is the guard against the silent failure described in **Interfaces** above: if either read reaches the plain Refit method while a user is signed in, `HasUpvoted` and `IsOwn` come back `false` forever, the vote toggle never shows as cast and every `IsOwn` affordance stays hidden — with no exception and no error dialog.
-
-```
-git grep -n "GetPostCommentsAuthenticatedAsync\|GetCommentRepliesAuthenticatedAsync\|_userService.IsLoggedIn" -- src/app/MZikmund.App.Core/ViewModels/CommentsViewModel.cs
-```
-
-Expected output: exactly these five lines, in this order (line numbers will differ):
-
-```
-src/app/MZikmund.App.Core/ViewModels/CommentsViewModel.cs:<n>:		var response = _userService.IsLoggedIn
-src/app/MZikmund.App.Core/ViewModels/CommentsViewModel.cs:<n>:			? await _api.GetPostCommentsAuthenticatedAsync(_postId, Sort, pageNumber)
-src/app/MZikmund.App.Core/ViewModels/CommentsViewModel.cs:<n>:			var response = _userService.IsLoggedIn
-src/app/MZikmund.App.Core/ViewModels/CommentsViewModel.cs:<n>:				? await _api.GetCommentRepliesAuthenticatedAsync(comment.Id, page)
-src/app/MZikmund.App.Core/ViewModels/CommentsViewModel.cs:<n>:		if (_userService.IsLoggedIn)
-```
-
-Four lines instead of five means one of the two reads is still unconditionally anonymous — fix it before continuing. (The fifth line is the `EnsureSignedInCoreAsync` guard and is expected.)
-
-Then assert that a signed-in load actually populates the flag, rather than merely calling the right method. With the web API running locally (`cd src/web/MZikmund.Web && dotnet run`), a post that has at least one comment, and a Supabase access token for a user who has already upvoted one of those comments exported as `$env:TOKEN`:
-
-```
-curl -s -H "Authorization: Bearer $env:TOKEN" "https://localhost:7007/api/v1/posts/<postId>/comments?sort=Top&pageNumber=1" | ConvertFrom-Json | Select-Object -ExpandProperty data | Select-Object id, hasUpvoted, isOwn
-```
-
-Expected: at least one row with `hasUpvoted : True`. Repeat the same call with the `Authorization` header removed and every row must read `hasUpvoted : False` — that contrast is exactly the difference the two Refit variants produce, and it is what the branch above is choosing between.
-
-Finally, confirm it end to end in the app: run `dotnet run -f net10.0-desktop` from `src/app/MZikmund.App`, sign in through the sheet from Task 10.4, and open that same post. Expected: the upvote button on the previously-upvoted comment renders in its cast state on first load, with no click. If it renders un-cast, the ViewModel is still on the anonymous read.
-
-- [ ] **Step 7: Format.**
-
-```
-dotnet format MZikmund.slnx
-```
-
-- [ ] **Step 8: Commit.**
-
-```
-git add src/app/MZikmund.App.Core/ViewModels/CommentsViewModel.cs
-git commit -m "feat(comments): add CommentsViewModel with paging, composer, vote and report"
-```
-
----
-
-### Task 10.4: Sign-in sheet
-
-**Files:**
-- Create: `src/app/MZikmund.App.Core/ViewModels/SignInDialogViewModel.cs`
-- Create: `src/app/MZikmund.App/Dialogs/SignInDialog.xaml`
-- Create: `src/app/MZikmund.App/Dialogs/SignInDialog.xaml.cs`
-
-**Interfaces:**
-- Consumes: `MZikmund.Services.Account.IUserService` **exactly as Phase 2 Task 2.6 declares it** (that version wins; the Auth0-era `AuthenticateAsync()` / `LogoutAsync()` names no longer exist):
-  `bool IsLoggedIn { get; }`,
-  `Task SignInAsync(SupabaseSignInProvider provider)`,
-  `Task SendEmailCodeAsync(string email)`,
-  `Task VerifyEmailCodeAsync(string email, string code)`,
-  `Task SignOutAsync()`,
-  and `public enum MZikmund.Services.Account.SupabaseSignInProvider { Google, Apple }` — all delivered by the Supabase auth phase. The enum has **no** `Email` member: email one-time codes are not a `SignInAsync` provider, so this sheet calls `SendEmailCodeAsync` / `VerifyEmailCodeAsync` directly.
-  Also `MZikmund.ViewModels.DialogViewModel` and `MZikmund.Dialogs.DialogBase<TDialogViewModel>` (existing).
-- Produces: `public partial class MZikmund.ViewModels.SignInDialogViewModel : DialogViewModel` with `bool IsSignedIn`, `bool IsCodeStage`, `string Email`, `string Code`, and commands `SignInWithGoogleCommand`, `SignInWithAppleCommand`, `SendCodeCommand`, `VerifyCodeCommand`; plus `MZikmund.Dialogs.SignInDialog` (a `ContentDialog`, auto-registered by `DialogService.RegisterDialogsFromAssembly`).
-
-- [ ] **Step 1: Verify the auth surface the sheet drives.**
-
-```
-git grep -n "SupabaseSignInProvider\|SendEmailCodeAsync\|VerifyEmailCodeAsync\|SignOutAsync" -- src/app/MZikmund.App.Core/Services/Account/IUserService.cs
-```
-
-Expected: four or more lines showing `Task SignInAsync(SupabaseSignInProvider provider);`, `Task SendEmailCodeAsync(string email);`, `Task VerifyEmailCodeAsync(string email, string code);`, `Task SignOutAsync();`. If nothing prints, stop — the Supabase auth phase is incomplete.
-
-- [ ] **Step 2: Create the dialog ViewModel.**
-
-Create `src/app/MZikmund.App.Core/ViewModels/SignInDialogViewModel.cs`:
-
-```csharp
-using MZikmund.Models.Dialogs;
-using MZikmund.Services.Account;
-using MZikmund.Services.Dialogs;
-using MZikmund.Services.Localization;
-
-namespace MZikmund.ViewModels;
-
-public partial class SignInDialogViewModel : DialogViewModel
-{
-	private readonly IUserService _userService;
-	private readonly IDialogService _dialogService;
-	private ContentDialog? _dialog;
-
-	public SignInDialogViewModel(IUserService userService, IDialogService dialogService)
-	{
-		_userService = userService ?? throw new ArgumentNullException(nameof(userService));
-		_dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
-	}
-
-	public override string Title => Localizer.Instance.GetString("SignIn");
-
-	public bool IsSignedIn { get; private set; }
-
-	[ObservableProperty]
-	public partial bool IsCodeStage { get; set; }
-
-	[ObservableProperty]
-	public partial bool IsBusy { get; set; }
-
-	[ObservableProperty]
-	public partial string Email { get; set; } = "";
-
-	[ObservableProperty]
-	public partial string Code { get; set; } = "";
-
-	public override void OnOpened(ContentDialog contentDialog) => _dialog = contentDialog;
-
-	[RelayCommand]
-	private async Task SignInWithGoogleAsync() => await SignInWithProviderAsync(SupabaseSignInProvider.Google);
-
-	[RelayCommand]
-	private async Task SignInWithAppleAsync() => await SignInWithProviderAsync(SupabaseSignInProvider.Apple);
-
-	[RelayCommand]
-	private async Task SendCodeAsync()
-	{
-		if (IsBusy || string.IsNullOrWhiteSpace(Email))
-		{
-			return;
-		}
-
-		IsBusy = true;
-		try
-		{
-			await _userService.SendEmailCodeAsync(Email);
-			IsCodeStage = true;
-		}
-		catch (Exception ex)
-		{
-			await ShowErrorAsync(ex);
-		}
-		finally
-		{
-			IsBusy = false;
-		}
-	}
-
-	[RelayCommand]
-	private async Task VerifyCodeAsync()
-	{
-		if (IsBusy || string.IsNullOrWhiteSpace(Code))
-		{
-			return;
-		}
-
-		IsBusy = true;
-		try
-		{
-			await _userService.VerifyEmailCodeAsync(Email, Code);
-			Complete();
-		}
-		catch (Exception ex)
-		{
-			await ShowErrorAsync(ex);
-		}
-		finally
-		{
-			IsBusy = false;
-		}
-	}
-
-	private async Task SignInWithProviderAsync(SupabaseSignInProvider provider)
-	{
-		if (IsBusy)
-		{
-			return;
-		}
-
-		IsBusy = true;
-		try
-		{
-			await _userService.SignInAsync(provider);
-			Complete();
-		}
-		catch (Exception ex)
-		{
-			await ShowErrorAsync(ex);
-		}
-		finally
-		{
-			IsBusy = false;
-		}
-	}
-
-	private void Complete()
-	{
-		if (!_userService.IsLoggedIn)
-		{
-			return;
-		}
-
-		IsSignedIn = true;
-		_dialog?.Hide();
-	}
-
-	private async Task ShowErrorAsync(Exception ex) =>
-		await _dialogService.ShowStatusMessageAsync(
-			StatusMessageDialogType.Error,
-			Localizer.Instance.GetString("SignInFailed"),
-			$"{ex}");
-}
-```
-
-- [ ] **Step 3: Create the dialog XAML.**
-
-Create `src/app/MZikmund.App/Dialogs/SignInDialog.xaml`:
-
-```xml
-<dialogs:SignInDialogBase
-    x:Class="MZikmund.Dialogs.SignInDialog"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:dialogs="using:MZikmund.Dialogs"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:xaml="using:MZikmund.Extensions.Xaml"
-    Title="{x:Bind ViewModel.Title}"
-    CloseButtonText="{xaml:Localize Key=Cancel}"
-    Style="{ThemeResource DefaultContentDialogStyle}">
-
-	<StackPanel MinWidth="300" Spacing="12">
-		<TextBlock
-            Style="{ThemeResource BodyTextBlockStyle}"
-            Text="{xaml:Localize Key=SignInPrompt}"
-            TextWrapping="Wrap" />
-
-		<Button
-            HorizontalAlignment="Stretch"
-            Command="{x:Bind ViewModel.SignInWithGoogleCommand}"
-            Content="{xaml:Localize Key=SignInWithGoogle}" />
-
-		<Button
-            HorizontalAlignment="Stretch"
-            Command="{x:Bind ViewModel.SignInWithAppleCommand}"
-            Content="{xaml:Localize Key=SignInWithApple}" />
-
-		<TextBlock
-            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-            Style="{ThemeResource CaptionTextBlockStyle}"
-            Text="{xaml:Localize Key=OrContinueWithEmail}" />
-
-		<TextBox
-            InputScope="EmailSmtpAddress"
-            IsEnabled="{x:Bind ViewModel.IsCodeStage, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
-            PlaceholderText="{xaml:Localize Key=EmailAddress}"
-            Text="{x:Bind ViewModel.Email, Mode=TwoWay}" />
-
-		<Button
-            HorizontalAlignment="Stretch"
-            Command="{x:Bind ViewModel.SendCodeCommand}"
-            Content="{xaml:Localize Key=SendCode}"
-            Visibility="{x:Bind ViewModel.IsCodeStage, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
-
-		<TextBox
-            InputScope="Number"
-            PlaceholderText="{xaml:Localize Key=VerificationCode}"
-            Text="{x:Bind ViewModel.Code, Mode=TwoWay}"
-            Visibility="{x:Bind ViewModel.IsCodeStage, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
-
-		<Button
-            HorizontalAlignment="Stretch"
-            Command="{x:Bind ViewModel.VerifyCodeCommand}"
-            Content="{xaml:Localize Key=Verify}"
-            Style="{ThemeResource AccentButtonStyle}"
-            Visibility="{x:Bind ViewModel.IsCodeStage, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
-
-		<ProgressRing
-            HorizontalAlignment="Center"
-            IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}"
-            Visibility="{x:Bind ViewModel.IsBusy, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
-	</StackPanel>
-</dialogs:SignInDialogBase>
-```
-
-- [ ] **Step 4: Add the `InverseBoolConverter` the XAML above uses.**
-
-Add this line to `src/app/MZikmund.App/Resources/Converters.xaml`, immediately after the `<cconverters:BoolToVisibilityConverter ... />` element and before `</ResourceDictionary>`:
-
-```xml
-    <cconverters:BoolNegationConverter x:Key="InverseBoolConverter" />
-```
-
-(`CommunityToolkit.WinUI.Converters` is already referenced by `MZikmund.App.csproj` and already aliased as `cconverters` in this file.)
-
-- [ ] **Step 5: Create the dialog code-behind.**
-
-Create `src/app/MZikmund.App/Dialogs/SignInDialog.xaml.cs`:
-
-```csharp
-using MZikmund.ViewModels;
-
-namespace MZikmund.Dialogs;
-
-public sealed partial class SignInDialog : SignInDialogBase
-{
-	public SignInDialog() => InitializeComponent();
-}
-
-public abstract partial class SignInDialogBase : DialogBase<SignInDialogViewModel>
-{
-}
-```
-
-- [ ] **Step 6: Add the localization keys, English.**
-
-Insert immediately before the closing `</root>` in `src/app/MZikmund.App/Strings/en/Resources.resw`:
-
-```xml
-  <data name="SignIn" xml:space="preserve">
-    <value>Sign in</value>
-  </data>
-  <data name="SignInPrompt" xml:space="preserve">
-    <value>Sign in to join the conversation.</value>
-  </data>
-  <data name="SignInWithGoogle" xml:space="preserve">
-    <value>Continue with Google</value>
-  </data>
-  <data name="SignInWithApple" xml:space="preserve">
-    <value>Continue with Apple</value>
-  </data>
-  <data name="OrContinueWithEmail" xml:space="preserve">
-    <value>or continue with email</value>
-  </data>
-  <data name="EmailAddress" xml:space="preserve">
-    <value>Email address</value>
-  </data>
-  <data name="SendCode" xml:space="preserve">
-    <value>Send code</value>
-  </data>
-  <data name="VerificationCode" xml:space="preserve">
-    <value>6-digit code</value>
-  </data>
-  <data name="Verify" xml:space="preserve">
-    <value>Verify</value>
-  </data>
-  <data name="SignInFailed" xml:space="preserve">
-    <value>Sign-in failed</value>
-  </data>
-```
-
-- [ ] **Step 7: Add the localization keys, Czech.**
-
-Insert immediately before the closing `</root>` in `src/app/MZikmund.App/Strings/cs/Resources.resw`:
-
-```xml
-  <data name="SignIn" xml:space="preserve">
-    <value>Přihlásit se</value>
-  </data>
-  <data name="SignInPrompt" xml:space="preserve">
-    <value>Přihlaste se a zapojte se do diskuze.</value>
-  </data>
-  <data name="SignInWithGoogle" xml:space="preserve">
-    <value>Pokračovat přes Google</value>
-  </data>
-  <data name="SignInWithApple" xml:space="preserve">
-    <value>Pokračovat přes Apple</value>
-  </data>
-  <data name="OrContinueWithEmail" xml:space="preserve">
-    <value>nebo pokračujte e-mailem</value>
-  </data>
-  <data name="EmailAddress" xml:space="preserve">
-    <value>E-mailová adresa</value>
-  </data>
-  <data name="SendCode" xml:space="preserve">
-    <value>Odeslat kód</value>
-  </data>
-  <data name="VerificationCode" xml:space="preserve">
-    <value>Šestimístný kód</value>
-  </data>
-  <data name="Verify" xml:space="preserve">
-    <value>Ověřit</value>
-  </data>
-  <data name="SignInFailed" xml:space="preserve">
-    <value>Přihlášení se nezdařilo</value>
-  </data>
-```
-
-- [ ] **Step 8: Build the app for desktop.**
-
-```
-dotnet build src/app/MZikmund.App/MZikmund.App.csproj -f net10.0-desktop
-```
-
-Expected: `Build succeeded` with `0 Error(s)`.
-
-- [ ] **Step 9: Format.**
-
-```
-dotnet format MZikmund.slnx
-```
-
-- [ ] **Step 10: Commit.**
-
-```
-git add src/app/MZikmund.App.Core/ViewModels/SignInDialogViewModel.cs src/app/MZikmund.App/Dialogs/SignInDialog.xaml src/app/MZikmund.App/Dialogs/SignInDialog.xaml.cs src/app/MZikmund.App/Resources/Converters.xaml src/app/MZikmund.App/Strings/en/Resources.resw src/app/MZikmund.App/Strings/cs/Resources.resw
-git commit -m "feat(comments): add sign-in sheet dialog to the app"
-```
-
----
-
-### Task 10.5: Report comment dialog
-
-**Files:**
 - Create: `src/app/MZikmund.App.Core/ViewModels/ReportCommentDialogViewModel.cs`
-- Create: `src/app/MZikmund.App/Dialogs/ReportCommentDialog.xaml`
-- Create: `src/app/MZikmund.App/Dialogs/ReportCommentDialog.xaml.cs`
-- Modify: `src/app/MZikmund.App/Strings/en/Resources.resw` and `src/app/MZikmund.App/Strings/cs/Resources.resw` (append before `</root>`)
+- Create: `src/app/MZikmund.App/Dialogs/ReportCommentDialog.xaml` + `.xaml.cs` (copy `Dialogs/Admin/AddOrUpdateTagDialog.xaml` structure; `RadioButtons` for `CommentReportReason`, optional note `TextBox` with `MaxLength = CommentLimits.MaxReportNoteLength`)
+- Modify: `src/app/MZikmund.App/App.xaml.cs` (`services.AddTransient<CommentsViewModel>()`)
+- Modify: both `Resources.resw`
 
-**Interfaces:**
-- Consumes: `MZikmund.DataContracts.Blog.Comments.ReportCommentRequest { required CommentReportReason Reason; string? Note; }`, `enum CommentReportReason { Spam, Abuse, OffTopic, Other }`, and `MZikmund.DataContracts.Blog.Comments.CommentLimits.MaxReportNoteLength` (`public const int` = 500, Phase 5 Task 5.1). All three are in the **same** namespace, `MZikmund.DataContracts.Blog.Comments`, so the single `using MZikmund.DataContracts.Blog.Comments;` in the file below covers them. This ViewModel does **not** declare its own note-length constant — Phase 5 Task 5.1 makes `CommentLimits` the single source of truth and forbids a second copy.
-- Produces: `public partial class MZikmund.ViewModels.ReportCommentDialogViewModel : DialogViewModel` with `int SelectedReasonIndex`, `string Note`, `bool IsConfirmed`, `ReportCommentRequest? Result { get; }`; plus `MZikmund.Dialogs.ReportCommentDialog`.
+**Produces:**
+- `public partial class CommentItemViewModel : ObservableObject` (namespace `MZikmund.ViewModels.Items`),
+  ctor `(CommentDto item)`. Exposes `CommentDto Item`, `Guid Id`, `string DisplayName`,
+  `Uri? AvatarUri`, `string? MentionPrefix`, `string Content`, `string CreatedOnHumanized` (Humanizer,
+  already referenced), `bool IsEdited`, `bool IsTombstone` (`Status != Visible` → body replaced by a
+  localized "deleted"/"hidden" line), `bool IsReply`, `bool IsOwn`, observable `int UpvoteCount`,
+  `bool HasUpvoted`, `int RemainingReplies`, `ObservableCollection<CommentItemViewModel> Replies`,
+  `bool IsEditing`, `string EditText`. `void Apply(CommentDto updated)` refreshes the observable
+  fields from a server response. **No commands here** — the view routes clicks (via `Tag`) to
+  `CommentsViewModel` methods, which avoids per-item back-references and the ItemsRepeater
+  DataContext problem.
+- `public partial class CommentsViewModel : ViewModelBase` (namespace `MZikmund.ViewModels`), ctor
+  `(IMZikmundApi api, IUserService userService, ISignInPrompt signInPrompt, IDialogService dialogService, ILogger<CommentsViewModel> logger)`.
+  - `Task LoadAsync(Guid postId)` (resets, loads page 1), `CommentSortOrder Sort` (changing it reloads),
+    `ObservableCollection<CommentItemViewModel> Comments` (top-level; replies nested), `int TotalCount`,
+    `bool IsLoading`, `bool HasError`, `bool IsEmpty`, `bool CanLoadMore`, `[RelayCommand] LoadMoreAsync`,
+    `[RelayCommand] RetryAsync`.
+  - Composer: `string DraftText`, `int DraftLength`, `bool IsDraftTooLong`
+    (`> CommentLimits.MaxCommentLength`), `CommentItemViewModel? ReplyingTo`,
+    `[RelayCommand] PostAsync` (→ `EnsureSignedInAsync`; if declined keep the draft and return;
+    `CreateCommentAsync(postId, new() { Content, ParentId = ReplyingTo?.Item.ParentId ?? ReplyingTo?.Id })`;
+    insert the result at the top (or into the parent's `Replies`), clear draft/reply, `TotalCount++`),
+    `[RelayCommand] CancelReply`.
+  - Item actions (public methods called by the view): `BeginReply(CommentItemViewModel)`,
+    `Task ToggleUpvoteAsync(CommentItemViewModel)` (sign-in first; optimistic flip, roll back on
+    failure, then `Apply` the server DTO), `Task LoadMoreRepliesAsync(CommentItemViewModel)`,
+    `BeginEdit` / `Task SaveEditAsync` / `CancelEdit` (own comments; `UpdateCommentAsync`),
+    `Task DeleteAsync(CommentItemViewModel)` (own; `ShowConfirmationDialogAsync` first; on success
+    `Apply` a tombstone), `Task ReportAsync(CommentItemViewModel)` (sign-in first;
+    `ShowAsync(new ReportCommentDialogViewModel())`; on confirm `ReportCommentAsync`; status message).
+  - Errors: `ApiException` 429 → status message with the server's `Retry-After` in words; 403 (banned)
+    → status message "You can no longer comment"; 401 / `AuthenticationFailedException` → re-prompt
+    sign-in once; other → `HasError` for loads, status message for writes. Log with `_logger`.
+  - Re-load when `IUserService.AuthenticationChanged` fires (to refresh `HasUpvoted`/`IsOwn`) —
+    marshal to the UI thread the same way `WindowShellViewModel.OnAuthenticationChanged` does
+    (inject `IWindowShellProvider` for its `DispatcherQueue`).
 
-- [ ] **Step 1: Create the dialog ViewModel.**
-
-Create `src/app/MZikmund.App.Core/ViewModels/ReportCommentDialogViewModel.cs`:
-
-```csharp
-using MZikmund.DataContracts.Blog.Comments;
-using MZikmund.Services.Localization;
-
-namespace MZikmund.ViewModels;
-
-public partial class ReportCommentDialogViewModel : DialogViewModel
-{
-	public override string Title => Localizer.Instance.GetString("ReportComment");
-
-	[ObservableProperty]
-	public partial int SelectedReasonIndex { get; set; }
-
-	[ObservableProperty]
-	public partial string Note { get; set; } = "";
-
-	public bool IsConfirmed { get; private set; }
-
-	public ReportCommentRequest? Result { get; private set; }
-
-	public override void OnPrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
-	{
-		var reason = SelectedReasonIndex switch
-		{
-			0 => CommentReportReason.Spam,
-			1 => CommentReportReason.Abuse,
-			2 => CommentReportReason.OffTopic,
-			_ => CommentReportReason.Other
-		};
-
-		var note = Note.Length > CommentLimits.MaxReportNoteLength
-			? Note.Substring(0, CommentLimits.MaxReportNoteLength)
-			: Note;
-
-		Result = new ReportCommentRequest
-		{
-			Reason = reason,
-			Note = string.IsNullOrWhiteSpace(note) ? null : note
-		};
-		IsConfirmed = true;
-	}
-}
-```
-
-- [ ] **Step 2: Create the dialog XAML.**
-
-Create `src/app/MZikmund.App/Dialogs/ReportCommentDialog.xaml`:
-
-```xml
-<dialogs:ReportCommentDialogBase
-    x:Class="MZikmund.Dialogs.ReportCommentDialog"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:dialogs="using:MZikmund.Dialogs"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:xaml="using:MZikmund.Extensions.Xaml"
-    Title="{x:Bind ViewModel.Title}"
-    CloseButtonText="{xaml:Localize Key=Cancel}"
-    DefaultButton="Primary"
-    PrimaryButtonText="{xaml:Localize Key=Report}"
-    Style="{ThemeResource DefaultContentDialogStyle}">
-
-	<StackPanel MinWidth="300" Spacing="12">
-		<ComboBox
-            HorizontalAlignment="Stretch"
-            Header="{xaml:Localize Key=ReportReason}"
-            SelectedIndex="{x:Bind ViewModel.SelectedReasonIndex, Mode=TwoWay}">
-			<ComboBoxItem Content="{xaml:Localize Key=ReportReasonSpam}" />
-			<ComboBoxItem Content="{xaml:Localize Key=ReportReasonAbuse}" />
-			<ComboBoxItem Content="{xaml:Localize Key=ReportReasonOffTopic}" />
-			<ComboBoxItem Content="{xaml:Localize Key=ReportReasonOther}" />
-		</ComboBox>
-		<TextBox
-            AcceptsReturn="True"
-            Header="{xaml:Localize Key=ReportNote}"
-            MaxLength="500"
-            Text="{x:Bind ViewModel.Note, Mode=TwoWay}"
-            TextWrapping="Wrap" />
-	</StackPanel>
-</dialogs:ReportCommentDialogBase>
-```
-
-- [ ] **Step 3: Create the dialog code-behind.**
-
-Create `src/app/MZikmund.App/Dialogs/ReportCommentDialog.xaml.cs`:
-
-```csharp
-using MZikmund.ViewModels;
-
-namespace MZikmund.Dialogs;
-
-public sealed partial class ReportCommentDialog : ReportCommentDialogBase
-{
-	public ReportCommentDialog() => InitializeComponent();
-}
-
-public abstract partial class ReportCommentDialogBase : DialogBase<ReportCommentDialogViewModel>
-{
-}
-```
-
-- [ ] **Step 4: Add the English strings.**
-
-Insert immediately before the closing `</root>` in `src/app/MZikmund.App/Strings/en/Resources.resw`:
-
-```xml
-  <data name="Report" xml:space="preserve">
-    <value>Report</value>
-  </data>
-  <data name="ReportComment" xml:space="preserve">
-    <value>Report comment</value>
-  </data>
-  <data name="ReportReason" xml:space="preserve">
-    <value>Reason</value>
-  </data>
-  <data name="ReportReasonSpam" xml:space="preserve">
-    <value>Spam</value>
-  </data>
-  <data name="ReportReasonAbuse" xml:space="preserve">
-    <value>Abuse</value>
-  </data>
-  <data name="ReportReasonOffTopic" xml:space="preserve">
-    <value>Off topic</value>
-  </data>
-  <data name="ReportReasonOther" xml:space="preserve">
-    <value>Other</value>
-  </data>
-  <data name="ReportNote" xml:space="preserve">
-    <value>Note (optional)</value>
-  </data>
-```
-
-- [ ] **Step 5: Add the Czech strings.**
-
-Insert immediately before the closing `</root>` in `src/app/MZikmund.App/Strings/cs/Resources.resw`:
-
-```xml
-  <data name="Report" xml:space="preserve">
-    <value>Nahlásit</value>
-  </data>
-  <data name="ReportComment" xml:space="preserve">
-    <value>Nahlásit komentář</value>
-  </data>
-  <data name="ReportReason" xml:space="preserve">
-    <value>Důvod</value>
-  </data>
-  <data name="ReportReasonSpam" xml:space="preserve">
-    <value>Spam</value>
-  </data>
-  <data name="ReportReasonAbuse" xml:space="preserve">
-    <value>Urážlivý obsah</value>
-  </data>
-  <data name="ReportReasonOffTopic" xml:space="preserve">
-    <value>Mimo téma</value>
-  </data>
-  <data name="ReportReasonOther" xml:space="preserve">
-    <value>Jiné</value>
-  </data>
-  <data name="ReportNote" xml:space="preserve">
-    <value>Poznámka (nepovinné)</value>
-  </data>
-```
-
-- [ ] **Step 6: Build.**
-
-```
-dotnet build src/app/MZikmund.App/MZikmund.App.csproj -f net10.0-desktop
-```
-
-Expected: `Build succeeded` with `0 Error(s)`.
-
-- [ ] **Step 7: Format.**
-
-```
-dotnet format MZikmund.slnx
-```
-
-- [ ] **Step 8: Commit.**
-
-```
-git add src/app/MZikmund.App.Core/ViewModels/ReportCommentDialogViewModel.cs src/app/MZikmund.App/Dialogs/ReportCommentDialog.xaml src/app/MZikmund.App/Dialogs/ReportCommentDialog.xaml.cs src/app/MZikmund.App/Strings/en/Resources.resw src/app/MZikmund.App/Strings/cs/Resources.resw
-git commit -m "feat(comments): add report comment dialog to the app"
-```
+Build the App.Core + App heads; commit `feat(app): Add the comments view models and the report dialog`.
 
 ---
 
-### Task 10.6: CommentsView with a bounded ItemsRepeater scroll region
+### Task 10.4: `CommentsView` — the comments panel
 
 **Files:**
-- Create: `src/app/MZikmund.App/Views/CommentsView.xaml`
-- Create: `src/app/MZikmund.App/Views/CommentsView.xaml.cs`
-- Modify: `src/app/MZikmund.App/Strings/en/Resources.resw`, `src/app/MZikmund.App/Strings/cs/Resources.resw` (append before `</root>`)
-- Modify: `src/app/MZikmund.App/App.xaml.cs` (the `ConfigureServices` body)
-
-**Interfaces:**
-- Consumes: `CommentsViewModel` (10.3), `CommentItemViewModel` (10.2), `SignInDialogViewModel` (10.4), `ReportCommentDialogViewModel` (10.5), `IDialogService.ShowAsync<TViewModel>(TViewModel)` (existing).
-- Produces: `public sealed partial class MZikmund.Views.CommentsView : UserControl` with a `ViewModel` dependency property of type `CommentsViewModel?`. **It is a `UserControl`, not a `Page`** — `NavigationService.RegisterViewsFromAssembly` does an unguarded `_views.Add(viewType.Name, viewType)` over `Page` subclasses ending in `View`, and a second `Page` named `CommentsView` would be a live hazard. Also produces the `CommentsExtensions.MarkdownTextBlock` attach point consumed by Task 10.12.
-
-- [ ] **Step 1: Create a temporary plain-text body renderer so the view compiles before Task 10.12 lands.**
-
-Create `src/app/MZikmund.App/Xaml/CommentsExtensions.cs`:
-
-```csharp
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-
-namespace MZikmund.Xaml;
-
-/// <summary>
-/// Renders a comment body into a <see cref="ContentControl"/> placeholder.
-/// The element cannot live in shared XAML: Uno single-project XAML compiles once for all
-/// five target frameworks, and the Windows-only MarkdownTextBlock would break the other four.
-/// </summary>
-public static class CommentsExtensions
-{
-	public static readonly DependencyProperty MarkdownTextBlockProperty =
-		DependencyProperty.RegisterAttached(
-			"MarkdownTextBlock",
-			typeof(string),
-			typeof(CommentsExtensions),
-			new PropertyMetadata(null, OnMarkdownTextBlockChanged));
-
-	public static string? GetMarkdownTextBlock(DependencyObject obj) =>
-		(string?)obj.GetValue(MarkdownTextBlockProperty);
-
-	public static void SetMarkdownTextBlock(DependencyObject obj, string? value) =>
-		obj.SetValue(MarkdownTextBlockProperty, value);
-
-	private static void OnMarkdownTextBlockChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-	{
-		if (d is not ContentControl host)
-		{
-			return;
-		}
-
-		var markdown = e.NewValue as string ?? "";
-
-		// ItemsRepeater recycles containers, so always rebuild rather than mutate.
-		host.Content = new TextBlock
-		{
-			Text = Markdig.Markdown.ToPlainText(markdown),
-			TextWrapping = TextWrapping.Wrap,
-			IsTextSelectionEnabled = true
-		};
-	}
-}
-```
-
-- [ ] **Step 2: Create the view XAML.**
-
-Create `src/app/MZikmund.App/Views/CommentsView.xaml`:
-
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<UserControl
-    x:Class="MZikmund.Views.CommentsView"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:md="using:MZikmund.Xaml"
-    xmlns:vmitems="using:MZikmund.ViewModels.Items"
-    xmlns:xaml="using:MZikmund.Extensions.Xaml"
-    x:Name="Root"
-    mc:Ignorable="d">
-
-	<UserControl.Resources>
-		<DataTemplate x:Key="CommentItemTemplate" x:DataType="vmitems:CommentItemViewModel">
-			<Grid
-                Margin="{x:Bind IndentMargin}"
-                Padding="12"
-                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                BorderThickness="1"
-                ColumnSpacing="12"
-                CornerRadius="{ThemeResource ControlCornerRadius}"
-                RowSpacing="6">
-				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="Auto" />
-					<ColumnDefinition Width="*" />
-				</Grid.ColumnDefinitions>
-				<Grid.RowDefinitions>
-					<RowDefinition Height="Auto" />
-					<RowDefinition Height="Auto" />
-					<RowDefinition Height="Auto" />
-					<RowDefinition Height="Auto" />
-				</Grid.RowDefinitions>
-
-				<PersonPicture
-                    Grid.Row="0"
-                    Grid.RowSpan="4"
-                    Grid.Column="0"
-                    Width="36"
-                    Height="36"
-                    VerticalAlignment="Top"
-                    DisplayName="{x:Bind DisplayName}"
-                    ProfilePicture="{x:Bind AvatarUri}" />
-
-				<StackPanel
-                    Grid.Row="0"
-                    Grid.Column="1"
-                    Orientation="Horizontal"
-                    Spacing="8">
-					<TextBlock Style="{ThemeResource BodyStrongTextBlockStyle}" Text="{x:Bind DisplayName}" />
-					<TextBlock
-                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                        Style="{ThemeResource CaptionTextBlockStyle}"
-                        Text="{x:Bind CreatedOnHumanized}" />
-					<TextBlock
-                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                        Style="{ThemeResource CaptionTextBlockStyle}"
-                        Text="{xaml:Localize Key=Edited}"
-                        Visibility="{x:Bind IsEdited, Converter={StaticResource BoolToVisibilityConverter}}" />
-				</StackPanel>
-
-				<ContentControl
-                    Grid.Row="1"
-                    Grid.Column="1"
-                    HorizontalContentAlignment="Stretch"
-                    md:CommentsExtensions.MarkdownTextBlock="{x:Bind Content}"
-                    Visibility="{x:Bind IsTombstone, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
-
-				<TextBlock
-                    Grid.Row="1"
-                    Grid.Column="1"
-                    FontStyle="Italic"
-                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                    Text="{xaml:Localize Key=CommentDeleted}"
-                    TextWrapping="Wrap"
-                    Visibility="{x:Bind IsTombstone, Converter={StaticResource BoolToVisibilityConverter}}" />
-
-				<StackPanel
-                    Grid.Row="2"
-                    Grid.Column="1"
-                    Orientation="Horizontal"
-                    Spacing="4">
-					<Button Command="{x:Bind ToggleUpvoteCommand}">
-						<StackPanel Orientation="Horizontal" Spacing="6">
-							<FontIcon FontSize="14" Glyph="&#xE8E1;" />
-							<TextBlock Text="{x:Bind UpvoteCount, Mode=OneWay}" />
-						</StackPanel>
-					</Button>
-					<Button
-                        Command="{x:Bind ReplyCommand}"
-                        Content="{xaml:Localize Key=Reply}"
-                        Visibility="{x:Bind CanReply, Converter={StaticResource BoolToVisibilityConverter}}" />
-					<Button
-                        Command="{x:Bind ReportCommand}"
-                        Content="{xaml:Localize Key=Report}"
-                        Visibility="{x:Bind IsTombstone, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
-					<Button
-                        Command="{x:Bind DeleteCommand}"
-                        Content="{xaml:Localize Key=Delete}"
-                        Visibility="{x:Bind IsOwn, Converter={StaticResource BoolToVisibilityConverter}}" />
-				</StackPanel>
-
-				<StackPanel
-                    Grid.Row="3"
-                    Grid.Column="1"
-                    Spacing="8">
-					<ItemsControl ItemTemplate="{StaticResource CommentReplyTemplate}" ItemsSource="{x:Bind Replies}" />
-					<HyperlinkButton
-                        Command="{x:Bind LoadMoreRepliesCommand}"
-                        Content="{xaml:Localize Key=ShowMoreReplies}"
-                        Visibility="{x:Bind HasMoreReplies, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
-				</StackPanel>
-			</Grid>
-		</DataTemplate>
-
-		<DataTemplate x:Key="CommentReplyTemplate" x:DataType="vmitems:CommentItemViewModel">
-			<Grid
-                Margin="{x:Bind IndentMargin}"
-                Padding="8"
-                ColumnSpacing="8"
-                RowSpacing="4">
-				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="Auto" />
-					<ColumnDefinition Width="*" />
-				</Grid.ColumnDefinitions>
-				<Grid.RowDefinitions>
-					<RowDefinition Height="Auto" />
-					<RowDefinition Height="Auto" />
-					<RowDefinition Height="Auto" />
-				</Grid.RowDefinitions>
-
-				<PersonPicture
-                    Grid.Row="0"
-                    Grid.RowSpan="3"
-                    Grid.Column="0"
-                    Width="28"
-                    Height="28"
-                    VerticalAlignment="Top"
-                    DisplayName="{x:Bind DisplayName}"
-                    ProfilePicture="{x:Bind AvatarUri}" />
-
-				<StackPanel
-                    Grid.Row="0"
-                    Grid.Column="1"
-                    Orientation="Horizontal"
-                    Spacing="8">
-					<TextBlock Style="{ThemeResource BodyStrongTextBlockStyle}" Text="{x:Bind DisplayName}" />
-					<TextBlock
-                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                        Style="{ThemeResource CaptionTextBlockStyle}"
-                        Text="{x:Bind CreatedOnHumanized}" />
-				</StackPanel>
-
-				<ContentControl
-                    Grid.Row="1"
-                    Grid.Column="1"
-                    HorizontalContentAlignment="Stretch"
-                    md:CommentsExtensions.MarkdownTextBlock="{x:Bind Content}"
-                    Visibility="{x:Bind IsTombstone, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
-
-				<TextBlock
-                    Grid.Row="1"
-                    Grid.Column="1"
-                    FontStyle="Italic"
-                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                    Text="{xaml:Localize Key=CommentDeleted}"
-                    TextWrapping="Wrap"
-                    Visibility="{x:Bind IsTombstone, Converter={StaticResource BoolToVisibilityConverter}}" />
-
-				<StackPanel
-                    Grid.Row="2"
-                    Grid.Column="1"
-                    Orientation="Horizontal"
-                    Spacing="4">
-					<Button Command="{x:Bind ToggleUpvoteCommand}">
-						<StackPanel Orientation="Horizontal" Spacing="6">
-							<FontIcon FontSize="12" Glyph="&#xE8E1;" />
-							<TextBlock Text="{x:Bind UpvoteCount, Mode=OneWay}" />
-						</StackPanel>
-					</Button>
-					<Button
-                        Command="{x:Bind DeleteCommand}"
-                        Content="{xaml:Localize Key=Delete}"
-                        Visibility="{x:Bind IsOwn, Converter={StaticResource BoolToVisibilityConverter}}" />
-				</StackPanel>
-			</Grid>
-		</DataTemplate>
-	</UserControl.Resources>
-
-	<Grid RowSpacing="8">
-		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="*" />
-			<RowDefinition Height="Auto" />
-		</Grid.RowDefinitions>
-
-		<SelectorBar
-            x:Name="SortSelector"
-            Grid.Row="0"
-            Margin="16,8,16,0"
-            SelectionChanged="SortSelector_SelectionChanged">
-			<SelectorBarItem
-                x:Name="TopSortItem"
-                IsSelected="True"
-                Text="{xaml:Localize Key=TopComments}" />
-			<SelectorBarItem x:Name="NewSortItem" Text="{xaml:Localize Key=NewestComments}" />
-		</SelectorBar>
-
-		<!--
-            This ScrollViewer is the scroll ROOT of the comments region. Do NOT nest this
-            control inside another ScrollViewer: an unconstrained parent hands the repeater
-            infinite available height, virtualization is silently defeated and every comment
-            realizes at once. That is worst on WASM.
-        -->
-		<ScrollViewer x:Name="CommentsScroller" Grid.Row="1">
-			<StackPanel Padding="16" Spacing="12">
-				<TextBlock
-                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                    Text="{xaml:Localize Key=NoComments}"
-                    TextWrapping="Wrap"
-                    Visibility="{x:Bind ViewModel.IsEmpty, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
-
-				<ItemsRepeater ItemTemplate="{StaticResource CommentItemTemplate}" ItemsSource="{x:Bind ViewModel.Comments, Mode=OneWay}">
-					<ItemsRepeater.Layout>
-						<StackLayout Spacing="12" />
-					</ItemsRepeater.Layout>
-				</ItemsRepeater>
-
-				<Button
-                    HorizontalAlignment="Center"
-                    Command="{x:Bind ViewModel.LoadMoreCommand, Mode=OneWay}"
-                    Content="{xaml:Localize Key=LoadMore}"
-                    Visibility="{x:Bind ViewModel.CanLoadMore, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
-
-				<ProgressRing
-                    HorizontalAlignment="Center"
-                    IsActive="{x:Bind ViewModel.IsLoadingMore, Mode=OneWay}"
-                    Visibility="{x:Bind ViewModel.IsLoadingMore, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
-			</StackPanel>
-		</ScrollViewer>
-
-		<StackPanel
-            Grid.Row="2"
-            Padding="16"
-            Spacing="8">
-			<StackPanel
-                Orientation="Horizontal"
-                Spacing="8"
-                Visibility="{x:Bind ViewModel.IsReplying, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-				<TextBlock
-                    VerticalAlignment="Center"
-                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                    Style="{ThemeResource CaptionTextBlockStyle}"
-                    Text="{xaml:Localize Key=ReplyingTo}" />
-				<TextBlock
-                    VerticalAlignment="Center"
-                    Style="{ThemeResource CaptionTextBlockStyle}"
-                    Text="{x:Bind ViewModel.ReplyingTo.DisplayName, Mode=OneWay}" />
-				<HyperlinkButton Command="{x:Bind ViewModel.CancelReplyCommand, Mode=OneWay}" Content="{xaml:Localize Key=Cancel}" />
-			</StackPanel>
-
-			<TextBox
-                AcceptsReturn="True"
-                MaxLength="4000"
-                MinHeight="72"
-                PlaceholderText="{xaml:Localize Key=WriteComment}"
-                Text="{x:Bind ViewModel.DraftText, Mode=TwoWay}"
-                TextWrapping="Wrap" />
-
-			<StackPanel Orientation="Horizontal" Spacing="12">
-				<TextBlock
-                    VerticalAlignment="Center"
-                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                    Style="{ThemeResource CaptionTextBlockStyle}"
-                    Text="{x:Bind ViewModel.DraftLength, Mode=OneWay}" />
-				<Button
-                    Command="{x:Bind ViewModel.PostCommentCommand, Mode=OneWay}"
-                    Content="{xaml:Localize Key=PostComment}"
-                    Style="{ThemeResource AccentButtonStyle}" />
-				<ProgressRing IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}" />
-			</StackPanel>
-		</StackPanel>
-	</Grid>
-</UserControl>
-```
-
-- [ ] **Step 3: Create the view code-behind.**
-
-Create `src/app/MZikmund.App/Views/CommentsView.xaml.cs`:
-
-```csharp
-using CommunityToolkit.Mvvm.DependencyInjection;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using MZikmund.App;
-using MZikmund.DataContracts.Blog.Comments;
-using MZikmund.Services.Dialogs;
-using MZikmund.ViewModels;
-using MZikmund.ViewModels.Items;
-
-namespace MZikmund.Views;
-
-public sealed partial class CommentsView : UserControl
-{
-	public static readonly DependencyProperty ViewModelProperty =
-		DependencyProperty.Register(
-			nameof(ViewModel),
-			typeof(CommentsViewModel),
-			typeof(CommentsView),
-			new PropertyMetadata(null, OnViewModelChanged));
-
-	public CommentsView() => InitializeComponent();
-
-	public CommentsViewModel? ViewModel
-	{
-		get => (CommentsViewModel?)GetValue(ViewModelProperty);
-		set => SetValue(ViewModelProperty, value);
-	}
-
-	private static void OnViewModelChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-	{
-		var view = (CommentsView)d;
-
-		// x:Bind on the control's own property does not observe DependencyProperty changes.
-		view.Bindings.Update();
-
-		if (e.NewValue is CommentsViewModel viewModel)
-		{
-			viewModel.EnsureSignedInAsync = view.ShowSignInSheetAsync;
-			viewModel.RequestReportAsync = view.ShowReportDialogAsync;
-		}
-	}
-
-	private async void SortSelector_SelectionChanged(SelectorBar sender, SelectorBarSelectionChangedEventArgs args)
-	{
-		if (ViewModel is null)
-		{
-			return;
-		}
-
-		try
-		{
-			var sort = ReferenceEquals(sender.SelectedItem, NewSortItem)
-				? CommentSortOrder.New
-				: CommentSortOrder.Top;
-			await ViewModel.SetSortAsync(sort);
-		}
-		catch (Exception)
-		{
-			// SetSortAsync surfaces its own errors; never let an async void escape.
-		}
-	}
-
-	private async Task<bool> ShowSignInSheetAsync()
-	{
-		var serviceProvider = ((WindowShell)XamlRoot.Content).ServiceProvider;
-		var dialogService = serviceProvider.GetRequiredService<IDialogService>();
-		var viewModel = serviceProvider.GetRequiredService<SignInDialogViewModel>();
-
-		await dialogService.ShowAsync(viewModel);
-		return viewModel.IsSignedIn;
-	}
-
-	private async Task<ReportCommentRequest?> ShowReportDialogAsync(CommentItemViewModel comment)
-	{
-		var serviceProvider = ((WindowShell)XamlRoot.Content).ServiceProvider;
-		var dialogService = serviceProvider.GetRequiredService<IDialogService>();
-		var viewModel = serviceProvider.GetRequiredService<ReportCommentDialogViewModel>();
-
-		await dialogService.ShowAsync(viewModel);
-		return viewModel.IsConfirmed ? viewModel.Result : null;
-	}
-}
-```
-
-- [ ] **Step 4: Register the new ViewModels in DI.**
-
-In `src/app/MZikmund.App/App.xaml.cs`, inside `ConfigureServices`, add these three lines immediately after `services.AddTransient<MediaBrowserDialogViewModel>();`:
-
-```csharp
-		services.AddTransient<CommentsViewModel>();
-		services.AddTransient<SignInDialogViewModel>();
-		services.AddTransient<ReportCommentDialogViewModel>();
-```
-
-- [ ] **Step 5: Add the English strings.**
-
-Insert immediately before the closing `</root>` in `src/app/MZikmund.App/Strings/en/Resources.resw`:
-
-```xml
-  <data name="Comments" xml:space="preserve">
-    <value>Comments</value>
-  </data>
-  <data name="Article" xml:space="preserve">
-    <value>Article</value>
-  </data>
-  <data name="TopComments" xml:space="preserve">
-    <value>Top</value>
-  </data>
-  <data name="NewestComments" xml:space="preserve">
-    <value>Newest</value>
-  </data>
-  <data name="NoComments" xml:space="preserve">
-    <value>No comments yet. Be the first.</value>
-  </data>
-  <data name="CommentDeleted" xml:space="preserve">
-    <value>This comment was deleted.</value>
-  </data>
-  <data name="ShowMoreReplies" xml:space="preserve">
-    <value>Show more replies</value>
-  </data>
-  <data name="Reply" xml:space="preserve">
-    <value>Reply</value>
-  </data>
-  <data name="ReplyingTo" xml:space="preserve">
-    <value>Replying to</value>
-  </data>
-  <data name="WriteComment" xml:space="preserve">
-    <value>Write a comment…</value>
-  </data>
-  <data name="PostComment" xml:space="preserve">
-    <value>Post</value>
-  </data>
-  <data name="Edited" xml:space="preserve">
-    <value>edited</value>
-  </data>
-  <data name="ConfirmDeleteComment" xml:space="preserve">
-    <value>This comment will be replaced by a placeholder. Continue?</value>
-  </data>
-  <data name="DeleteComment" xml:space="preserve">
-    <value>Delete comment</value>
-  </data>
-```
-
-- [ ] **Step 6: Add the Czech strings.**
-
-Insert immediately before the closing `</root>` in `src/app/MZikmund.App/Strings/cs/Resources.resw`:
-
-```xml
-  <data name="Comments" xml:space="preserve">
-    <value>Komentáře</value>
-  </data>
-  <data name="Article" xml:space="preserve">
-    <value>Článek</value>
-  </data>
-  <data name="TopComments" xml:space="preserve">
-    <value>Nejlepší</value>
-  </data>
-  <data name="NewestComments" xml:space="preserve">
-    <value>Nejnovější</value>
-  </data>
-  <data name="NoComments" xml:space="preserve">
-    <value>Zatím žádné komentáře. Buďte první.</value>
-  </data>
-  <data name="CommentDeleted" xml:space="preserve">
-    <value>Tento komentář byl smazán.</value>
-  </data>
-  <data name="ShowMoreReplies" xml:space="preserve">
-    <value>Zobrazit další odpovědi</value>
-  </data>
-  <data name="Reply" xml:space="preserve">
-    <value>Odpovědět</value>
-  </data>
-  <data name="ReplyingTo" xml:space="preserve">
-    <value>Odpověď pro</value>
-  </data>
-  <data name="WriteComment" xml:space="preserve">
-    <value>Napište komentář…</value>
-  </data>
-  <data name="PostComment" xml:space="preserve">
-    <value>Odeslat</value>
-  </data>
-  <data name="Edited" xml:space="preserve">
-    <value>upraveno</value>
-  </data>
-  <data name="ConfirmDeleteComment" xml:space="preserve">
-    <value>Komentář bude nahrazen zástupným textem. Pokračovat?</value>
-  </data>
-  <data name="DeleteComment" xml:space="preserve">
-    <value>Smazat komentář</value>
-  </data>
-```
-
-- [ ] **Step 7: Build for desktop and WASM.**
-
-```
-dotnet build src/app/MZikmund.App/MZikmund.App.csproj -f net10.0-desktop
-```
-
-Expected: `Build succeeded` with `0 Error(s)`. Then:
-
-```
-dotnet build src/app/MZikmund.App/MZikmund.App.csproj -f net10.0-browserwasm
-```
-
-Expected: `Build succeeded` with `0 Error(s)`.
-
-- [ ] **Step 8: Confirm CommentsView was NOT registered for navigation.**
-
-```
-git grep -n "class CommentsView" -- src/app/MZikmund.App/Views/CommentsView.xaml.cs
-```
-
-Expected exactly: `src/app/MZikmund.App/Views/CommentsView.xaml.cs:<n>:public sealed partial class CommentsView : UserControl`
-It must say `UserControl`, not `Page` — `NavigationService.RegisterViewsFromAssembly` calls the unguarded `_views.Add(viewType.Name, viewType)` on every `Page` whose name ends in `View`.
-
-- [ ] **Step 9: Format.**
-
-```
-dotnet format MZikmund.slnx
-```
-
-- [ ] **Step 10: Commit.**
-
-```
-git add src/app/MZikmund.App/Views/CommentsView.xaml src/app/MZikmund.App/Views/CommentsView.xaml.cs src/app/MZikmund.App/Xaml/CommentsExtensions.cs src/app/MZikmund.App/App.xaml.cs src/app/MZikmund.App/Strings/en/Resources.resw src/app/MZikmund.App/Strings/cs/Resources.resw
-git commit -m "feat(comments): add CommentsView with a bounded ItemsRepeater scroll region"
-```
+- Create: `src/app/MZikmund.App/Views/CommentsView.xaml` + `.xaml.cs` — a **`UserControl`**, not a
+  `Page` (so `NavigationService.RegisterViewsFromAssembly` never sees it); `ViewModel` is a
+  `CommentsViewModel` dependency property set by `PostView`.
+- Modify: both `Resources.resw`
+
+**Layout (top to bottom, inside a `ScrollViewer`, padding `MzSpace4`):**
+1. Header row: "Comments" (`MzSectionHeadingTextStyle`) + `TotalCount` in `MzCountTextStyle`; right
+   side a Top/New switch as two `MzTagPillButtonStyle` buttons (selected one uses the accent pill
+   state the tag filter in `BlogView.xaml` uses — check how it marks the active tag) .
+2. Composer on an `MzLayerSurfaceStyle` border: reply chip ("Replying to X" + dismiss,
+   `MzBadgeSubtleStyle`) when `ReplyingTo` is set; multi-line `TextBox` (`AcceptsReturn`,
+   `TextWrapping=Wrap`, `MaxHeight` ~200, `PlaceholderText` "Add a comment…"); footer with
+   `DraftLength / CommentLimits.MaxCommentLength` in `MzMetaTextStyle` (error brush when too long), a
+   "Markdown: **bold**, *italic*, `code`, links" hint, and the `MzAccentButtonStyle` "Post" button
+   bound to `PostCommand`. Signed-out readers see the composer too (write-then-auth).
+3. Comment list: `ItemsRepeater` (`StackLayout Spacing=12`) of comment cards. Each card: avatar
+   (`PersonPicture` 32px with `DisplayName` initials, `ProfilePicture` from `AvatarUri`), name
+   (`MzRowTitleTextStyle`), meta line (time · "edited"), body `TextBlock` with
+   `xaml:CommentText.Markdown`, mention prefix as a leading accent `Run`; action row of
+   `MzSubtleButtonSmallStyle` buttons: upvote (glyph + count; filled/accent when `HasUpvoted`),
+   Reply (top-level only), and a "More" button with a `MenuFlyout` (Edit/Delete when own, Report
+   otherwise). Every button carries `Tag="{x:Bind}"` and a code-behind `Click` handler that calls the
+   matching `CommentsViewModel` method. Replies render in a nested `ItemsRepeater` indented by
+   `MzSpace6`, followed by a "Show N more replies" `MzSubtleButtonSmallStyle` button when
+   `RemainingReplies > 0`. Tombstones render a single italic `MzMetaTextStyle` line and no actions.
+   Inline edit: when `IsEditing`, swap the body for a `TextBox` + Save/Cancel.
+4. "Load more" `MzStandardButtonStyle` when `CanLoadMore`; `ProgressRing` while loading; empty state
+   (`MzGlyphComment`, "No comments yet", "Be the first to share your thoughts"); error state with
+   Retry (copy the `HasError` block from `PostView.xaml`).
+
+All Visibility bindings: properties + `BoolToVisibilityConverter`/`InverseBoolToVisibilityConverter`,
+or x:Bind functions that **return `Visibility`** (e.g.
+`public static Visibility VisibleWhen(bool value)` in the code-behind).
+
+Build desktop/Windows/WASM; commit `feat(app): Add the comments panel`.
 
 ---
 
-### Task 10.7: Attach comments to PostView and fix the dead Grid.Row
+### Task 10.5: Attach comments to `PostView`
+
+The post body is a `WebView2` showing the web embed (`embed/post/{id}`) and fills the page, so comments
+cannot simply stack underneath it. They live in a **side panel on wide windows and a full-height
+overlay on narrow ones**, toggled from the post header bar.
 
 **Files:**
-- Modify: `src/app/MZikmund.App.Core/ViewModels/PostViewModel.cs` (whole file rewritten below)
-- Modify: `src/app/MZikmund.App/Views/PostView.xaml` (whole file rewritten below)
-- Modify: `src/app/MZikmund.App/Views/PostView.xaml.cs` (whole file rewritten below)
+- Modify: `src/app/MZikmund.App.Core/ViewModels/PostViewModel.cs` — inject `CommentsViewModel`
+  (transient), expose `CommentsViewModel Comments`, `[ObservableProperty] bool IsCommentsOpen`,
+  `[RelayCommand] ToggleComments`; in `ViewNavigatedTo` call `_ = Comments.LoadAsync(postId)` so the
+  header can show the count before the panel opens.
+- Modify: `src/app/MZikmund.App/Views/PostView.xaml` (+ `.xaml.cs` only if needed)
+- Modify: both `Resources.resw`
 
-**Interfaces:**
-- Consumes: `CommentsViewModel.InitializeAsync(Guid postId)` (10.3), `MZikmund.Views.CommentsView.ViewModel` dependency property (10.6).
-- Produces: `PostViewModel.Comments` of type `CommentsViewModel`, initialized in `ViewNavigatedTo`.
+**PostView changes:**
+- Header bar (the existing `Grid` with the title and "Open in browser"): add a third column with a
+  `MzSubtleButtonSmallStyle` toggle button (`MzGlyphComment` + `Comments.TotalCount`),
+  `AutomationProperties.AutomationId="PostComments"`, bound to `ToggleCommentsCommand`.
+- Root grid gains a second column (`x:Name="CommentsColumn"`, `Width="0"`) holding
+  `<local:CommentsView ViewModel="{x:Bind ViewModel.Comments, Mode=OneWay}" />` inside a border with
+  `MzBgSecondaryBrush`/`MzStrokeDividerBrush` left divider, shown when `IsCommentsOpen`.
+- VSM group `CommentsLayout`: `Wide` (`AdaptiveTrigger MinWindowWidth="1008"`) → panel in column 1
+  with `CommentsColumn.Width = 400`; default (narrow) → panel spans both columns in row 1 over the
+  WebView (`Grid.ColumnSpan`, opaque `MzBgBaseBrush`) with a close button in its header.
+- Keep the existing loading/error overlays scoped to the WebView cell only.
 
-- [ ] **Step 1: Record the bug being fixed.**
-
-```
-git grep -n "Grid.Row=\"1\"" -- src/app/MZikmund.App/Views/PostView.xaml
-```
-
-Expected output: one line showing the `ContentControl` carrying `Grid.Row="1"`. The parent `<Grid>` declares no `RowDefinitions`, so the attached property is dead today and would silently misplace content the moment rows are added. Steps 3 declares the rows explicitly.
-
-- [ ] **Step 2: Rewrite `PostViewModel`.**
-
-Replace the entire contents of `src/app/MZikmund.App.Core/ViewModels/PostViewModel.cs` with:
-
-```csharp
-using Microsoft.Extensions.Options;
-using MZikmund.Api.Client;
-using MZikmund.Business.Models;
-using MZikmund.DataContracts.Blog;
-
-namespace MZikmund.ViewModels;
-
-public class PostViewModel : PageViewModel
-{
-	private readonly IMZikmundApi _api;
-	private readonly IOptions<AppConfig> _appConfig;
-
-	public PostViewModel(IMZikmundApi api, IOptions<AppConfig> appConfig, CommentsViewModel comments)
-	{
-		_api = api ?? throw new ArgumentNullException(nameof(api));
-		_appConfig = appConfig ?? throw new ArgumentNullException(nameof(appConfig));
-		Comments = comments ?? throw new ArgumentNullException(nameof(comments));
-	}
-
-	public CommentsViewModel Comments { get; }
-
-	public Post? Post { get; private set; }
-
-	public Uri? EmbedUrl { get; private set; }
-
-	public override async void ViewNavigatedTo(object? parameter)
-	{
-		// ViewNavigatedTo is async void by design; an escaping exception kills the app.
-		try
-		{
-			var postId = (Guid)parameter!;
-			var postResponse = await _api.GetPostAsync(postId);
-			Post = postResponse.Content!;
-
-			var baseUrl = _appConfig.Value.WebUrl;
-			if (baseUrl is null)
-			{
-				throw new InvalidOperationException("WebUrl is not set in configuration");
-			}
-
-			EmbedUrl = new Uri(new Uri(baseUrl), $"{baseUrl}embed/post/{postId}");
-			OnPropertyChanged(nameof(EmbedUrl));
-
-			await Comments.InitializeAsync(postId);
-		}
-		catch (Exception)
-		{
-			// Errors are surfaced by the called services; nothing further to do here.
-		}
-	}
-}
-```
-
-- [ ] **Step 3: Rewrite `PostView.xaml`.**
-
-Replace the entire contents of `src/app/MZikmund.App/Views/PostView.xaml` with:
-
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<local:PostViewBase
-    x:Class="MZikmund.Views.PostView"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="using:MZikmund.Views"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:xaml="using:MZikmund.Extensions.Xaml"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-    mc:Ignorable="d">
-
-	<!--
-        The article is a WebView2 and cannot share a XAML scroll region with the comments,
-        so the two are separate scroll roots selected by a SelectorBar rather than stacked.
-        RowDefinitions are declared explicitly: the previous version set Grid.Row="1" on a
-        Grid with no rows, which silently did nothing.
-    -->
-	<Grid>
-		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="*" />
-		</Grid.RowDefinitions>
-
-		<SelectorBar
-            x:Name="SectionSelector"
-            Grid.Row="0"
-            Margin="16,8"
-            SelectionChanged="SectionSelector_SelectionChanged">
-			<SelectorBarItem
-                x:Name="ArticleSection"
-                IsSelected="True"
-                Text="{xaml:Localize Key=Article}" />
-			<SelectorBarItem x:Name="CommentsSection" Text="{xaml:Localize Key=Comments}" />
-		</SelectorBar>
-
-		<ContentControl
-            x:Name="PreviewWebViewContainer"
-            Grid.Row="1"
-            HorizontalAlignment="Stretch"
-            VerticalAlignment="Stretch"
-            HorizontalContentAlignment="Stretch"
-            VerticalContentAlignment="Stretch" />
-
-		<local:CommentsView
-            x:Name="CommentsHost"
-            Grid.Row="1"
-            ViewModel="{x:Bind ViewModel.Comments, Mode=OneWay}"
-            Visibility="Collapsed" />
-	</Grid>
-</local:PostViewBase>
-```
-
-- [ ] **Step 4: Rewrite `PostView.xaml.cs`.**
-
-Replace the entire contents of `src/app/MZikmund.App/Views/PostView.xaml.cs` with:
-
-```csharp
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using MZikmund.ViewModels;
-
-namespace MZikmund.Views;
-
-public sealed partial class PostView : PostViewBase
-{
-	private readonly WebView2 _previewWebView;
-
-	public PostView()
-	{
-		InitializeComponent();
-		PreviewWebViewContainer.Content = _previewWebView = new WebView2();
-		Loaded += PostView_Loaded;
-		Unloaded += PostView_Unloaded;
-	}
-
-	private void PostView_Unloaded(object sender, RoutedEventArgs e)
-	{
-		if (ViewModel is not null)
-		{
-			ViewModel.PropertyChanged -= ViewModel_PropertyChanged;
-		}
-	}
-
-	private async void PostView_Loaded(object sender, RoutedEventArgs e)
-	{
-		try
-		{
-			await _previewWebView.EnsureCoreWebView2Async();
-			if (ViewModel is not null)
-			{
-				ViewModel.PropertyChanged += ViewModel_PropertyChanged;
-			}
-
-			NavigateToPost();
-		}
-		catch (Exception)
-		{
-			// TODO: Log error
-		}
-	}
-
-	private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
-	{
-		if (e.PropertyName == nameof(PostViewModel.EmbedUrl))
-		{
-			NavigateToPost();
-		}
-	}
-
-	private void NavigateToPost()
-	{
-		if (ViewModel?.EmbedUrl is not null && _previewWebView.CoreWebView2 != null)
-		{
-			_previewWebView.Source = ViewModel.EmbedUrl;
-		}
-	}
-
-	private void SectionSelector_SelectionChanged(SelectorBar sender, SelectorBarSelectionChangedEventArgs args)
-	{
-		var showComments = ReferenceEquals(sender.SelectedItem, CommentsSection);
-		PreviewWebViewContainer.Visibility = showComments ? Visibility.Collapsed : Visibility.Visible;
-		CommentsHost.Visibility = showComments ? Visibility.Visible : Visibility.Collapsed;
-	}
-}
-
-public partial class PostViewBase : PageBase<PostViewModel>
-{
-}
-```
-
-- [ ] **Step 5: Build for desktop.**
-
-```
-dotnet build src/app/MZikmund.App/MZikmund.App.csproj -f net10.0-desktop
-```
-
-Expected: `Build succeeded` with `0 Error(s)`.
-
-- [ ] **Step 6: Run the desktop head and confirm the two sections switch.**
-
-```
-dotnet run --project src/app/MZikmund.App/MZikmund.App.csproj -f net10.0-desktop
-```
-
-Expected: the app window opens on the Blog page. Click any post card, then click the **Comments** tab in the SelectorBar. Expected: the WebView2 disappears, the comments panel appears with the composer at the bottom and either the comment list or the "No comments yet. Be the first." placeholder. Clicking **Article** brings the WebView2 back. Close the window to end the run.
-
-- [ ] **Step 7: Format.**
-
-```
-dotnet format MZikmund.slnx
-```
-
-- [ ] **Step 8: Commit.**
-
-```
-git add src/app/MZikmund.App.Core/ViewModels/PostViewModel.cs src/app/MZikmund.App/Views/PostView.xaml src/app/MZikmund.App/Views/PostView.xaml.cs
-git commit -m "feat(comments): attach comments section to PostView and fix dead Grid.Row"
-```
+Smoke run on desktop: open a post → count appears → open panel → comments render; post as signed-out
+reader → sign-in dialog → after sign-in the comment appears; upvote toggles; narrow the window
+below 1008 → overlay mode. Commit `feat(app): Show comments next to the post`.
 
 ---
 
-### Task 10.8: CommentsModeratorViewModel and the report queue
+### Task 10.6: `CommentsModeratorViewModel` and `CommentsModeratorView`
 
 **Files:**
-- Verify only, **do not edit**: `src/app/MZikmund.DataContracts/Blog/Comments/CommentReportDto.cs` (already has `AuthorId`, from Phase 3)
-- Verify only, **do not edit**: `src/web/MZikmund.Web.Core/Features/Comments/GetCommentReportsHandler.cs` (already projects and assigns `AuthorId`, from Phase 6)
 - Create: `src/app/MZikmund.App.Core/ViewModels/Admin/CommentReportItemViewModel.cs`
 - Create: `src/app/MZikmund.App.Core/ViewModels/Admin/CommentsModeratorViewModel.cs`
-
-**Interfaces:**
-- Consumes: `IMZikmundApi` admin members
-  `Task<ApiResponse<PagedResponse<CommentReportDto>>> GetCommentReportsAsync(int pageNumber = 1)`,
-  `Task<ApiResponse<object?>> ResolveCommentReportAsync(Guid commentId)`,
-  `Task<ApiResponse<PagedResponse<CommentDto>>> GetModerationFeedAsync(DateTime? since = null, int pageNumber = 1)`,
-  `Task<ApiResponse<object?>> HideCommentAsync(Guid commentId)`,
-  `Task<ApiResponse<object?>> AdminDeleteCommentAsync(Guid commentId)`,
-  `Task<ApiResponse<object?>> BanCommentAuthorAsync(Guid authorId)`.
-  (The moderation feed method is named `GetModerationFeedAsync` — that is the name Phase 7 Task 7.5 actually declares, and it wins.)
-  `MZikmund.DataContracts.Blog.Comments.CommentReportDto.AuthorId` — `public required Guid AuthorId { get; init; }`, declared on the record from the start by **Phase 3 Task 3.1**, and populated by **Phase 6 Task 6.4**, which already writes both `c.AuthorId,` into the `commentRows` projection and `AuthorId = comment.AuthorId,` into the `CommentReportDto` construction in `GetCommentReportsHandler`. This task adds nothing to either file — it consumes them, and Step 1 verifies they are there. `AuthorId` is deliberately absent from the nested public `CommentDto`; that DTO must never leak author GUIDs.
-  Plus `CommentItemViewModel`/`ICommentActions` (10.2), and `IAppPreferences` **as Phase 2 Task 2.4 rewrote it** (that version wins: it carries only `AppTheme Theme` and `string? SupabaseSession`, the five Auth0 token members are gone).
-- Produces:
-  - `public partial class MZikmund.ViewModels.Admin.CommentReportItemViewModel : ObservableObject` with `CommentReportDto Item`, `Guid CommentId`, `Guid AuthorId`, `string Content`, `string DisplayName`, `string ReasonsText`, `int OpenReportCount`, `string FirstReportedOnHumanized`.
-  - `public partial class MZikmund.ViewModels.Admin.CommentsModeratorViewModel : PageViewModel, ICommentActions` with `ObservableCollection<CommentReportItemViewModel> Reports`, `ObservableCollection<CommentItemViewModel> Feed`, `bool IsEmptyQueue`, and commands `RefreshCommand`, `HideCommentCommand`, `DeleteCommentCommand`, `BanAuthorCommand`, `ResolveReportCommand`.
-
-- [ ] **Step 1: Verify `AuthorId` already exists end to end (verification only — edit neither file).**
-
-The moderation queue's "ban this author" action needs an author GUID to post to `api/v1/admin/authors/{id}/ban`. Both halves of that were already delivered: **Phase 3 Task 3.1** declares the property on the `CommentReportDto` record, and **Phase 6 Task 6.4** already widens the anonymous `commentRows` projection and assigns the DTO member in `GetCommentReportsHandler`. Confirm both; do not re-add either, or you will end up with a duplicate member or a duplicate initializer that does not compile.
-
-```
-git grep -n "AuthorId" -- src/app/MZikmund.DataContracts/Blog/Comments/CommentReportDto.cs
-```
-
-Expected output: a single line
-
-```
-src/app/MZikmund.DataContracts/Blog/Comments/CommentReportDto.cs:<n>:	public required Guid AuthorId { get; init; }
-```
-
-Then:
-
-```
-git grep -n "c.AuthorId,\|AuthorId = comment.AuthorId," -- src/web/MZikmund.Web.Core/Features/Comments/GetCommentReportsHandler.cs
-```
-
-Expected output: exactly two lines, the projection member first and the DTO assignment second
-
-```
-src/web/MZikmund.Web.Core/Features/Comments/GetCommentReportsHandler.cs:<n>:				c.AuthorId,
-src/web/MZikmund.Web.Core/Features/Comments/GetCommentReportsHandler.cs:<n>:				AuthorId = comment.AuthorId,
-```
-
-If either grep prints nothing, stop — Phase 3 Task 3.1 or Phase 6 Task 6.4 is incomplete, and `CommentReportItemViewModel.AuthorId` in Step 3 cannot compile. Fix the owning phase; do not patch it here.
-
-`AuthorId` is deliberately **not** on the nested `CommentDto` — that DTO is public and must never leak author GUIDs. If the first grep also prints a hit inside `CommentDto.cs`, that is a leak and must be reverted in Phase 3.
-
-- [ ] **Step 2: Verify the server builds and its tests pass before starting the app work.**
-
-```
-dotnet test src/web/MZikmund.Web.Core.Tests/MZikmund.Web.Core.Tests.csproj
-```
-
-Expected: `Passed!` with `Failed: 0`.
-
-- [ ] **Step 3: Create the report item ViewModel.**
-
-Create `src/app/MZikmund.App.Core/ViewModels/Admin/CommentReportItemViewModel.cs`:
-
-```csharp
-using Humanizer;
-using MZikmund.DataContracts.Blog.Comments;
-
-namespace MZikmund.ViewModels.Admin;
-
-public sealed partial class CommentReportItemViewModel : ObservableObject
-{
-	public CommentReportItemViewModel(CommentReportDto item)
-	{
-		Item = item ?? throw new ArgumentNullException(nameof(item));
-	}
-
-	public CommentReportDto Item { get; }
-
-	public Guid CommentId => Item.CommentId;
-
-	public Guid AuthorId => Item.AuthorId;
-
-	public string Content => Item.Comment.Content;
-
-	public string DisplayName => Item.Comment.AuthorDisplayName;
-
-	public string ReasonsText => string.Join(", ", Item.Reasons.Select(reason => reason.ToString()));
-
-	public int OpenReportCount => Item.OpenReportCount;
-
-	public string FirstReportedOnHumanized => Item.FirstReportedOn.Humanize();
-}
-```
-
-- [ ] **Step 4: Create the moderator ViewModel.**
-
-Create `src/app/MZikmund.App.Core/ViewModels/Admin/CommentsModeratorViewModel.cs`:
-
-```csharp
-using System.Collections.ObjectModel;
-using MZikmund.Api.Client;
-using MZikmund.DataContracts.Blog.Comments;
-using MZikmund.Extensions;
-using MZikmund.Models.Dialogs;
-using MZikmund.Services.Dialogs;
-using MZikmund.Services.Loading;
-using MZikmund.Services.Localization;
-using MZikmund.Services.Preferences;
-using MZikmund.ViewModels.Items;
-
-namespace MZikmund.ViewModels.Admin;
-
-public partial class CommentsModeratorViewModel : PageViewModel, ICommentActions
-{
-	private readonly IMZikmundApi _api;
-	private readonly IDialogService _dialogService;
-	private readonly ILoadingIndicator _loadingIndicator;
-	private readonly IAppPreferences _appPreferences;
-
-	public CommentsModeratorViewModel(
-		IMZikmundApi api,
-		IDialogService dialogService,
-		ILoadingIndicator loadingIndicator,
-		IAppPreferences appPreferences)
-	{
-		_api = api ?? throw new ArgumentNullException(nameof(api));
-		_dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
-		_loadingIndicator = loadingIndicator ?? throw new ArgumentNullException(nameof(loadingIndicator));
-		_appPreferences = appPreferences ?? throw new ArgumentNullException(nameof(appPreferences));
-	}
-
-	public override string Title => Localizer.Instance.GetString("Moderation");
-
-	public ObservableCollection<CommentReportItemViewModel> Reports { get; } = new();
-
-	public ObservableCollection<CommentItemViewModel> Feed { get; } = new();
-
-	[ObservableProperty]
-	public partial bool IsEmptyQueue { get; set; } = true;
-
-	public override async void ViewLoaded()
-	{
-		try
-		{
-			await RefreshAsync();
-
-			// Everything in the feed has now been seen by the moderator.
-			_appPreferences.CommentsLastSeenOn = DateTimeOffset.UtcNow;
-		}
-		catch (Exception)
-		{
-			// RefreshAsync surfaces its own errors.
-		}
-	}
-
-	[RelayCommand]
-	private async Task RefreshAsync()
-	{
-		using var loadingScope = _loadingIndicator.BeginLoading();
-		try
-		{
-			Reports.Clear();
-			Feed.Clear();
-
-			var reports = await _api.GetCommentReportsAsync(1);
-			await reports.EnsureSuccessfulAsync();
-			if (reports.Content is not null)
-			{
-				Reports.AddRange(reports.Content.Data.Select(dto => new CommentReportItemViewModel(dto)));
-			}
-
-			var feed = await _api.GetModerationFeedAsync(null, 1);
-			await feed.EnsureSuccessfulAsync();
-			if (feed.Content is not null)
-			{
-				Feed.AddRange(feed.Content.Data.Select(dto => new CommentItemViewModel(dto, this)));
-			}
-
-			IsEmptyQueue = Reports.Count == 0;
-		}
-		catch (Exception ex)
-		{
-			await ShowErrorAsync(ex);
-		}
-	}
-
-	[RelayCommand]
-	private async Task HideCommentAsync(Guid commentId)
-	{
-		var confirmation = await _dialogService.ShowConfirmationDialogAsync(
-			Localizer.Instance.GetString("HideComment"),
-			Localizer.Instance.GetString("ConfirmHideComment"));
-
-		if (confirmation != ContentDialogResult.Primary)
-		{
-			return;
-		}
-
-		await ExecuteModerationAsync(() => _api.HideCommentAsync(commentId));
-	}
-
-	[RelayCommand]
-	private async Task DeleteCommentAsync(Guid commentId)
-	{
-		var confirmation = await _dialogService.ShowConfirmationDialogAsync(
-			Localizer.Instance.GetString("DeleteComment"),
-			Localizer.Instance.GetString("ConfirmDeleteComment"));
-
-		if (confirmation != ContentDialogResult.Primary)
-		{
-			return;
-		}
-
-		await ExecuteModerationAsync(() => _api.AdminDeleteCommentAsync(commentId));
-	}
-
-	[RelayCommand]
-	private async Task BanAuthorAsync(Guid authorId)
-	{
-		var confirmation = await _dialogService.ShowConfirmationDialogAsync(
-			Localizer.Instance.GetString("BanAuthor"),
-			Localizer.Instance.GetString("ConfirmBanAuthor"));
-
-		if (confirmation != ContentDialogResult.Primary)
-		{
-			return;
-		}
-
-		await ExecuteModerationAsync(() => _api.BanCommentAuthorAsync(authorId));
-	}
-
-	[RelayCommand]
-	private async Task ResolveReportAsync(Guid commentId) =>
-		await ExecuteModerationAsync(() => _api.ResolveCommentReportAsync(commentId));
-
-	private async Task ExecuteModerationAsync(Func<Task<Refit.ApiResponse<object?>>> action)
-	{
-		try
-		{
-			var response = await action();
-			await response.EnsureSuccessfulAsync();
-			await RefreshAsync();
-		}
-		catch (Exception ex)
-		{
-			await ShowErrorAsync(ex);
-		}
-	}
-
-	private async Task ShowErrorAsync(Exception ex) =>
-		await _dialogService.ShowStatusMessageAsync(
-			StatusMessageDialogType.Error,
-			Localizer.Instance.GetString("CouldNotLoadData"),
-			$"{Localizer.Instance.GetString("ErrorLoadingData")} {ex}");
-
-	// ICommentActions: the moderation feed is read-only, so reader interactions are inert.
-	public Task ToggleUpvoteAsync(CommentItemViewModel comment) => Task.CompletedTask;
-
-	public Task BeginReplyAsync(CommentItemViewModel comment) => Task.CompletedTask;
-
-	public Task ReportAsync(CommentItemViewModel comment) => Task.CompletedTask;
-
-	public Task DeleteAsync(CommentItemViewModel comment) => DeleteCommentAsync(comment.Id);
-
-	public Task LoadMoreRepliesAsync(CommentItemViewModel comment) => Task.CompletedTask;
-}
-```
-
-- [ ] **Step 5: Add `CommentsLastSeenOn` to app preferences (used above).**
-
-Phase 2 Task 2.4 Steps 7–8 rewrote both files in full and deleted the five Auth0 token members, so the anchors are the Supabase session members, **not** `TokenExpiresOn`.
-
-In `src/app/MZikmund.App.Core/Services/Preferences/IAppPreferences.cs`, add this member immediately after `string? SupabaseSession { get; set; }` (that is, as the last member of the interface):
-
-```csharp
-
-	/// <summary>
-	/// Gets or sets the moment the moderator last looked at the comment feed. Drives the unread
-	/// badge in the shell.
-	/// </summary>
-	DateTimeOffset? CommentsLastSeenOn { get; set; }
-```
-
-In `src/app/MZikmund.App.Core/Services/Preferences/AppPreferences.cs`, add this constant immediately after `private const string SupabaseSessionKey = "SupabaseSession";`:
-
-```csharp
-	private const string CommentsLastSeenOnKey = "CommentsLastSeenOn";
-```
-
-and this property immediately after the `SupabaseSession` property (that is, as the last member of the class):
-
-```csharp
-
-	public DateTimeOffset? CommentsLastSeenOn
-	{
-		get => _preferences.GetComplex(CommentsLastSeenOnKey, () => (DateTimeOffset?)null, true);
-		set => _preferences.SetComplex(CommentsLastSeenOnKey, value, true);
-	}
-```
-
-- [ ] **Step 6: Build the core library.**
-
-```
-dotnet build src/app/MZikmund.App.Core/MZikmund.App.Core.csproj -f net10.0-desktop
-```
-
-Expected: `Build succeeded` with `0 Error(s)`.
-
-- [ ] **Step 7: Format.**
-
-```
-dotnet format MZikmund.slnx
-```
-
-- [ ] **Step 8: Commit.** (`CommentReportDto.cs` and `GetCommentReportsHandler.cs` are not staged — this task only verified them.)
-
-```
-git add src/app/MZikmund.App.Core/ViewModels/Admin/CommentReportItemViewModel.cs src/app/MZikmund.App.Core/ViewModels/Admin/CommentsModeratorViewModel.cs src/app/MZikmund.App.Core/Services/Preferences/IAppPreferences.cs src/app/MZikmund.App.Core/Services/Preferences/AppPreferences.cs
-git commit -m "feat(comments): add CommentsModeratorViewModel with report queue and moderation actions"
-```
+- Create: `src/app/MZikmund.App/Views/Admin/CommentsModeratorView.xaml` + `.xaml.cs` (`CommentsModeratorViewBase : PageBase<CommentsModeratorViewModel>`; the name must not be `CommentsView` — `RegisterViewsFromAssembly` keys on the bare type name)
+- Modify: `src/app/MZikmund.App.Core/Services/Preferences/IAppPreferences.cs` + `AppPreferences.cs` (`DateTimeOffset? CommentsLastSeenOn { get; set; }` — follow how `TokenExpiresOn` is stored)
+- Modify: `src/app/MZikmund.App/App.xaml.cs` (`services.AddScoped<CommentsModeratorViewModel>()`)
+- Modify: `src/app/MZikmund.App/WindowShell.xaml` (new `NavAdminComments` item, `Tag="CommentsModerator"`, `MzGlyphComment`, inside the Admin item) and `WindowShell.xaml.cs` (`case "CommentsModerator": NavigateTopLevel<CommentsModeratorViewModel>();`)
+- Modify: both `Resources.resw`
+
+**Behaviour:** page title "Comments" + count meta line (copy `PostsManagerView.xaml` header). Two
+sections, each an `MzLayerSurfaceStyle` + `ItemsRepeater` of `MzListRowButtonStyle`-like rows (use a
+plain `Grid` row if the row must not be clickable):
+- **Reported** (`GetCommentReportsAsync`): body excerpt (`CommentText.Markdown`, max 3 lines), author,
+  `OpenReportCount` badge (`MzBadgeAccentStyle`), reasons, first reported (humanized). Actions:
+  Hide, Delete, Ban author (`CommentReportDto.AuthorId`), Dismiss (resolve).
+- **Newest** (`GetModerationFeedAsync`, paged with "Load more"): same row shape; Hide / Delete. Ban
+  is offered only from the report queue (the public `CommentDto` deliberately carries no author id).
+- Destructive actions (Delete, Ban) confirm via `IDialogService.ShowConfirmationDialogAsync`.
+  Actions live in a per-row "More" `MenuFlyout` handled in code-behind via `Tag` (pitfall 2).
+- `ViewNavigatedTo` loads both lists and sets `IAppPreferences.CommentsLastSeenOn = DateTimeOffset.UtcNow`
+  **after** the feed loads, then asks the shell to clear the badge (Task 10.7 exposes
+  `WindowShellViewModel.MarkCommentsSeen()`; reach it through `IWindowShellProvider` or raise an event
+  on a small `ICommentsBadgeService` singleton — prefer the singleton, it avoids a VM→VM reference).
+- Empty state for an empty queue ("Nothing to review").
+
+Commit `feat(app): Add the comment moderation page`.
 
 ---
 
-### Task 10.9: CommentsModeratorView and admin navigation entry
+### Task 10.7: Unread-comments badge
 
 **Files:**
-- Create: `src/app/MZikmund.App/Views/Admin/CommentsModeratorView.xaml`
-- Create: `src/app/MZikmund.App/Views/Admin/CommentsModeratorView.xaml.cs`
-- Modify: `src/app/MZikmund.App/WindowShell.xaml` (add a nav item inside `AdminNavigationViewItem.MenuItems`)
-- Modify: `src/app/MZikmund.App/WindowShell.xaml.cs` (`MenuItemInvoked` chain)
-- Modify: `src/app/MZikmund.App/App.xaml.cs` (`ConfigureServices`)
-- Modify: `src/app/MZikmund.App/Strings/en/Resources.resw`, `src/app/MZikmund.App/Strings/cs/Resources.resw`
+- Create: `src/app/MZikmund.App.Core/Services/Comments/ICommentsBadgeService.cs` + `CommentsBadgeService.cs` (singleton: `int UnreadCount`, `event EventHandler? Changed`, `Task RefreshAsync()`, `void MarkSeen()`)
+- Modify: `src/app/MZikmund.App.Core/ViewModels/WindowShellViewModel.cs` (**additive**: inject `ICommentsBadgeService`; `[ObservableProperty] string UnreadCommentsBadge`, `bool HasUnreadComments`; refresh on launch when `IsAdmin` and whenever `AuthenticationChanged` makes `IsAdmin` true; keep every existing member, the `IsAdmin` gate and the dispatcher marshalling)
+- Modify: `src/app/MZikmund.App/WindowShell.xaml` (an `InfoBadge` on `NavAdmin` and `NavAdminComments`, `Value`/`Visibility` bound to the VM via `BoolToVisibilityConverter`)
+- Modify: `src/app/MZikmund.App/WindowShell.xaml.cs` (refresh when the Admin item is expanded/invoked)
+- Modify: `src/app/MZikmund.App/App.xaml.cs` (registration)
 
-**Interfaces:**
-- Consumes: `CommentsModeratorViewModel` and `CommentReportItemViewModel` (10.8), `CommentItemViewModel` (10.2), `PageBase<TViewModel>` (existing), `CommentsExtensions.MarkdownTextBlock` (10.6).
-- Produces: `MZikmund.Views.Admin.CommentsModeratorView : CommentsModeratorViewBase : PageBase<CommentsModeratorViewModel>`. The name is deliberately **not** `CommentsView` — `NavigationService.RegisterViewsFromAssembly` does an unguarded `Add` keyed on the bare type name and two same-named pages would throw at `WindowShell` construction.
+`RefreshAsync` calls `CountNewCommentsAsync(since: CommentsLastSeenOn?.UtcDateTime)` and swallows
+(logs) failures — a badge must never surface an error dialog. No timer, no realtime (spec). Use
+`CommentDisplay.FormatBadgeCount` for the text. Verify that `InfoBadge` renders on desktop/WASM; if
+it does not, fall back to an `MzBadgeAccentStyle` border in the item content and record the gap in
+`C:\Users\Martin\.claude\uno-issues\` per the owner's rules.
 
-- [ ] **Step 1: Create the view XAML.**
-
-Create `src/app/MZikmund.App/Views/Admin/CommentsModeratorView.xaml`:
-
-```xml
-<local:CommentsModeratorViewBase
-    x:Class="MZikmund.Views.Admin.CommentsModeratorView"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="using:MZikmund.Views.Admin"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:md="using:MZikmund.Xaml"
-    xmlns:vmadmin="using:MZikmund.ViewModels.Admin"
-    xmlns:vmitems="using:MZikmund.ViewModels.Items"
-    xmlns:xaml="using:MZikmund.Extensions.Xaml"
-    x:Name="Root"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-    mc:Ignorable="d">
-
-	<Grid Padding="12" RowSpacing="8">
-		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="*" />
-		</Grid.RowDefinitions>
-
-		<TextBlock Style="{ThemeResource TitleTextBlockStyle}" Text="{xaml:Localize Key=Moderation}" />
-
-		<Button
-            Grid.Row="1"
-            Command="{x:Bind ViewModel.RefreshCommand}"
-            Content="{xaml:Localize Key=Refresh}" />
-
-		<!--  Own scroll root: the two repeaters must never see infinite available height.  -->
-		<ScrollViewer Grid.Row="2">
-			<StackPanel Spacing="16">
-				<TextBlock Style="{ThemeResource SubtitleTextBlockStyle}" Text="{xaml:Localize Key=Reports}" />
-
-				<TextBlock
-                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                    Text="{xaml:Localize Key=NoOpenReports}"
-                    Visibility="{x:Bind ViewModel.IsEmptyQueue, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
-
-				<ItemsRepeater ItemsSource="{x:Bind ViewModel.Reports, Mode=OneWay}">
-					<ItemsRepeater.Layout>
-						<StackLayout Spacing="12" />
-					</ItemsRepeater.Layout>
-					<ItemsRepeater.ItemTemplate>
-						<DataTemplate x:DataType="vmadmin:CommentReportItemViewModel">
-							<StackPanel
-                                Padding="12"
-                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                BorderThickness="1"
-                                CornerRadius="{ThemeResource ControlCornerRadius}"
-                                Spacing="6">
-								<StackPanel Orientation="Horizontal" Spacing="8">
-									<TextBlock Style="{ThemeResource BodyStrongTextBlockStyle}" Text="{x:Bind DisplayName}" />
-									<TextBlock
-                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                        Style="{ThemeResource CaptionTextBlockStyle}"
-                                        Text="{x:Bind FirstReportedOnHumanized}" />
-									<TextBlock
-                                        Foreground="{ThemeResource SystemFillColorCriticalBrush}"
-                                        Style="{ThemeResource CaptionTextBlockStyle}"
-                                        Text="{x:Bind ReasonsText}" />
-									<TextBlock
-                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                        Style="{ThemeResource CaptionTextBlockStyle}"
-                                        Text="{x:Bind OpenReportCount}" />
-								</StackPanel>
-
-								<ContentControl HorizontalContentAlignment="Stretch" md:CommentsExtensions.MarkdownTextBlock="{x:Bind Content}" />
-
-								<StackPanel Orientation="Horizontal" Spacing="8">
-									<Button
-                                        Command="{Binding ElementName=Root, Path=ViewModel.HideCommentCommand}"
-                                        CommandParameter="{x:Bind CommentId}"
-                                        Content="{xaml:Localize Key=HideComment}" />
-									<Button
-                                        Command="{Binding ElementName=Root, Path=ViewModel.DeleteCommentCommand}"
-                                        CommandParameter="{x:Bind CommentId}"
-                                        Content="{xaml:Localize Key=Delete}" />
-									<Button
-                                        Command="{Binding ElementName=Root, Path=ViewModel.BanAuthorCommand}"
-                                        CommandParameter="{x:Bind AuthorId}"
-                                        Content="{xaml:Localize Key=BanAuthor}" />
-									<Button
-                                        Command="{Binding ElementName=Root, Path=ViewModel.ResolveReportCommand}"
-                                        CommandParameter="{x:Bind CommentId}"
-                                        Content="{xaml:Localize Key=ResolveReport}" />
-								</StackPanel>
-							</StackPanel>
-						</DataTemplate>
-					</ItemsRepeater.ItemTemplate>
-				</ItemsRepeater>
-
-				<TextBlock Style="{ThemeResource SubtitleTextBlockStyle}" Text="{xaml:Localize Key=RecentComments}" />
-
-				<ItemsRepeater ItemsSource="{x:Bind ViewModel.Feed, Mode=OneWay}">
-					<ItemsRepeater.Layout>
-						<StackLayout Spacing="12" />
-					</ItemsRepeater.Layout>
-					<ItemsRepeater.ItemTemplate>
-						<DataTemplate x:DataType="vmitems:CommentItemViewModel">
-							<StackPanel
-                                Padding="12"
-                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                BorderThickness="1"
-                                CornerRadius="{ThemeResource ControlCornerRadius}"
-                                Spacing="6">
-								<StackPanel Orientation="Horizontal" Spacing="8">
-									<TextBlock Style="{ThemeResource BodyStrongTextBlockStyle}" Text="{x:Bind DisplayName}" />
-									<TextBlock
-                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                        Style="{ThemeResource CaptionTextBlockStyle}"
-                                        Text="{x:Bind CreatedOnHumanized}" />
-								</StackPanel>
-
-								<ContentControl HorizontalContentAlignment="Stretch" md:CommentsExtensions.MarkdownTextBlock="{x:Bind Content}" />
-
-								<StackPanel Orientation="Horizontal" Spacing="8">
-									<Button
-                                        Command="{Binding ElementName=Root, Path=ViewModel.HideCommentCommand}"
-                                        CommandParameter="{x:Bind Id}"
-                                        Content="{xaml:Localize Key=HideComment}" />
-									<Button
-                                        Command="{Binding ElementName=Root, Path=ViewModel.DeleteCommentCommand}"
-                                        CommandParameter="{x:Bind Id}"
-                                        Content="{xaml:Localize Key=Delete}" />
-								</StackPanel>
-							</StackPanel>
-						</DataTemplate>
-					</ItemsRepeater.ItemTemplate>
-				</ItemsRepeater>
-			</StackPanel>
-		</ScrollViewer>
-	</Grid>
-</local:CommentsModeratorViewBase>
-```
-
-- [ ] **Step 2: Create the code-behind (two-class pattern; the base must end in `Base`).**
-
-Create `src/app/MZikmund.App/Views/Admin/CommentsModeratorView.xaml.cs`:
-
-```csharp
-using MZikmund.ViewModels.Admin;
-
-namespace MZikmund.Views.Admin;
-
-public sealed partial class CommentsModeratorView : CommentsModeratorViewBase
-{
-	public CommentsModeratorView() => InitializeComponent();
-}
-
-public partial class CommentsModeratorViewBase : PageBase<CommentsModeratorViewModel>
-{
-}
-```
-
-- [ ] **Step 3: Register the ViewModel in DI.**
-
-In `src/app/MZikmund.App/App.xaml.cs`, inside `ConfigureServices`, add this line immediately after `services.AddScoped<PostsManagerViewModel>();`:
-
-```csharp
-		services.AddScoped<CommentsModeratorViewModel>();
-```
-
-- [ ] **Step 4: Add the navigation item.**
-
-In `src/app/MZikmund.App/WindowShell.xaml`, inside `<mux:NavigationViewItem.MenuItems>` of `AdminNavigationViewItem`, add this element immediately after the `AdminPostsNavigationViewItem` element:
-
-```xml
-                        <mux:NavigationViewItem x:Name="AdminCommentsNavigationViewItem" Content="{extensions:Localize Key=Comments}">
-                            <mux:NavigationViewItem.Icon>
-                                <SymbolIcon Symbol="Comment" />
-                            </mux:NavigationViewItem.Icon>
-                        </mux:NavigationViewItem>
-```
-
-- [ ] **Step 5: Route the navigation item.**
-
-In `src/app/MZikmund.App/WindowShell.xaml.cs`, in `MenuItemInvoked`, add this branch immediately after the `AdminPostsNavigationViewItem` branch:
-
-```csharp
-		else if (args.InvokedItemContainer == AdminCommentsNavigationViewItem)
-		{
-			navigationService.Navigate<CommentsModeratorViewModel>();
-		}
-```
-
-- [ ] **Step 6: Add the English strings.**
-
-Insert immediately before the closing `</root>` in `src/app/MZikmund.App/Strings/en/Resources.resw`:
-
-```xml
-  <data name="Moderation" xml:space="preserve">
-    <value>Moderation</value>
-  </data>
-  <data name="Reports" xml:space="preserve">
-    <value>Reports</value>
-  </data>
-  <data name="NoOpenReports" xml:space="preserve">
-    <value>No open reports.</value>
-  </data>
-  <data name="RecentComments" xml:space="preserve">
-    <value>Recent comments</value>
-  </data>
-  <data name="Refresh" xml:space="preserve">
-    <value>Refresh</value>
-  </data>
-  <data name="HideComment" xml:space="preserve">
-    <value>Hide</value>
-  </data>
-  <data name="ConfirmHideComment" xml:space="preserve">
-    <value>Hide this comment from all readers?</value>
-  </data>
-  <data name="BanAuthor" xml:space="preserve">
-    <value>Ban author</value>
-  </data>
-  <data name="ConfirmBanAuthor" xml:space="preserve">
-    <value>Ban this author from future writes? Existing comments stay visible.</value>
-  </data>
-  <data name="ResolveReport" xml:space="preserve">
-    <value>Dismiss report</value>
-  </data>
-```
-
-- [ ] **Step 7: Add the Czech strings.**
-
-Insert immediately before the closing `</root>` in `src/app/MZikmund.App/Strings/cs/Resources.resw`:
-
-```xml
-  <data name="Moderation" xml:space="preserve">
-    <value>Moderace</value>
-  </data>
-  <data name="Reports" xml:space="preserve">
-    <value>Nahlášení</value>
-  </data>
-  <data name="NoOpenReports" xml:space="preserve">
-    <value>Žádná otevřená nahlášení.</value>
-  </data>
-  <data name="RecentComments" xml:space="preserve">
-    <value>Nedávné komentáře</value>
-  </data>
-  <data name="Refresh" xml:space="preserve">
-    <value>Obnovit</value>
-  </data>
-  <data name="HideComment" xml:space="preserve">
-    <value>Skrýt</value>
-  </data>
-  <data name="ConfirmHideComment" xml:space="preserve">
-    <value>Skrýt tento komentář všem čtenářům?</value>
-  </data>
-  <data name="BanAuthor" xml:space="preserve">
-    <value>Zablokovat autora</value>
-  </data>
-  <data name="ConfirmBanAuthor" xml:space="preserve">
-    <value>Zablokovat autorovi další příspěvky? Stávající komentáře zůstanou viditelné.</value>
-  </data>
-  <data name="ResolveReport" xml:space="preserve">
-    <value>Zamítnout nahlášení</value>
-  </data>
-```
-
-- [ ] **Step 8: Build and confirm no duplicate view name blows up navigation registration.**
-
-```
-dotnet build src/app/MZikmund.App/MZikmund.App.csproj -f net10.0-desktop
-```
-
-Expected: `Build succeeded` with `0 Error(s)`. Then:
-
-```
-dotnet run --project src/app/MZikmund.App/MZikmund.App.csproj -f net10.0-desktop
-```
-
-Expected: the window opens on the Blog page without throwing. (`RegisterViewsFromAssembly` runs in the `WindowShell` constructor; a duplicate `View` type name would throw `System.ArgumentException: An item with the same key has already been added` before anything renders.) Close the window.
-
-- [ ] **Step 9: Format.**
-
-```
-dotnet format MZikmund.slnx
-```
-
-- [ ] **Step 10: Commit.**
-
-```
-git add src/app/MZikmund.App/Views/Admin/CommentsModeratorView.xaml src/app/MZikmund.App/Views/Admin/CommentsModeratorView.xaml.cs src/app/MZikmund.App/WindowShell.xaml src/app/MZikmund.App/WindowShell.xaml.cs src/app/MZikmund.App/App.xaml.cs src/app/MZikmund.App/Strings/en/Resources.resw src/app/MZikmund.App/Strings/cs/Resources.resw
-git commit -m "feat(comments): add CommentsModeratorView and admin navigation entry"
-```
+Commit `feat(app): Show an unread-comments badge in the admin menu`.
 
 ---
-
-### Task 10.10: Unread comments badge and the IsAdmin gating fix
-
-**Files:**
-- Modify: `src/app/MZikmund.App.Core/ViewModels/WindowShellViewModel.cs` (**additive edits only** — Phase 2 Task 2.8's file is the base and must not be regressed)
-- Modify: `src/app/MZikmund.App/WindowShell.xaml` (`AdminNavigationViewItem` `InfoBadge` + the comments sub-item badge)
-- Modify: `src/app/MZikmund.App/WindowShell.xaml.cs` (`WindowShell_Loaded` and `MenuItemInvoked`)
-
-**Interfaces:**
-- Consumes: `IMZikmundApi.CountNewCommentsAsync(DateTime? since = null)` returning `Task<ApiResponse<int>>` (that is the name Phase 7 Task 7.5 declares, and it wins); `IUserService.IsLoggedIn`, `IUserService.IsAdmin`, `IUserService.AuthenticationStateChanged`, `IUserService.SignInAsync(SupabaseSignInProvider)`, `IUserService.SignOutAsync()`, `IUserService.TryRestoreSessionAsync()` — the Phase 2 Task 2.6 surface, which wins over the Auth0-era `AuthenticateAsync()` / `LogoutAsync()` names; `IDialogService.ShowStatusMessageAsync` (existing); `IAppPreferences.CommentsLastSeenOn` (10.8); `CommentDisplay.FormatBadgeCount(int)` (10.1). `WindowShellViewModel.IsAdmin` and the `AdminNavigationViewItem` `IsAdmin` visibility binding are **already produced by Phase 2 Task 2.8** and are consumed here, not redefined.
-- Produces: `WindowShellViewModel.UnreadCommentsCount`, `WindowShellViewModel.UnreadCommentsBadge`, `WindowShellViewModel.HasUnreadComments`, and `Task RefreshUnreadCommentsAsync()` / `void MarkCommentsSeen()`. The constructor gains two parameters and becomes `WindowShellViewModel(IWindowShellProvider provider, INavigationService navigationService, IUserService userService, IDialogService dialogService, IMZikmundApi api, IAppPreferences appPreferences)`.
-
-- [ ] **Step 1: Verify the badge count's JSON shape is already registered.**
-
-Phase 7 Task 7.5 Step 5 already added both registrations under the `// Common types` banner, so there is nothing to add here — only something to confirm, because a missing registration fails at **runtime** with `NotSupportedException`, not at compile time.
-
-```
-git grep -n "JsonSerializable(typeof(int))\|JsonSerializable(typeof(ApiResponse<int>))" -- src/shared/MZikmund.Api/Serialization/MZikmundApiSerializerContext.cs
-```
-
-Expected: exactly two lines,
-
-```
-src/shared/MZikmund.Api/Serialization/MZikmundApiSerializerContext.cs:<n>:[JsonSerializable(typeof(ApiResponse<int>))]
-src/shared/MZikmund.Api/Serialization/MZikmundApiSerializerContext.cs:<n>:[JsonSerializable(typeof(int))]
-```
-
-If either is missing, stop — Phase 7 Task 7.5 is incomplete. Do **not** add a second copy; duplicate `[JsonSerializable]` attributes for the same type are a build error.
-
-- [ ] **Step 2: Extend `WindowShellViewModel` — additive edits, five in order.**
-
-Phase 2 Task 2.8 Step 2 already wrote this file in full, and its contents are load-bearing: the `AuthenticationStateChanged` subscription, the `TryRestoreSessionAsync()` kick-off, `IDialogService`, `IsAdmin`, and the `DispatcherQueue` marshaling in `OnAuthenticationStateChanged`. **Do not replace the file.** Apply exactly these five edits to it.
-
-**Edit 1 — usings.** In `src/app/MZikmund.App.Core/ViewModels/WindowShellViewModel.cs`, replace:
-
-```csharp
-using Microsoft.UI.Dispatching;
-using MZikmund.Models.Dialogs;
-using MZikmund.Services.Account;
-using MZikmund.Services.Dialogs;
-using MZikmund.Services.Navigation;
-using Uno.Disposables;
-```
-
-with:
-
-```csharp
-using Microsoft.UI.Dispatching;
-using MZikmund.Api.Client;
-using MZikmund.Models.Dialogs;
-using MZikmund.Services.Account;
-using MZikmund.Services.Dialogs;
-using MZikmund.Services.Navigation;
-using MZikmund.Services.Preferences;
-using MZikmund.Shared.Blog;
-using Uno.Disposables;
-```
-
-**Edit 2 — fields and constructor.** Replace:
-
-```csharp
-	private readonly IWindowShellProvider _provider;
-	private readonly INavigationService _navigationService;
-	private readonly IUserService _userService;
-	private readonly IDialogService _dialogService;
-	private RefCountDisposable? _refCountDisposable;
-
-	public WindowShellViewModel(
-		IWindowShellProvider provider,
-		INavigationService navigationService,
-		IUserService userService,
-		IDialogService dialogService)
-	{
-		_provider = provider ?? throw new ArgumentNullException(nameof(provider));
-		_navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
-		_userService = userService ?? throw new ArgumentNullException(nameof(userService));
-		_dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
-
-		_userService.AuthenticationStateChanged += OnAuthenticationStateChanged;
-		UpdateAuthenticationState();
-
-		// TryRestoreSessionAsync never throws; it logs and reports false instead.
-		_ = _userService.TryRestoreSessionAsync();
-	}
-```
-
-with:
-
-```csharp
-	private readonly IWindowShellProvider _provider;
-	private readonly INavigationService _navigationService;
-	private readonly IUserService _userService;
-	private readonly IDialogService _dialogService;
-	private readonly IMZikmundApi _api;
-	private readonly IAppPreferences _appPreferences;
-	private RefCountDisposable? _refCountDisposable;
-
-	public WindowShellViewModel(
-		IWindowShellProvider provider,
-		INavigationService navigationService,
-		IUserService userService,
-		IDialogService dialogService,
-		IMZikmundApi api,
-		IAppPreferences appPreferences)
-	{
-		_provider = provider ?? throw new ArgumentNullException(nameof(provider));
-		_navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
-		_userService = userService ?? throw new ArgumentNullException(nameof(userService));
-		_dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
-		_api = api ?? throw new ArgumentNullException(nameof(api));
-		_appPreferences = appPreferences ?? throw new ArgumentNullException(nameof(appPreferences));
-
-		_userService.AuthenticationStateChanged += OnAuthenticationStateChanged;
-		UpdateAuthenticationState();
-
-		// TryRestoreSessionAsync never throws; it logs and reports false instead.
-		_ = _userService.TryRestoreSessionAsync();
-	}
-```
-
-**Edit 3 — the badge properties.** Immediately after the `IsAdmin` property (the one carrying the "Gets a value indicating whether the signed-in user is an administrator" doc comment), insert:
-
-```csharp
-
-	[ObservableProperty]
-	[NotifyPropertyChangedFor(nameof(UnreadCommentsBadge))]
-	[NotifyPropertyChangedFor(nameof(HasUnreadComments))]
-	public partial int UnreadCommentsCount { get; set; }
-
-	public string UnreadCommentsBadge => CommentDisplay.FormatBadgeCount(UnreadCommentsCount);
-
-	public bool HasUnreadComments => UnreadCommentsCount > 0;
-```
-
-**Edit 4 — refresh after sign-in, clear after sign-out.** Replace:
-
-```csharp
-		UpdateAuthenticationState();
-	}
-
-	[RelayCommand]
-	private async Task LogoutAsync()
-	{
-		await _userService.SignOutAsync();
-		UpdateAuthenticationState();
-		_navigationService.Navigate<BlogViewModel>();
-	}
-```
-
-with:
-
-```csharp
-		UpdateAuthenticationState();
-		await RefreshUnreadCommentsAsync();
-	}
-
-	[RelayCommand]
-	private async Task LogoutAsync()
-	{
-		await _userService.SignOutAsync();
-		UpdateAuthenticationState();
-		UnreadCommentsCount = 0;
-		_navigationService.Navigate<BlogViewModel>();
-	}
-```
-
-**Edit 5 — the two new public methods.** Immediately after `UpdateAuthenticationState()` (the private method that assigns `IsLoggedIn` and `IsAdmin`) and before `public IDisposable BeginLoading()`, insert:
-
-```csharp
-
-	public async Task RefreshUnreadCommentsAsync()
-	{
-		// The endpoint carries an Authorization header; the token getter throws when signed out.
-		if (!_userService.IsLoggedIn || !_userService.IsAdmin)
-		{
-			UnreadCommentsCount = 0;
-			return;
-		}
-
-		try
-		{
-			var since = _appPreferences.CommentsLastSeenOn?.UtcDateTime;
-			var response = await _api.CountNewCommentsAsync(since);
-			await response.EnsureSuccessfulAsync();
-			UnreadCommentsCount = response.Content;
-		}
-		catch (Exception)
-		{
-			// A badge is not worth a dialog; leave the previous value alone.
-		}
-	}
-
-	public void MarkCommentsSeen()
-	{
-		_appPreferences.CommentsLastSeenOn = DateTimeOffset.UtcNow;
-		UnreadCommentsCount = 0;
-	}
-```
-
-- [ ] **Step 2b: Confirm nothing from Phase 2 was lost.**
-
-```
-git grep -n "AuthenticationStateChanged\|TryRestoreSessionAsync\|_dialogService\|DispatcherQueue" -- src/app/MZikmund.App.Core/ViewModels/WindowShellViewModel.cs
-```
-
-Expected: at least six lines — the `_dialogService` field, its constructor assignment and its use in `LoginAsync`; the `AuthenticationStateChanged += OnAuthenticationStateChanged` subscription; the `_ = _userService.TryRestoreSessionAsync();` call; and the `_provider.DispatcherQueue` uses in both `OnAuthenticationStateChanged` and `BeginLoading`. If any is missing, the file was replaced instead of extended — restore it from Phase 2 Task 2.8 and re-apply the five edits above.
-
-**Reference — the file after Step 2, in full**, so the edits can be checked against a known-good result:
-
-```csharp
-using Microsoft.UI.Dispatching;
-using MZikmund.Api.Client;
-using MZikmund.Models.Dialogs;
-using MZikmund.Services.Account;
-using MZikmund.Services.Dialogs;
-using MZikmund.Services.Navigation;
-using MZikmund.Services.Preferences;
-using MZikmund.Shared.Blog;
-using Uno.Disposables;
-
-namespace MZikmund.ViewModels;
-
-public partial class WindowShellViewModel : ViewModelBase
-{
-	private readonly IWindowShellProvider _provider;
-	private readonly INavigationService _navigationService;
-	private readonly IUserService _userService;
-	private readonly IDialogService _dialogService;
-	private readonly IMZikmundApi _api;
-	private readonly IAppPreferences _appPreferences;
-	private RefCountDisposable? _refCountDisposable;
-
-	public WindowShellViewModel(
-		IWindowShellProvider provider,
-		INavigationService navigationService,
-		IUserService userService,
-		IDialogService dialogService,
-		IMZikmundApi api,
-		IAppPreferences appPreferences)
-	{
-		_provider = provider ?? throw new ArgumentNullException(nameof(provider));
-		_navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
-		_userService = userService ?? throw new ArgumentNullException(nameof(userService));
-		_dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
-		_api = api ?? throw new ArgumentNullException(nameof(api));
-		_appPreferences = appPreferences ?? throw new ArgumentNullException(nameof(appPreferences));
-
-		_userService.AuthenticationStateChanged += OnAuthenticationStateChanged;
-		UpdateAuthenticationState();
-
-		// TryRestoreSessionAsync never throws; it logs and reports false instead.
-		_ = _userService.TryRestoreSessionAsync();
-	}
-
-	public string Title { get; set; } = "Martin Zikmund";
-
-	[ObservableProperty]
-	public partial bool IsLoading { get; set; }
-
-	[ObservableProperty]
-	public partial string LoadingStatusMessage { get; set; } = "";
-
-	[ObservableProperty]
-	public partial bool IsLoggedIn { get; set; }
-
-	/// <summary>
-	/// Gets a value indicating whether the signed-in user is an administrator. The Admin navigation
-	/// section binds to this and NOT to <see cref="IsLoggedIn"/> - with Supabase every commenter
-	/// signs in, so an IsLoggedIn gate would expose the moderation UI to every reader.
-	/// </summary>
-	[ObservableProperty]
-	public partial bool IsAdmin { get; set; }
-
-	[ObservableProperty]
-	[NotifyPropertyChangedFor(nameof(UnreadCommentsBadge))]
-	[NotifyPropertyChangedFor(nameof(HasUnreadComments))]
-	public partial int UnreadCommentsCount { get; set; }
-
-	public string UnreadCommentsBadge => CommentDisplay.FormatBadgeCount(UnreadCommentsCount);
-
-	public bool HasUnreadComments => UnreadCommentsCount > 0;
-
-	[RelayCommand]
-	private async Task LoginAsync()
-	{
-		try
-		{
-			await _userService.SignInAsync(SupabaseSignInProvider.Google);
-		}
-		catch (Exception ex)
-		{
-			await _dialogService.ShowStatusMessageAsync(
-				StatusMessageDialogType.Error,
-				"Could not sign in",
-				$"Sign-in did not complete. {ex.Message}");
-		}
-
-		UpdateAuthenticationState();
-		await RefreshUnreadCommentsAsync();
-	}
-
-	[RelayCommand]
-	private async Task LogoutAsync()
-	{
-		await _userService.SignOutAsync();
-		UpdateAuthenticationState();
-		UnreadCommentsCount = 0;
-		_navigationService.Navigate<BlogViewModel>();
-	}
-
-	private void OnAuthenticationStateChanged(object? sender, EventArgs e)
-	{
-#if __WASM__
-		UpdateAuthenticationState();
-#else
-		if (_provider.DispatcherQueue.HasThreadAccess)
-		{
-			UpdateAuthenticationState();
-		}
-		else
-		{
-			_provider.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Normal, UpdateAuthenticationState);
-		}
-#endif
-	}
-
-	private void UpdateAuthenticationState()
-	{
-		IsLoggedIn = _userService.IsLoggedIn;
-		IsAdmin = _userService.IsAdmin;
-	}
-
-	public async Task RefreshUnreadCommentsAsync()
-	{
-		// The endpoint carries an Authorization header; the token getter throws when signed out.
-		if (!_userService.IsLoggedIn || !_userService.IsAdmin)
-		{
-			UnreadCommentsCount = 0;
-			return;
-		}
-
-		try
-		{
-			var since = _appPreferences.CommentsLastSeenOn?.UtcDateTime;
-			var response = await _api.CountNewCommentsAsync(since);
-			await response.EnsureSuccessfulAsync();
-			UnreadCommentsCount = response.Content;
-		}
-		catch (Exception)
-		{
-			// A badge is not worth a dialog; leave the previous value alone.
-		}
-	}
-
-	public void MarkCommentsSeen()
-	{
-		_appPreferences.CommentsLastSeenOn = DateTimeOffset.UtcNow;
-		UnreadCommentsCount = 0;
-	}
-
-	public IDisposable BeginLoading()
-	{
-		LoadingStatusMessage = "";
-		if (_refCountDisposable != null && !_refCountDisposable.IsDisposed)
-		{
-			return _refCountDisposable.GetDisposable();
-		}
-
-		IsLoading = true;
-		_refCountDisposable = new RefCountDisposable(Disposable.Create(
-			() => // TODO: Await TryEnequeAsync
-			{
-#if __WASM__
-				IsLoading = false;
-				return;
-#else
-				if (_provider.DispatcherQueue.HasThreadAccess)
-				{
-					IsLoading = false;
-				}
-				else
-				{
-					_provider.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Normal, () =>
-					{
-						if (_refCountDisposable == null || _refCountDisposable.IsDisposed)
-						{
-							IsLoading = false;
-						}
-					});
-				}
-#endif
-			}));
-		return _refCountDisposable;
-	}
-
-	public void BackRequested() => _navigationService.GoBack();
-}
-```
-
-- [ ] **Step 3: Add the badge to the Admin section.**
-
-In `src/app/MZikmund.App/WindowShell.xaml`, replace the opening tag of `AdminNavigationViewItem` — Phase 2 Task 2.8 Step 3 already rebound it from `ViewModel.IsLoggedIn` to `ViewModel.IsAdmin`, so the binding below is unchanged and only the `InfoBadge` is new — with:
-
-```xml
-                <mux:NavigationViewItem x:Name="AdminNavigationViewItem" Content="{extensions:Localize Key=Admin}" Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <mux:NavigationViewItem.InfoBadge>
-                        <mux:InfoBadge Value="{x:Bind ViewModel.UnreadCommentsCount, Mode=OneWay}" Visibility="{x:Bind ViewModel.HasUnreadComments, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
-                    </mux:NavigationViewItem.InfoBadge>
-```
-
-(Leave the existing `<mux:NavigationViewItem.Icon>`, `<mux:NavigationViewItem.MenuItems>` and closing tag exactly as they are.)
-
-Then add the same badge to the comments sub-item — replace the `AdminCommentsNavigationViewItem` element added in Task 10.9 with:
-
-```xml
-                        <mux:NavigationViewItem x:Name="AdminCommentsNavigationViewItem" Content="{extensions:Localize Key=Comments}">
-                            <mux:NavigationViewItem.Icon>
-                                <SymbolIcon Symbol="Comment" />
-                            </mux:NavigationViewItem.Icon>
-                            <mux:NavigationViewItem.InfoBadge>
-                                <mux:InfoBadge Value="{x:Bind ViewModel.UnreadCommentsCount, Mode=OneWay}" Visibility="{x:Bind ViewModel.HasUnreadComments, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
-                            </mux:NavigationViewItem.InfoBadge>
-                        </mux:NavigationViewItem>
-```
-
-- [ ] **Step 4: Refresh on launch.**
-
-In `src/app/MZikmund.App/WindowShell.xaml.cs`, replace `WindowShell_Loaded` with:
-
-```csharp
-	private async void WindowShell_Loaded(object sender, RoutedEventArgs e)
-	{
-		SetTitlebarColors();
-
-		try
-		{
-			await ViewModel.RefreshUnreadCommentsAsync();
-		}
-		catch (Exception)
-		{
-			// The badge is best-effort; never crash the shell over it.
-		}
-	}
-```
-
-- [ ] **Step 5: Refresh on navigation into the admin section, and clear on the comments page.**
-
-In `src/app/MZikmund.App/WindowShell.xaml.cs`, replace the `AdminCommentsNavigationViewItem` branch added in Task 10.9 with:
-
-```csharp
-		else if (args.InvokedItemContainer == AdminCommentsNavigationViewItem)
-		{
-			ViewModel.MarkCommentsSeen();
-			navigationService.Navigate<CommentsModeratorViewModel>();
-		}
-```
-
-and add this branch immediately after it:
-
-```csharp
-		else if (args.InvokedItemContainer == AdminNavigationViewItem)
-		{
-			await ViewModel.RefreshUnreadCommentsAsync();
-			return;
-		}
-```
-
-- [ ] **Step 6: Build for desktop and Windows.**
-
-```
-dotnet build src/app/MZikmund.App/MZikmund.App.csproj -f net10.0-desktop
-```
-
-Expected: `Build succeeded` with `0 Error(s)`. Then:
-
-```
-dotnet build src/app/MZikmund.App/MZikmund.App.csproj -f net10.0-windows10.0.26100
-```
-
-Expected: `Build succeeded` with `0 Error(s)`.
-
-- [ ] **Step 7: Verify the security fix by inspection.**
-
-```
-git grep -n "AdminNavigationViewItem" -- src/app/MZikmund.App/WindowShell.xaml
-```
-
-Expected: the matching line contains `Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay, ...` and **not** `ViewModel.IsLoggedIn`. If it still says `IsLoggedIn`, every signed-in reader sees the moderation UI.
-
-- [ ] **Step 8: Format.**
-
-```
-dotnet format MZikmund.slnx
-```
-
-- [ ] **Step 9: Commit.**
-
-```
-git add src/app/MZikmund.App.Core/ViewModels/WindowShellViewModel.cs src/app/MZikmund.App/WindowShell.xaml src/app/MZikmund.App/WindowShell.xaml.cs
-git commit -m "feat(comments): add unread comments badge to the admin navigation"
-```
-
----
-
-### Task 10.11: NuGet.config for the CommunityToolkit Labs feed and the CPM entry
-
-**Files:**
-- Create: `NuGet.config` (repository root — none exists today; verified)
-- Modify: `src/Directory.Packages.props` (under the `<!-- Uno -->` comment block)
-- Modify: `src/app/MZikmund.App/MZikmund.App.csproj` (new TFM-conditioned `ItemGroup`)
-- Modify: `CLAUDE.md` (stale Uno.Sdk version)
-
-**Interfaces:**
-- Consumes: nothing from earlier tasks.
-- Produces: package `CommunityToolkit.Labs.WinUI.Controls.MarkdownTextBlock` version `0.1.260617-build.2640` resolvable on `net10.0-windows10.0.26100` only, giving Task 10.12 the type `CommunityToolkit.WinUI.Controls.MarkdownTextBlock`.
-
-- [ ] **Step 1: Confirm there is no NuGet.config today.**
-
-```
-git ls-files -- "NuGet.config" "nuget.config" "NuGet.Config"
-```
-
-Expected: no output at all.
-
-- [ ] **Step 2: Create the repository-root `NuGet.config`.**
-
-Create `NuGet.config` at the repository root:
-
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<configuration>
-	<!--
-    There is deliberately NO <clear /> here. The machine-global config on the dev machine
-    supplies additional sources (an Uno internal feed and a local folder feed) and clearing
-    them would break local builds. CI has only nuget.org, which is why it is listed
-    explicitly alongside the Labs feed.
-    NU1507 (multiple sources under Central Package Management without source mapping) is
-    already suppressed in src/Directory.Build.props, so the extra source produces no warning.
-  -->
-	<packageSources>
-		<add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />
-		<add key="CommunityToolkit-Labs" value="https://pkgs.dev.azure.com/dotnet/CommunityToolkit/_packaging/CommunityToolkit-Labs/nuget/v3/index.json" />
-	</packageSources>
-</configuration>
-```
-
-- [ ] **Step 3: Add the central package version.**
-
-In `src/Directory.Packages.props`, add this line immediately after `<PackageVersion Include="Xamarin.Google.Android.Material" Version="1.13.0.1" />`:
-
-```xml
-    <PackageVersion Include="CommunityToolkit.Labs.WinUI.Controls.MarkdownTextBlock" Version="0.1.260617-build.2640" />
-```
-
-Never put a `Condition` on a `PackageVersion` entry — only the `PackageReference` is conditioned.
-
-- [ ] **Step 4: Add the Windows-only package reference.**
-
-In `src/app/MZikmund.App/MZikmund.App.csproj`, add this `ItemGroup` immediately after the existing `ItemGroup` that holds `CommunityToolkit.WinUI.Converters`:
-
-```xml
-	<!--
-    Windows only. The Labs package's nuspec declares dependency groups for
-    net8.0-windows10.0.19041 and net9.0-windows10.0.19041 only, and the control is built on
-    RichTextBlock, which Uno has not implemented on any other head.
-  -->
-	<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
-		<PackageReference Include="CommunityToolkit.Labs.WinUI.Controls.MarkdownTextBlock" />
-	</ItemGroup>
-```
-
-- [ ] **Step 5: Restore the Windows head and confirm the package resolves from the new feed.**
-
-```
-dotnet restore src/app/MZikmund.App/MZikmund.App.csproj
-```
-
-Expected: `Restored ...MZikmund.App.csproj`, with no `NU1101` (unable to find package) and no `NU1605` (downgrade). Then confirm it landed:
-
-```
-dotnet nuget locals global-packages --list
-```
-
-followed by (substituting the printed path for `%USERPROFILE%\.nuget\packages` if different):
-
-```
-Get-ChildItem "$env:USERPROFILE\.nuget\packages\communitytoolkit.labs.winui.controls.markdowntextblock"
-```
-
-Expected: a directory named `0.1.260617-build.2640`.
-
-- [ ] **Step 6: Confirm the four non-Windows heads did not pick the package up.**
-
-```
-dotnet build src/app/MZikmund.App/MZikmund.App.csproj -f net10.0-browserwasm
-```
-
-Expected: `Build succeeded` with `0 Error(s)`. A `NU1202` (package not compatible) here would mean the condition in Step 4 is wrong.
-
-- [ ] **Step 7: Correct the stale SDK version in the repository guidance.**
-
-In `CLAUDE.md`, in the "Package and Build Configuration" section, replace
-
-`- **SDK**: .NET 10.0.100 exact (`global.json`), Uno.Sdk 6.5.0-dev.31.`
-
-with
-
-`- **SDK**: .NET 10.0.100 exact (`global.json`), Uno.Sdk 6.7.0-dev.48.`
-
-- [ ] **Step 8: Commit.**
-
-```
-git add NuGet.config src/Directory.Packages.props src/app/MZikmund.App/MZikmund.App.csproj CLAUDE.md
-git commit -m "build(comments): add CommunityToolkit Labs feed and MarkdownTextBlock package"
-```
-
----
-
-### Task 10.12: Windows markdown rendering via #if WINDOWS code-behind
-
-**Files:**
-- Modify: `src/app/MZikmund.App/Xaml/CommentsExtensions.cs` (whole file rewritten below)
-
-**Interfaces:**
-- Consumes: `CommunityToolkit.Labs.WinUI.Controls.MarkdownTextBlock` package (10.11); the `CommentsExtensions.MarkdownTextBlock` attached property already consumed by `CommentsView.xaml` (10.6) and `CommentsModeratorView.xaml` (10.9), so no XAML changes are needed here.
-- Produces: comment bodies rendered as real markdown on `net10.0-windows10.0.26100` and as Markdig-flattened plain text on the other four heads.
-
-- [ ] **Step 1: Read the shipped API surface before writing against it.**
-
-```
-Expand-Archive -Path "$env:USERPROFILE\.nuget\packages\communitytoolkit.labs.winui.controls.markdowntextblock\0.1.260617-build.2640\communitytoolkit.labs.winui.controls.markdowntextblock.0.1.260617-build.2640.nupkg" -DestinationPath "$env:TEMP\mdtb" -Force
-```
-
-then
-
-```
-Select-String -Path "$env:TEMP\mdtb\lib\*\*.xml" -Pattern '<member name="[PE]:CommunityToolkit' | Select-Object -ExpandProperty Line
-```
-
-Expected: a list of member entries including `<member name="P:CommunityToolkit.WinUI.Controls.MarkdownTextBlock.Text">`. The CLR namespace is `CommunityToolkit.WinUI.Controls`, **not** `CommunityToolkit.Labs.*`. Only use members that appear in this output; the code in Step 2 deliberately sets `Text` and nothing else.
-
-- [ ] **Step 2: Rewrite the attached property with the Windows branch.**
-
-Replace the entire contents of `src/app/MZikmund.App/Xaml/CommentsExtensions.cs` with:
-
-```csharp
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-
-namespace MZikmund.Xaml;
-
-/// <summary>
-/// Renders a comment body into a <see cref="ContentControl"/> placeholder.
-/// The element cannot live in shared XAML: Uno single-project XAML compiles once for all
-/// five target frameworks, so a Windows-only control in a shared DataTemplate breaks the
-/// four non-Windows heads at build time. Non-Windows heads render Markdig-flattened plain
-/// text until Uno implements RichTextBlock.
-/// </summary>
-public static class CommentsExtensions
-{
-	public static readonly DependencyProperty MarkdownTextBlockProperty =
-		DependencyProperty.RegisterAttached(
-			"MarkdownTextBlock",
-			typeof(string),
-			typeof(CommentsExtensions),
-			new PropertyMetadata(null, OnMarkdownTextBlockChanged));
-
-	public static string? GetMarkdownTextBlock(DependencyObject obj) =>
-		(string?)obj.GetValue(MarkdownTextBlockProperty);
-
-	public static void SetMarkdownTextBlock(DependencyObject obj, string? value) =>
-		obj.SetValue(MarkdownTextBlockProperty, value);
-
-	private static void OnMarkdownTextBlockChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-	{
-		if (d is not ContentControl host)
-		{
-			return;
-		}
-
-		var markdown = e.NewValue as string ?? "";
-
-		// ItemsRepeater recycles containers, so always rebuild rather than mutate.
-#if WINDOWS
-		host.Content = new CommunityToolkit.WinUI.Controls.MarkdownTextBlock
-		{
-			Text = markdown
-		};
-#else
-		host.Content = new TextBlock
-		{
-			Text = Markdig.Markdown.ToPlainText(markdown),
-			TextWrapping = TextWrapping.Wrap,
-			IsTextSelectionEnabled = true
-		};
-#endif
-	}
-}
-```
-
-- [ ] **Step 3: Build the Windows head.**
-
-```
-dotnet build src/app/MZikmund.App/MZikmund.App.csproj -f net10.0-windows10.0.26100
-```
-
-Expected: `Build succeeded` with `0 Error(s)`. A `CS0246` on `MarkdownTextBlock` means the namespace from Step 1 differs; use the namespace that actually appeared in that output.
-
-- [ ] **Step 4: Build every non-Windows head to prove the shared XAML still compiles.**
-
-```
-dotnet build src/app/MZikmund.App/MZikmund.App.csproj -f net10.0-desktop
-```
-
-```
-dotnet build src/app/MZikmund.App/MZikmund.App.csproj -f net10.0-browserwasm
-```
-
-```
-dotnet build src/app/MZikmund.App/MZikmund.App.csproj -f net10.0-android
-```
-
-Expected for each: `Build succeeded` with `0 Error(s)`.
-
-- [ ] **Step 5: Markdig version smoke check — the specific risk of this package.**
-
-Central Package Management pins `Markdig 0.45.0` in `src/Directory.Packages.props`, while the Labs control declares `Markdig 0.38.0`. The central version wins, so the control runs against a Markdig it was never compiled against. First confirm which version actually resolved:
-
-```
-dotnet list src/app/MZikmund.App/MZikmund.App.csproj package --include-transitive --framework net10.0-windows10.0.26100
-```
-
-Expected: a `Markdig` row showing `0.45.0` and **not** `0.38.0`.
-
-- [ ] **Step 6: Markdig runtime smoke check.**
-
-```
-dotnet run --project src/app/MZikmund.App/MZikmund.App.csproj -f net10.0-windows10.0.26100
-```
-
-In the running app: sign in, open any post, switch to the **Comments** tab, and post this exact comment body:
-
-```
-**bold** and *italic* and `code`
-
-- first item
-- second item
-
-> quoted line
-
-[link](https://mzikmund.dev)
-```
-
-Expected: the posted comment renders with a bold run, an italic run, a monospaced `code` run, a two-item bullet list, an indented quote, and a clickable link. A `System.MissingMethodException`, `System.TypeLoadException`, or `System.MissingFieldException` naming a `Markdig.*` type is the CPM-forced-upgrade failure this step exists to catch; if it appears, pin `Markdig` for the Windows head by adding `<PackageVersion Include="Markdig" Version="0.38.0" />`-scoped overrides is **not** possible under CPM — instead report the incompatibility and fall back to the `#else` plain-text branch on Windows too by changing `#if WINDOWS` to `#if false`.
-
-- [ ] **Step 7: Confirm the non-Windows fallback still reads correctly.**
-
-```
-dotnet run --project src/app/MZikmund.App/MZikmund.App.csproj -f net10.0-desktop
-```
-
-Open the same post and the same Comments tab. Expected: the same comment appears as flat, wrapped, selectable text with the markdown syntax characters stripped (no `**`, no backticks) and no crash. Links are not clickable on this head — that is the accepted v1 limitation until Uno ships `RichTextBlock`.
-
-- [ ] **Step 8: Format.**
-
-```
-dotnet format MZikmund.slnx
-```
-
-- [ ] **Step 9: Commit.**
-
-```
-git add src/app/MZikmund.App/Xaml/CommentsExtensions.cs
-git commit -m "feat(comments): render comment markdown with MarkdownTextBlock on Windows"
-```
-
----
-
 ## Phase 11: Privacy Policy and Dark Launch
 
 This phase ships the site's **first real privacy policy** (`Pages/Privacy.cshtml` is still the verbatim ASP.NET template stub), makes it reachable from the web footer, the comment composer and the app, and then dark-launches the comments feature behind `Comments:Enabled`.
@@ -26090,7 +20903,7 @@ This phase ships the site's **first real privacy policy** (`Pages/Privacy.cshtml
 The spec (lines 366-374) enumerates the disclosures the policy must carry. No test project in this repo hosts Razor — `MZikmund.Web.Core.Tests` tests handlers, `MZikmund.Web.Tests` tests controllers with Moq, and neither renders a page — so the checklist is a scratchpad script that greps the rendered source. It must fail before the page is written.
 
 **Files:**
-- Create: `C:/Users/Martin/AppData/Local/Temp/claude/D--Personal-mzikmund/876f8c04-94e6-4eda-91de-cdf93d49d494/scratchpad/check-privacy.sh` (not a repo file — do not commit it)
+- Create: `$SCRATCH/check-privacy.sh` (not a repo file — do not commit it)
 - Test: same file (it *is* the test)
 
 **Interfaces:**
@@ -26099,7 +20912,7 @@ The spec (lines 366-374) enumerates the disclosures the policy must carry. No te
 
 - [ ] **Step 1: Write the checklist script**
 
-Write this to `C:/Users/Martin/AppData/Local/Temp/claude/D--Personal-mzikmund/876f8c04-94e6-4eda-91de-cdf93d49d494/scratchpad/check-privacy.sh`:
+Write this to `$SCRATCH/check-privacy.sh`:
 
 ```bash
 #!/usr/bin/env bash
@@ -26152,7 +20965,7 @@ exit $fail
 - [ ] **Step 2: Run it and watch it fail**
 
 ```bash
-bash "C:/Users/Martin/AppData/Local/Temp/claude/D--Personal-mzikmund/876f8c04-94e6-4eda-91de-cdf93d49d494/scratchpad/check-privacy.sh"; echo "exit=$?"
+bash "$SCRATCH/check-privacy.sh"; echo "exit=$?"
 ```
 
 Exact expected output:
@@ -26191,6 +21004,13 @@ Expected output: *(empty)*
 ---
 
 ### Task 11.2: Write the privacy policy
+
+> **Review correction (2026-10-14):** Section 8 must be true: the site injects the Application Insights JS snippet
+> when `APPLICATIONINSIGHTS_CONNECTION_STRING` is set (`_Layout.cshtml`/`Program.cs`), which sets
+> `ai_user`/`ai_session` cookies, and post bodies can embed YouTube iframes (no `youtube-nocookie`).
+> Disclose both (or change them in a separate, owner-approved task), and extend the Task 11.1 checklist
+> with a `require` line for each. The Uno app section must describe the app's own session storage (app
+> preferences, not `mz-auth` local storage).
 
 **Files:**
 - Modify: `src/web/MZikmund.Web/Pages/Privacy.cshtml` (entire file replaced)
@@ -26433,7 +21253,7 @@ public class PrivacyModel : PageModel
 - [ ] **Step 4: Run the checklist to green**
 
 ```bash
-bash "C:/Users/Martin/AppData/Local/Temp/claude/D--Personal-mzikmund/876f8c04-94e6-4eda-91de-cdf93d49d494/scratchpad/check-privacy.sh"; echo "exit=$?"
+bash "$SCRATCH/check-privacy.sh"; echo "exit=$?"
 ```
 
 Exact expected output:
@@ -26489,7 +21309,7 @@ Nothing on the site links to `/privacy` today — not the header nav (`_Layout.c
 **Files:**
 - Modify: `src/web/MZikmund.Web/Pages/Shared/_Layout.cshtml` (the `<div class="site-footer__meta">` block, line 165)
 - Modify: `src/web/MZikmund.Web/Pages/Blog/_Comments.cshtml` (one line inserted directly after the `<button type="submit" class="btn btn--accent" data-comment-submit>` line created by Phase 9 Task 9.4 Step 1)
-- Modify: `src/app/MZikmund.App/Views/SettingsView.xaml` (root `Grid`)
+- Modify: `src/app/MZikmund.App/Views/SettingsView.xaml` (About section)
 - Modify: `src/app/MZikmund.App/Strings/en/Resources.resw`, `src/app/MZikmund.App/Strings/cs/Resources.resw` (append one `<data>` entry each, before `</root>`)
 - Delete: `src/web/MZikmund.Web/Pages/Shared/_CookieConsentPartial.cshtml`
 
@@ -26542,86 +21362,31 @@ grep -n "privacy policy" "D:/Personal/mzikmund/.claude/worktrees/comments/src/we
 
 Expected: exactly one match, containing `asp-page="/Privacy"`.
 
-- [ ] **Step 3: Add the resource string (English)**
+- [ ] **Step 3: Add the resource strings**
 
-In `src/app/MZikmund.App/Strings/en/Resources.resw`, replace the final three lines:
+Add `PrivacyPolicy` to both `.resw` files, immediately before `</root>` (the last entry today is
+`PickCategories`; the files have no trailing newline — keep it that way):
+`en` → `Privacy policy`, `cs` → `Zásady ochrany osobních údajů`. Use the same
+`<data name="…" xml:space="preserve"><value>…</value></data>` shape as the neighbouring entries.
 
-```xml
-  <data name="OpenPreview" xml:space="preserve">
-    <value>Open preview</value>
-  </data>
-</root>
-```
+- [ ] **Step 4: Confirm the key does not already exist**
 
-with:
-
-```xml
-  <data name="OpenPreview" xml:space="preserve">
-    <value>Open preview</value>
-  </data>
-  <data name="PrivacyPolicy" xml:space="preserve">
-    <value>Privacy policy</value>
-  </data>
-</root>
-```
-
-- [ ] **Step 4: Add the resource string (Czech)**
-
-In `src/app/MZikmund.App/Strings/cs/Resources.resw`, replace the final three lines:
-
-```xml
-  <data name="OpenPreview" xml:space="preserve">
-    <value>Otevřít náhled</value>
-  </data>
-</root>
-```
-
-with:
-
-```xml
-  <data name="OpenPreview" xml:space="preserve">
-    <value>Otevřít náhled</value>
-  </data>
-  <data name="PrivacyPolicy" xml:space="preserve">
-    <value>Zásady ochrany osobních údajů</value>
-  </data>
-</root>
-```
+`grep -c 'name="PrivacyPolicy"' src/app/MZikmund.App/Strings/*/Resources.resw` → `1` per file.
 
 - [ ] **Step 5: Link the policy from the app's Settings page**
 
-In `src/app/MZikmund.App/Views/SettingsView.xaml`, replace:
+In `src/app/MZikmund.App/Views/SettingsView.xaml`, inside the About `StackPanel Spacing="4"`, after the
+`SourceCode` card, add (same shape as the Website/RSS/Source cards):
 
 ```xml
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
-```
-
-with:
-
-```xml
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
-```
-
-Then replace:
-
-```xml
-        <TextBlock Grid.Row="2" Text="{x:Bind ViewModel.Version, Mode=OneWay}" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-```
-
-with:
-
-```xml
-        <TextBlock Grid.Row="2" Text="{x:Bind ViewModel.Version, Mode=OneWay}" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-        <HyperlinkButton Grid.Row="3" Margin="0,8,0,0" Padding="0" Content="{extensions:Localize Key=PrivacyPolicy}" NavigateUri="https://mzikmund.dev/privacy" />
+                    <controls:MzSettingsCard Glyph="{StaticResource MzGlyphShield}" Header="{extensions:Localize Key=PrivacyPolicy}">
+                        <Button
+                            AutomationProperties.AutomationId="SettingsPrivacy"
+                            Command="{x:Bind ViewModel.OpenLinkCommand}"
+                            CommandParameter="https://mzikmund.dev/privacy"
+                            Content="mzikmund.dev/privacy"
+                            Style="{StaticResource MzStandardButtonSmallStyle}" />
+                    </controls:MzSettingsCard>
 ```
 
 - [ ] **Step 6: Delete the 0-byte cookie-consent orphan**
@@ -26688,62 +21453,30 @@ git -C "D:/Personal/mzikmund/.claude/worktrees/comments" commit -m "feat: Link t
 
 ---
 
-### Task 11.4: Verify the CLAUDE.md Uno.Sdk correction landed
+### Task 11.4: Correct the stale dev URL in `CLAUDE.md`
 
-`CLAUDE.md` line 127 originally claimed `Uno.Sdk 6.5.0-dev.31` while `global.json` pins
-`6.7.0-dev.48`. **Phase 10 Task 10.11 Step 7 already fixes it** — this task only proves it stuck, so
-the release does not ship documentation that lies to the next engineer (or the next agent).
-
-Do **not** attempt the replacement here: Phase 10 runs first, so the `6.5.0-dev.31` anchor no longer
-exists and the edit would match nothing while a `git commit` found nothing to commit.
+Rewritten 2026-10-14. The Uno.Sdk correction this task used to verify is obsolete: `CLAUDE.md` already
+names `Uno.Sdk 7.0.0-dev.75` (matching `global.json`). What is still wrong is the web dev URL.
 
 **Files:**
-- Modify: none (verification only)
+- Modify: `CLAUDE.md`
 
-**Interfaces:**
-- Consumes: the `CLAUDE.md` SDK-bullet correction from Phase 10 Task 10.11 Step 7.
-- Produces: nothing consumed by later tasks.
-
-- [ ] **Step 1: Confirm the pinned version is what we claim**
-
-```bash
-grep -n "Uno.Sdk" "D:/Personal/mzikmund/.claude/worktrees/comments/global.json"
-```
-
-Exact expected output:
-
-```
-7:    "Uno.Sdk": "6.7.0-dev.48"
-```
-
-- [ ] **Step 2: Confirm CLAUDE.md now agrees**
-
-```bash
-grep -n "Uno.Sdk" "D:/Personal/mzikmund/.claude/worktrees/comments/CLAUDE.md"
-```
-
-Expected output — one line, naming `6.7.0-dev.48`:
-
-```
-127:- **SDK**: .NET 10.0.100 exact (`global.json`), Uno.Sdk 6.7.0-dev.48.
-```
-
-If this still says `6.5.0-dev.31`, Phase 10 Task 10.11 Step 7 was skipped. Go and apply it there
-rather than patching it here, so the correction stays in one place.
-
-- [ ] **Step 3: Verify no stale mention survives anywhere in the repo**
-
-```bash
-grep -rn "6.5.0-dev" "D:/Personal/mzikmund/.claude/worktrees/comments" --include=*.md; echo "exit=$?"
-```
-
-Expected output: `exit=1` (no matches).
-
-There is nothing to commit in this task.
+- [ ] **Step 1:** Replace both `https://localhost:5001` mentions (Run Web Application block and the
+  "Verifying Web App Changes" paragraph) with `https://localhost:7007`, and change the run command to
+  `dotnet run --launch-profile https` (a bare `dotnet run` uses the `http` profile on 5245 — see
+  `src/web/MZikmund.Web/Properties/launchSettings.json`).
+- [ ] **Step 2:** In the "Package sources" bullet, keep the rule but drop the stale
+  `Uno.Sdk 6.7.7` example if it no longer helps (owner's call — leave it if unsure).
+- [ ] **Step 3:** Confirm the SDK line still matches `global.json`
+  (`grep -n "Uno.Sdk" global.json CLAUDE.md`) and that `grep -n "5001" CLAUDE.md` prints nothing.
+- [ ] **Step 4:** Commit `docs: Point CLAUDE.md at the real dev URL`.
 
 ---
 
 ### Task 11.5: Write the dark-launch runbook
+
+> **Review correction (2026-10-14):** Write the runbook only. Its precondition "no `Auth0` section" holds only after
+> the owner-gated Task 1.6 — say so in the runbook's preconditions.
 
 The rollout is a sequence of production actions that must be repeatable and reversible. It goes in the repo so the rollback is not reconstructed from memory at 2am.
 
@@ -26921,7 +21654,7 @@ Expected output: `404`
 The post page itself must render normally with no comments section:
 
 ```bash
-curl -s "https://mzikmund.dev/blog/<route-name>" | grep -c "comments__composer"
+curl -s "https://mzikmund.dev/blog/<route-name>" | grep -c "data-comment-composer"
 ```
 
 Expected output: `0`
@@ -27004,7 +21737,7 @@ curl -s -o /dev/null -w "%{http_code}\n" \
 Expected output: `200`
 
 ```bash
-curl -s "https://mzikmund.dev/blog/<route-name>" | grep -c "comments__composer"
+curl -s "https://mzikmund.dev/blog/<route-name>" | grep -c "data-comment-composer"
 ```
 
 Expected output: `1`
@@ -27063,6 +21796,9 @@ git -C "D:/Personal/mzikmund/.claude/worktrees/comments" commit -m "docs: Add co
 ---
 
 ### Task 11.6: Execute the dark launch
+
+> **OWNER-GATED:** **NOT EXECUTED by implementers.** Production deploy, App Service settings and
+> the switch-on are the owner's, following `docs/COMMENTS_ROLLOUT.md`.
 
 **Files:**
 - Modify: `src/web/MZikmund.Web/appsettings.json` (the `Comments` section — only if step 1 finds it set to `true`)
