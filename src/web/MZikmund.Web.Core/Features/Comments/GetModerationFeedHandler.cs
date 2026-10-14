@@ -6,7 +6,7 @@ using MZikmund.Web.Data;
 
 namespace MZikmund.Web.Core.Features.Comments;
 
-internal sealed class GetModerationFeedHandler : IRequestHandler<GetModerationFeedQuery, PagedResponse<CommentDto>>
+internal sealed class GetModerationFeedHandler : IRequestHandler<GetModerationFeedQuery, PagedResponse<CommentModerationDto>>
 {
 	private readonly DatabaseContext _dbContext;
 
@@ -15,7 +15,7 @@ internal sealed class GetModerationFeedHandler : IRequestHandler<GetModerationFe
 		_dbContext = dbContext;
 	}
 
-	public async Task<PagedResponse<CommentDto>> Handle(GetModerationFeedQuery request, CancellationToken cancellationToken)
+	public async Task<PagedResponse<CommentModerationDto>> Handle(GetModerationFeedQuery request, CancellationToken cancellationToken)
 	{
 		CommentPaging.Validate(request.PageNumber, request.PageSize);
 
@@ -31,6 +31,6 @@ internal sealed class GetModerationFeedHandler : IRequestHandler<GetModerationFe
 			.ToArrayAsync(cancellationToken);
 
 		var items = comments.Select(ModerationProjection.ToDto).ToArray();
-		return new PagedResponse<CommentDto>(items, request.PageNumber, request.PageSize, totalCount);
+		return new PagedResponse<CommentModerationDto>(items, request.PageNumber, request.PageSize, totalCount);
 	}
 }
