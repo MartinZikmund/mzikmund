@@ -6,6 +6,7 @@ using MZikmund.Web.Data;
 using MZikmund.Web.Data.Entities;
 using static MZikmund.Web.Core.Tests.Features.Comments.CommentSeed;
 using DataCommentStatus = MZikmund.Web.Data.Entities.CommentStatus;
+using DtoCommentStatus = MZikmund.DataContracts.Blog.Comments.CommentStatus;
 
 namespace MZikmund.Web.Core.Tests.Features.Comments;
 
@@ -36,6 +37,84 @@ public class GetPostCommentsHandlerTests
 		Assert.Equal(early.Id, comments[0].Id);
 		Assert.Equal(late.Id, comments[1].Id);
 		Assert.Equal(quiet.Id, comments[2].Id);
+	}
+
+	[Fact]
+	public async Task Handle_DeletedReply_IsLeftOutSoReplyCountAndInlineRepliesAgree()
+	{
+		// Arrange
+		using CommentsDbFixture fixture = new();
+		using var context = fixture.CreateContext();
+		var postId = Guid.NewGuid();
+		var authorId = Guid.NewGuid();
+		AddPost(context, postId);
+		AddAuthor(context, authorId, "Homer");
+		var parent = AddComment(context, postId, authorId, "parent", Day(1), replyCount: 1);
+		AddComment(context, postId, authorId, "kept", Day(2), parentId: parent.Id);
+		AddComment(context, postId, authorId, "", Day(3), parentId: parent.Id, status: DataCommentStatus.DeletedByAuthor);
+		await context.SaveChangesAsync(CancellationToken.None);
+		var handler = CreateHandler(context);
+
+		// Act
+		var result = await handler.Handle(new GetPostCommentsQuery(postId, CommentSortOrder.New, 1, 20), CancellationToken.None);
+
+		// Assert
+		var comment = Assert.Single(result.Data);
+		Assert.Equal(1, comment.ReplyCount);
+		var reply = Assert.Single(comment.Replies);
+		Assert.Equal("kept", reply.Content);
+	}
+
+	[Fact]
+	public async Task Handle_HiddenTopLevelCommentWithVisibleReplies_ShowsAsTombstoneKeepingTheReplies()
+	{
+		// Arrange
+		using CommentsDbFixture fixture = new();
+		using var context = fixture.CreateContext();
+		var postId = Guid.NewGuid();
+		var authorId = Guid.NewGuid();
+		AddPost(context, postId);
+		AddAuthor(context, authorId, "Marge");
+		var hidden = AddComment(context, postId, authorId, "spicy take", Day(1), replyCount: 1, status: DataCommentStatus.HiddenByModerator);
+		AddComment(context, postId, authorId, "good reply", Day(2), parentId: hidden.Id);
+		await context.SaveChangesAsync(CancellationToken.None);
+		var handler = CreateHandler(context);
+
+		// Act
+		var result = await handler.Handle(new GetPostCommentsQuery(postId, CommentSortOrder.New, 1, 20), CancellationToken.None);
+
+		// Assert
+		Assert.Equal(1, result.TotalCount);
+		var tombstone = Assert.Single(result.Data);
+		Assert.Equal(DtoCommentStatus.HiddenByModerator, tombstone.Status);
+		Assert.Equal("", tombstone.Content);
+		Assert.Equal("", tombstone.ContentHtml);
+		Assert.Equal("good reply", Assert.Single(tombstone.Replies).Content);
+	}
+
+	[Theory]
+	[InlineData(DataCommentStatus.HiddenByModerator)]
+	[InlineData(DataCommentStatus.DeletedByAuthor)]
+	public async Task Handle_HiddenTopLevelCommentWithNothingVisibleUnderIt_IsExcluded(DataCommentStatus replyStatus)
+	{
+		// Arrange
+		using CommentsDbFixture fixture = new();
+		using var context = fixture.CreateContext();
+		var postId = Guid.NewGuid();
+		var authorId = Guid.NewGuid();
+		AddPost(context, postId);
+		AddAuthor(context, authorId, "Bart");
+		var hidden = AddComment(context, postId, authorId, "spicy take", Day(1), status: DataCommentStatus.HiddenByModerator);
+		AddComment(context, postId, authorId, "gone", Day(2), parentId: hidden.Id, status: replyStatus);
+		await context.SaveChangesAsync(CancellationToken.None);
+		var handler = CreateHandler(context);
+
+		// Act
+		var result = await handler.Handle(new GetPostCommentsQuery(postId, CommentSortOrder.New, 1, 20), CancellationToken.None);
+
+		// Assert
+		Assert.Equal(0, result.TotalCount);
+		Assert.Empty(result.Data);
 	}
 
 	[Fact]

@@ -149,6 +149,53 @@ public class GetCommentRepliesHandlerTests
 	}
 
 	[Fact]
+	public async Task Handle_DeletedReplies_AreLeftOutOfBothTheItemsAndTheTotal()
+	{
+		// Arrange
+		using CommentsDbFixture fixture = new();
+		using var context = fixture.CreateContext();
+		var postId = Guid.NewGuid();
+		var authorId = Guid.NewGuid();
+		AddPost(context, postId);
+		AddAuthor(context, authorId, "Homer");
+		var parent = AddComment(context, postId, authorId, "parent", Day(1), replyCount: 1);
+		AddComment(context, postId, authorId, "kept", Day(2), parentId: parent.Id);
+		AddComment(context, postId, authorId, "", Day(3), parentId: parent.Id, status: DataCommentStatus.DeletedByAuthor);
+		await context.SaveChangesAsync(CancellationToken.None);
+		var handler = CreateHandler(context);
+
+		// Act
+		var result = await handler.Handle(new GetCommentRepliesQuery(parent.Id, 1, 20), CancellationToken.None);
+
+		// Assert
+		Assert.Equal(1, result.TotalCount);
+		Assert.Equal("kept", Assert.Single(result.Data).Content);
+	}
+
+	[Fact]
+	public async Task Handle_HiddenParentWithVisibleReplies_StillServesThoseReplies()
+	{
+		// Arrange
+		using CommentsDbFixture fixture = new();
+		using var context = fixture.CreateContext();
+		var postId = Guid.NewGuid();
+		var authorId = Guid.NewGuid();
+		AddPost(context, postId);
+		AddAuthor(context, authorId, "Lisa");
+		var parent = AddComment(context, postId, authorId, "hidden", Day(1), replyCount: 1, status: DataCommentStatus.HiddenByModerator);
+		AddComment(context, postId, authorId, "survivor", Day(2), parentId: parent.Id);
+		await context.SaveChangesAsync(CancellationToken.None);
+		var handler = CreateHandler(context);
+
+		// Act
+		var result = await handler.Handle(new GetCommentRepliesQuery(parent.Id, 1, 20), CancellationToken.None);
+
+		// Assert
+		Assert.Equal(1, result.TotalCount);
+		Assert.Equal("survivor", Assert.Single(result.Data).Content);
+	}
+
+	[Fact]
 	public async Task Handle_WithUnknownComment_ThrowsKeyNotFound()
 	{
 		// Arrange
