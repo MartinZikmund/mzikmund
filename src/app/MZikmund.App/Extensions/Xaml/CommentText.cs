@@ -112,7 +112,8 @@ public static class CommentText
 					break;
 
 				case StrongInline strong:
-					Bold bold = new();
+					// The Inter faces are one file per weight; a bare Bold has no face to pick on Skia.
+					Bold bold = new() { FontFamily = (FontFamily)Application.Current.Resources["MzFontFamilySemiBold"] };
 					AppendInlines(bold.Inlines, strong.Children);
 					target.Add(bold);
 					break;
