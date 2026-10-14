@@ -498,4 +498,115 @@
   <data name="UseDifferentEmail" xml:space="preserve">
     <value>Use a different email</value>
   </data>
+  <data name="Comments" xml:space="preserve">
+    <value>Comments</value>
+  </data>
+  <data name="CommentsSortTop" xml:space="preserve">
+    <value>Top</value>
+  </data>
+  <data name="CommentsSortNew" xml:space="preserve">
+    <value>New</value>
+  </data>
+  <data name="CommentPlaceholder" xml:space="preserve">
+    <value>Add a comment...</value>
+  </data>
+  <data name="CommentPost" xml:space="preserve">
+    <value>Post</value>
+  </data>
+  <data name="CommentReplyingToFormat" xml:space="preserve">
+    <value>Replying to {0}</value>
+  </data>
+  <data name="CommentMarkdownHint" xml:space="preserve">
+    <value>Markdown: **bold**, *italic*, `code`, links</value>
+  </data>
+  <data name="CommentUpvote" xml:space="preserve">
+    <value>Upvote</value>
+  </data>
+  <data name="CommentReply" xml:space="preserve">
+    <value>Reply</value>
+  </data>
+  <data name="CommentReport" xml:space="preserve">
+    <value>Report</value>
+  </data>
+  <data name="CommentEdit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="CommentEdited" xml:space="preserve">
+    <value>edited</value>
+  </data>
+  <data name="CommentAuthorBadge" xml:space="preserve">
+    <value>Author</value>
+  </data>
+  <data name="CommentRemoved" xml:space="preserve">
+    <value>[removed]</value>
+  </data>
+  <data name="CommentDeleted" xml:space="preserve">
+    <value>[deleted]</value>
+  </data>
+  <data name="CommentShowMoreRepliesFormat" xml:space="preserve">
+    <value>Show {0} more replies</value>
+  </data>
+  <data name="CommentsEmptyTitle" xml:space="preserve">
+    <value>No comments yet</value>
+  </data>
+  <data name="CommentsEmptyBody" xml:space="preserve">
+    <value>Be the first to share your thoughts.</value>
+  </data>
+  <data name="CommentDeleteTitle" xml:space="preserve">
+    <value>Delete comment</value>
+  </data>
+  <data name="CommentDeleteConfirm" xml:space="preserve">
+    <value>Delete this comment? This cannot be undone.</value>
+  </data>
+  <data name="CommentSlowDown" xml:space="preserve">
+    <value>Slow down a little and try again in a moment.</value>
+  </data>
+  <data name="CommentSlowDownWaitFormat" xml:space="preserve">
+    <value>Slow down a little. Try again in {0}.</value>
+  </data>
+  <data name="CommentBanned" xml:space="preserve">
+    <value>You can no longer comment.</value>
+  </data>
+  <data name="CommentGenericError" xml:space="preserve">
+    <value>Something went wrong. Please try again.</value>
+  </data>
+  <data name="CommentPostFailed" xml:space="preserve">
+    <value>Could not post the comment</value>
+  </data>
+  <data name="CommentActionFailed" xml:space="preserve">
+    <value>That did not work</value>
+  </data>
+  <data name="CommentTooLongFormat" xml:space="preserve">
+    <value>Comments can be at most {0} characters long.</value>
+  </data>
+  <data name="CommentReportedTitle" xml:space="preserve">
+    <value>Report sent</value>
+  </data>
+  <data name="CommentReportedText" xml:space="preserve">
+    <value>Thanks, the comment will be reviewed.</value>
+  </data>
+  <data name="CommentCancelReply" xml:space="preserve">
+    <value>Cancel reply</value>
+  </data>
+  <data name="ReportCommentTitle" xml:space="preserve">
+    <value>Report comment</value>
+  </data>
+  <data name="ReportCommentSubmit" xml:space="preserve">
+    <value>Report</value>
+  </data>
+  <data name="ReportReasonSpam" xml:space="preserve">
+    <value>Spam</value>
+  </data>
+  <data name="ReportReasonAbuse" xml:space="preserve">
+    <value>Harassment or abuse</value>
+  </data>
+  <data name="ReportReasonOffTopic" xml:space="preserve">
+    <value>Off topic</value>
+  </data>
+  <data name="ReportReasonOther" xml:space="preserve">
+    <value>Something else</value>
+  </data>
+  <data name="ReportNoteHeader" xml:space="preserve">
+    <value>Details (optional)</value>
+  </data>
 </root>
