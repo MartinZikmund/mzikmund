@@ -11,6 +11,7 @@ using MZikmund.DataContracts.Serialization;
 using MZikmund.Infrastructure;
 using MZikmund.Services.Account;
 using MZikmund.Services.Caching;
+using MZikmund.Services.Comments;
 using MZikmund.Services.Dialogs;
 using MZikmund.Services.Endpoints;
 using MZikmund.Services.Loading;
@@ -141,6 +142,7 @@ public partial class MZikmundApp : Application, IApplication
 		services.AddScoped<AddOrUpdateCategoryDialogViewModel>();
 		services.AddScoped<AddOrUpdateTagDialogViewModel>();
 		services.AddScoped<PostsManagerViewModel>();
+		services.AddScoped<CommentsModeratorViewModel>();
 		services.AddScoped<MediaBrowserViewModel>();
 		services.AddScoped<PostViewModel>();
 		services.AddTransient<CommentsViewModel>();
@@ -159,6 +161,7 @@ public partial class MZikmundApp : Application, IApplication
 		services.AddScoped<IDialogService, DialogService>();
 		services.AddScoped<IWindowShellProvider, WindowShellProvider>();
 		services.AddScoped<ITimerFactory, TimerFactory>();
+		services.AddScoped<ICommentsBadgeService, CommentsBadgeService>();
 		services.AddSingleton<IUserService, UserService>();
 		services.AddScoped<ISignInPrompt, SignInPrompt>();
 		services.AddSingleton<IMarkdownConverter, MarkdownConverter>();

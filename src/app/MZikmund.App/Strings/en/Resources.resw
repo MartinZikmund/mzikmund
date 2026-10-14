@@ -609,4 +609,49 @@
   <data name="ReportNoteHeader" xml:space="preserve">
     <value>Details (optional)</value>
   </data>
+  <data name="ModeratorReportedHeader" xml:space="preserve">
+    <value>Reported</value>
+  </data>
+  <data name="ModeratorNewestHeader" xml:space="preserve">
+    <value>Newest comments</value>
+  </data>
+  <data name="ModeratorNothingToReview" xml:space="preserve">
+    <value>Nothing to review</value>
+  </data>
+  <data name="ModeratorHide" xml:space="preserve">
+    <value>Hide</value>
+  </data>
+  <data name="ModeratorBan" xml:space="preserve">
+    <value>Ban author</value>
+  </data>
+  <data name="ModeratorDismiss" xml:space="preserve">
+    <value>Dismiss report</value>
+  </data>
+  <data name="ModeratorReportCountFormat" xml:space="preserve">
+    <value>{0} reports</value>
+  </data>
+  <data name="ModeratorReportMetaFormat" xml:space="preserve">
+    <value>{0} · first reported {1}</value>
+  </data>
+  <data name="ModeratorAwaitingFormat" xml:space="preserve">
+    <value>{0} awaiting review</value>
+  </data>
+  <data name="ModeratorDeleteTitle" xml:space="preserve">
+    <value>Delete this comment?</value>
+  </data>
+  <data name="ModeratorDeleteText" xml:space="preserve">
+    <value>The comment is removed for everyone and its text is erased. This cannot be undone.</value>
+  </data>
+  <data name="ModeratorBanTitle" xml:space="preserve">
+    <value>Ban this author?</value>
+  </data>
+  <data name="ModeratorBanText" xml:space="preserve">
+    <value>They will no longer be able to comment, vote or report. Their existing comments are hidden.</value>
+  </data>
+  <data name="ModeratorStatusHidden" xml:space="preserve">
+    <value>Hidden</value>
+  </data>
+  <data name="ModeratorStatusDeleted" xml:space="preserve">
+    <value>Deleted</value>
+  </data>
 </root>
