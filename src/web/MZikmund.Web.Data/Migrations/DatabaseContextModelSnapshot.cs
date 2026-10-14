@@ -17,7 +17,7 @@ namespace MZikmund.Web.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.0")
+                .HasAnnotation("ProductVersion", "10.0.3")
                 .HasAnnotation("Proxies:ChangeTracking", false)
                 .HasAnnotation("Proxies:CheckEquality", false)
                 .HasAnnotation("Proxies:LazyLoading", true)
@@ -92,6 +92,149 @@ namespace MZikmund.Web.Data.Migrations
                     b.ToTable("Category");
                 });
 
+            modelBuilder.Entity("MZikmund.Web.Data.Entities.CommentAuthorEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AvatarUrl")
+                        .HasMaxLength(2048)
+                        .HasColumnType("nvarchar(2048)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
+
+                    b.Property<bool>("IsBanned")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("LastSeenOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("NotifyOnReply")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CommentAuthor");
+                });
+
+            modelBuilder.Entity("MZikmund.Web.Data.Entities.CommentEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("ContentHtml")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("EditedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("MentionedDisplayName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<Guid?>("ParentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ReplyCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ReportCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UpvoteCount")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
+
+                    b.HasIndex("ParentId");
+
+                    b.HasIndex("PostId", "ParentId", "CreatedOn");
+
+                    b.ToTable("Comment");
+                });
+
+            modelBuilder.Entity("MZikmund.Web.Data.Entities.CommentReportEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CommentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("Reason")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ReporterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ResolvedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReporterId");
+
+                    b.HasIndex("CommentId", "ResolvedOn");
+
+                    b.ToTable("CommentReport");
+                });
+
+            modelBuilder.Entity("MZikmund.Web.Data.Entities.CommentVoteEntity", b =>
+                {
+                    b.Property<Guid>("CommentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("CommentId", "AuthorId");
+
+                    b.HasIndex("AuthorId");
+
+                    b.ToTable("CommentVote");
+                });
+
             modelBuilder.Entity("MZikmund.Web.Data.Entities.PostCategoryEntity", b =>
                 {
                     b.Property<Guid>("PostId")
@@ -141,11 +284,11 @@ namespace MZikmund.Web.Data.Migrations
                     b.Property<DateTimeOffset?>("LastModifiedDate")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<DateTimeOffset?>("PublishedDate")
-                        .HasColumnType("datetimeoffset");
-
                     b.Property<Guid?>("PreviewToken")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("PublishedDate")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("RouteName")
                         .IsRequired()
@@ -204,6 +347,62 @@ namespace MZikmund.Web.Data.Migrations
                     b.ToTable("Tag");
                 });
 
+            modelBuilder.Entity("MZikmund.Web.Data.Entities.CommentEntity", b =>
+                {
+                    b.HasOne("MZikmund.Web.Data.Entities.CommentAuthorEntity", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MZikmund.Web.Data.Entities.CommentEntity", "Parent")
+                        .WithMany("Replies")
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("MZikmund.Web.Data.Entities.PostEntity", "Post")
+                        .WithMany()
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Author");
+
+                    b.Navigation("Parent");
+
+                    b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("MZikmund.Web.Data.Entities.CommentReportEntity", b =>
+                {
+                    b.HasOne("MZikmund.Web.Data.Entities.CommentEntity", null)
+                        .WithMany()
+                        .HasForeignKey("CommentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MZikmund.Web.Data.Entities.CommentAuthorEntity", null)
+                        .WithMany()
+                        .HasForeignKey("ReporterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("MZikmund.Web.Data.Entities.CommentVoteEntity", b =>
+                {
+                    b.HasOne("MZikmund.Web.Data.Entities.CommentAuthorEntity", null)
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MZikmund.Web.Data.Entities.CommentEntity", null)
+                        .WithMany("Votes")
+                        .HasForeignKey("CommentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("MZikmund.Web.Data.Entities.PostCategoryEntity", b =>
                 {
                     b.HasOne("MZikmund.Web.Data.Entities.CategoryEntity", "Category")
@@ -240,6 +439,13 @@ namespace MZikmund.Web.Data.Migrations
                     b.Navigation("Post");
 
                     b.Navigation("Tag");
+                });
+
+            modelBuilder.Entity("MZikmund.Web.Data.Entities.CommentEntity", b =>
+                {
+                    b.Navigation("Replies");
+
+                    b.Navigation("Votes");
                 });
 #pragma warning restore 612, 618
         }
