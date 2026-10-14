@@ -366,3 +366,10 @@ solution-config.props
 # Publish Profiles
 !**/Properties/PublishProfiles/*.pubxml
 /src/app/MZikmund.App/appsettings.development.json
+
+# Supabase local stack
+supabase/.branches
+supabase/.temp
+supabase/.env
+supabase/.env.*
+supabase/signing_keys.json
