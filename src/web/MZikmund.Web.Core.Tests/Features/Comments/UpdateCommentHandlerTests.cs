@@ -5,6 +5,7 @@ using MZikmund.Web.Core.Features.Comments;
 using MZikmund.Web.Core.Services.Comments;
 using MZikmund.Web.Core.Tests.Infrastructure;
 using MZikmund.Web.Data;
+using MZikmund.Web.Data.Entities;
 using static MZikmund.Web.Core.Tests.Features.Comments.CommentSeed;
 using DataCommentStatus = MZikmund.Web.Data.Entities.CommentStatus;
 
@@ -145,6 +146,26 @@ public class UpdateCommentHandlerTests
 			() => handler.Handle(new UpdateCommentCommand(comment.Id, tooLong), CancellationToken.None));
 		var stored = await db.Comment.FirstAsync(c => c.Id == comment.Id, CancellationToken.None);
 		Assert.Equal("Existing comment", stored.Content);
+	}
+
+	[Fact]
+	public async Task Handle_CommentOnADraftPost_ThrowsNotFoundAndLeavesTheText()
+	{
+		// Arrange
+		using CommentsDbFixture fixture = new();
+		using var db = fixture.CreateContext();
+		await SeedAsync(db);
+		var comment = AddComment(db, _postId, _authorId, "original", createdOn: Now.UtcDateTime.AddMinutes(-5));
+		await db.SaveChangesAsync(CancellationToken.None);
+		await db.Post.ExecuteUpdateAsync(
+			s => s.SetProperty(p => p.Status, PostStatus.Draft), CancellationToken.None);
+		var handler = CreateHandler(db);
+
+		// Act & Assert
+		await Assert.ThrowsAsync<CommentNotFoundException>(
+			() => handler.Handle(new UpdateCommentCommand(comment.Id, "edited"), CancellationToken.None));
+		var stored = await db.Comment.AsNoTracking().FirstAsync(c => c.Id == comment.Id, CancellationToken.None);
+		Assert.Equal("original", stored.Content);
 	}
 
 	private async Task SeedAsync(DatabaseContext db)

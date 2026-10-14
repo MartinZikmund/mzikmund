@@ -196,6 +196,33 @@ public class SetCommentVoteHandlerTests
 		Assert.Equal(1, result.UpvoteCount);
 	}
 
+	[Theory]
+	[InlineData(false)]
+	[InlineData(true)]
+	public async Task Handle_CommentOnANonPublicPost_ThrowsNotFoundAndWritesNoVote(bool futureDated)
+	{
+		// Arrange
+		using CommentsDbFixture fixture = new();
+		using var db = fixture.CreateContext();
+		var commentId = await SeedCommentAsync(db, _commentAuthorId);
+		if (futureDated)
+		{
+			await db.Post.ExecuteUpdateAsync(
+				s => s.SetProperty(p => p.PublishedDate, (DateTimeOffset?)Now.AddDays(1)), CancellationToken.None);
+		}
+		else
+		{
+			await db.Post.ExecuteUpdateAsync(
+				s => s.SetProperty(p => p.Status, PostStatus.Draft), CancellationToken.None);
+		}
+		var handler = CreateHandler(db);
+
+		// Act & Assert
+		await Assert.ThrowsAsync<CommentNotFoundException>(
+			() => handler.Handle(new SetCommentVoteCommand(commentId, true), CancellationToken.None));
+		Assert.Equal(0, await db.CommentVote.CountAsync(CancellationToken.None));
+	}
+
 	// A context first touched while another statement is open on the shared connection fails to
 	// initialize, so the competing context is warmed up before the race starts.
 	private static async Task<DatabaseContext> CreateWarmContextAsync(CommentsDbFixture fixture)

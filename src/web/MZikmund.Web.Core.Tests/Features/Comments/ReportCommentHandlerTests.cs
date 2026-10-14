@@ -167,6 +167,23 @@ public class ReportCommentHandlerTests
 	}
 
 	[Fact]
+	public async Task Handle_CommentOnADraftPost_ThrowsNotFoundAndStoresNothing()
+	{
+		// Arrange
+		using CommentsDbFixture fixture = new();
+		using var db = fixture.CreateContext();
+		var commentId = await SeedCommentAsync(db);
+		await db.Post.ExecuteUpdateAsync(
+			s => s.SetProperty(p => p.Status, PostStatus.Draft), CancellationToken.None);
+		var handler = CreateHandler(db, CurrentUser(_reporterId, "Martin"));
+
+		// Act & Assert
+		await Assert.ThrowsAsync<CommentNotFoundException>(
+			() => handler.Handle(new ReportCommentCommand(commentId, CommentReportReason.Spam, null), CancellationToken.None));
+		Assert.Equal(0, await db.CommentReport.CountAsync(CancellationToken.None));
+	}
+
+	[Fact]
 	public async Task Handle_OwnComment_ThrowsConflictAndStoresNothing()
 	{
 		// Arrange
