@@ -28,6 +28,9 @@
 	<ItemGroup>
 		<ProjectReference Include="..\MZikmund.Web\MZikmund.Web.csproj" />
 		<ProjectReference Include="..\MZikmund.Web.Core\MZikmund.Web.Core.csproj" />
+		<!-- Only so the serializer-context registrations can be asserted; missing [JsonSerializable]
+		     entries fail at runtime, not compile time. -->
+		<ProjectReference Include="..\..\shared\MZikmund.Api\MZikmund.Api.csproj" />
 	</ItemGroup>
 
 </Project>
