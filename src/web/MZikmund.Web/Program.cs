@@ -50,6 +50,11 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 	services.AddSingleton<IFeedGenerator, FeedGenerator>();
 	services.AddScoped<ISyndicationDataSource, SyndicationDataSource>();
 	services.AddHttpClient("YouTube");
+	services.AddHttpClient(TurnstileVerifier.HttpClientName, client =>
+	{
+		client.Timeout = TimeSpan.FromSeconds(10);
+	});
+	services.AddSingleton<ITurnstileVerifier, TurnstileVerifier>();
 	services.AddScoped<YouTubeRssFeedParser>();
 	services.AddHttpContextAccessor();
 	services.AddScoped<MetaTagsInfo>();
