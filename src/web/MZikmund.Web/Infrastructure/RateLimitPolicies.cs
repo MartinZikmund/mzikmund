@@ -17,12 +17,15 @@ public static class RateLimitPolicies
 	/// <summary>Reports, per author.</summary>
 	public const string CommentReport = "comments-report";
 
+	/// <summary>Edits and deletes of own comments, per author.</summary>
+	public const string CommentEdit = "comments-edit";
+
 	/// <summary>
 	/// True when the request is routed to an endpoint guarded by one of the comment write policies.
 	/// </summary>
 	public static bool IsCommentWrite(HttpContext httpContext)
 	{
 		var policy = httpContext.GetEndpoint()?.Metadata.GetMetadata<EnableRateLimitingAttribute>()?.PolicyName;
-		return policy is CommentCreate or CommentVote or CommentReport;
+		return policy is CommentCreate or CommentVote or CommentReport or CommentEdit;
 	}
 }

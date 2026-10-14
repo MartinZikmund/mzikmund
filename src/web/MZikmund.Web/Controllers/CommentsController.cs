@@ -125,12 +125,14 @@ public class CommentsController : Controller
 	/// <param name="cancellationToken">Cancellation token.</param>
 	/// <returns>The updated comment.</returns>
 	[HttpPatch("comments/{id}")]
+	[EnableRateLimiting(RateLimitPolicies.CommentEdit)]
 	[ProducesResponseType(StatusCodes.Status200OK)]
 	[ProducesResponseType(StatusCodes.Status400BadRequest)]
 	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 	[ProducesResponseType(StatusCodes.Status403Forbidden)]
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
 	[ProducesResponseType(StatusCodes.Status409Conflict)]
+	[ProducesResponseType(StatusCodes.Status429TooManyRequests)]
 	public async Task<IActionResult> UpdateComment(
 		Guid id,
 		[FromBody] UpdateCommentRequest request,
@@ -144,10 +146,12 @@ public class CommentsController : Controller
 	/// <param name="cancellationToken">Cancellation token.</param>
 	/// <returns>No content, when successful.</returns>
 	[HttpDelete("comments/{id}")]
+	[EnableRateLimiting(RateLimitPolicies.CommentEdit)]
 	[ProducesResponseType(StatusCodes.Status204NoContent)]
 	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 	[ProducesResponseType(StatusCodes.Status403Forbidden)]
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	[ProducesResponseType(StatusCodes.Status429TooManyRequests)]
 	public async Task<IActionResult> DeleteComment(Guid id, CancellationToken cancellationToken)
 	{
 		await _mediator.Send(new DeleteCommentCommand(id), cancellationToken);

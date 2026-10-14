@@ -25,6 +25,11 @@ public class RateLimitOptions
 	public RateLimitRule CommentReport { get; set; } = new() { PermitLimit = 10, WindowMinutes = 60 };
 
 	/// <summary>
+	/// Edits and deletes of an author's own comments, per author. Default: 20 per 10 minutes.
+	/// </summary>
+	public RateLimitRule CommentEdit { get; set; } = new() { PermitLimit = 20, WindowMinutes = 10 };
+
+	/// <summary>
 	/// Every comment write request, per client IP, on top of the per-endpoint policies. Default: 20 per minute.
 	/// </summary>
 	public RateLimitRule GlobalWrites { get; set; } = new() { PermitLimit = 20, WindowMinutes = 1 };

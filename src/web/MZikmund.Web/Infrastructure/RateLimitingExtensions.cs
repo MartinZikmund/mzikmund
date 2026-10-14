@@ -62,6 +62,11 @@ public static class RateLimitingExtensions
 					RateLimitPartitionKeys.ForRequest(httpContext),
 					_ => CreateFixedWindow(limits.CommentReport)));
 
+			options.AddPolicy(RateLimitPolicies.CommentEdit, httpContext =>
+				RateLimitPartition.GetFixedWindowLimiter(
+					RateLimitPartitionKeys.ForRequest(httpContext),
+					_ => CreateFixedWindow(limits.CommentEdit)));
+
 			options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
 				RateLimitPolicies.IsCommentWrite(httpContext)
 					? RateLimitPartition.GetFixedWindowLimiter(
