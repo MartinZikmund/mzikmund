@@ -48,6 +48,22 @@ public class GetModerationFeedHandlerTests
 	}
 
 	[Fact]
+	public async Task Handle_Rows_CarryTheAuthorIdSoTheFeedCanBan()
+	{
+		// Arrange
+		using CommentsDbFixture fixture = new();
+		using var db = fixture.CreateContext();
+		await SeedThreeAsync(db);
+		var handler = new GetModerationFeedHandler(db);
+
+		// Act
+		var result = await handler.Handle(new GetModerationFeedQuery(null, 1, 20), CancellationToken.None);
+
+		// Assert
+		Assert.All(result.Data, row => Assert.Equal(_authorId, row.AuthorId));
+	}
+
+	[Fact]
 	public async Task Handle_HiddenComment_IsListedWithItsText()
 	{
 		// Arrange
