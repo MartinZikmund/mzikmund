@@ -1,11 +1,209 @@
 ﻿@page
 @model PrivacyModel
 @{
-    ViewData["Title"] = "Privacy Policy";
+    MetaTags.Title = "Privacy Policy";
 }
 
 <div class="prose-page prose">
-    <h1>@ViewData["Title"]</h1>
+    <h1>Privacy Policy</h1>
+    <p>Effective Date: October 14, 2026</p>
 
-    <p>Use this page to detail your site's privacy policy.</p>
+    <p>Your privacy is important to us. This Privacy Policy explains what information mzikmund.dev
+        ("the Site") and the companion Martin Zikmund app ("the App") collect, why, and what you can do
+        about it. The Site is operated by Martin Zikmund, who is the data controller for the processing
+        described here.</p>
+
+    <h2>1. Reading the Site</h2>
+    <p>You can read every article, video listing and page on the Site without an account and without
+        telling us who you are. Reading is anonymous.</p>
+    <p>When you visit, our hosting platform and our diagnostics service record technical request data —
+        including your IP address, browser user agent, the pages you requested and the time of the
+        request — so we can keep the Site running and diagnose faults. Your colour theme preference
+        (auto, light or dark) is stored in your own browser and is never sent to us.</p>
+    <p>For diagnostics and basic usage statistics the Site uses Microsoft Application Insights, part of
+        Microsoft Azure. When it is enabled, a script on each page sends page views, performance
+        timings, errors and technical details such as your browser, operating system and IP address
+        (used to estimate your approximate location, and then discarded) to Microsoft. It sets two
+        cookies in your browser: <code>ai_user</code>, a random identifier that recognises a returning
+        browser, and <code>ai_session</code>, which groups the pages of one visit. We do not use this
+        data to identify you. See the
+        <a href="https://privacy.microsoft.com/privacystatement" target="_blank" rel="noopener">Microsoft Privacy Statement</a>.</p>
+    <p>Some articles embed videos from YouTube. When a page contains an embedded video, YouTube
+        (Google) loads in your browser, may set its own cookies and receives your IP address and
+        viewing information, as described in the
+        <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a>.
+        We do not use the privacy-enhanced embed mode, so this happens as soon as the page loads, not
+        only when you press play.</p>
+
+    <h2>2. Advertising</h2>
+    <p>The Site displays advertising from Google AdSense. Google and its partners may set cookies and
+        similar identifiers in your browser to serve and measure ads. We do not receive your identity
+        from Google. Where the law requires your consent for those cookies, the consent message is
+        presented by Google itself rather than by us; the Site sets no consent cookie of its own. You
+        can review and change your ad settings at
+        <a href="https://myadcenter.google.com/" target="_blank" rel="noopener">Google My Ad Center</a>
+        and read
+        <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener">how Google uses information from sites that use its services</a>.</p>
+
+    <h2>3. Signing In</h2>
+    <p>You only need an account to post a comment, reply, upvote or report a comment. Sign-in is handled
+        for us by <a href="https://supabase.com/privacy" target="_blank" rel="noopener">Supabase</a>,
+        which acts as our processor and holds your account record: a user identifier, your email
+        address, which sign-in method you used, and sign-in timestamps. We never see or store a
+        password — password sign-in is disabled.</p>
+    <p>You can sign in in three ways, and each shares a different amount of information with us:</p>
+    <ul>
+        <li><strong>Google.</strong> We request the standard <code>openid</code>, email and profile
+            scopes. Google returns your email address, your name and the web address of your Google
+            profile picture.</li>
+        <li><strong>Apple.</strong> Apple returns your email address, or a private relay address ending
+            in <code>@@privaterelay.appleid.com</code> if you chose to hide your email. Apple does not
+            provide a profile picture, and provides your name only at the moment you first authorise
+            the Site.</li>
+        <li><strong>Email code.</strong> You enter an email address and we send a six-digit code to it.
+            We receive nothing beyond that address.</li>
+    </ul>
+
+    <h2>4. Information We Store About Commenters</h2>
+    <p>When you post, edit, upvote or report a comment, we create or update a record about you in our
+        own database. It is built from your sign-in token — never from anything the browser or the App
+        submits — and it contains:</p>
+    <ul>
+        <li>Your Supabase user identifier.</li>
+        <li>Your display name, as shown next to your comments.</li>
+        <li>The web address of your profile picture, where your sign-in provider supplied one. The
+            image itself stays on your provider's servers; your browser loads it from there when a page
+            shows it.</li>
+        <li>Your email address (see section 6).</li>
+        <li>Whether you are currently blocked from posting (see section 10).</li>
+        <li>Your reply-notification preference, and the dates you first signed in and were last seen.</li>
+    </ul>
+
+    <h2>5. Comments, Votes and Reports</h2>
+    <p>The text of your comment is stored exactly as you wrote it, together with a rendered copy used to
+        display it, the time you posted it and the time of any edit. <strong>Comments are public.</strong>
+        Your comment, your display name and your profile picture are visible to every visitor, are
+        included in the page's HTML, and can therefore be indexed by search engines and copied by
+        others. Please do not put anything private in a comment.</p>
+    <p>Upvotes are stored as a link between your account and the comment you voted on, so that a vote
+        counts once and can be undone. Only the total is shown publicly; who voted is not.</p>
+    <p>If you report a comment, we store which comment you reported, the reason you selected, any note
+        you added, and the fact that the report came from you. Reports are visible to the moderator,
+        not to the public and not to the author of the reported comment.</p>
+
+    <h2>6. Your Email Address and Future Notifications</h2>
+    <p>Your email address is stored with your commenter record. It is <strong>never displayed
+        publicly</strong> and never shared with other users. We do not currently send any email from the
+        Site — reply notifications are not switched on. We retain your address so that reply
+        notifications can be enabled later without asking you to sign in again, and your notification
+        preference is stored alongside it. If and when notifications are enabled, you will be able to
+        turn them off, and this policy will be updated before any message is sent.</p>
+
+    <h2>7. Preventing Spam and Abuse</h2>
+    <p>To stop automated and abusive posting we apply rate limits to the comment endpoints. These are
+        counted against your account when you are signed in, and against your IP address otherwise. IP
+        addresses are used transiently for this purpose and are not stored alongside your comments.</p>
+    <p>The comment form on the Site is protected by
+        <a href="https://www.cloudflare.com/turnstile-privacy-policy/" target="_blank" rel="noopener">Cloudflare Turnstile</a>,
+        which acts as our processor. Turnstile loads a widget from <code>challenges.cloudflare.com</code>
+        and processes your IP address, TLS fingerprint, user-agent header and our site key in order to
+        distinguish people from bots. It may set Cloudflare cookies in your browser as part of that
+        check. We receive only a pass or fail result, which we verify with Cloudflare on our server
+        before accepting your comment.</p>
+
+    <h2>8. Cookies and Browser Storage</h2>
+    <p>The Site itself does not use a consent banner of its own. The following items are stored in your
+        own browser:</p>
+    <ul>
+        <li><strong>Your sign-in session.</strong> After you sign in, the Supabase client library keeps
+            your session in your browser's local storage under the key <code>mz-auth</code>, plus a
+            short-lived <code>mz-auth-code-verifier</code> entry used while the sign-in redirect
+            completes. This is what keeps you signed in; signing out or clearing site data removes
+            it.</li>
+        <li><strong>Your comment draft.</strong> If you start writing before signing in, your draft is
+            saved in session storage so it survives the trip to your sign-in provider and back. It is
+            discarded when the comment is posted or the tab is closed.</li>
+        <li><strong>Your theme preference.</strong> Stored locally so the Site does not flash the wrong
+            colours.</li>
+        <li><strong>Diagnostics cookies</strong> (<code>ai_user</code> and <code>ai_session</code>) set by
+            Application Insights, as described in section 1.</li>
+        <li><strong>Advertising, video and bot-protection cookies</strong> set by Google (AdSense and
+            YouTube) and Cloudflare as described in sections 1, 2 and 7.</li>
+    </ul>
+    <p>The first three are necessary to provide features you asked for and are not used to track you. The
+        diagnostics, advertising, video and bot-protection items are set by third parties and are not
+        strictly necessary; you can block or delete them in your browser settings.</p>
+
+    <h2>9. The App</h2>
+    <p>The Martin Zikmund app talks to the same service as the Site and follows the same rules for
+        comments, sign-in and moderation. It contains no advertising and no analytics. When you sign
+        in, the App stores your session — your access and refresh tokens, and your email address and
+        display name — in the app's own preferences on your device so that you stay signed in. Signing
+        out removes it. The App does not run Cloudflare Turnstile; instead, comment rate limits apply
+        as described in section 7.</p>
+    <h2>10. Data Retention and Deletion</h2>
+    <p>Comments are kept for as long as the article they belong to is published.</p>
+    <p>When you delete your own comment it stops being shown and is replaced by a placeholder, so that
+        any replies underneath it are not orphaned. The underlying record — including the fact that you
+        wrote it, and when — is retained. The same is true when a moderator hides a comment.</p>
+    <p>If a comment breaks the rules we may block an account from posting further comments. That block
+        is retained for as long as it is in force. Existing comments from a blocked account are not
+        automatically removed, and are hidden individually where warranted.</p>
+    <p>If you ask us to erase your data, we will remove the content of your comments, your display name,
+        your profile picture address and your email address, and delete your sign-in account. Where a
+        comment has replies we keep an anonymous placeholder in its place, so the conversation stays
+        readable.</p>
+
+    <h2>11. Your Rights</h2>
+    <p>You can ask us at any time for a copy of the information we hold about you, or to correct it,
+        erase it, restrict how we use it, or object to our use of it. You can also ask us to hand your
+        data to you in a portable form. You can edit your own comment for a short window after posting,
+        and delete it at any time, without contacting us.</p>
+    <p>We process comment data in order to provide the commenting feature you asked to use, and we
+        process spam-prevention and moderation data on the basis of our legitimate interest in keeping
+        the discussion usable.</p>
+    <p>Write to us using the address in section 16 and we will respond within one month. If you believe
+        we have handled your data badly, you may complain to your local data protection authority; in
+        the Czech Republic this is the Office for Personal Data Protection
+        (<a href="https://www.uoou.gov.cz/" target="_blank" rel="noopener">uoou.gov.cz</a>).</p>
+
+    <h2>12. Who Else Sees Your Data</h2>
+    <p>We do not sell your data and do not share it beyond the service providers we need in order to run
+        the Site:</p>
+    <ul>
+        <li><strong>Supabase</strong> — sign-in and account storage.</li>
+        <li><strong>Google</strong> and <strong>Apple</strong> — only if you choose to sign in with them.</li>
+        <li><strong>Cloudflare</strong> — bot protection on the comment form.</li>
+        <li><strong>Microsoft Azure</strong> — hosting, database and Application Insights diagnostics.</li>
+        <li><strong>Google AdSense</strong> — advertising.</li>
+        <li><strong>YouTube</strong> — embedded videos.</li>
+    </ul>
+    <p>Some of these providers are based outside the European Economic Area, and data may therefore be
+        transferred internationally under the safeguards those providers offer, such as standard
+        contractual clauses.</p>
+
+    <h2>13. Children</h2>
+    <p>The Site is not directed at children under the age of 13, and we do not knowingly collect
+        personal information from them. You must be at least 16 years of age to consent to the
+        processing of your personal information in your country (in some countries a parent or guardian
+        may do so on your behalf). If you believe a child has provided personal information through the
+        Site, please contact us so that we can remove it.</p>
+
+    <h2>14. Data Security</h2>
+    <p>We take reasonable measures to protect your data from unauthorized access or disclosure:
+        everything is served over HTTPS, comment content is sanitized on our server before it is ever
+        displayed, and access to the database is restricted. However, please be aware that no method of
+        transmission over the Internet or method of electronic storage is 100% secure.</p>
+
+    <h2>15. Changes to This Privacy Policy</h2>
+    <p>We may update this Privacy Policy from time to time. Any changes will be posted on this page with
+        an updated effective date. You are advised to consult this Privacy Policy regularly, as
+        continued use of the Site is deemed approval of all changes.</p>
+
+    <h2>16. Contact Us</h2>
+    <p>If you have any questions or concerns about this Privacy Policy, or want to exercise any of the
+        rights in section 11, please contact us at:</p>
+    <p>Email: martin@zikmund.dev</p>
+
+    <p>Thank you for reading, and for commenting.</p>
 </div>
