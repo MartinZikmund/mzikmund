@@ -104,7 +104,8 @@ public class CommentsHttpTests
 		// Assert
 		Assert.Equal(expected, response.StatusCode);
 		var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
-		Assert.Equal("nope", problem!.Detail);
+		Assert.NotEqual("nope", problem!.Detail);
+		Assert.False(string.IsNullOrWhiteSpace(problem.Detail));
 	}
 
 	[Fact]

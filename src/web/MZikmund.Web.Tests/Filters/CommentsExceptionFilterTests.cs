@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using MZikmund.DataContracts.Blog.Comments;
 using MZikmund.Web.Core.Services.Comments;
 using MZikmund.Web.Filters;
 
@@ -36,7 +37,28 @@ public class CommentsExceptionFilterTests
 		Assert.Equal(expectedStatus, result.StatusCode);
 		var problem = Assert.IsType<ProblemDetails>(result.Value);
 		Assert.Equal(expectedStatus, problem.Status);
-		Assert.Equal(exception.Message, problem.Detail);
+		Assert.Equal(CommentsExceptionFilterAttribute.PublicMessage((string)problem.Extensions["code"]!), problem.Detail);
+		Assert.DoesNotContain(exception.Message, problem.Detail);
+	}
+
+	[Fact]
+	public void OnException_NeverLeaksIdentifiersFromTheExceptionMessage()
+	{
+		// Arrange
+		var filter = new CommentsExceptionFilterAttribute();
+		var id = Guid.NewGuid();
+		var context = CreateContext(new CommentConflictException(
+			$"Comment {id} can only be edited within 15 minutes of posting.",
+			CommentErrorCodes.EditWindowExpired));
+
+		// Act
+		filter.OnException(context);
+
+		// Assert
+		var problem = Assert.IsType<ProblemDetails>(Assert.IsType<ObjectResult>(context.Result).Value);
+		Assert.DoesNotContain(id.ToString(), problem.Detail);
+		Assert.Equal(CommentErrorCodes.EditWindowExpired, problem.Extensions["code"]);
+		Assert.Contains("15 minutes", problem.Detail);
 	}
 
 	public static TheoryData<Exception> Unmapped => new()

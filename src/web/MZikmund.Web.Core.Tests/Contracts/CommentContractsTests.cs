@@ -176,12 +176,13 @@ public class CommentContractsTests
 	}
 
 	[Fact]
-	public void Contracts_DeclareExactlyTheTenCanonicalTypes()
+	public void Contracts_DeclareExactlyTheElevenCanonicalTypes()
 	{
 		// Arrange
 		var expected = new[]
 		{
 			"CommentDto",
+			"CommentErrorCodes",
 			"CommentLimits",
 			"CommentModerationDto",
 			"CommentReportDto",
