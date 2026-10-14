@@ -1,12 +1,7 @@
 using System.Text.Json.Serialization;
 using AutoMapper;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Protocols;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Microsoft.IdentityModel.Tokens;
 using MZikmund.Web.Configuration;
 using MZikmund.Web.Configuration.Connections;
 using MZikmund.Web.Core.Content.Meta;
@@ -16,10 +11,12 @@ using MZikmund.Web.Core.Middleware;
 using MZikmund.Web.Core.Properties;
 using MZikmund.Web.Core.Services;
 using MZikmund.Web.Core.Services.Blobs;
+using MZikmund.Web.Core.Services.Comments;
 using MZikmund.Web.Core.Syndication;
 using MZikmund.Web.Data;
 using MZikmund.Web.Data.Extensions;
 using MZikmund.Web.Infrastructure.Auth;
+using MZikmund.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -55,6 +52,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 	services.AddScoped<YouTubeRssFeedParser>();
 	services.AddHttpContextAccessor();
 	services.AddScoped<MetaTagsInfo>();
+	services.AddScoped<ICurrentUserAccessor, CurrentUserAccessor>();
 	services.AddCors(options =>
 	{
 		options.AddPolicy("WasmAppPolicy",
@@ -75,79 +73,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 		option.AppendTrailingSlash = false;
 	});
 
-	// --- Supabase authentication ---------------------------------------------------------------
-	// ONE registration for every environment. The local Supabase CLI stack (v2.71.1 and newer)
-	// signs access tokens with ES256 and publishes the key at /auth/v1/.well-known/jwks.json,
-	// exactly like the hosted project - so there is no HS256 branch and no second code path.
-	// The only thing that differs is the base URL, which comes from configuration:
-	//     Production  -> Supabase:ProjectRef => https://<ref>.supabase.co
-	//     Development -> Supabase:LocalUrl   => http://127.0.0.1:54321
-	// plus the plain-HTTP exemption that a loopback URL needs for metadata retrieval.
-	var supabaseOptions = configuration.GetSection("Supabase").Get<SupabaseOptions>() ?? new SupabaseOptions();
-
-	// Derived from the URL rather than from IWebHostEnvironment, so a stray LocalUrl in production
-	// cannot silently disable TLS for a public host.
-	var supabaseIsLoopbackHttp =
-		Uri.TryCreate(supabaseOptions.BaseUrl, UriKind.Absolute, out var supabaseUri) &&
-		supabaseUri.Scheme == Uri.UriSchemeHttp &&
-		supabaseUri.IsLoopback;
-
-	services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-		.AddJwtBearer(options =>
-		{
-			options.RequireHttpsMetadata = !supabaseIsLoopbackHttp;
-
-			// Deliberately NOT options.Authority. That fetches /.well-known/openid-configuration,
-			// which Supabase serves with an empty issuer and relative endpoints in several
-			// deployments. Supplying a ConfigurationManager also keeps the JWKS fetch LAZY, so
-			// `dotnet run` with no Supabase reachable still serves every anonymous page and only
-			// authenticated requests fail. That property is intentional - do not validate the
-			// Supabase configuration at startup.
-			options.ConfigurationManager = new ConfigurationManager<OpenIdConnectConfiguration>(
-				supabaseOptions.JwksUri,
-				new SupabaseJwksConfigurationRetriever(supabaseOptions.Issuer),
-				new HttpDocumentRetriever { RequireHttps = !supabaseIsLoopbackHttp });
-
-			// Recover automatically when Supabase rotates its signing key.
-			options.RefreshOnIssuerKeyNotFound = true;
-
-			// Keep the raw Supabase claim names. With the default mapping on, "sub" becomes
-			// ClaimTypes.NameIdentifier and Supabase's Postgres "role" claim ("authenticated")
-			// becomes a genuine ASP.NET role for every signed-in user.
-			options.MapInboundClaims = false;
-
-			options.TokenValidationParameters = new TokenValidationParameters
-			{
-				ValidateIssuer = true,
-				ValidIssuer = supabaseOptions.Issuer,
-				ValidateAudience = true,
-				ValidAudience = "authenticated",
-				ValidateLifetime = true,
-				ValidateIssuerSigningKey = true,
-
-				// SECURITY: pin the asymmetric algorithms. The local stack also ships a publicly
-				// known HS256 secret (it signs the legacy anon/service_role API keys). Without
-				// this pin, anyone could mint an admin token with that public secret.
-				ValidAlgorithms = [SecurityAlgorithms.EcdsaSha256, SecurityAlgorithms.RsaSha256],
-
-				NameClaimType = "sub",
-				RoleClaimType = SupabaseClaims.Role,
-				ClockSkew = TimeSpan.FromSeconds(30)
-			};
-		});
-
-	// app_metadata arrives as ONE claim whose value is raw JSON, so the nested role has to be
-	// projected before any policy can read it.
-	services.AddSingleton<IClaimsTransformation, SupabaseAppMetadataClaimsTransformation>();
-
-	services.AddAuthorization(options =>
-	{
-		options.AddPolicy("AdminPolicy", policy =>
-		{
-			policy.RequireAuthenticatedUser();
-			policy.RequireClaim(SupabaseClaims.Role, "admin");
-		});
-	});
+	services.AddSupabaseAuthentication(configuration);
 
 	services.AddLocalization(options => options.ResourcesPath = "Resources");
 
