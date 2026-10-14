@@ -42,4 +42,25 @@ public class OAuthCallbackTests
 		Assert.Null(result.Code);
 		Assert.Equal("missing_code", result.Error);
 	}
+
+	[Fact]
+	public void Parse_AcceptsCodeWithoutState_WhenNoStateIsExpected()
+	{
+		var result = OAuthCallback.Parse(new Uri("mzikmund-app://oauthcallback?code=abc"), null);
+
+		Assert.Equal("abc", result.Code);
+		Assert.Null(result.Error);
+	}
+
+	[Fact]
+	public void Parse_ReturnsErrorFromTheFragment()
+	{
+		var result = OAuthCallback.Parse(
+			new Uri("mzikmund-app://oauthcallback#error=server_error&error_description=Unable+to+exchange"),
+			null);
+
+		Assert.Null(result.Code);
+		Assert.Equal("server_error", result.Error);
+		Assert.Equal("Unable to exchange", result.ErrorDescription);
+	}
 }
