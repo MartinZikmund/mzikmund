@@ -22,8 +22,8 @@ dotnet build
 ```bash
 cd src/web/MZikmund.Web
 npm install   # Required first time for frontend dependencies
-dotnet run
-# Accessible at https://localhost:5001
+dotnet run --launch-profile https
+# Accessible at https://localhost:7007
 ```
 
 ### Run Uno Platform App
@@ -47,7 +47,7 @@ dotnet test
 ```
 
 ### Verifying Web App Changes
-After making changes to the web application, run the app locally and use the Playwright MCP to verify the changes visually in the browser (navigate to `https://localhost:5001`, take snapshots/screenshots, and confirm the UI renders correctly).
+After making changes to the web application, run the app locally and use the Playwright MCP to verify the changes visually in the browser (navigate to `https://localhost:7007`, take snapshots/screenshots, and confirm the UI renders correctly).
 
 ### Database Migrations
 ```bash
@@ -117,7 +117,7 @@ Use Uno APP MCP to test the desktop app.
 
 **Web API**: JWT Bearer tokens via Auth0. Admin policy requires `permissions` claim with `admin:all`. Config keys: `Auth0:Domain`, `Auth0:Audience`.
 
-**Uno App**: Platform-native OAuth2 with PKCE. Windows uses `OAuth2Manager`, other platforms use Uno's `WebAuthenticator`. Callback URIs: `https://localhost/callback` (Windows), `dev.mzikmund.MZikmund.App://callback` (mobile). See `docs/AUTH0_MIGRATION.md`.
+**Uno App**: Supabase (GoTrue over plain HTTP) with PKCE for Google/Apple and email OTP. Windows waits for the `mzikmund-app://oauthcallback` protocol activation, desktop uses a loopback listener, other heads use `WebAuthenticationBroker`. Only `app_metadata.role == "admin"` shows the Admin menu. See `docs/SUPABASE_AUTH.md`. (Auth0 app config is pending removal.)
 
 ### Package and Build Configuration
 

@@ -462,4 +462,226 @@
   <data name="PickCategories" xml:space="preserve">
     <value>Pick categories</value>
   </data>
+  <data name="SignInTitle" xml:space="preserve">
+    <value>Sign in</value>
+  </data>
+  <data name="SignInWithGoogle" xml:space="preserve">
+    <value>Continue with Google</value>
+  </data>
+  <data name="SignInWithApple" xml:space="preserve">
+    <value>Continue with Apple</value>
+  </data>
+  <data name="SignInWithEmail" xml:space="preserve">
+    <value>Continue with email</value>
+  </data>
+  <data name="SignInPrivacyNote" xml:space="preserve">
+    <value>Your account is only used to sign you in.</value>
+  </data>
+  <data name="PrivacyPolicy" xml:space="preserve">
+    <value>Privacy policy</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="SendCode" xml:space="preserve">
+    <value>Send code</value>
+  </data>
+  <data name="SignInCode" xml:space="preserve">
+    <value>6-digit code</value>
+  </data>
+  <data name="SignInCodePromptFormat" xml:space="preserve">
+    <value>We sent a 6-digit code to {0}.</value>
+  </data>
+  <data name="Verify" xml:space="preserve">
+    <value>Verify</value>
+  </data>
+  <data name="UseDifferentEmail" xml:space="preserve">
+    <value>Use a different email</value>
+  </data>
+  <data name="Comments" xml:space="preserve">
+    <value>Comments</value>
+  </data>
+  <data name="CommentsSortTop" xml:space="preserve">
+    <value>Top</value>
+  </data>
+  <data name="CommentsSortNew" xml:space="preserve">
+    <value>New</value>
+  </data>
+  <data name="CommentPlaceholder" xml:space="preserve">
+    <value>Add a comment...</value>
+  </data>
+  <data name="CommentPost" xml:space="preserve">
+    <value>Post</value>
+  </data>
+  <data name="CommentReplyingToFormat" xml:space="preserve">
+    <value>Replying to {0}</value>
+  </data>
+  <data name="CommentMarkdownHint" xml:space="preserve">
+    <value>Markdown: **bold**, *italic*, `code`, links</value>
+  </data>
+  <data name="CommentUpvote" xml:space="preserve">
+    <value>Upvote</value>
+  </data>
+  <data name="CommentReply" xml:space="preserve">
+    <value>Reply</value>
+  </data>
+  <data name="CommentReport" xml:space="preserve">
+    <value>Report</value>
+  </data>
+  <data name="CommentEdit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="CommentEdited" xml:space="preserve">
+    <value>edited</value>
+  </data>
+  <data name="CommentAuthorBadge" xml:space="preserve">
+    <value>Author</value>
+  </data>
+  <data name="CommentRemoved" xml:space="preserve">
+    <value>[removed]</value>
+  </data>
+  <data name="CommentDeleted" xml:space="preserve">
+    <value>[deleted]</value>
+  </data>
+  <data name="CommentShowMoreRepliesFormat" xml:space="preserve">
+    <value>Show {0} more replies</value>
+  </data>
+  <data name="CommentsEmptyTitle" xml:space="preserve">
+    <value>No comments yet</value>
+  </data>
+  <data name="CommentsEmptyBody" xml:space="preserve">
+    <value>Be the first to share your thoughts.</value>
+  </data>
+  <data name="CommentDeleteTitle" xml:space="preserve">
+    <value>Delete comment</value>
+  </data>
+  <data name="CommentDeleteConfirm" xml:space="preserve">
+    <value>Delete this comment? This cannot be undone.</value>
+  </data>
+  <data name="CommentSlowDown" xml:space="preserve">
+    <value>Slow down a little and try again in a moment.</value>
+  </data>
+  <data name="CommentSlowDownWaitFormat" xml:space="preserve">
+    <value>Slow down a little. Try again in {0}.</value>
+  </data>
+  <data name="CommentBanned" xml:space="preserve">
+    <value>You can no longer comment.</value>
+  </data>
+  <data name="CommentGenericError" xml:space="preserve">
+    <value>Something went wrong. Please try again.</value>
+  </data>
+  <data name="CommentPostFailed" xml:space="preserve">
+    <value>Could not post the comment</value>
+  </data>
+  <data name="CommentActionFailed" xml:space="preserve">
+    <value>That did not work</value>
+  </data>
+  <data name="CommentTooLongFormat" xml:space="preserve">
+    <value>Comments can be at most {0} characters long.</value>
+  </data>
+  <data name="CommentReportedTitle" xml:space="preserve">
+    <value>Report sent</value>
+  </data>
+  <data name="CommentReportedText" xml:space="preserve">
+    <value>Thanks, the comment will be reviewed.</value>
+  </data>
+  <data name="CommentCancelReply" xml:space="preserve">
+    <value>Cancel reply</value>
+  </data>
+  <data name="ReportCommentTitle" xml:space="preserve">
+    <value>Report comment</value>
+  </data>
+  <data name="ReportCommentSubmit" xml:space="preserve">
+    <value>Report</value>
+  </data>
+  <data name="ReportReasonSpam" xml:space="preserve">
+    <value>Spam</value>
+  </data>
+  <data name="ReportReasonAbuse" xml:space="preserve">
+    <value>Harassment or abuse</value>
+  </data>
+  <data name="ReportReasonOffTopic" xml:space="preserve">
+    <value>Off topic</value>
+  </data>
+  <data name="ReportReasonOther" xml:space="preserve">
+    <value>Something else</value>
+  </data>
+  <data name="ReportNoteHeader" xml:space="preserve">
+    <value>Details (optional)</value>
+  </data>
+  <data name="ModeratorReportedHeader" xml:space="preserve">
+    <value>Reported</value>
+  </data>
+  <data name="ModeratorNewestHeader" xml:space="preserve">
+    <value>Newest comments</value>
+  </data>
+  <data name="ModeratorNothingToReview" xml:space="preserve">
+    <value>Nothing to review</value>
+  </data>
+  <data name="ModeratorHide" xml:space="preserve">
+    <value>Hide</value>
+  </data>
+  <data name="ModeratorBan" xml:space="preserve">
+    <value>Ban author</value>
+  </data>
+  <data name="ModeratorDismiss" xml:space="preserve">
+    <value>Dismiss report</value>
+  </data>
+  <data name="ModeratorReportCountFormat" xml:space="preserve">
+    <value>{0} reports</value>
+  </data>
+  <data name="ModeratorReportMetaFormat" xml:space="preserve">
+    <value>{0} · first reported {1}</value>
+  </data>
+  <data name="ModeratorAwaitingFormat" xml:space="preserve">
+    <value>{0} awaiting review</value>
+  </data>
+  <data name="ModeratorDeleteTitle" xml:space="preserve">
+    <value>Delete this comment?</value>
+  </data>
+  <data name="ModeratorDeleteText" xml:space="preserve">
+    <value>The comment is removed for everyone and its text is erased. This cannot be undone.</value>
+  </data>
+  <data name="ModeratorBanTitle" xml:space="preserve">
+    <value>Ban this author?</value>
+  </data>
+  <data name="ModeratorBanText" xml:space="preserve">
+    <value>They will no longer be able to comment, vote or report.</value>
+  </data>
+  <data name="ModeratorStatusHidden" xml:space="preserve">
+    <value>Hidden</value>
+  </data>
+  <data name="ModeratorStatusDeleted" xml:space="preserve">
+    <value>Deleted</value>
+  </data>
+  <data name="CommentUpvoted" xml:space="preserve">
+    <value>Upvoted, select to remove</value>
+  </data>
+  <data name="CommentEditEmpty" xml:space="preserve">
+    <value>A comment cannot be empty.</value>
+  </data>
+  <data name="CommentErrorNotFound" xml:space="preserve">
+    <value>That comment or post is no longer available.</value>
+  </data>
+  <data name="CommentErrorForbidden" xml:space="preserve">
+    <value>You are not allowed to do that.</value>
+  </data>
+  <data name="CommentErrorValidation" xml:space="preserve">
+    <value>The request is not valid.</value>
+  </data>
+  <data name="CommentErrorConflict" xml:space="preserve">
+    <value>That action is not available for this comment.</value>
+  </data>
+  <data name="CommentErrorEditWindowFormat" xml:space="preserve">
+    <value>A comment can only be edited within {0} minutes of posting.</value>
+  </data>
+  <data name="CommentErrorNotVisible" xml:space="preserve">
+    <value>That comment is no longer visible.</value>
+  </data>
+  <data name="CommentErrorOwnComment" xml:space="preserve">
+    <value>You cannot do that to your own comment.</value>
+  </data>
+  <data name="CommentErrorHidden" xml:space="preserve">
+    <value>A moderator hid this comment, so it cannot be deleted.</value>
+  </data>
 </root>

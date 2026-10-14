@@ -27,6 +27,7 @@ public sealed partial class WindowShell : Page, IWindowShell
 
 		_windowScope = serviceProvider.CreateScope();
 		_associatedWindow = associatedWindow;
+		_associatedWindow.Closed += (_, _) => _windowScope.Dispose();
 
 		var windowShellProvider = (WindowShellProvider)ServiceProvider.GetRequiredService<IWindowShellProvider>();
 		windowShellProvider.SetShell(this, associatedWindow);
@@ -83,6 +84,11 @@ public sealed partial class WindowShell : Page, IWindowShell
 			return;
 		}
 
+		if (args.InvokedItemContainer == NavAdminItem)
+		{
+			ViewModel.RefreshCommentsBadge();
+		}
+
 		switch ((args.InvokedItemContainer as FrameworkElement)?.Tag as string)
 		{
 			case "Home":
@@ -108,6 +114,9 @@ public sealed partial class WindowShell : Page, IWindowShell
 				break;
 			case "CategoriesManager":
 				NavigateTopLevel<CategoriesManagerViewModel>();
+				break;
+			case "CommentsModerator":
+				NavigateTopLevel<CommentsModeratorViewModel>();
 				break;
 			case "Login":
 				await ViewModel.LoginCommand.ExecuteAsync(null);

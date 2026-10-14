@@ -1,0 +1,452 @@
+<UserControl
+    x:Class="MZikmund.Views.CommentsView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:items="using:MZikmund.ViewModels.Items"
+    xmlns:local="using:MZikmund.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:xaml="using:MZikmund.Extensions.Xaml"
+    mc:Ignorable="d">
+
+    <UserControl.Resources>
+        <!--  The tag pill has no selected state of its own; the selected sort option borrows the hover look.  -->
+        <Style
+            x:Key="CommentSortSelectedStyle"
+            BasedOn="{StaticResource MzTagPillButtonStyle}"
+            TargetType="Button">
+            <Setter Property="Background" Value="{ThemeResource MzAccentSubtleBrush}" />
+            <Setter Property="BorderBrush" Value="{ThemeResource MzAccentTextBrush}" />
+            <Setter Property="Foreground" Value="{ThemeResource MzAccentTextBrush}" />
+        </Style>
+
+        <!--  A reply: no nested replies, a smaller avatar.  -->
+        <DataTemplate x:Key="ReplyTemplate" x:DataType="items:CommentItemViewModel">
+            <Grid ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <PersonPicture
+                    Width="24"
+                    Height="24"
+                    VerticalAlignment="Top"
+                    DisplayName="{x:Bind DisplayName}"
+                    ProfilePicture="{x:Bind local:CommentsView.ToAvatar(AvatarUri)}"
+                    Visibility="{x:Bind IsNotTombstone, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                <StackPanel Grid.Column="1" Spacing="4">
+                    <Grid ColumnSpacing="8" Visibility="{x:Bind IsNotTombstone, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            VerticalAlignment="Center"
+                            Style="{StaticResource MzRowTitleTextStyle}"
+                            Text="{x:Bind DisplayName}" />
+                        <ContentControl
+                            Grid.Column="1"
+                            VerticalAlignment="Center"
+                            Content="{xaml:Localize Key=CommentAuthorBadge}"
+                            Style="{StaticResource MzBadgeAccentStyle}"
+                            Visibility="{x:Bind IsAuthorAdmin, Converter={StaticResource BoolToVisibilityConverter}}" />
+                        <TextBlock
+                            Grid.Column="2"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource MzMetaTextStyle}"
+                            Text="{x:Bind MetaText, Mode=OneWay}"
+                            TextTrimming="CharacterEllipsis" />
+                    </Grid>
+                    <TextBlock
+                        xaml:CommentText.Markdown="{x:Bind Content, Mode=OneWay}"
+                        xaml:CommentText.Prefix="{x:Bind MentionPrefix}"
+                        IsTextSelectionEnabled="True"
+                        Style="{StaticResource MzBodyTextStyle}"
+                        TextWrapping="Wrap"
+                        Visibility="{x:Bind ShowBody, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                    <TextBlock
+                        FontStyle="Italic"
+                        Style="{StaticResource MzMetaTextStyle}"
+                        Text="{x:Bind TombstoneText}"
+                        Visibility="{x:Bind IsTombstone, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                    <StackPanel Spacing="8" Visibility="{x:Bind ShowEditor, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TextBox
+                            AcceptsReturn="True"
+                            AutomationProperties.AutomationId="CommentEditText"
+                            MaxHeight="200"
+                            MaxLength="{x:Bind EditMaxLength}"
+                            Text="{x:Bind EditText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            TextWrapping="Wrap" />
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button
+                                AutomationProperties.AutomationId="CommentEditSave"
+                                Click="SaveEdit_Click"
+                                Content="{xaml:Localize Key=Save}"
+                                IsEnabled="{x:Bind CanSaveEdit, Mode=OneWay}"
+                                Style="{StaticResource MzAccentButtonSmallStyle}"
+                                Tag="{x:Bind}" />
+                            <Button
+                                AutomationProperties.AutomationId="CommentEditCancel"
+                                Click="CancelEdit_Click"
+                                Content="{xaml:Localize Key=Cancel}"
+                                Style="{StaticResource MzStandardButtonSmallStyle}"
+                                Tag="{x:Bind}" />
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                Style="{StaticResource MzMetaTextStyle}"
+                                Text="{x:Bind EditLengthText, Mode=OneWay}" />
+                        </StackPanel>
+                        <TextBlock
+                            AutomationProperties.AutomationId="CommentEditError"
+                            Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                            Style="{StaticResource MzMetaTextStyle}"
+                            Text="{x:Bind EditError, Mode=OneWay}"
+                            Visibility="{x:Bind HasEditError, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                    </StackPanel>
+                    <StackPanel
+                        Orientation="Horizontal"
+                        Spacing="4"
+                        Visibility="{x:Bind ShowBody, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Button
+                            AutomationProperties.AutomationId="CommentUpvote"
+                            AutomationProperties.Name="{x:Bind UpvoteAutomationName, Mode=OneWay}"
+                            Click="Upvote_Click"
+                            Style="{x:Bind local:CommentsView.UpvoteStyle(HasUpvoted), Mode=OneWay}"
+                            Tag="{x:Bind}">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <FontIcon
+                                    FontFamily="{StaticResource MzIconFontFamily}"
+                                    FontSize="14"
+                                    Glyph="{x:Bind local:CommentsView.UpvoteGlyph(HasUpvoted), Mode=OneWay}" />
+                                <TextBlock Text="{x:Bind UpvoteCountText, Mode=OneWay}" />
+                            </StackPanel>
+                        </Button>
+                        <Button
+                            AutomationProperties.AutomationId="CommentReply"
+                            Click="Reply_Click"
+                            Style="{StaticResource MzSubtleButtonSmallStyle}"
+                            Tag="{x:Bind}">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <FontIcon
+                                    FontFamily="{StaticResource MzIconFontFamily}"
+                                    FontSize="14"
+                                    Glyph="{StaticResource MzGlyphReply}" />
+                                <TextBlock Text="{xaml:Localize Key=CommentReply}" />
+                            </StackPanel>
+                        </Button>
+                        <Button
+                            AutomationProperties.AutomationId="CommentMore"
+                            AutomationProperties.Name="{xaml:Localize Key=MoreActions}"
+                            Click="More_Click"
+                            Style="{StaticResource MzSubtleButtonSmallStyle}"
+                            Tag="{x:Bind}">
+                            <FontIcon
+                                FontFamily="{StaticResource MzIconFontFamily}"
+                                FontSize="14"
+                                Glyph="{StaticResource MzGlyphMore}" />
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="CommentTemplate" x:DataType="items:CommentItemViewModel">
+            <Grid ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <PersonPicture
+                    Width="32"
+                    Height="32"
+                    VerticalAlignment="Top"
+                    DisplayName="{x:Bind DisplayName}"
+                    ProfilePicture="{x:Bind local:CommentsView.ToAvatar(AvatarUri)}"
+                    Visibility="{x:Bind IsNotTombstone, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                <StackPanel Grid.Column="1" Spacing="4">
+                    <Grid ColumnSpacing="8" Visibility="{x:Bind IsNotTombstone, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            VerticalAlignment="Center"
+                            Style="{StaticResource MzRowTitleTextStyle}"
+                            Text="{x:Bind DisplayName}" />
+                        <ContentControl
+                            Grid.Column="1"
+                            VerticalAlignment="Center"
+                            Content="{xaml:Localize Key=CommentAuthorBadge}"
+                            Style="{StaticResource MzBadgeAccentStyle}"
+                            Visibility="{x:Bind IsAuthorAdmin, Converter={StaticResource BoolToVisibilityConverter}}" />
+                        <TextBlock
+                            Grid.Column="2"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource MzMetaTextStyle}"
+                            Text="{x:Bind MetaText, Mode=OneWay}"
+                            TextTrimming="CharacterEllipsis" />
+                    </Grid>
+                    <TextBlock
+                        xaml:CommentText.Markdown="{x:Bind Content, Mode=OneWay}"
+                        IsTextSelectionEnabled="True"
+                        Style="{StaticResource MzBodyTextStyle}"
+                        TextWrapping="Wrap"
+                        Visibility="{x:Bind ShowBody, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                    <TextBlock
+                        FontStyle="Italic"
+                        Style="{StaticResource MzMetaTextStyle}"
+                        Text="{x:Bind TombstoneText}"
+                        Visibility="{x:Bind IsTombstone, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                    <StackPanel Spacing="8" Visibility="{x:Bind ShowEditor, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TextBox
+                            AcceptsReturn="True"
+                            AutomationProperties.AutomationId="CommentEditText"
+                            MaxHeight="200"
+                            MaxLength="{x:Bind EditMaxLength}"
+                            Text="{x:Bind EditText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            TextWrapping="Wrap" />
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button
+                                AutomationProperties.AutomationId="CommentEditSave"
+                                Click="SaveEdit_Click"
+                                Content="{xaml:Localize Key=Save}"
+                                IsEnabled="{x:Bind CanSaveEdit, Mode=OneWay}"
+                                Style="{StaticResource MzAccentButtonSmallStyle}"
+                                Tag="{x:Bind}" />
+                            <Button
+                                AutomationProperties.AutomationId="CommentEditCancel"
+                                Click="CancelEdit_Click"
+                                Content="{xaml:Localize Key=Cancel}"
+                                Style="{StaticResource MzStandardButtonSmallStyle}"
+                                Tag="{x:Bind}" />
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                Style="{StaticResource MzMetaTextStyle}"
+                                Text="{x:Bind EditLengthText, Mode=OneWay}" />
+                        </StackPanel>
+                        <TextBlock
+                            AutomationProperties.AutomationId="CommentEditError"
+                            Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                            Style="{StaticResource MzMetaTextStyle}"
+                            Text="{x:Bind EditError, Mode=OneWay}"
+                            Visibility="{x:Bind HasEditError, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                    </StackPanel>
+                    <StackPanel
+                        Orientation="Horizontal"
+                        Spacing="4"
+                        Visibility="{x:Bind ShowBody, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Button
+                            AutomationProperties.AutomationId="CommentUpvote"
+                            AutomationProperties.Name="{x:Bind UpvoteAutomationName, Mode=OneWay}"
+                            Click="Upvote_Click"
+                            Style="{x:Bind local:CommentsView.UpvoteStyle(HasUpvoted), Mode=OneWay}"
+                            Tag="{x:Bind}">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <FontIcon
+                                    FontFamily="{StaticResource MzIconFontFamily}"
+                                    FontSize="14"
+                                    Glyph="{x:Bind local:CommentsView.UpvoteGlyph(HasUpvoted), Mode=OneWay}" />
+                                <TextBlock Text="{x:Bind UpvoteCountText, Mode=OneWay}" />
+                            </StackPanel>
+                        </Button>
+                        <Button
+                            AutomationProperties.AutomationId="CommentReply"
+                            Click="Reply_Click"
+                            Style="{StaticResource MzSubtleButtonSmallStyle}"
+                            Tag="{x:Bind}">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <FontIcon
+                                    FontFamily="{StaticResource MzIconFontFamily}"
+                                    FontSize="14"
+                                    Glyph="{StaticResource MzGlyphReply}" />
+                                <TextBlock Text="{xaml:Localize Key=CommentReply}" />
+                            </StackPanel>
+                        </Button>
+                        <Button
+                            AutomationProperties.AutomationId="CommentMore"
+                            AutomationProperties.Name="{xaml:Localize Key=MoreActions}"
+                            Click="More_Click"
+                            Style="{StaticResource MzSubtleButtonSmallStyle}"
+                            Tag="{x:Bind}">
+                            <FontIcon
+                                FontFamily="{StaticResource MzIconFontFamily}"
+                                FontSize="14"
+                                Glyph="{StaticResource MzGlyphMore}" />
+                        </Button>
+                    </StackPanel>
+
+                    <Border
+                        Margin="0,8,0,0"
+                        Padding="16,0,0,0"
+                        BorderBrush="{ThemeResource MzStrokeDividerBrush}"
+                        BorderThickness="2,0,0,0"
+                        Visibility="{x:Bind local:CommentsView.HasReplies(Replies.Count, HasMoreReplies), Mode=OneWay}">
+                        <StackPanel Spacing="12">
+                            <ItemsRepeater ItemTemplate="{StaticResource ReplyTemplate}" ItemsSource="{x:Bind Replies}">
+                                <ItemsRepeater.Layout>
+                                    <StackLayout Spacing="12" />
+                                </ItemsRepeater.Layout>
+                            </ItemsRepeater>
+                            <Button
+                                AutomationProperties.AutomationId="CommentMoreReplies"
+                                Click="MoreReplies_Click"
+                                Content="{x:Bind MoreRepliesText, Mode=OneWay}"
+                                IsEnabled="{x:Bind IsNotBusy, Mode=OneWay}"
+                                Style="{StaticResource MzAccentSubtleButtonSmallStyle}"
+                                Tag="{x:Bind}"
+                                Visibility="{x:Bind HasMoreReplies, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <ScrollViewer Visibility="{x:Bind ViewModel.IsPanelVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+        <Grid Padding="16">
+            <StackPanel Style="{StaticResource MzPageContainerStackStyle}">
+                <Grid Margin="0,0,0,12" ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal"
+                        Spacing="8">
+                        <TextBlock
+                            Margin="0"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource MzSectionHeadingTextStyle}"
+                            Text="{xaml:Localize Key=Comments}" />
+                        <TextBlock
+                            VerticalAlignment="Center"
+                            Style="{StaticResource MzCountTextStyle}"
+                            Text="{x:Bind ViewModel.CountText, Mode=OneWay}" />
+                    </StackPanel>
+                    <StackPanel
+                        Grid.Column="1"
+                        Orientation="Horizontal"
+                        Spacing="8">
+                        <Button
+                            AutomationProperties.AutomationId="CommentsSortTop"
+                            Click="SortTop_Click"
+                            Content="{xaml:Localize Key=CommentsSortTop}"
+                            Style="{x:Bind SortStyle(ViewModel.IsSortTop), Mode=OneWay}" />
+                        <Button
+                            AutomationProperties.AutomationId="CommentsSortNew"
+                            Click="SortNew_Click"
+                            Content="{xaml:Localize Key=CommentsSortNew}"
+                            Style="{x:Bind SortStyle(ViewModel.IsSortNew), Mode=OneWay}" />
+                    </StackPanel>
+                </Grid>
+
+                <Border Margin="0,0,0,16" Style="{StaticResource MzLayerSurfaceStyle}">
+                    <StackPanel Padding="16" Spacing="12">
+                        <Grid ColumnSpacing="8" Visibility="{x:Bind ViewModel.IsReplying, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ContentControl
+                                VerticalAlignment="Center"
+                                Content="{x:Bind ViewModel.ReplyingToText, Mode=OneWay}"
+                                Style="{StaticResource MzBadgeSubtleStyle}" />
+                            <Button
+                                Grid.Column="1"
+                                AutomationProperties.AutomationId="CommentCancelReply"
+                                AutomationProperties.Name="{xaml:Localize Key=CommentCancelReply}"
+                                Command="{x:Bind ViewModel.CancelReplyCommand}"
+                                Style="{StaticResource MzSubtleButtonSmallStyle}"
+                                ToolTipService.ToolTip="{xaml:Localize Key=CommentCancelReply}">
+                                <FontIcon
+                                    FontFamily="{StaticResource MzIconFontFamily}"
+                                    FontSize="14"
+                                    Glyph="{StaticResource MzGlyphDismiss}" />
+                            </Button>
+                        </Grid>
+                        <TextBox
+                            AcceptsReturn="True"
+                            AutomationProperties.AutomationId="CommentDraft"
+                            AutomationProperties.Name="{xaml:Localize Key=Comments}"
+                            MaxHeight="200"
+                            MinHeight="80"
+                            PlaceholderText="{xaml:Localize Key=CommentPlaceholder}"
+                            Text="{x:Bind ViewModel.DraftText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            TextWrapping="Wrap" />
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                Style="{StaticResource MzMetaTextStyle}"
+                                Text="{xaml:Localize Key=CommentMarkdownHint}" />
+                            <TextBlock
+                                Grid.Column="1"
+                                VerticalAlignment="Center"
+                                Style="{StaticResource MzMetaTextStyle}"
+                                Text="{x:Bind ViewModel.DraftLengthText, Mode=OneWay}"
+                                Visibility="{x:Bind ViewModel.IsDraftTooLong, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
+                            <TextBlock
+                                Grid.Column="1"
+                                VerticalAlignment="Center"
+                                Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                Style="{StaticResource MzMetaTextStyle}"
+                                Text="{x:Bind ViewModel.DraftLengthText, Mode=OneWay}"
+                                Visibility="{x:Bind ViewModel.IsDraftTooLong, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                            <Button
+                                Grid.Column="2"
+                                AutomationProperties.AutomationId="CommentPost"
+                                Command="{x:Bind ViewModel.PostCommand}"
+                                Content="{xaml:Localize Key=CommentPost}"
+                                Style="{StaticResource MzAccentButtonStyle}" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <ItemsRepeater ItemTemplate="{StaticResource CommentTemplate}" ItemsSource="{x:Bind ViewModel.Comments}">
+                    <ItemsRepeater.Layout>
+                        <StackLayout Spacing="20" />
+                    </ItemsRepeater.Layout>
+                </ItemsRepeater>
+
+                <Button
+                    Margin="0,16,0,0"
+                    HorizontalAlignment="Center"
+                    AutomationProperties.AutomationId="CommentsLoadMore"
+                    Command="{x:Bind ViewModel.LoadMoreCommand}"
+                    Content="{xaml:Localize Key=LoadMore}"
+                    Style="{StaticResource MzStandardButtonStyle}"
+                    Visibility="{x:Bind ViewModel.CanLoadMore, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+                <ProgressRing
+                    Margin="0,24"
+                    IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                    Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+                <StackPanel Style="{StaticResource MzEmptyStatePanelStyle}" Visibility="{x:Bind ViewModel.IsEmpty, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <FontIcon Glyph="{StaticResource MzGlyphComment}" Style="{StaticResource MzEmptyStateIconStyle}" />
+                    <TextBlock Style="{StaticResource MzEmptyStateTitleTextStyle}" Text="{xaml:Localize Key=CommentsEmptyTitle}" />
+                    <TextBlock Style="{StaticResource MzEmptyStateBodyTextStyle}" Text="{xaml:Localize Key=CommentsEmptyBody}" />
+                </StackPanel>
+
+                <StackPanel Style="{StaticResource MzEmptyStatePanelStyle}" Visibility="{x:Bind ViewModel.HasError, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <FontIcon Glyph="{StaticResource MzGlyphWarning}" Style="{StaticResource MzEmptyStateIconStyle}" />
+                    <TextBlock Style="{StaticResource MzEmptyStateTitleTextStyle}" Text="{xaml:Localize Key=CouldNotLoadData}" />
+                    <TextBlock Style="{StaticResource MzEmptyStateBodyTextStyle}" Text="{xaml:Localize Key=ErrorLoadingData}" />
+                    <Button
+                        HorizontalAlignment="Center"
+                        AutomationProperties.AutomationId="CommentsRetry"
+                        Command="{x:Bind ViewModel.RetryCommand}"
+                        Content="{xaml:Localize Key=Retry}"
+                        Style="{StaticResource MzStandardButtonStyle}" />
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

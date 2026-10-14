@@ -13,12 +13,15 @@ public partial class PostViewModel : PageViewModel
 	private readonly ILogger<PostViewModel> _logger;
 	private Guid _postId;
 
-	public PostViewModel(IMZikmundApi api, IOptions<AppConfig> appConfig, ILogger<PostViewModel> logger)
+	public PostViewModel(IMZikmundApi api, IOptions<AppConfig> appConfig, CommentsViewModel comments, ILogger<PostViewModel> logger)
 	{
+		Comments = comments;
 		_api = api;
 		_appConfig = appConfig;
 		_logger = logger;
 	}
+
+	public CommentsViewModel Comments { get; }
 
 	public override string Title => Post?.Title ?? "";
 
@@ -36,6 +39,9 @@ public partial class PostViewModel : PageViewModel
 	[ObservableProperty]
 	public partial bool HasError { get; set; }
 
+	[ObservableProperty]
+	public partial bool IsCommentsOpen { get; set; }
+
 	private Uri WebRoot => new((_appConfig.Value.WebUrl ?? throw new InvalidOperationException("WebUrl is not set in configuration")).TrimEnd('/') + "/");
 
 	public override void ViewNavigatedTo(object? parameter)
@@ -49,10 +55,14 @@ public partial class PostViewModel : PageViewModel
 		Post = null;
 		IsLoading = true;
 		HasError = false;
+		IsCommentsOpen = false;
 
 		// The embed renders the hero itself, so the page can start loading before the API answers.
 		EmbedUrl = new Uri(WebRoot, $"embed/post/{postId}");
 		_ = LoadPostAsync();
+
+		// Loaded up front so the header can show the count before the panel opens.
+		_ = Comments.LoadAsync(postId);
 	}
 
 	private async Task LoadPostAsync()
@@ -89,6 +99,9 @@ public partial class PostViewModel : PageViewModel
 		EmbedUrl = null;
 		EmbedUrl = url;
 	}
+
+	[RelayCommand]
+	private void ToggleComments() => IsCommentsOpen = !IsCommentsOpen;
 
 	private bool CanOpenInBrowser() => Post is not null;
 

@@ -1,0 +1,542 @@
+// =============================================================================
+// Comments — a list of layered cards, a TextBox composer, and the site's first
+// true modal surface (the sign-in dialog).
+//
+// .comment deliberately does NOT reuse .card: _motion.scss gives .card a Reveal
+// highlight and a hover lift, and .card__link::after { inset: 0 } assumes one
+// stretched link. A comment carries several buttons, so it needs its own block.
+// =============================================================================
+
+@layer components {
+
+	// Several rules below set `display`, which would otherwise beat the UA's
+	// [hidden] and leave "hidden" elements showing.
+	.comments [hidden] {
+		display: none !important;
+	}
+
+	.comments {
+		margin-block-start: var(--mz-space-9);
+		padding-block-start: var(--mz-space-6);
+		border-block-start: 1px solid var(--mz-stroke-divider);
+		scroll-margin-block-start: calc(var(--mz-header-height) + var(--mz-space-4));
+	}
+
+	.comments__header {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--mz-space-3);
+		margin-block-end: var(--mz-space-5);
+	}
+
+	.comments__title {
+		display: flex;
+		align-items: center;
+		gap: var(--mz-space-2);
+		margin: 0;
+		font-size: var(--mz-text-title);
+		font-weight: var(--mz-weight-semibold);
+		line-height: var(--mz-leading-tight);
+	}
+
+	.comments__count {
+		color: var(--mz-text-tertiary);
+		font-weight: var(--mz-weight-regular);
+	}
+
+	.comments__sort {
+		display: flex;
+		gap: var(--mz-space-1);
+		padding: var(--mz-space-1);
+		border-radius: var(--mz-radius-control);
+		background-color: var(--mz-shimmer);
+	}
+
+	.comments__sort-link {
+		padding: var(--mz-space-1) var(--mz-space-3);
+		border-radius: var(--mz-radius-control);
+		color: var(--mz-text-secondary);
+		font-size: var(--mz-text-caption);
+		font-weight: var(--mz-weight-medium);
+		text-decoration: none;
+		transition:
+			background-color var(--mz-duration-fast) var(--mz-ease-standard),
+			color var(--mz-duration-fast) var(--mz-ease-standard);
+
+		&:hover {
+			color: var(--mz-text-primary);
+		}
+
+		&.is-active {
+			background-color: var(--mz-card);
+			color: var(--mz-text-primary);
+			font-weight: var(--mz-weight-semibold);
+			box-shadow: var(--mz-elev-control);
+		}
+	}
+
+	.comments__list {
+		display: flex;
+		flex-direction: column;
+		gap: var(--mz-space-3);
+	}
+
+	.comments__more {
+		display: flex;
+		justify-content: center;
+		margin-block-start: var(--mz-space-5);
+	}
+
+	.comments__composer-notice {
+		margin: 0 0 var(--mz-space-4);
+		color: var(--mz-text-tertiary);
+		font-size: var(--mz-text-caption);
+	}
+
+	// --- A single comment ----------------------------------------------------
+	.comment {
+		padding: var(--mz-space-4);
+		background-color: var(--mz-card);
+		border: 1px solid var(--mz-stroke-card);
+		border-radius: var(--mz-radius-card);
+		// The deep-link target must clear the sticky header when scrolled to.
+		scroll-margin-block-start: calc(var(--mz-header-height) + var(--mz-space-4));
+
+		// The global focus halo is painted in --mz-bg-base; on this elevated
+		// surface it has to be the card colour instead.
+		:focus-visible {
+			box-shadow: 0 0 0 4px var(--mz-card);
+		}
+	}
+
+	.comment.is-highlighted {
+		border-color: var(--mz-accent-text);
+		box-shadow: 0 0 0 1px var(--mz-accent-text);
+	}
+
+	.comment.is-busy {
+		opacity: 0.6;
+		pointer-events: none;
+	}
+
+	.comment__identity {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--mz-space-2);
+		margin-block-end: var(--mz-space-2);
+	}
+
+	.comment__avatar {
+		width: 2rem;
+		height: 2rem;
+		border-radius: var(--mz-radius-pill);
+		object-fit: cover;
+	}
+
+	.comment__avatar--fallback {
+		color: var(--mz-text-tertiary);
+	}
+
+	.comment__author {
+		font-size: var(--mz-text-body);
+		font-weight: var(--mz-weight-semibold);
+		color: var(--mz-text-primary);
+	}
+
+	// Marks the site owner. Accent-subtle fill keeps contrast in both themes.
+	.comment__badge {
+		padding: 0 var(--mz-space-2);
+		border-radius: var(--mz-radius-pill);
+		background-color: var(--mz-accent-subtle);
+		color: var(--mz-accent-text);
+		font-size: var(--mz-text-caption);
+		font-weight: var(--mz-weight-semibold);
+		line-height: var(--mz-leading-normal);
+	}
+
+	.comment__time,
+	.comment__edited {
+		font-size: var(--mz-text-caption);
+		color: var(--mz-text-tertiary);
+	}
+
+	.comment__mention {
+		margin-inline-end: var(--mz-space-1);
+		color: var(--mz-accent-text);
+		font-weight: var(--mz-weight-semibold);
+	}
+
+	// Deliberately not .prose: an article's serif 19px/1.7 is far too heavy for
+	// a two-line comment. Only the block rules .prose contributes are repeated.
+	.comment__body {
+		color: var(--mz-text-primary);
+		font-size: var(--mz-text-body);
+		line-height: var(--mz-leading-normal);
+		overflow-wrap: anywhere;
+
+		p {
+			margin-block: 0 var(--mz-space-2);
+
+			&:last-child {
+				margin-block-end: 0;
+			}
+		}
+
+		ul,
+		ol {
+			margin-block: 0 var(--mz-space-2);
+			padding-inline-start: var(--mz-space-5);
+		}
+
+		blockquote {
+			margin: 0 0 var(--mz-space-2);
+			padding-inline-start: var(--mz-space-3);
+			border-inline-start: 3px solid var(--mz-stroke-divider);
+			color: var(--mz-text-secondary);
+		}
+
+		code {
+			padding: 0.1em 0.3em;
+			border-radius: var(--mz-radius-control);
+			background-color: var(--mz-shimmer);
+			font-family: var(--mz-font-mono);
+			font-size: 0.9em;
+		}
+
+		pre {
+			margin-block: 0 var(--mz-space-2);
+			padding: var(--mz-space-3);
+			border-radius: var(--mz-radius-control);
+			background-color: var(--mz-bg-secondary);
+			overflow-x: auto;
+
+			code {
+				padding: 0;
+				background: none;
+			}
+		}
+	}
+
+	// "[deleted]" / "[removed]": the replies underneath keep their place.
+	.comment__body--tombstone {
+		color: var(--mz-text-tertiary);
+		font-style: italic;
+	}
+
+	.comment--tombstone {
+		background-color: transparent;
+	}
+
+	.comment__actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--mz-space-1);
+		margin-block-start: var(--mz-space-2);
+	}
+
+	.comment__action {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--mz-space-1);
+		padding: var(--mz-space-1) var(--mz-space-2);
+		border-radius: var(--mz-radius-control);
+		color: var(--mz-text-secondary);
+		font-size: var(--mz-text-caption);
+		font-weight: var(--mz-weight-medium);
+		transition:
+			background-color var(--mz-duration-fast) var(--mz-ease-standard),
+			color var(--mz-duration-fast) var(--mz-ease-standard);
+
+		&:hover {
+			background-color: var(--mz-shimmer);
+			color: var(--mz-text-primary);
+		}
+
+		&[aria-pressed="true"] {
+			background-color: var(--mz-accent-subtle);
+			color: var(--mz-accent-text);
+		}
+	}
+
+	// Short-lived feedback next to the control that failed or succeeded.
+	.comment__notice {
+		margin: var(--mz-space-1) 0 0;
+		color: var(--mz-text-secondary);
+		font-size: var(--mz-text-caption);
+	}
+
+	// Inline editor swapped in for the body while a comment is being edited.
+	.comment__editor {
+		display: flex;
+		flex-direction: column;
+		gap: var(--mz-space-2);
+	}
+
+	.comment__editor-actions {
+		display: flex;
+		justify-content: flex-end;
+		gap: var(--mz-space-2);
+	}
+
+	// --- Replies -------------------------------------------------------------
+	// One level only, and the indent has to survive a 68ch column at 360px.
+	.comment__replies {
+		display: flex;
+		flex-direction: column;
+		gap: var(--mz-space-3);
+		margin-block-start: var(--mz-space-3);
+		padding-inline-start: var(--mz-space-4);
+		border-inline-start: 2px solid var(--mz-stroke-divider);
+
+		&:empty {
+			display: none;
+		}
+	}
+
+	.comment--reply {
+		padding: var(--mz-space-3);
+		background-color: var(--mz-bg-tertiary);
+	}
+
+	.comment__more-replies {
+		align-self: flex-start;
+	}
+
+	// --- Composer ------------------------------------------------------------
+	// The WinUI TextBox idiom: layered fill, hairline border, and an accent
+	// underline that thickens on focus.
+	.comment-composer {
+		display: flex;
+		flex-direction: column;
+		gap: var(--mz-space-3);
+		margin-block-end: var(--mz-space-6);
+		padding: var(--mz-space-4);
+		background-color: var(--mz-card);
+		border: 1px solid var(--mz-stroke-card);
+		border-radius: var(--mz-radius-card);
+	}
+
+	.comment-composer__identity {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--mz-space-2);
+		margin: 0;
+		color: var(--mz-text-secondary);
+		font-size: var(--mz-text-caption);
+	}
+
+	.comment-composer__reply-to {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--mz-space-2);
+		padding: var(--mz-space-2) var(--mz-space-3);
+		border-radius: var(--mz-radius-control);
+		background-color: var(--mz-accent-subtle);
+		color: var(--mz-accent-text);
+		font-size: var(--mz-text-caption);
+	}
+
+	.comment-composer__input,
+	.comment__editor-input {
+		width: 100%;
+		padding: var(--mz-space-3);
+		background-color: var(--mz-bg-tertiary);
+		border: 1px solid var(--mz-stroke-control);
+		border-block-end-width: 2px;
+		border-radius: var(--mz-radius-control);
+		font-size: var(--mz-text-body);
+		line-height: var(--mz-leading-normal);
+		resize: vertical;
+		transition: border-color var(--mz-duration-fast) var(--mz-ease-standard);
+
+		&:hover {
+			background-color: var(--mz-bg-secondary);
+		}
+
+		&:focus {
+			outline: none;
+			background-color: var(--mz-bg-elevated);
+			border-block-end-color: var(--mz-accent-fill);
+		}
+
+		&::placeholder {
+			color: var(--mz-text-tertiary);
+		}
+	}
+
+	.comment-composer__footer {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: flex-end;
+		gap: var(--mz-space-3);
+	}
+
+	.comment-composer__counter {
+		margin: 0;
+		margin-inline-end: auto;
+		color: var(--mz-text-tertiary);
+		font-size: var(--mz-text-caption);
+		font-variant-numeric: tabular-nums;
+	}
+
+	.comment-composer__turnstile {
+		min-width: 0;
+
+		&:empty {
+			display: none;
+		}
+	}
+
+	.comment-composer__status {
+		margin: 0;
+		color: var(--mz-text-secondary);
+		font-size: var(--mz-text-caption);
+
+		&:empty {
+			display: none;
+		}
+	}
+
+	// --- Modal dialog --------------------------------------------------------
+	// The site's first modal. Acrylic like the theme flyout, but WITH a Smoke
+	// scrim — Fluent reserves dimming for modal surfaces.
+	.signin-dialog {
+		width: min(24rem, calc(100vw - var(--mz-space-6)));
+		// The global reset zeroes margins, which would pin the dialog to the top-left corner.
+		margin: auto;
+		padding: var(--mz-space-6);
+		border: 1px solid var(--mz-stroke-card);
+		border-radius: var(--mz-radius-overlay);
+		background-color: var(--mz-acrylic);
+		color: var(--mz-text-primary);
+		box-shadow: var(--mz-elev-dialog);
+
+		@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+			-webkit-backdrop-filter: var(--mz-acrylic-blur);
+			backdrop-filter: var(--mz-acrylic-blur);
+		}
+
+		&::backdrop {
+			background-color: var(--mz-smoke);
+		}
+
+		&[open] {
+			@media (prefers-reduced-motion: no-preference) {
+				animation: mz-dialog-in var(--mz-duration-normal) var(--mz-ease-entrance);
+			}
+		}
+	}
+
+	@keyframes mz-dialog-in {
+		from {
+			opacity: 0;
+			scale: 0.96;
+		}
+
+		to {
+			opacity: 1;
+			scale: 1;
+		}
+	}
+
+	.signin-dialog__close-form {
+		display: flex;
+		justify-content: flex-end;
+	}
+
+	.signin-dialog__close {
+		padding: var(--mz-space-1);
+		border-radius: var(--mz-radius-control);
+		color: var(--mz-text-secondary);
+
+		&:hover {
+			background-color: var(--mz-shimmer);
+			color: var(--mz-text-primary);
+		}
+	}
+
+	.signin-dialog__title {
+		margin: 0 0 var(--mz-space-2);
+		font-size: var(--mz-text-subtitle);
+		font-weight: var(--mz-weight-semibold);
+	}
+
+	.signin-dialog__lead {
+		margin: 0 0 var(--mz-space-5);
+		color: var(--mz-text-secondary);
+		font-size: var(--mz-text-caption);
+	}
+
+	.signin-dialog__providers {
+		display: flex;
+		flex-direction: column;
+		gap: var(--mz-space-2);
+	}
+
+	.signin-dialog__divider {
+		display: flex;
+		align-items: center;
+		gap: var(--mz-space-3);
+		margin-block: var(--mz-space-5);
+		color: var(--mz-text-tertiary);
+		font-size: var(--mz-text-caption);
+
+		&::before,
+		&::after {
+			content: "";
+			flex: 1;
+			height: 1px;
+			background-color: var(--mz-stroke-divider);
+		}
+	}
+
+	.signin-dialog__step {
+		display: flex;
+		flex-direction: column;
+		gap: var(--mz-space-2);
+	}
+
+	.signin-dialog__label {
+		color: var(--mz-text-secondary);
+		font-size: var(--mz-text-caption);
+		font-weight: var(--mz-weight-medium);
+	}
+
+	.signin-dialog__input {
+		width: 100%;
+		padding: var(--mz-space-2) var(--mz-space-3);
+		background-color: var(--mz-bg-tertiary);
+		border: 1px solid var(--mz-stroke-control);
+		border-block-end-width: 2px;
+		border-radius: var(--mz-radius-control);
+		font-size: var(--mz-text-body);
+
+		&:focus {
+			outline: none;
+			background-color: var(--mz-bg-elevated);
+			border-block-end-color: var(--mz-accent-fill);
+		}
+	}
+
+	.signin-dialog__input--code {
+		letter-spacing: 0.4em;
+		font-family: var(--mz-font-mono);
+		text-align: center;
+	}
+
+	.signin-dialog__error {
+		margin: var(--mz-space-3) 0 0;
+		color: var(--mz-text-primary);
+		font-size: var(--mz-text-caption);
+
+		&:empty {
+			display: none;
+		}
+	}
+}

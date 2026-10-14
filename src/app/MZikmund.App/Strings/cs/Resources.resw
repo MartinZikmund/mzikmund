@@ -462,4 +462,226 @@
   <data name="PickCategories" xml:space="preserve">
     <value>Vybrat kategorie</value>
   </data>
+  <data name="SignInTitle" xml:space="preserve">
+    <value>Přihlášení</value>
+  </data>
+  <data name="SignInWithGoogle" xml:space="preserve">
+    <value>Pokračovat přes Google</value>
+  </data>
+  <data name="SignInWithApple" xml:space="preserve">
+    <value>Pokračovat přes Apple</value>
+  </data>
+  <data name="SignInWithEmail" xml:space="preserve">
+    <value>Pokračovat e-mailem</value>
+  </data>
+  <data name="SignInPrivacyNote" xml:space="preserve">
+    <value>Účet slouží jen k přihlášení.</value>
+  </data>
+  <data name="PrivacyPolicy" xml:space="preserve">
+    <value>Zásady ochrany soukromí</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>E-mail</value>
+  </data>
+  <data name="SendCode" xml:space="preserve">
+    <value>Poslat kód</value>
+  </data>
+  <data name="SignInCode" xml:space="preserve">
+    <value>6místný kód</value>
+  </data>
+  <data name="SignInCodePromptFormat" xml:space="preserve">
+    <value>We sent a 6místný kód to {0}.</value>
+  </data>
+  <data name="Verify" xml:space="preserve">
+    <value>Ověřit</value>
+  </data>
+  <data name="UseDifferentEmail" xml:space="preserve">
+    <value>Použít jiný e-mail</value>
+  </data>
+  <data name="Comments" xml:space="preserve">
+    <value>Komentáře</value>
+  </data>
+  <data name="CommentsSortTop" xml:space="preserve">
+    <value>Nejlepší</value>
+  </data>
+  <data name="CommentsSortNew" xml:space="preserve">
+    <value>Nejnovější</value>
+  </data>
+  <data name="CommentPlaceholder" xml:space="preserve">
+    <value>Přidat komentář...</value>
+  </data>
+  <data name="CommentPost" xml:space="preserve">
+    <value>Odeslat</value>
+  </data>
+  <data name="CommentReplyingToFormat" xml:space="preserve">
+    <value>Odpověď uživateli {0}</value>
+  </data>
+  <data name="CommentMarkdownHint" xml:space="preserve">
+    <value>Markdown: **tučně**, *kurzíva*, `kód`, odkazy</value>
+  </data>
+  <data name="CommentUpvote" xml:space="preserve">
+    <value>Líbí se mi</value>
+  </data>
+  <data name="CommentReply" xml:space="preserve">
+    <value>Odpovědět</value>
+  </data>
+  <data name="CommentReport" xml:space="preserve">
+    <value>Nahlásit</value>
+  </data>
+  <data name="CommentEdit" xml:space="preserve">
+    <value>Upravit</value>
+  </data>
+  <data name="CommentEdited" xml:space="preserve">
+    <value>upraveno</value>
+  </data>
+  <data name="CommentAuthorBadge" xml:space="preserve">
+    <value>Autor</value>
+  </data>
+  <data name="CommentRemoved" xml:space="preserve">
+    <value>[odstraněno]</value>
+  </data>
+  <data name="CommentDeleted" xml:space="preserve">
+    <value>[smazáno]</value>
+  </data>
+  <data name="CommentShowMoreRepliesFormat" xml:space="preserve">
+    <value>Zobrazit další odpovědi ({0})</value>
+  </data>
+  <data name="CommentsEmptyTitle" xml:space="preserve">
+    <value>Zatím žádné komentáře</value>
+  </data>
+  <data name="CommentsEmptyBody" xml:space="preserve">
+    <value>Buďte první, kdo se podělí o svůj názor.</value>
+  </data>
+  <data name="CommentDeleteTitle" xml:space="preserve">
+    <value>Smazat komentář</value>
+  </data>
+  <data name="CommentDeleteConfirm" xml:space="preserve">
+    <value>Smazat tento komentář? Akci nelze vrátit zpět.</value>
+  </data>
+  <data name="CommentSlowDown" xml:space="preserve">
+    <value>Zpomalte a zkuste to za chvíli znovu.</value>
+  </data>
+  <data name="CommentSlowDownWaitFormat" xml:space="preserve">
+    <value>Zpomalte prosím. Zkuste to znovu za {0}.</value>
+  </data>
+  <data name="CommentBanned" xml:space="preserve">
+    <value>Už nemůžete komentovat.</value>
+  </data>
+  <data name="CommentGenericError" xml:space="preserve">
+    <value>Něco se nepovedlo. Zkuste to prosím znovu.</value>
+  </data>
+  <data name="CommentPostFailed" xml:space="preserve">
+    <value>Komentář se nepodařilo odeslat</value>
+  </data>
+  <data name="CommentActionFailed" xml:space="preserve">
+    <value>Akce se nezdařila</value>
+  </data>
+  <data name="CommentTooLongFormat" xml:space="preserve">
+    <value>Komentář může mít nejvýše {0} znaků.</value>
+  </data>
+  <data name="CommentReportedTitle" xml:space="preserve">
+    <value>Nahlášení odesláno</value>
+  </data>
+  <data name="CommentReportedText" xml:space="preserve">
+    <value>Děkuji, komentář bude zkontrolován.</value>
+  </data>
+  <data name="CommentCancelReply" xml:space="preserve">
+    <value>Zrušit odpověď</value>
+  </data>
+  <data name="ReportCommentTitle" xml:space="preserve">
+    <value>Nahlásit komentář</value>
+  </data>
+  <data name="ReportCommentSubmit" xml:space="preserve">
+    <value>Nahlásit</value>
+  </data>
+  <data name="ReportReasonSpam" xml:space="preserve">
+    <value>Spam</value>
+  </data>
+  <data name="ReportReasonAbuse" xml:space="preserve">
+    <value>Obtěžování nebo urážky</value>
+  </data>
+  <data name="ReportReasonOffTopic" xml:space="preserve">
+    <value>Mimo téma</value>
+  </data>
+  <data name="ReportReasonOther" xml:space="preserve">
+    <value>Něco jiného</value>
+  </data>
+  <data name="ReportNoteHeader" xml:space="preserve">
+    <value>Podrobnosti (nepovinné)</value>
+  </data>
+  <data name="ModeratorReportedHeader" xml:space="preserve">
+    <value>Nahlášené</value>
+  </data>
+  <data name="ModeratorNewestHeader" xml:space="preserve">
+    <value>Nejnovější komentáře</value>
+  </data>
+  <data name="ModeratorNothingToReview" xml:space="preserve">
+    <value>Není co kontrolovat</value>
+  </data>
+  <data name="ModeratorHide" xml:space="preserve">
+    <value>Skrýt</value>
+  </data>
+  <data name="ModeratorBan" xml:space="preserve">
+    <value>Zablokovat autora</value>
+  </data>
+  <data name="ModeratorDismiss" xml:space="preserve">
+    <value>Zamítnout nahlášení</value>
+  </data>
+  <data name="ModeratorReportCountFormat" xml:space="preserve">
+    <value>Nahlášení: {0}</value>
+  </data>
+  <data name="ModeratorReportMetaFormat" xml:space="preserve">
+    <value>{0} · poprvé nahlášeno {1}</value>
+  </data>
+  <data name="ModeratorAwaitingFormat" xml:space="preserve">
+    <value> Čeká na kontrolu: {0}</value>
+  </data>
+  <data name="ModeratorDeleteTitle" xml:space="preserve">
+    <value>Smazat tento komentář?</value>
+  </data>
+  <data name="ModeratorDeleteText" xml:space="preserve">
+    <value>Komentář zmizí pro všechny a jeho text se smaže. Akci nelze vrátit.</value>
+  </data>
+  <data name="ModeratorBanTitle" xml:space="preserve">
+    <value>Zablokovat tohoto autora?</value>
+  </data>
+  <data name="ModeratorBanText" xml:space="preserve">
+    <value>Už nebude moci komentovat, hlasovat ani nahlašovat.</value>
+  </data>
+  <data name="ModeratorStatusHidden" xml:space="preserve">
+    <value>Skrytý</value>
+  </data>
+  <data name="ModeratorStatusDeleted" xml:space="preserve">
+    <value>Smazaný</value>
+  </data>
+  <data name="CommentUpvoted" xml:space="preserve">
+    <value>Líbí se mi, kliknutím zrušíte</value>
+  </data>
+  <data name="CommentEditEmpty" xml:space="preserve">
+    <value>Komentář nesmí být prázdný.</value>
+  </data>
+  <data name="CommentErrorNotFound" xml:space="preserve">
+    <value>Tento komentář nebo příspěvek už není dostupný.</value>
+  </data>
+  <data name="CommentErrorForbidden" xml:space="preserve">
+    <value>To nemůžete udělat.</value>
+  </data>
+  <data name="CommentErrorValidation" xml:space="preserve">
+    <value>Požadavek není platný.</value>
+  </data>
+  <data name="CommentErrorConflict" xml:space="preserve">
+    <value>Tato akce u tohoto komentáře není dostupná.</value>
+  </data>
+  <data name="CommentErrorEditWindowFormat" xml:space="preserve">
+    <value>Komentář lze upravit nejdéle {0} min po odeslání.</value>
+  </data>
+  <data name="CommentErrorNotVisible" xml:space="preserve">
+    <value>Tento komentář už není viditelný.</value>
+  </data>
+  <data name="CommentErrorOwnComment" xml:space="preserve">
+    <value>To u vlastního komentáře nejde.</value>
+  </data>
+  <data name="CommentErrorHidden" xml:space="preserve">
+    <value>Komentář skryl moderátor, takže ho nelze smazat.</value>
+  </data>
 </root>

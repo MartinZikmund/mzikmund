@@ -1,19 +1,13 @@
 ﻿using System.Diagnostics;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using System.Net;
 using Microsoft.Extensions.Options;
-using Microsoft.UI;
-using MZikmund.App.Core.Infrastructure;
 using MZikmund.Services.Preferences;
 using MZikmund.Shared.Authentication;
 
-#if WINDOWS
-using Microsoft.Security.Authentication.OAuth;
-#elif __DESKTOP__
-using System.Net;
+#if __DESKTOP__
 using System.Text;
-#else
+#endif
+#if !WINDOWS && !__DESKTOP__
 using Windows.Security.Authentication.Web;
 #endif
 
@@ -22,81 +16,284 @@ namespace MZikmund.Services.Account;
 public class UserService : IUserService
 {
 	private static readonly TimeSpan SignInTimeout = TimeSpan.FromMinutes(5);
+	private static readonly TimeSpan RefreshMargin = TimeSpan.FromMinutes(5);
 
 	private readonly SemaphoreSlim _authenticationLock = new(1, 1);
-
-	private AuthenticationInfo? _authenticationInfo;
-	private string? _refreshToken;
 	private readonly IAppPreferences _appPreferences;
-	private readonly IOptions<AuthConfig> _authConfig;
-#if WINDOWS
-	private readonly IApplication _application;
-#endif
+	private readonly IOptions<SupabaseConfig> _config;
 
-	public UserService(
-#if WINDOWS
-		IApplication application,
-#endif
-		IAppPreferences appPreferences,
-		IOptions<AuthConfig> authConfig)
+	private SupabaseAuthClient? _client;
+	private SupabaseIdentity? _identity;
+	private string? _accessToken;
+	private string? _refreshToken;
+
+	public UserService(IAppPreferences appPreferences, IOptions<SupabaseConfig> config)
 	{
-#if WINDOWS
-		_application = application;
-#endif
 		_appPreferences = appPreferences;
-		_authConfig = authConfig;
+		_config = config;
 
-		LoadCachedAuthentication();
+		LoadCachedSession();
 	}
 
 	public event EventHandler? AuthenticationChanged;
 
-	public bool IsLoggedIn => _authenticationInfo != null;
+	public bool IsLoggedIn => _identity is not null;
 
-	public string? UserName => _authenticationInfo?.DisplayName;
+	public bool IsAdmin => _identity?.IsAdmin == true;
 
-	public bool NeedsRefresh => _authenticationInfo?.ExpiresOn < DateTimeOffset.UtcNow.AddMinutes(5);
+	public string? UserId => _identity?.UserId;
 
-	public string? AccessToken => _authenticationInfo?.Token;
+	public string? UserName => _identity?.DisplayName;
 
-	private AuthConfig Config => _authConfig.Value;
+	public string? AvatarUrl => _identity?.AvatarUrl;
 
-	private string Authority => $"https://{Config.Domain}";
+	private SupabaseConfig Config => _config.Value;
 
-	private void LoadCachedAuthentication()
+	private string ExpectedIssuer => $"{Config.Url!.TrimEnd('/')}/auth/v1";
+
+	public async Task<string> GetAccessTokenAsync(CancellationToken cancellationToken = default)
 	{
-		var accessToken = _appPreferences.AccessToken;
-		var userId = _appPreferences.UserId;
-		var displayName = _appPreferences.DisplayName;
-		var expiresOn = _appPreferences.TokenExpiresOn;
-
-		if (!string.IsNullOrEmpty(accessToken) &&
-			!string.IsNullOrEmpty(userId) &&
-			!string.IsNullOrEmpty(displayName) &&
-			expiresOn.HasValue)
+		// Concurrent API calls share one refresh: GoTrue refresh tokens are single-use.
+		await _authenticationLock.WaitAsync(cancellationToken);
+		var before = Snapshot();
+		try
 		{
-			_authenticationInfo = new AuthenticationInfo
+			if (_identity is null || _accessToken is null)
 			{
-				Token = accessToken,
-				UserId = userId,
-				DisplayName = displayName,
-				ExpiresOn = expiresOn.Value
-			};
+				throw new AuthenticationFailedException("Sign in to continue.");
+			}
 
-			_refreshToken = _appPreferences.RefreshToken;
+			if (_identity.ExpiresOn < DateTimeOffset.UtcNow.Add(RefreshMargin))
+			{
+				await RefreshCoreAsync(cancellationToken);
+			}
+
+			return _accessToken;
+		}
+		finally
+		{
+			_authenticationLock.Release();
+			RaiseIfChanged(before);
 		}
 	}
 
-	private void SaveAuthenticationToCache()
+	private async Task RefreshCoreAsync(CancellationToken cancellationToken)
 	{
-		if (_authenticationInfo != null)
+		if (string.IsNullOrEmpty(_refreshToken))
 		{
-			_appPreferences.AccessToken = _authenticationInfo.Token;
-			_appPreferences.UserId = _authenticationInfo.UserId;
-			_appPreferences.DisplayName = _authenticationInfo.DisplayName;
-			_appPreferences.TokenExpiresOn = _authenticationInfo.ExpiresOn;
-			_appPreferences.RefreshToken = _refreshToken;
+			ClearSession();
+			throw new AuthenticationFailedException("Your session expired. Sign in again.");
 		}
+
+		try
+		{
+			SetSession(await GetClient().RefreshAsync(_refreshToken, cancellationToken));
+		}
+		catch (SupabaseAuthException ex) when (ex.IsRejected)
+		{
+			Debug.WriteLine($"Token refresh rejected: {ex.Message}");
+			ClearSession();
+			throw new AuthenticationFailedException("Your session expired. Sign in again.", ex);
+		}
+		catch (Exception ex) when (ex is HttpRequestException or SupabaseAuthException && _identity!.ExpiresOn > DateTimeOffset.UtcNow)
+		{
+			// Server or network trouble: keep the session and use the token while it is still valid.
+			Debug.WriteLine($"Token refresh failed, using the current token: {ex.Message}");
+		}
+		catch (SupabaseAuthException ex)
+		{
+			throw new AuthenticationFailedException(ex.Message, ex);
+		}
+		catch (FormatException ex)
+		{
+			throw new AuthenticationFailedException("Sign-in server returned an invalid token.", ex);
+		}
+	}
+
+	public async Task SignInWithProviderAsync(SupabaseOAuthProvider provider, CancellationToken cancellationToken = default)
+	{
+		try
+		{
+			EnsureConfigured();
+
+			var codeVerifier = Pkce.CreateCodeVerifier();
+			var redirectUri = GetRedirectUri();
+			var authUri = SupabaseAuthUris.Authorize(
+				Config.Url!,
+				provider,
+				redirectUri,
+				Pkce.CreateCodeChallenge(codeVerifier));
+
+			// Waiting for the browser can take minutes: the lock would stall every API call meanwhile.
+			var callbackUri = await GetAuthorizationCallbackAsync(authUri, redirectUri, cancellationToken);
+			if (callbackUri is null)
+			{
+				return;
+			}
+
+			// GoTrue keeps its own state with the provider; the PKCE verifier is what binds the code to us.
+			var callback = OAuthCallback.Parse(callbackUri, null);
+			if (callback.Code is null)
+			{
+				throw new AuthenticationFailedException($"{callback.Error}: {callback.ErrorDescription}");
+			}
+
+			await _authenticationLock.WaitAsync(cancellationToken);
+			var before = Snapshot();
+			try
+			{
+				SetSession(await GetClient().ExchangeCodeAsync(callback.Code, codeVerifier));
+			}
+			finally
+			{
+				_authenticationLock.Release();
+				RaiseIfChanged(before);
+			}
+		}
+		catch (OperationCanceledException)
+		{
+		}
+		catch (Exception ex) when (ex is not AuthenticationFailedException)
+		{
+			throw new AuthenticationFailedException(ex.Message, ex);
+		}
+	}
+
+	public async Task SendEmailCodeAsync(string email)
+	{
+		EnsureConfigured();
+
+		try
+		{
+			await GetClient().SendEmailCodeAsync(email.Trim());
+		}
+		catch (SupabaseAuthException ex) when (ex.StatusCode == HttpStatusCode.TooManyRequests)
+		{
+			throw new AuthenticationFailedException("Too many codes requested, wait a minute and try again.", ex);
+		}
+		catch (Exception ex) when (ex is HttpRequestException or SupabaseAuthException)
+		{
+			throw new AuthenticationFailedException(ex.Message, ex);
+		}
+	}
+
+	public async Task VerifyEmailCodeAsync(string email, string code)
+	{
+		EnsureConfigured();
+
+		await _authenticationLock.WaitAsync();
+		var before = Snapshot();
+		try
+		{
+			SetSession(await GetClient().VerifyEmailCodeAsync(email.Trim(), code.Trim()));
+		}
+		catch (SupabaseAuthException ex) when (ex.IsRejected)
+		{
+			throw new AuthenticationFailedException("That code is wrong or has expired.", ex);
+		}
+		catch (Exception ex) when (ex is HttpRequestException or SupabaseAuthException or FormatException)
+		{
+			throw new AuthenticationFailedException(ex.Message, ex);
+		}
+		finally
+		{
+			_authenticationLock.Release();
+			RaiseIfChanged(before);
+		}
+	}
+
+	public async Task LogoutAsync()
+	{
+		await _authenticationLock.WaitAsync();
+		var before = Snapshot();
+		try
+		{
+			if (_accessToken is not null && Config.IsConfigured)
+			{
+				try
+				{
+					await GetClient().SignOutAsync(_accessToken);
+				}
+				catch (Exception ex)
+				{
+					Debug.WriteLine($"Error during sign-out: {ex.Message}");
+				}
+			}
+
+			ClearSession();
+		}
+		finally
+		{
+			_authenticationLock.Release();
+			RaiseIfChanged(before);
+		}
+	}
+
+	private void EnsureConfigured()
+	{
+		if (!Config.IsConfigured)
+		{
+			throw new AuthenticationFailedException(
+				"Sign-in is not configured. Set SupabaseConfig:Url and SupabaseConfig:PublishableKey " +
+				"(MZIKMUND_SupabaseConfig__Url / __PublishableKey). See docs/SUPABASE_AUTH.md.");
+		}
+	}
+
+	private SupabaseAuthClient GetClient()
+	{
+		EnsureConfigured();
+		return _client ??= new(new HttpClient { Timeout = TimeSpan.FromSeconds(30) }, Config.Url!, Config.PublishableKey!);
+	}
+
+	private void LoadCachedSession()
+	{
+		var accessToken = _appPreferences.AccessToken;
+		var refreshToken = _appPreferences.RefreshToken;
+		if (string.IsNullOrEmpty(accessToken) || string.IsNullOrEmpty(refreshToken) || !Config.IsConfigured)
+		{
+			return;
+		}
+
+		try
+		{
+			// A leftover Auth0 session or one from another Supabase project must not be trusted.
+			var identity = SupabaseAccessToken.Read(accessToken);
+			if (identity.Issuer == ExpectedIssuer)
+			{
+				_identity = identity;
+				_accessToken = accessToken;
+				_refreshToken = refreshToken;
+				return;
+			}
+		}
+		catch (FormatException)
+		{
+		}
+
+		ClearAuthenticationCache();
+	}
+
+	private void SetSession(SupabaseSession session)
+	{
+		var identity = SupabaseAccessToken.Read(session.AccessToken);
+
+		_identity = identity;
+		_accessToken = session.AccessToken;
+		_refreshToken = session.RefreshToken;
+
+		_appPreferences.AccessToken = session.AccessToken;
+		_appPreferences.RefreshToken = session.RefreshToken;
+		_appPreferences.UserId = identity.UserId;
+		_appPreferences.DisplayName = identity.DisplayName;
+		_appPreferences.TokenExpiresOn = identity.ExpiresOn;
+	}
+
+	private void ClearSession()
+	{
+		_identity = null;
+		_accessToken = null;
+		_refreshToken = null;
+		ClearAuthenticationCache();
 	}
 
 	private void ClearAuthenticationCache()
@@ -108,177 +305,51 @@ public class UserService : IUserService
 		_appPreferences.TokenExpiresOn = null;
 	}
 
-	public async Task AuthenticateAsync()
+	private (bool IsLoggedIn, bool IsAdmin, string? UserId, string? UserName) Snapshot() =>
+		(IsLoggedIn, IsAdmin, UserId, UserName);
+
+	private void RaiseIfChanged((bool IsLoggedIn, bool IsAdmin, string? UserId, string? UserName) before)
 	{
-		// Concurrent API calls share one refresh or sign-in instead of racing Auth0 token rotation.
-		await _authenticationLock.WaitAsync();
-		var wasLoggedIn = IsLoggedIn;
-		try
+		if (before != Snapshot())
 		{
-			await AuthenticateCoreAsync();
+			AuthenticationChanged?.Invoke(this, EventArgs.Empty);
 		}
-		catch (Exception ex) when (ex is not AuthenticationFailedException)
-		{
-			throw new AuthenticationFailedException(ex.Message, ex);
-		}
-		finally
-		{
-			_authenticationLock.Release();
-			if (wasLoggedIn != IsLoggedIn)
-			{
-				AuthenticationChanged?.Invoke(this, EventArgs.Empty);
-			}
-		}
-	}
-
-	private async Task AuthenticateCoreAsync()
-	{
-		if (IsLoggedIn && !NeedsRefresh)
-		{
-			return;
-		}
-
-		if (!Config.IsConfigured)
-		{
-			throw new AuthenticationFailedException(
-				"Sign-in is not configured. Set AuthConfig:ClientId (for example via the " +
-				"MZIKMUND_AuthConfig__ClientId environment variable). See docs/AUTH0_MIGRATION.md.");
-		}
-
-		// A rejected refresh token falls through to a fresh sign-in; an unreachable server throws and keeps the session.
-		if (!string.IsNullOrEmpty(_refreshToken) && await TryRefreshTokenAsync())
-		{
-			SaveAuthenticationToCache();
-			return;
-		}
-
-		_authenticationInfo = null;
-		_refreshToken = null;
-		ClearAuthenticationCache();
-
-		await PerformAuthenticationAsync();
-		SaveAuthenticationToCache();
 	}
 
 #if WINDOWS
-	private async Task PerformAuthenticationAsync()
+	private static TaskCompletionSource<Uri>? _pendingCallback;
+
+	/// <summary>
+	/// Hands the mzikmund-app://oauthcallback protocol activation to the sign-in that is waiting for it.
+	/// </summary>
+	public static bool TryCompleteProtocolCallback(Uri uri) =>
+		Interlocked.Exchange(ref _pendingCallback, null)?.TrySetResult(uri) == true;
+
+	private static Uri GetRedirectUri() => new("mzikmund-app://oauthcallback");
+
+	private static async Task<Uri?> GetAuthorizationCallbackAsync(Uri authUri, Uri redirectUri, CancellationToken cancellationToken)
 	{
-		if (_application.MainWindow is null)
+		TaskCompletionSource<Uri> callback = new(TaskCreationOptions.RunContinuationsAsynchronously);
+		Interlocked.Exchange(ref _pendingCallback, callback)?.TrySetCanceled();
+
+		try
 		{
-			throw new InvalidOperationException("Window is not available");
+			await Windows.System.Launcher.LaunchUriAsync(authUri);
+			return await callback.Task.WaitAsync(SignInTimeout, cancellationToken);
 		}
-
-		var authRequestParams = AuthRequestParams.CreateForAuthorizationCodeRequest(
-			Config.ClientId,
-			new Uri("mzikmund-app://oauthcallback"));
-		authRequestParams.Scope = string.Join(" ", AuthenticationConstants.DefaultScopes);
-
-		var authUrl = $"{Authority}/authorize?audience={Uri.EscapeDataString(Config.Audience)}";
-
-		var authResult = await OAuth2Manager.RequestAuthWithParamsAsync(
-			GetWindowId(),
-			new Uri(authUrl),
-			authRequestParams);
-
-		if (authResult.Failure is { } authFailure)
+		catch (TimeoutException)
 		{
-			if (authFailure.Error == "user_cancelled")
-			{
-				return;
-			}
-
-			throw new AuthenticationFailedException($"{authFailure.Error}: {authFailure.ErrorDescription}");
+			throw new AuthenticationFailedException("Sign-in timed out.");
 		}
-
-		var tokenResult = await OAuth2Manager.RequestTokenAsync(
-			new Uri($"{Authority}/oauth/token"),
-			TokenRequestParams.CreateForAuthorizationCodeRequest(authResult.Response));
-
-		if (tokenResult.Failure is { } tokenFailure)
+		finally
 		{
-			throw new AuthenticationFailedException($"{tokenFailure.Error}: {tokenFailure.ErrorDescription}");
+			Interlocked.CompareExchange(ref _pendingCallback, null, callback);
 		}
-
-		var tokenResponse = tokenResult.Response;
-		_refreshToken = tokenResponse.RefreshToken;
-		_authenticationInfo = CreateAuthenticationInfo(tokenResponse.AccessToken, tokenResponse.ExpiresIn);
 	}
-
-	private async Task<bool> TryRefreshTokenAsync()
-	{
-		var tokenRequestParams = TokenRequestParams.CreateForRefreshToken(_refreshToken);
-		tokenRequestParams.ClientId = Config.ClientId;
-
-		// Transport failures throw out of here, which keeps the cached session for the next attempt.
-		var tokenResult = await OAuth2Manager.RequestTokenAsync(new Uri($"{Authority}/oauth/token"), tokenRequestParams);
-
-		if (tokenResult.Response is not { } tokenResponse)
-		{
-			Debug.WriteLine($"Token refresh rejected: {tokenResult.Failure?.Error} - {tokenResult.Failure?.ErrorDescription}");
-			return false;
-		}
-
-		if (!string.IsNullOrEmpty(tokenResponse.RefreshToken))
-		{
-			_refreshToken = tokenResponse.RefreshToken;
-		}
-
-		_authenticationInfo = CreateAuthenticationInfo(tokenResponse.AccessToken, tokenResponse.ExpiresIn);
-		return true;
-	}
-
-	private WindowId GetWindowId()
-	{
-		var windowHandle = WinRT.Interop.WindowNative.GetWindowHandle(_application.MainWindow);
-		return new WindowId((ulong)windowHandle);
-	}
-#else
-	private async Task PerformAuthenticationAsync()
-	{
-		var codeVerifier = Pkce.CreateCodeVerifier();
-		var state = Pkce.CreateState();
-		var redirectUri = GetRedirectUri();
-
-		var authUri = new Uri(
-			$"{Authority}/authorize" +
-			$"?response_type=code" +
-			$"&client_id={Uri.EscapeDataString(Config.ClientId!)}" +
-			$"&redirect_uri={Uri.EscapeDataString(redirectUri.AbsoluteUri)}" +
-			$"&scope={Uri.EscapeDataString(string.Join(" ", AuthenticationConstants.DefaultScopes))}" +
-			$"&audience={Uri.EscapeDataString(Config.Audience)}" +
-			$"&code_challenge={Pkce.CreateCodeChallenge(codeVerifier)}" +
-			$"&code_challenge_method=S256" +
-			$"&state={state}");
-
-		var callbackUri = await GetAuthorizationCallbackAsync(authUri, redirectUri);
-		if (callbackUri is null)
-		{
-			return;
-		}
-
-		var callback = OAuthCallback.Parse(callbackUri, state);
-		if (callback.Code is null)
-		{
-			throw new AuthenticationFailedException($"{callback.Error}: {callback.ErrorDescription}");
-		}
-
-		var tokenResponse = await RequestTokenAsync(new Dictionary<string, string>
-		{
-			["grant_type"] = "authorization_code",
-			["client_id"] = Config.ClientId!,
-			["code"] = callback.Code,
-			["code_verifier"] = codeVerifier,
-			["redirect_uri"] = redirectUri.AbsoluteUri,
-		});
-
-		_refreshToken = tokenResponse.RefreshToken;
-		_authenticationInfo = CreateAuthenticationInfo(tokenResponse.AccessToken, tokenResponse.ExpiresIn);
-	}
-
-#if __DESKTOP__
+#elif __DESKTOP__
 	private Uri GetRedirectUri() => new($"http://127.0.0.1:{Config.DesktopCallbackPort}/callback");
 
-	private static async Task<Uri?> GetAuthorizationCallbackAsync(Uri authUri, Uri redirectUri)
+	private static async Task<Uri?> GetAuthorizationCallbackAsync(Uri authUri, Uri redirectUri, CancellationToken cancellationToken)
 	{
 		using HttpListener listener = new();
 		listener.Prefixes.Add(redirectUri.GetLeftPart(UriPartial.Path).TrimEnd('/') + "/");
@@ -286,13 +357,15 @@ public class UserService : IUserService
 
 		await Windows.System.Launcher.LaunchUriAsync(authUri);
 
-		var contextTask = listener.GetContextAsync();
-		if (await Task.WhenAny(contextTask, Task.Delay(SignInTimeout)) != contextTask)
+		HttpListenerContext context;
+		try
+		{
+			context = await listener.GetContextAsync().WaitAsync(SignInTimeout, cancellationToken);
+		}
+		catch (TimeoutException)
 		{
 			throw new AuthenticationFailedException("Sign-in timed out.");
 		}
-
-		var context = await contextTask;
 		var page = Encoding.UTF8.GetBytes(
 			"<html><body style=\"font-family:sans-serif;padding:48px\">" +
 			"<h2>Signed in</h2><p>You can close this tab and return to the app.</p></body></html>");
@@ -304,11 +377,18 @@ public class UserService : IUserService
 		return context.Request.Url;
 	}
 #else
+#if __ANDROID__ || __IOS__
+	private static Uri GetRedirectUri() => new("mzikmund-app://oauthcallback");
+#else
+	// Browser: <origin>/authentication-callback
 	private static Uri GetRedirectUri() => WebAuthenticationBroker.GetCurrentApplicationCallbackUri();
+#endif
 
-	private static async Task<Uri?> GetAuthorizationCallbackAsync(Uri authUri, Uri redirectUri)
+	private static async Task<Uri?> GetAuthorizationCallbackAsync(Uri authUri, Uri redirectUri, CancellationToken cancellationToken)
 	{
-		var result = await WebAuthenticationBroker.AuthenticateAsync(WebAuthenticationOptions.None, authUri, redirectUri);
+		var result = await WebAuthenticationBroker.AuthenticateAsync(WebAuthenticationOptions.None, authUri, redirectUri)
+			.AsTask()
+			.WaitAsync(cancellationToken);
 		return result.ResponseStatus switch
 		{
 			WebAuthenticationStatus.Success when result.ResponseData is { } data => new Uri(data),
@@ -317,103 +397,4 @@ public class UserService : IUserService
 		};
 	}
 #endif
-
-	private async Task<bool> TryRefreshTokenAsync()
-	{
-		TokenResponse tokenResponse;
-		try
-		{
-			tokenResponse = await RequestTokenAsync(new Dictionary<string, string>
-			{
-				["grant_type"] = "refresh_token",
-				["client_id"] = Config.ClientId!,
-				["refresh_token"] = _refreshToken!,
-			});
-		}
-		catch (TokenRequestRejectedException ex)
-		{
-			// Only a rejection by Auth0 (expired or revoked token) ends the session; network errors propagate.
-			Debug.WriteLine($"Token refresh rejected: {ex.Message}");
-			return false;
-		}
-
-		if (!string.IsNullOrEmpty(tokenResponse.RefreshToken))
-		{
-			_refreshToken = tokenResponse.RefreshToken;
-		}
-
-		_authenticationInfo = CreateAuthenticationInfo(tokenResponse.AccessToken, tokenResponse.ExpiresIn);
-		return true;
-	}
-
-	private async Task<TokenResponse> RequestTokenAsync(Dictionary<string, string> form)
-	{
-		using HttpClient httpClient = new();
-		using var response = await httpClient.PostAsync($"{Authority}/oauth/token", new FormUrlEncodedContent(form));
-		var content = await response.Content.ReadAsStringAsync();
-
-		if ((int)response.StatusCode is >= 400 and < 500)
-		{
-			throw new TokenRequestRejectedException($"Token request rejected ({(int)response.StatusCode}): {content}");
-		}
-
-		if (!response.IsSuccessStatusCode)
-		{
-			throw new AuthenticationFailedException($"Token request failed ({(int)response.StatusCode}): {content}");
-		}
-
-		return JsonSerializer.Deserialize<TokenResponse>(content) ??
-			throw new AuthenticationFailedException("Token response was empty.");
-	}
-
-	private sealed class TokenRequestRejectedException(string message) : AuthenticationFailedException(message);
-
-	private sealed class TokenResponse
-	{
-		[JsonPropertyName("access_token")]
-		public string AccessToken { get; set; } = "";
-
-		[JsonPropertyName("refresh_token")]
-		public string? RefreshToken { get; set; }
-
-		[JsonPropertyName("expires_in")]
-		public int ExpiresIn { get; set; }
-	}
-#endif
-
-	private static AuthenticationInfo CreateAuthenticationInfo(string accessToken, double expiresInSeconds)
-	{
-		var token = new JwtSecurityTokenHandler().ReadJwtToken(accessToken);
-		return new AuthenticationInfo
-		{
-			DisplayName = token.Claims.FirstOrDefault(c => c.Type == "name")?.Value ??
-				token.Claims.FirstOrDefault(c => c.Type == "email")?.Value ??
-				"User",
-			ExpiresOn = DateTimeOffset.UtcNow.AddSeconds(expiresInSeconds),
-			Token = accessToken,
-			UserId = token.Claims.FirstOrDefault(c => c.Type == "sub")?.Value ?? ""
-		};
-	}
-
-	public async Task LogoutAsync()
-	{
-		if (_authenticationInfo != null && Config.IsConfigured)
-		{
-			try
-			{
-				// Ends the Auth0 browser session too, so the next sign-in can pick a different account.
-				var logoutUrl = $"{Authority}/v2/logout?client_id={Uri.EscapeDataString(Config.ClientId!)}";
-				await Windows.System.Launcher.LaunchUriAsync(new Uri(logoutUrl));
-			}
-			catch (Exception ex)
-			{
-				Debug.WriteLine($"Error during Auth0 logout: {ex.Message}");
-			}
-		}
-
-		_authenticationInfo = null;
-		_refreshToken = null;
-		ClearAuthenticationCache();
-		AuthenticationChanged?.Invoke(this, EventArgs.Empty);
-	}
 }

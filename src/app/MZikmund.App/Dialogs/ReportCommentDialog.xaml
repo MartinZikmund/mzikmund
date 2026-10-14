@@ -1,0 +1,30 @@
+<local:ReportCommentDialogBase
+    x:Class="MZikmund.Dialogs.ReportCommentDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:MZikmund.Dialogs"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:xaml="using:MZikmund.Extensions.Xaml"
+    Title="{x:Bind ViewModel.Title}"
+    CloseButtonText="{xaml:Localize Key=Cancel}"
+    DefaultButton="Primary"
+    PrimaryButtonText="{xaml:Localize Key=ReportCommentSubmit}"
+    Style="{StaticResource DefaultContentDialogStyle}">
+
+    <StackPanel Spacing="16">
+        <RadioButtons AutomationProperties.AutomationId="ReportCommentReason" SelectedIndex="{x:Bind ViewModel.SelectedReasonIndex, Mode=TwoWay}">
+            <RadioButton Content="{xaml:Localize Key=ReportReasonSpam}" />
+            <RadioButton Content="{xaml:Localize Key=ReportReasonAbuse}" />
+            <RadioButton Content="{xaml:Localize Key=ReportReasonOffTopic}" />
+            <RadioButton Content="{xaml:Localize Key=ReportReasonOther}" />
+        </RadioButtons>
+        <TextBox
+            AcceptsReturn="True"
+            AutomationProperties.AutomationId="ReportCommentNote"
+            Header="{xaml:Localize Key=ReportNoteHeader}"
+            MaxHeight="120"
+            MaxLength="{x:Bind ViewModel.MaxNoteLength}"
+            Text="{x:Bind ViewModel.Note, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            TextWrapping="Wrap" />
+    </StackPanel>
+</local:ReportCommentDialogBase>

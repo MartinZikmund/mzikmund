@@ -23,7 +23,7 @@ specificity, and utilities always win. Never write `!important`.
 | `Styles/_base.scss` | Reset, element defaults, focus, skip link |
 | `Styles/_layout.scss` | `.container`, `.section`, `.card-grid`, `.article-layout` |
 | `Styles/_code.scss` | ColorCode token colours + GitHub Gist dark theme |
-| `Styles/components/*.scss` | nav, controls, card, hero, article, toc, footer |
+| `Styles/components/*.scss` | nav, controls, card, hero, article, toc, footer, comments |
 | `Styles/_motion.scss` | Page transitions, connected animation, Reveal, entrances |
 | `Styles/_utilities.scss` | The ~25 utilities actually used |
 
@@ -42,6 +42,7 @@ Never hard-code a colour, size, radius or duration. Everything is a
 - **Text**: `--mz-text-primary|secondary|tertiary|disabled|on-accent`
 - **Strokes**: `--mz-stroke-card|control|control-strong|divider|focus`
 - **Accent**: `--mz-accent-light-3..dark-3`, applied via `--mz-accent-text|fill|fill-hover|subtle`
+- **Smoke**: `--mz-smoke` — the scrim behind a modal `<dialog>::backdrop` only; menus and flyouts get a transparent backdrop
 
 Colour values are the real WinUI 3 theme resources, not approximations.
 
@@ -119,6 +120,12 @@ emit — do not add per-element classes in templates.
 `.empty-state`, `.pagination` / `.pagination__link`, `.taxonomy-card`,
 `.author-bio`, `.toc`, `.reading-progress`, `.back-to-top`.
 
+`.comments`, `.comment` (+ `--reply`, `--tombstone`, `__badge`, `__actions`, `__action`, `__editor`),
+`.comment-composer`, `.signin-dialog` — the comments section and the site's first
+modal. Comments do not reuse `.card` (its hover lift and stretched link assume
+one link per card). Every `[hidden]` inside `.comments` is forced to
+`display: none`, because the component rules set `display` on the same elements.
+
 ## Motion
 
 Uses the **published Fluent values**, not approximations
@@ -159,7 +166,7 @@ so the tokens are named after what a surface **is**, not how deep its shadow is:
 | `--mz-elev-card` | Card (8) | Cards, taxonomy cards, back-to-top |
 | `--mz-elev-tooltip` | Tooltip (16) | Card and back-to-top hover |
 | `--mz-elev-flyout` | Flyout (32) | Theme flyout, mobile nav panel |
-| `--mz-elev-dialog` | Dialog (128) | Reserved — nothing modal yet |
+| `--mz-elev-dialog` | Dialog (128) | Sign-in and report dialogs |
 
 Two rules that come from the guidance rather than taste:
 
@@ -229,7 +236,9 @@ Sizes: `.icon` (1em), `.icon--lg` (1.25em). Available ids: `i-github`,
 `i-arrow-left`, `i-arrow-up`, `i-inbox`, `i-circle-half`, `i-sun`,
 `i-moon-stars`, `i-play-circle`, `i-play-fill`, `i-file-earmark-pdf`, `i-list`,
 `i-link-45deg`, `i-check-lg`, `i-image`, `i-rss`, `i-tag`, `i-folder2-open`,
-`i-chevron-right`.
+`i-chevron-right`, `i-chat-left-text`, `i-hand-thumbs-up`,
+`i-hand-thumbs-up-fill`, `i-reply`, `i-flag`, `i-trash3`, `i-person-circle`,
+`i-google`, `i-apple`, `i-envelope`, `i-x-lg`, `i-pencil`.
 
 To add one: edit the `ICONS` array in `Scripts/build-assets.mjs`, run
 `npm run build:assets`, and **commit the regenerated sprite**.
@@ -251,6 +260,36 @@ in the diff.
 
 Prefer letting a component own its spacing over reaching for a utility.
 
+## Asset pipeline
+
+`npm run build` (run automatically by `dotnet build` via the `NpmBuild` MSBuild
+target) compiles SCSS to `site.css` and `site.min.css`, type-checks with
+`tsc --noEmit`, bundles TypeScript with esbuild, and verifies the bundles.
+Fonts and the icon sprite are generated separately by `npm run build:assets`
+and committed (see the Icons section).
+
+TypeScript is bundled by esbuild into three fixed, unhashed entry points:
+
+| Output | Format | Loaded as | Where |
+|---|---|---|---|
+| `wwwroot/js/theme-init.js` | IIFE | blocking classic `<script>` | every page, in `<head>` |
+| `wwwroot/js/site.js` | ESM | `<script type="module">` | every page, in `<head>` |
+| `wwwroot/js/comments.js` | ESM | `<script type="module">` | post pages only |
+
+Three rules hold this together:
+
+- `theme-init.js` must never become a module. Module scripts are ALWAYS
+  deferred, and a deferred theme applier is a flash of the wrong theme on every
+  navigation for every dark-mode visitor.
+- `site.js` must never gain a top-level `export`. The Uno app's
+  `Templates/PostPreviewTemplate.html` loads it as a plain `<script>`.
+- Filenames stay fixed and unhashed. `asp-append-version="true"` already
+  cache-busts via query string, and MSBuild globs `wwwroot` at evaluation time,
+  so a name that changes between builds goes missing from the publish output.
+  Do not enable esbuild's `splitting`.
+
+`npm run check:js` (`Scripts/check-bundles.mjs`) enforces all three.
+
 ## Contract with JavaScript
 
 Renaming any of these silently breaks a feature — no error:
@@ -266,8 +305,20 @@ Renaming any of these silently breaks a feature — no error:
 | `[data-nav-toggle]`, `#site-nav` | mobile navigation |
 | `#back-to-top` + `.is-visible` | back-to-top control |
 | `localStorage["ui-theme"]` | stored theme preference — changing the key resets everyone |
+| `[data-comments-root]` + its `data-post-id` / `data-sort` / `data-page` / `data-page-size` / `data-total` / `data-turnstile-sitekey` / `data-highlight-comment` | comments hydration entry point |
+| `[data-comments-list]`, `[data-comments-total]`, `[data-comments-empty]`, `[data-load-more]` | comment list, count and paging |
+| `[data-comment-id]`, `[data-comment-replies]`, `[data-load-replies]` | per-comment identity and reply overflow |
+| `[data-comment-upvote]` + `[data-upvote-count]`, `[data-comment-reply]`, `[data-comment-edit]`, `[data-comment-delete]`, `[data-comment-report]` | comment actions; reply and report are `hidden` until JS reveals them |
+| `[data-comment-composer]`, `[data-comment-content]`, `[data-comment-counter]`, `[data-comment-submit]`, `[data-comment-status]`, `[data-comment-turnstile]`, `[data-comment-parent]`, `[data-comment-cancel-reply]`, `[data-comment-identity]`, `[data-comment-signout]` | composer; the form is `hidden` until JS reveals it |
+| `[data-signin-dialog]` + `[data-signin-provider]` / `[data-signin-email]` / `[data-signin-send]` / `[data-signin-code]` / `[data-signin-verify]` / `[data-signin-error]` / `[data-signin-close]` | sign-in modal |
+| `[data-report-dialog]` + `[data-report-reason]` / `[data-report-note]` / `[data-report-send]` / `[data-report-error]` | report modal |
+| `.comment.is-highlighted`, `.comment.is-busy`, `.comments__sort-link.is-active` | comment state classes |
+| `#comment-{guid}` | deep-link scroll target for `?comment={guid}` |
+| `#supabase-config` (`type="application/json"`) | Supabase URL + publishable key handed to `comments.js` |
+| `sessionStorage["mz-comment-draft"]` | write-then-auth draft; survives the OAuth redirect |
+| `localStorage["mz-auth"]` (+ short-lived `mz-auth-code-verifier`) | supabase-js session store — changing the key signs everyone out |
 
-`Scripts/index.ts` initialises `TableOfContents` **before** `HeadingLinks`,
+`Scripts/site.ts` initialises `TableOfContents` **before** `HeadingLinks`,
 because the TOC assigns the heading ids that HeadingLinks requires.
 
 The 1280px breakpoint appears in both `TableOfContents.ts`
