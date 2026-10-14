@@ -8,7 +8,7 @@
 
 @*
 	Standalone embed document: no site chrome, no layout. Like _Layout it renders
-	no theme attribute on <html> — site.js writes it render-blocking from the
+	no theme attribute on <html> — theme-init.js writes it render-blocking from the
 	stored preference, and without JS the prefers-color-scheme fallback applies.
 	Hard-coding a light theme here forced dark-mode hosts to embed a light card.
 *@
@@ -31,7 +31,8 @@
 	</environment>
 
 	@* Blocking in <head>: applies the stored colour theme before first paint. *@
-	<script src="~/js/site.js" asp-append-version="true"></script>
+	<script src="~/js/theme-init.js" asp-append-version="true"></script>
+	<script type="module" src="~/js/site.js" asp-append-version="true"></script>
 </head>
 <body>
 	<partial name="_IconSprite" />

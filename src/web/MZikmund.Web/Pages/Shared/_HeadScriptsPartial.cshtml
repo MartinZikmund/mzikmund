@@ -1,11 +1,16 @@
 @*
-	site.js must stay a blocking script in <head>: it applies the stored colour
-	theme before first paint. Adding defer/async reintroduces a flash of the
-	wrong theme.
+	theme-init.js must stay a BLOCKING CLASSIC script in <head>: it applies the
+	stored colour theme before first paint. No type="module" (always deferred),
+	no defer/async - either reintroduces a flash of the wrong theme.
+
+	site.js is an ES module so the bundler can consume npm packages. Module
+	scripts are deferred by default; every module inside already guards on
+	document.readyState.
 
 	Bootstrap's JS bundle was removed along with Bootstrap itself — the navbar
 	toggle and theme flyout are now handled in Scripts/SiteNav.ts and
 	Scripts/ThemeSwitchManager.ts.
 *@
-<script src="~/js/site.js" asp-append-version="true"></script>
+<script src="~/js/theme-init.js" asp-append-version="true"></script>
+<script type="module" src="~/js/site.js" asp-append-version="true"></script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7501232789626725" crossorigin="anonymous"></script>
