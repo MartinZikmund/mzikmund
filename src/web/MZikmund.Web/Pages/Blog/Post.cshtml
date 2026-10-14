@@ -26,6 +26,13 @@
 <div class="article-layout mt-6">
     <div class="article-layout__main">
         @await Html.PartialAsync("_PostContent", Model)
+
+        @* Deliberately NOT inside _PostContent: that partial is shared with PostPreview.cshtml,
+           the unauthenticated share link for drafts, which must never show or accept comments. *@
+        @if (Model.CommentsSection is { } commentsSection)
+        {
+            @await Html.PartialAsync("_Comments", commentsSection)
+        }
     </div>
 
     <aside id="toc-container" class="toc article-layout__aside">
@@ -36,3 +43,14 @@
 <button class="back-to-top" id="back-to-top" type="button" aria-label="Back to top" title="Back to top">
     <svg class="icon icon--lg" aria-hidden="true"><use href="#i-arrow-up"></use></svg>
 </button>
+
+@section BodyEnd
+{
+    @if (Model.CommentsSection is { } scriptsModel)
+    {
+        @* Data, not script: a type="application/json" block is never executed, and the default
+           encoder escapes < > & so it cannot be closed early. *@
+        <script id="supabase-config" type="application/json">@Html.Raw(scriptsModel.SupabaseConfigJson)</script>
+        <script type="module" src="~/js/comments.js" asp-append-version="true"></script>
+    }
+}

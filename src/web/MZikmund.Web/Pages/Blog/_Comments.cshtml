@@ -1,0 +1,270 @@
+@model MZikmund.Web.Pages.Blog.CommentsSectionModel
+@using MZikmund.DataContracts.Blog.Comments
+
+@{
+	// A local function, so the comment markup is written once. CommentRenderer.ts builds the same
+	// shape in the browser for everything after the first page.
+	void RenderComment(CommentDto comment, bool isReply)
+	{
+		var isVisible = comment.Status == CommentStatus.Visible;
+		var showAbsoluteDate = (DateTimeOffset.UtcNow - comment.CreatedOn).TotalDays > 30;
+		<article class="comment @(isReply ? "comment--reply" : "") @(isVisible ? "" : "comment--tombstone")"
+				 id="comment-@comment.Id"
+				 data-comment-id="@comment.Id"
+				 data-parent-id="@(comment.ParentId?.ToString() ?? "")">
+			<div class="comment__identity">
+				@if (!isVisible)
+				{
+					<svg class="icon comment__avatar comment__avatar--fallback" aria-hidden="true"><use href="#i-person-circle"></use></svg>
+				}
+				else
+				{
+					if (comment.AuthorAvatarUrl is { } avatarUrl)
+					{
+						<img class="comment__avatar" src="@avatarUrl" alt="" width="32" height="32" loading="lazy" referrerpolicy="no-referrer" />
+					}
+					else
+					{
+						<svg class="icon comment__avatar comment__avatar--fallback" aria-hidden="true"><use href="#i-person-circle"></use></svg>
+					}
+					<span class="comment__author">@comment.AuthorDisplayName</span>
+					if (comment.AuthorIsAdmin)
+					{
+						<span class="comment__badge">@Localizer["Author"]</span>
+					}
+				}
+				<time class="comment__time" datetime="@comment.CreatedOn.ToString("o")">
+					@if (showAbsoluteDate)
+					{
+						@comment.CreatedOn.ToString("MMM d, yyyy")
+					}
+					else
+					{
+						@comment.CreatedOn.Humanize()
+					}
+				</time>
+				@if (isVisible && comment.EditedOn is not null)
+				{
+					<span class="comment__edited">@Localizer["edited"]</span>
+				}
+			</div>
+
+			@if (comment.Status == CommentStatus.DeletedByAuthor)
+			{
+				<div class="comment__body comment__body--tombstone"><p>[@Localizer["deleted"]]</p></div>
+			}
+			else if (comment.Status == CommentStatus.HiddenByModerator)
+			{
+				<div class="comment__body comment__body--tombstone"><p>[@Localizer["removed"]]</p></div>
+			}
+			else
+			{
+				<div class="comment__body">
+					@if (comment.MentionedDisplayName is { } mention)
+					{
+						<span class="comment__mention">&#64;@mention</span>
+					}
+					@* Sanitized on write by ICommentContentRenderer; raw Content is never rendered as HTML. *@
+					@Html.Raw(comment.ContentHtml)
+				</div>
+
+				@* Reply and Report need JavaScript (they may have to sign the reader in), so comments.js reveals them. *@
+				<div class="comment__actions">
+					<button type="button" class="comment__action" data-comment-upvote
+							aria-pressed="false"
+							aria-label="@Localizer["Upvote this comment"]">
+						<svg class="icon" aria-hidden="true"><use href="#i-hand-thumbs-up"></use></svg>
+						<span data-upvote-count>@comment.UpvoteCount</span>
+					</button>
+
+					<button type="button" class="comment__action" data-comment-reply hidden>
+						<svg class="icon" aria-hidden="true"><use href="#i-reply"></use></svg>
+						@Localizer["Reply"]
+					</button>
+
+					<button type="button" class="comment__action" data-comment-report hidden>
+						<svg class="icon" aria-hidden="true"><use href="#i-flag"></use></svg>
+						@Localizer["Report"]
+					</button>
+				</div>
+			}
+
+			@if (!isReply)
+			{
+				<div class="comment__replies" data-comment-replies>
+					@foreach (var reply in comment.Replies)
+					{
+						RenderComment(reply, true);
+					}
+					@if (comment.ReplyCount > comment.Replies.Length)
+					{
+						<button type="button" class="btn btn--subtle btn--sm comment__more-replies"
+								data-load-replies data-reply-page="1">
+							@Localizer["Show more replies"] (@(comment.ReplyCount - comment.Replies.Length))
+						</button>
+					}
+				</div>
+			}
+		</article>
+	}
+}
+
+<section class="comments" id="comments" aria-labelledby="comments-heading"
+		 data-comments-root
+		 data-post-id="@Model.PostId"
+		 data-sort="@Model.SortValue"
+		 data-page="@Model.PageNumber"
+		 data-page-size="@Model.PageSize"
+		 data-total="@Model.TotalCount"
+		 data-turnstile-sitekey="@Model.TurnstileSiteKey"
+		 data-highlight-comment="@(Model.HighlightCommentId?.ToString() ?? "")">
+
+	<header class="comments__header">
+		<h2 class="comments__title" id="comments-heading">
+			<svg class="icon" aria-hidden="true"><use href="#i-chat-left-text"></use></svg>
+			@Localizer["Comments"]
+			<span class="comments__count" data-comments-total>@Model.TotalCount</span>
+		</h2>
+
+		@* Real links, resolved server-side: both orders stay readable without JavaScript. *@
+		<nav class="comments__sort" aria-label="@Localizer["Comment sort order"]">
+			<a class="comments__sort-link @(Model.SortValue == "top" ? "is-active" : "")"
+			   href="?sort=top#comments">@Localizer["Top"]</a>
+			<a class="comments__sort-link @(Model.SortValue == "new" ? "is-active" : "")"
+			   href="?sort=new#comments">@Localizer["Newest"]</a>
+		</nav>
+	</header>
+
+	@* Hidden until comments.js reveals it: signing in needs JavaScript, and a plain form post
+	   would carry no bearer token. *@
+	<form class="comment-composer" data-comment-composer hidden>
+		<p class="comment-composer__identity" data-comment-identity hidden>
+			<span data-comment-identity-name></span>
+			<button type="button" class="btn btn--subtle btn--sm" data-comment-signout>@Localizer["Sign out"]</button>
+		</p>
+
+		<input type="hidden" data-comment-parent value="" />
+
+		<div class="comment-composer__reply-to" data-comment-reply-to hidden>
+			<span data-comment-reply-to-name></span>
+			<button type="button" class="btn btn--subtle btn--sm" data-comment-cancel-reply>
+				<svg class="icon" aria-hidden="true"><use href="#i-x-lg"></use></svg>
+				@Localizer["Cancel reply"]
+			</button>
+		</div>
+
+		<label class="visually-hidden" for="comment-content">@Localizer["Your comment"]</label>
+		<textarea class="comment-composer__input" id="comment-content" data-comment-content
+				  rows="4" maxlength="@CommentLimits.MaxCommentLength" required
+				  placeholder="@Localizer["Share your thoughts… (Markdown works)"]"></textarea>
+
+		<div class="comment-composer__footer">
+			<p class="comment-composer__counter"><span data-comment-counter>0</span>/@CommentLimits.MaxCommentLength</p>
+			<div class="comment-composer__turnstile" data-comment-turnstile
+				 data-sitekey="@Model.TurnstileSiteKey"></div>
+			<button type="submit" class="btn btn--accent" data-comment-submit>@Localizer["Post comment"]</button>
+		</div>
+
+		<p class="comment-composer__status" role="status" data-comment-status></p>
+	</form>
+
+	<noscript>
+		<p class="comment-composer__status">@Localizer["JavaScript is required to sign in and post a comment."]</p>
+	</noscript>
+
+	<div class="comments__list" data-comments-list>
+		@if (!Model.Comments.Data.Any())
+		{
+			<div class="empty-state" data-comments-empty>
+				<svg class="icon" aria-hidden="true"><use href="#i-inbox"></use></svg>
+				<p>@Localizer["No comments yet. Be the first."]</p>
+			</div>
+		}
+		else
+		{
+			foreach (var comment in Model.Comments.Data)
+			{
+				RenderComment(comment, false);
+			}
+		}
+	</div>
+
+	<div class="comments__more">
+		<button type="button" class="btn btn--standard" data-load-more hidden="@(!Model.HasMore)">
+			@Localizer["Load more comments"]
+		</button>
+	</div>
+
+	@* A real modal: <dialog> + showModal() gives the top layer, Escape, focus trapping and a
+	   ::backdrop we can paint with Smoke. *@
+	<dialog class="signin-dialog" data-signin-dialog aria-labelledby="signin-title">
+		<form method="dialog" class="signin-dialog__close-form">
+			<button class="signin-dialog__close" value="cancel" data-signin-close
+					aria-label="@Localizer["Close"]" title="@Localizer["Close"]">
+				<svg class="icon" aria-hidden="true"><use href="#i-x-lg"></use></svg>
+			</button>
+		</form>
+
+		<h2 class="signin-dialog__title" id="signin-title">@Localizer["Sign in to continue"]</h2>
+		<p class="signin-dialog__lead">@Localizer["Your draft is saved. You will land right back here."]</p>
+
+		<div class="signin-dialog__providers">
+			<button type="button" class="btn btn--standard btn--lg" data-signin-provider="google">
+				<svg class="icon" aria-hidden="true"><use href="#i-google"></use></svg>
+				@Localizer["Continue with Google"]
+			</button>
+			<button type="button" class="btn btn--standard btn--lg" data-signin-provider="apple">
+				<svg class="icon" aria-hidden="true"><use href="#i-apple"></use></svg>
+				@Localizer["Continue with Apple"]
+			</button>
+		</div>
+
+		<p class="signin-dialog__divider"><span>@Localizer["or"]</span></p>
+
+		<div class="signin-dialog__step" data-signin-email-step>
+			<label class="signin-dialog__label" for="signin-email">@Localizer["Email address"]</label>
+			<input class="signin-dialog__input" id="signin-email" type="email"
+				   autocomplete="email" inputmode="email" data-signin-email />
+			<button type="button" class="btn btn--accent btn--lg" data-signin-send>
+				<svg class="icon" aria-hidden="true"><use href="#i-envelope"></use></svg>
+				@Localizer["Email me a code"]
+			</button>
+		</div>
+
+		<div class="signin-dialog__step" data-signin-code-step hidden>
+			<label class="signin-dialog__label" for="signin-code">@Localizer["6-digit code"]</label>
+			<input class="signin-dialog__input signin-dialog__input--code" id="signin-code" type="text"
+				   inputmode="numeric" autocomplete="one-time-code" maxlength="6" data-signin-code />
+			<button type="button" class="btn btn--accent btn--lg" data-signin-verify>@Localizer["Verify and continue"]</button>
+		</div>
+
+		<p class="signin-dialog__error" role="alert" data-signin-error></p>
+	</dialog>
+
+	<dialog class="signin-dialog" data-report-dialog aria-labelledby="report-title">
+		<form method="dialog" class="signin-dialog__close-form">
+			<button class="signin-dialog__close" value="cancel" data-report-close
+					aria-label="@Localizer["Close"]" title="@Localizer["Close"]">
+				<svg class="icon" aria-hidden="true"><use href="#i-x-lg"></use></svg>
+			</button>
+		</form>
+
+		<h2 class="signin-dialog__title" id="report-title">@Localizer["Report this comment"]</h2>
+
+		<div class="signin-dialog__step">
+			<label class="signin-dialog__label" for="report-reason">@Localizer["Reason"]</label>
+			<select class="signin-dialog__input" id="report-reason" data-report-reason>
+				<option value="@nameof(CommentReportReason.Spam)">@Localizer["Spam"]</option>
+				<option value="@nameof(CommentReportReason.Abuse)">@Localizer["Abuse"]</option>
+				<option value="@nameof(CommentReportReason.OffTopic)">@Localizer["Off topic"]</option>
+				<option value="@nameof(CommentReportReason.Other)">@Localizer["Other"]</option>
+			</select>
+
+			<label class="signin-dialog__label" for="report-note">@Localizer["Note (optional)"]</label>
+			<textarea class="signin-dialog__input" id="report-note" rows="3" maxlength="@CommentLimits.MaxReportNoteLength" data-report-note></textarea>
+
+			<button type="button" class="btn btn--accent btn--lg" data-report-send>@Localizer["Send report"]</button>
+		</div>
+		<p class="signin-dialog__error" role="alert" data-report-error></p>
+	</dialog>
+</section>
