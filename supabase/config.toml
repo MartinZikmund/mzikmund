@@ -1,0 +1,80 @@
+# Supabase local development stack for mzikmund.dev.
+# Supabase is used as an IDENTITY PROVIDER ONLY - comment data lives in Azure SQL behind EF Core.
+
+# Pinned deliberately. project_id defaults to the working-directory name, which is "comments"
+# inside the git worktree and "mzikmund" in the main clone. Two different values means two
+# different Docker container sets fighting over ports 54321-54324. Only ever run one at a time.
+project_id = "mzikmund"
+
+[api]
+enabled = true
+port = 54321
+
+[db]
+port = 54322
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+[studio]
+enabled = true
+port = 54323
+
+# Mailpit, the local mail catcher, exposing both a web UI and a REST API on 54324.
+# This section used to be called [inbucket]; the Docker container is still named
+# supabase_inbucket_mzikmund but the image it runs is Mailpit.
+[local_smtp]
+enabled = true
+port = 54324
+
+[auth]
+enabled = true
+# The Razor dev URL for THIS repo is 7007 (Properties/launchSettings.json "https" profile plus
+# appsettings.Development.json General:Url). The "5001" in CLAUDE.md is stale documentation.
+site_url = "https://localhost:7007"
+additional_redirect_urls = [
+  "https://localhost:7007",
+  "https://localhost:7007/**",
+  "http://localhost:5007",
+  "http://localhost:5007/**",
+  "http://localhost:5245",
+  "http://localhost:5245/**",
+  "http://localhost:5000",
+  "http://localhost:5000/**",
+  "mzikmund-app://oauthcallback",
+  "http://127.0.0.1:51842/callback"
+]
+jwt_expiry = 3600
+enable_signup = true
+# signing_keys_path is deliberately NOT set. Left unset, GoTrue signs access tokens with its
+# built-in ES256 development key and publishes it at /auth/v1/.well-known/jwks.json - the same
+# algorithm and the same discovery mechanism as the hosted project. Do NOT add an HS256 path.
+
+[auth.email]
+enable_signup = true
+# false = a user can sign in without clicking a confirmation link, which a scripted OTP flow needs.
+enable_confirmations = false
+# Do not raise this or Playwright retries start hitting 429.
+max_frequency = "1s"
+otp_length = 6
+otp_expiry = 3600
+
+# THE CRITICAL BIT. GoTrue decides magic-link-versus-6-digit-code from the TEMPLATE BODY, not from
+# a config flag: a body containing {{ .ConfirmationURL }} mails a clickable link, a body containing
+# {{ .Token }} mails a code. magic_link fires for an existing user, confirmation for a new one, so
+# BOTH must be overridden.
+[auth.email.template.magic_link]
+subject = "Your mzikmund.dev sign-in code"
+content_path = "./supabase/templates/magic_link.html"
+
+[auth.email.template.confirmation]
+subject = "Your mzikmund.dev sign-in code"
+content_path = "./supabase/templates/confirmation.html"
+
+# Defaults are 30 per 5 minutes per IP, low enough that a medium Playwright suite trips them and
+# the resulting 429s look exactly like flaky tests.
+[auth.rate_limit]
+sign_in_sign_ups = 300
+token_verifications = 300
+token_refresh = 900
