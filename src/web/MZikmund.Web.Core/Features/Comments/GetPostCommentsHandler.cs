@@ -38,7 +38,7 @@ internal sealed class GetPostCommentsHandler : IRequestHandler<GetPostCommentsQu
 
 		var currentAuthorId = _currentUserAccessor.Current?.Id;
 
-		var topLevel = CommentProjection.Visible(_dbContext.Comment)
+		var topLevel = CommentProjection.Readable(_dbContext.Comment)
 			.Where(comment => comment.PostId == request.PostId && comment.ParentId == null);
 
 		var totalCount = await topLevel.CountAsync(cancellationToken);

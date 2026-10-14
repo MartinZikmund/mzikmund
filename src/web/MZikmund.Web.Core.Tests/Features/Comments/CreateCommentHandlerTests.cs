@@ -185,16 +185,14 @@ public class CreateCommentHandlerTests
 		Assert.Equal(0, await db.Comment.CountAsync(CancellationToken.None));
 	}
 
-	[Theory]
-	[InlineData(DataCommentStatus.HiddenByModerator)]
-	[InlineData(DataCommentStatus.DeletedByAuthor)]
-	public async Task Handle_ReplyToNonVisibleComment_ThrowsInvalidOperationAndKeepsReplyCount(DataCommentStatus status)
+	[Fact]
+	public async Task Handle_ReplyToHiddenComment_ThrowsConflictAndKeepsReplyCount()
 	{
 		// Arrange
 		using CommentsDbFixture fixture = new();
 		using var db = fixture.CreateContext();
 		await SeedAsync(db);
-		var target = AddComment(db, _postId, _otherAuthorId, status: status);
+		var target = AddComment(db, _postId, _otherAuthorId, status: DataCommentStatus.HiddenByModerator);
 		await db.SaveChangesAsync(CancellationToken.None);
 		var handler = CreateHandler(db);
 

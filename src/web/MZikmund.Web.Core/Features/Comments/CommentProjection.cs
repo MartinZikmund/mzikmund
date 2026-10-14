@@ -18,10 +18,21 @@ internal static class CommentProjection
 	public const int InlineReplyCount = 3;
 
 	/// <summary>
-	/// Restricts a comment query to what the public may read.
+	/// Restricts a comment query to the comments the public may see a row for. A hidden comment
+	/// that still has visible replies stays as a bodiless tombstone so those replies keep their
+	/// place; a hidden one with nothing visible under it is gone.
 	/// </summary>
-	public static IQueryable<CommentEntity> Visible(IQueryable<CommentEntity> comments) =>
-		comments.Where(comment => comment.Status != DataCommentStatus.HiddenByModerator);
+	public static IQueryable<CommentEntity> Readable(IQueryable<CommentEntity> comments) =>
+		comments.Where(comment =>
+			comment.Status != DataCommentStatus.HiddenByModerator
+			|| comment.Replies.Any(reply => reply.Status == DataCommentStatus.Visible));
+
+	/// <summary>
+	/// Restricts a query to the replies of one comment that count towards its ReplyCount. Deleted
+	/// and hidden replies are left out: a reply has no children, so a tombstone would add nothing.
+	/// </summary>
+	public static IQueryable<CommentEntity> VisibleRepliesOf(IQueryable<CommentEntity> comments, Guid parentId) =>
+		comments.Where(comment => comment.ParentId == parentId && comment.Status == DataCommentStatus.Visible);
 
 	/// <summary>
 	/// Projects comments into flat rows, resolving the vote and ownership flags for the caller.
@@ -61,8 +72,7 @@ internal static class CommentProjection
 		foreach (var parentId in parentIds)
 		{
 			var rows = await SelectRows(
-				Visible(comments)
-					.Where(comment => comment.ParentId == parentId)
+				VisibleRepliesOf(comments, parentId)
 					.OrderBy(comment => comment.CreatedOn)
 					.Take(InlineReplyCount),
 				currentAuthorId)
@@ -134,7 +144,7 @@ internal static class CommentProjection
 			IsOwn = currentAuthorId is not null && currentAuthorId == comment.AuthorId,
 			Replies = includeReplies
 			? comment.Replies
-				.Where(reply => reply.Status != DataCommentStatus.HiddenByModerator)
+				.Where(reply => reply.Status == DataCommentStatus.Visible)
 				.OrderBy(reply => reply.CreatedOn)
 				.Take(InlineReplyCount)
 				.Select(reply => ToDto(reply, currentAuthorId, includeReplies: false))
