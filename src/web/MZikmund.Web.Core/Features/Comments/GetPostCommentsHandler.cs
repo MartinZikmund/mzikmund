@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using MZikmund.DataContracts;
 using MZikmund.DataContracts.Blog.Comments;
+using MZikmund.Web.Core.Services;
 using MZikmund.Web.Core.Services.Comments;
 using MZikmund.Web.Data;
 using MZikmund.Web.Data.Entities;
@@ -12,18 +13,23 @@ internal sealed class GetPostCommentsHandler : IRequestHandler<GetPostCommentsQu
 {
 	private readonly DatabaseContext _dbContext;
 	private readonly ICurrentUserAccessor _currentUserAccessor;
+	private readonly IDateProvider _dateProvider;
 
-	public GetPostCommentsHandler(DatabaseContext dbContext, ICurrentUserAccessor currentUserAccessor)
+	public GetPostCommentsHandler(
+		DatabaseContext dbContext,
+		ICurrentUserAccessor currentUserAccessor,
+		IDateProvider dateProvider)
 	{
 		_dbContext = dbContext;
 		_currentUserAccessor = currentUserAccessor;
+		_dateProvider = dateProvider;
 	}
 
 	public async Task<PagedResponse<CommentDto>> Handle(GetPostCommentsQuery request, CancellationToken cancellationToken)
 	{
 		CommentPaging.Validate(request.PageNumber, request.PageSize);
 
-		if (!await CommentPostVisibility.IsPublicAsync(_dbContext.Post, request.PostId, cancellationToken))
+		if (!await CommentPostVisibility.IsPublicAsync(_dbContext.Post, request.PostId, _dateProvider.UtcNow, cancellationToken))
 		{
 			throw new CommentNotFoundException($"Post {request.PostId} was not found.");
 		}

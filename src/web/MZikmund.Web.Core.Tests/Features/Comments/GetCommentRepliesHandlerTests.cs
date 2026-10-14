@@ -262,5 +262,5 @@ public class GetCommentRepliesHandlerTests
 	}
 
 	private static GetCommentRepliesHandler CreateHandler(DatabaseContext context, Guid? currentAuthorId = null) =>
-		new(context, CurrentUser(currentAuthorId).Object);
+		new(context, CurrentUser(currentAuthorId).Object, FixedClock().Object);
 }

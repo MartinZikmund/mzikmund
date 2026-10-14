@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using MZikmund.DataContracts;
 using MZikmund.DataContracts.Blog.Comments;
+using MZikmund.Web.Core.Services;
 using MZikmund.Web.Core.Services.Comments;
 using MZikmund.Web.Data;
 
@@ -11,11 +12,16 @@ internal sealed class GetCommentRepliesHandler : IRequestHandler<GetCommentRepli
 {
 	private readonly DatabaseContext _dbContext;
 	private readonly ICurrentUserAccessor _currentUserAccessor;
+	private readonly IDateProvider _dateProvider;
 
-	public GetCommentRepliesHandler(DatabaseContext dbContext, ICurrentUserAccessor currentUserAccessor)
+	public GetCommentRepliesHandler(
+		DatabaseContext dbContext,
+		ICurrentUserAccessor currentUserAccessor,
+		IDateProvider dateProvider)
 	{
 		_dbContext = dbContext;
 		_currentUserAccessor = currentUserAccessor;
+		_dateProvider = dateProvider;
 	}
 
 	public async Task<PagedResponse<CommentDto>> Handle(GetCommentRepliesQuery request, CancellationToken cancellationToken)
@@ -27,7 +33,7 @@ internal sealed class GetCommentRepliesHandler : IRequestHandler<GetCommentRepli
 			.Select(comment => (Guid?)comment.PostId)
 			.FirstOrDefaultAsync(cancellationToken);
 		if (parentPostId is null
-			|| !await CommentPostVisibility.IsPublicAsync(_dbContext.Post, parentPostId.Value, cancellationToken))
+			|| !await CommentPostVisibility.IsPublicAsync(_dbContext.Post, parentPostId.Value, _dateProvider.UtcNow, cancellationToken))
 		{
 			throw new CommentNotFoundException($"Comment {request.CommentId} was not found.");
 		}

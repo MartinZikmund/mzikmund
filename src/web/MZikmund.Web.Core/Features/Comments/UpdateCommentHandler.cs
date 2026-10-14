@@ -61,6 +61,11 @@ internal sealed class UpdateCommentHandler : IRequestHandler<UpdateCommentComman
 			throw new CommentForbiddenException($"Comment {comment.Id} belongs to another author.");
 		}
 
+		if (!await CommentPostVisibility.IsPublicAsync(_dbContext.Post, comment.PostId, _dateProvider.UtcNow, cancellationToken))
+		{
+			throw new CommentNotFoundException($"Comment {request.CommentId} was not found.");
+		}
+
 		if (comment.Status != DataCommentStatus.Visible)
 		{
 			throw new CommentConflictException($"Comment {comment.Id} is not visible and cannot be edited.");

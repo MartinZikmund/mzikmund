@@ -60,9 +60,14 @@ internal sealed class ReportCommentHandler : IRequestHandler<ReportCommentComman
 				var comment = await _dbContext.Comment
 					.AsNoTracking()
 					.Where(c => c.Id == request.CommentId)
-					.Select(c => new { c.Id, c.AuthorId, c.Status })
+					.Select(c => new { c.Id, c.PostId, c.AuthorId, c.Status })
 					.FirstOrDefaultAsync(ct)
 					?? throw new CommentNotFoundException($"Comment {request.CommentId} was not found.");
+
+				if (!await CommentPostVisibility.IsPublicAsync(_dbContext.Post, comment.PostId, _dateProvider.UtcNow, ct))
+				{
+					throw new CommentNotFoundException($"Comment {request.CommentId} was not found.");
+				}
 
 				if (comment.Status != DataCommentStatus.Visible)
 				{
