@@ -59,10 +59,16 @@ jobs:
     - name: Install .NET workloads
       run:
         dotnet workload install android ios wasm-tools
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+        cache: 'npm'
+        cache-dependency-path: src/web/MZikmund.Web/package-lock.json
     - name: Restore Node.js dependencies
       run: |
         cd src/web/MZikmund.Web
-        npm install
+        npm ci
     - name: Build
       run: dotnet build --configuration Release
     - name: Test
