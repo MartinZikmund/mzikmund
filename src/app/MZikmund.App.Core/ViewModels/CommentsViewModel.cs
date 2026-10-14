@@ -577,15 +577,36 @@ public partial class CommentsViewModel : ViewModelBase
 	/// Runs a write call. A rejected or missing session re-prompts sign-in once; any other failure
 	/// is logged and shown, and the call reports <c>Success: false</c>.
 	/// </summary>
-	private async Task<(bool Success, T? Content)> TryWriteAsync<T>(Func<Task<ApiResponse<T>>> call, string failureTitleKey)
+	private Task<(bool Success, T? Content)> TryWriteAsync<T>(Func<Task<ApiResponse<T>>> call, string failureTitleKey) =>
+		TryRunAsync(
+			async () =>
+			{
+				var response = await call();
+				await response.EnsureSuccessfulAsync();
+				return response.Content;
+			},
+			failureTitleKey);
+
+	private Task<(bool Success, object? Content)> TryWriteAsync(Func<Task<IApiResponse>> call, string failureTitleKey) =>
+		TryRunAsync<object?>(
+			async () =>
+			{
+				var response = await call();
+				if (response.Error is { } error)
+				{
+					throw error;
+				}
+				return null;
+			},
+			failureTitleKey);
+
+	private async Task<(bool Success, T? Content)> TryRunAsync<T>(Func<Task<T?>> action, string failureTitleKey)
 	{
 		for (var attempt = 0; ; attempt++)
 		{
 			try
 			{
-				var response = await call();
-				await response.EnsureSuccessfulAsync();
-				return (true, response.Content);
+				return (true, await action());
 			}
 			catch (Exception ex) when (attempt == 0 && IsUnauthorized(ex))
 			{
