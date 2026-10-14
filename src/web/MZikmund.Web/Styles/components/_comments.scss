@@ -261,6 +261,13 @@
 		}
 	}
 
+	// Short-lived feedback next to the control that failed or succeeded.
+	.comment__notice {
+		margin: var(--mz-space-1) 0 0;
+		color: var(--mz-text-secondary);
+		font-size: var(--mz-text-caption);
+	}
+
 	// Inline editor swapped in for the body while a comment is being edited.
 	.comment__editor {
 		display: flex;

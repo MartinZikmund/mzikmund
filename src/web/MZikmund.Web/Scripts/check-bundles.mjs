@@ -38,7 +38,7 @@ function read(name) {
 
 const themeInit = read('theme-init.js');
 const site = read('site.js');
-read('comments.js');
+const comments = read('comments.js');
 
 if (themeInit !== null) {
 	if (TOP_LEVEL_ESM.test(themeInit)) {
@@ -51,6 +51,10 @@ if (themeInit !== null) {
 
 if (site !== null && TOP_LEVEL_ESM.test(site)) {
 	failures.push('site.js: has a top-level import/export, which breaks PostPreviewTemplate.html');
+}
+
+if (comments !== null && !comments.includes('supabase-config')) {
+	failures.push('comments.js: never reads #supabase-config, so the comments module is not in the bundle');
 }
 
 if (failures.length > 0) {
