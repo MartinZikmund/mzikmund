@@ -110,7 +110,7 @@ public class ReportCommentHandlerTests
 		var tooLongNote = new string('x', CommentLimits.MaxReportNoteLength + 1);
 
 		// Act & Assert
-		await Assert.ThrowsAsync<ArgumentOutOfRangeException>(
+		await Assert.ThrowsAsync<CommentValidationException>(
 			() => handler.Handle(new ReportCommentCommand(commentId, CommentReportReason.Other, tooLongNote), CancellationToken.None));
 		Assert.Equal(0, await db.CommentReport.CountAsync(CancellationToken.None));
 		var stored = await db.Comment.FirstAsync(c => c.Id == commentId, CancellationToken.None);
@@ -126,7 +126,7 @@ public class ReportCommentHandlerTests
 		var handler = CreateHandler(db, CurrentUser(_reporterId, "Martin"));
 
 		// Act & Assert
-		await Assert.ThrowsAsync<KeyNotFoundException>(
+		await Assert.ThrowsAsync<CommentNotFoundException>(
 			() => handler.Handle(new ReportCommentCommand(Guid.NewGuid(), CommentReportReason.Spam, null), CancellationToken.None));
 	}
 

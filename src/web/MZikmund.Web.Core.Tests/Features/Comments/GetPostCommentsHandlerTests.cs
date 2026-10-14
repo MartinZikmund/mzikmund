@@ -1,5 +1,6 @@
 using MZikmund.DataContracts.Blog.Comments;
 using MZikmund.Web.Core.Features.Comments;
+using MZikmund.Web.Core.Services.Comments;
 using MZikmund.Web.Core.Tests.Infrastructure;
 using MZikmund.Web.Data;
 using MZikmund.Web.Data.Entities;
@@ -217,7 +218,7 @@ public class GetPostCommentsHandlerTests
 		var handler = CreateHandler(context);
 
 		// Act & Assert
-		await Assert.ThrowsAsync<KeyNotFoundException>(
+		await Assert.ThrowsAsync<CommentNotFoundException>(
 			() => handler.Handle(new GetPostCommentsQuery(postId, CommentSortOrder.New, 1, 20), CancellationToken.None));
 	}
 
@@ -233,7 +234,7 @@ public class GetPostCommentsHandlerTests
 		var handler = CreateHandler(context);
 
 		// Act & Assert
-		await Assert.ThrowsAsync<KeyNotFoundException>(
+		await Assert.ThrowsAsync<CommentNotFoundException>(
 			() => handler.Handle(new GetPostCommentsQuery(postId, CommentSortOrder.New, 1, 20), CancellationToken.None));
 	}
 
@@ -246,7 +247,7 @@ public class GetPostCommentsHandlerTests
 		var handler = CreateHandler(context);
 
 		// Act & Assert
-		await Assert.ThrowsAsync<KeyNotFoundException>(
+		await Assert.ThrowsAsync<CommentNotFoundException>(
 			() => handler.Handle(new GetPostCommentsQuery(Guid.NewGuid(), CommentSortOrder.New, 1, 20), CancellationToken.None));
 	}
 
@@ -260,7 +261,7 @@ public class GetPostCommentsHandlerTests
 		var query = new GetPostCommentsQuery(Guid.NewGuid(), CommentSortOrder.New, 0, 20);
 
 		// Act & Assert
-		await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => handler.Handle(query, CancellationToken.None));
+		await Assert.ThrowsAsync<CommentValidationException>(() => handler.Handle(query, CancellationToken.None));
 	}
 
 	private static GetPostCommentsHandler CreateHandler(DatabaseContext context, Guid? currentAuthorId = null) =>

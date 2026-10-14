@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MZikmund.Web.Core.Services;
+using MZikmund.Web.Core.Services.Comments;
 using MZikmund.Web.Data;
 
 namespace MZikmund.Web.Core.Features.Comments;
@@ -26,7 +27,7 @@ internal sealed class HideCommentHandler : IRequestHandler<HideCommentCommand>
 	{
 		var comment = await _dbContext.Comment
 			.FirstOrDefaultAsync(c => c.Id == request.CommentId, cancellationToken)
-			?? throw new KeyNotFoundException($"Comment {request.CommentId} was not found.");
+			?? throw new CommentNotFoundException($"Comment {request.CommentId} was not found.");
 
 		var resolvedReports = await CommentModeration.ResolveOpenReportsAsync(
 			_dbContext, comment, _dateProvider.UtcNow.UtcDateTime, cancellationToken);

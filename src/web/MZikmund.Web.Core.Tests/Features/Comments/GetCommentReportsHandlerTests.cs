@@ -1,5 +1,6 @@
 using MZikmund.DataContracts.Blog.Comments;
 using MZikmund.Web.Core.Features.Comments;
+using MZikmund.Web.Core.Services.Comments;
 using MZikmund.Web.Core.Tests.Infrastructure;
 using MZikmund.Web.Data;
 using static MZikmund.Web.Core.Tests.Features.Comments.CommentSeed;
@@ -179,7 +180,7 @@ public class GetCommentReportsHandlerTests
 	[Theory]
 	[InlineData(0, 20)]
 	[InlineData(1, 0)]
-	public async Task Handle_InvalidPaging_ThrowsArgumentOutOfRangeException(int pageNumber, int pageSize)
+	public async Task Handle_InvalidPaging_ThrowsCommentValidationException(int pageNumber, int pageSize)
 	{
 		// Arrange
 		using CommentsDbFixture fixture = new();
@@ -187,7 +188,7 @@ public class GetCommentReportsHandlerTests
 		var handler = new GetCommentReportsHandler(db);
 
 		// Act & Assert
-		await Assert.ThrowsAsync<ArgumentOutOfRangeException>(
+		await Assert.ThrowsAsync<CommentValidationException>(
 			() => handler.Handle(new GetCommentReportsQuery(pageNumber, pageSize), CancellationToken.None));
 	}
 

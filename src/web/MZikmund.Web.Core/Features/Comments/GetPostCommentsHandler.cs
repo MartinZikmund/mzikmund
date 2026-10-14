@@ -23,17 +23,17 @@ internal sealed class GetPostCommentsHandler : IRequestHandler<GetPostCommentsQu
 	{
 		if (request.PageNumber < 1)
 		{
-			throw new ArgumentOutOfRangeException(nameof(request.PageNumber), "Page number must be at least 1.");
+			throw new CommentValidationException("Page number must be at least 1.");
 		}
 
 		if (request.PageSize < 1)
 		{
-			throw new ArgumentOutOfRangeException(nameof(request.PageSize), "Page size must be at least 1.");
+			throw new CommentValidationException("Page size must be at least 1.");
 		}
 
 		if (!await CommentPostVisibility.IsPublicAsync(_dbContext.Post, request.PostId, cancellationToken))
 		{
-			throw new KeyNotFoundException($"Post {request.PostId} was not found.");
+			throw new CommentNotFoundException($"Post {request.PostId} was not found.");
 		}
 
 		var currentAuthorId = _currentUserAccessor.Current?.Id;

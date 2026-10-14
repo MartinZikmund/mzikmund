@@ -46,7 +46,7 @@ public sealed class AuthoredRequestBehavior<TRequest, TResponse> : IPipelineBeha
 		var current = _currentUserAccessor.Current;
 		if (current is null)
 		{
-			throw new UnauthorizedAccessException(
+			throw new CommentForbiddenException(
 				$"{typeof(TRequest).Name} requires an authenticated author.");
 		}
 
@@ -70,7 +70,7 @@ public sealed class AuthoredRequestBehavior<TRequest, TResponse> : IPipelineBeha
 		else if (author.IsBanned)
 		{
 			// Bans block future writes only; existing comments stay visible.
-			throw new UnauthorizedAccessException($"Author {current.Id} is banned.");
+			throw new CommentForbiddenException($"Author {current.Id} is banned.");
 		}
 
 		author.DisplayName = current.DisplayName;

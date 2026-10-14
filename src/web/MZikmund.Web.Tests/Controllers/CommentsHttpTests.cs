@@ -83,10 +83,10 @@ public class CommentsHttpTests
 	}
 
 	[Theory]
-	[InlineData(typeof(KeyNotFoundException), HttpStatusCode.NotFound)]
-	[InlineData(typeof(UnauthorizedAccessException), HttpStatusCode.Forbidden)]
-	[InlineData(typeof(InvalidOperationException), HttpStatusCode.Conflict)]
-	[InlineData(typeof(ArgumentException), HttpStatusCode.BadRequest)]
+	[InlineData(typeof(CommentNotFoundException), HttpStatusCode.NotFound)]
+	[InlineData(typeof(CommentForbiddenException), HttpStatusCode.Forbidden)]
+	[InlineData(typeof(CommentConflictException), HttpStatusCode.Conflict)]
+	[InlineData(typeof(CommentValidationException), HttpStatusCode.BadRequest)]
 	public async Task CreateComment_WhenHandlerThrows_MapsToProblemStatus(Type exceptionType, HttpStatusCode expected)
 	{
 		// Arrange

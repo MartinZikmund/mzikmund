@@ -112,7 +112,7 @@ public class CreateCommentHandlerTests
 		var tooLong = new string('a', CommentLimits.MaxCommentLength + 1);
 
 		// Act & Assert
-		await Assert.ThrowsAsync<ArgumentOutOfRangeException>(
+		await Assert.ThrowsAsync<CommentValidationException>(
 			() => handler.Handle(new CreateCommentCommand(_postId, tooLong, null), CancellationToken.None));
 		Assert.Equal(0, await db.Comment.CountAsync(CancellationToken.None));
 	}
@@ -145,7 +145,7 @@ public class CreateCommentHandlerTests
 		var handler = CreateHandler(db);
 
 		// Act & Assert
-		await Assert.ThrowsAsync<ArgumentException>(
+		await Assert.ThrowsAsync<CommentValidationException>(
 			() => handler.Handle(new CreateCommentCommand(_postId, "   ", null), CancellationToken.None));
 	}
 
@@ -162,7 +162,7 @@ public class CreateCommentHandlerTests
 		var handler = CreateHandler(db);
 
 		// Act & Assert
-		await Assert.ThrowsAsync<KeyNotFoundException>(
+		await Assert.ThrowsAsync<CommentNotFoundException>(
 			() => handler.Handle(new CreateCommentCommand(draftPostId, "hello", null), CancellationToken.None));
 		Assert.Equal(0, await db.Comment.CountAsync(CancellationToken.None));
 	}
@@ -180,7 +180,7 @@ public class CreateCommentHandlerTests
 		var handler = CreateHandler(db);
 
 		// Act & Assert
-		await Assert.ThrowsAsync<KeyNotFoundException>(
+		await Assert.ThrowsAsync<CommentNotFoundException>(
 			() => handler.Handle(new CreateCommentCommand(futurePostId, "hello", null), CancellationToken.None));
 		Assert.Equal(0, await db.Comment.CountAsync(CancellationToken.None));
 	}
@@ -199,7 +199,7 @@ public class CreateCommentHandlerTests
 		var handler = CreateHandler(db);
 
 		// Act & Assert
-		await Assert.ThrowsAsync<InvalidOperationException>(
+		await Assert.ThrowsAsync<CommentConflictException>(
 			() => handler.Handle(new CreateCommentCommand(_postId, "hello", target.Id), CancellationToken.None));
 		var reloaded = await db.Comment.FirstAsync(c => c.Id == target.Id, CancellationToken.None);
 		Assert.Equal(0, reloaded.ReplyCount);
@@ -220,7 +220,7 @@ public class CreateCommentHandlerTests
 		var handler = CreateHandler(db);
 
 		// Act & Assert
-		await Assert.ThrowsAsync<InvalidOperationException>(
+		await Assert.ThrowsAsync<CommentConflictException>(
 			() => handler.Handle(new CreateCommentCommand(_postId, "hello", target.Id), CancellationToken.None));
 	}
 

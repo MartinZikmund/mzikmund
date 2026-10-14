@@ -22,12 +22,12 @@ internal sealed class GetCommentRepliesHandler : IRequestHandler<GetCommentRepli
 	{
 		if (request.PageNumber < 1)
 		{
-			throw new ArgumentOutOfRangeException(nameof(request.PageNumber), "Page number must be at least 1.");
+			throw new CommentValidationException("Page number must be at least 1.");
 		}
 
 		if (request.PageSize < 1)
 		{
-			throw new ArgumentOutOfRangeException(nameof(request.PageSize), "Page size must be at least 1.");
+			throw new CommentValidationException("Page size must be at least 1.");
 		}
 
 		var parentPostId = await CommentProjection.Visible(_dbContext.Comment)
@@ -37,7 +37,7 @@ internal sealed class GetCommentRepliesHandler : IRequestHandler<GetCommentRepli
 		if (parentPostId is null
 			|| !await CommentPostVisibility.IsPublicAsync(_dbContext.Post, parentPostId.Value, cancellationToken))
 		{
-			throw new KeyNotFoundException($"Comment {request.CommentId} was not found.");
+			throw new CommentNotFoundException($"Comment {request.CommentId} was not found.");
 		}
 
 		var currentAuthorId = _currentUserAccessor.Current?.Id;

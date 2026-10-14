@@ -26,7 +26,7 @@ internal sealed class DeleteCommentHandler : IRequestHandler<DeleteCommentComman
 	public async Task Handle(DeleteCommentCommand request, CancellationToken cancellationToken)
 	{
 		var author = _currentUserAccessor.Current
-			?? throw new UnauthorizedAccessException("A signed-in author is required to delete a comment.");
+			?? throw new CommentForbiddenException("A signed-in author is required to delete a comment.");
 
 		var deleted = false;
 
@@ -40,11 +40,11 @@ internal sealed class DeleteCommentHandler : IRequestHandler<DeleteCommentComman
 
 				var comment = await _dbContext.Comment
 					.FirstOrDefaultAsync(c => c.Id == request.CommentId, ct)
-					?? throw new KeyNotFoundException($"Comment {request.CommentId} was not found.");
+					?? throw new CommentNotFoundException($"Comment {request.CommentId} was not found.");
 
 				if (comment.AuthorId != author.Id)
 				{
-					throw new UnauthorizedAccessException($"Comment {comment.Id} belongs to another author.");
+					throw new CommentForbiddenException($"Comment {comment.Id} belongs to another author.");
 				}
 
 				if (comment.Status == DataCommentStatus.DeletedByAuthor)
@@ -54,7 +54,7 @@ internal sealed class DeleteCommentHandler : IRequestHandler<DeleteCommentComman
 
 				if (comment.Status == DataCommentStatus.HiddenByModerator)
 				{
-					throw new InvalidOperationException($"Comment {comment.Id} was hidden by a moderator and cannot be deleted.");
+					throw new CommentConflictException($"Comment {comment.Id} was hidden by a moderator and cannot be deleted.");
 				}
 
 				await using var transaction = await _dbContext.Database.BeginTransactionAsync(ct);

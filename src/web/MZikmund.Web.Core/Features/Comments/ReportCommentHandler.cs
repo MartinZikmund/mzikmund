@@ -31,13 +31,12 @@ internal sealed class ReportCommentHandler : IRequestHandler<ReportCommentComman
 	public async Task Handle(ReportCommentCommand request, CancellationToken cancellationToken)
 	{
 		var reporter = _currentUserAccessor.Current
-			?? throw new UnauthorizedAccessException("A signed-in author is required to report a comment.");
+			?? throw new CommentForbiddenException("A signed-in author is required to report a comment.");
 
 		var note = string.IsNullOrWhiteSpace(request.Note) ? null : request.Note.Trim();
 		if (note is not null && note.Length > CommentLimits.MaxReportNoteLength)
 		{
-			throw new ArgumentOutOfRangeException(
-				nameof(request),
+			throw new CommentValidationException(
 				$"Report note must not exceed {CommentLimits.MaxReportNoteLength} characters.");
 		}
 
@@ -54,7 +53,7 @@ internal sealed class ReportCommentHandler : IRequestHandler<ReportCommentComman
 
 				var comment = await _dbContext.Comment
 					.FirstOrDefaultAsync(c => c.Id == request.CommentId, ct)
-					?? throw new KeyNotFoundException($"Comment {request.CommentId} was not found.");
+					?? throw new CommentNotFoundException($"Comment {request.CommentId} was not found.");
 
 				var alreadyReported = await _dbContext.CommentReport
 					.AnyAsync(r => r.CommentId == comment.Id && r.ReporterId == reporter.Id && r.ResolvedOn == null, ct);

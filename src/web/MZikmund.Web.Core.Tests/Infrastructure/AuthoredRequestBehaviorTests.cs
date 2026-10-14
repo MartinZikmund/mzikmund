@@ -133,7 +133,7 @@ public class AuthoredRequestBehaviorTests : IDisposable
 		var behavior = CreateBehavior(context);
 
 		// Act
-		var exception = await Assert.ThrowsAsync<UnauthorizedAccessException>(() =>
+		var exception = await Assert.ThrowsAsync<CommentForbiddenException>(() =>
 			behavior.Handle(
 				new TestAuthoredRequest("payload"),
 				_ =>
@@ -159,7 +159,7 @@ public class AuthoredRequestBehaviorTests : IDisposable
 		var behavior = CreateBehavior(context);
 
 		// Act
-		await Assert.ThrowsAsync<UnauthorizedAccessException>(() =>
+		await Assert.ThrowsAsync<CommentForbiddenException>(() =>
 			behavior.Handle(
 				new TestAuthoredRequest("payload"),
 				_ =>

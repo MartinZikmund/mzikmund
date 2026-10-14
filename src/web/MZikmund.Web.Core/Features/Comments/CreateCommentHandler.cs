@@ -35,18 +35,17 @@ internal sealed class CreateCommentHandler : IRequestHandler<CreateCommentComman
 	public async Task<CommentDto> Handle(CreateCommentCommand request, CancellationToken cancellationToken)
 	{
 		var author = _currentUserAccessor.Current
-			?? throw new UnauthorizedAccessException("A signed-in author is required to create a comment.");
+			?? throw new CommentForbiddenException("A signed-in author is required to create a comment.");
 
 		var content = request.Content.Trim();
 		if (content.Length == 0)
 		{
-			throw new ArgumentException("Comment content must not be empty.", nameof(request));
+			throw new CommentValidationException("Comment content must not be empty.");
 		}
 
 		if (content.Length > CommentLimits.MaxCommentLength)
 		{
-			throw new ArgumentOutOfRangeException(
-				nameof(request),
+			throw new CommentValidationException(
 				$"Comment content must not exceed {CommentLimits.MaxCommentLength} characters.");
 		}
 
@@ -75,12 +74,12 @@ internal sealed class CreateCommentHandler : IRequestHandler<CreateCommentComman
 
 				if (!await CommentPostVisibility.IsPublicAsync(_dbContext.Post, request.PostId, ct))
 				{
-					throw new KeyNotFoundException($"Post {request.PostId} was not found.");
+					throw new CommentNotFoundException($"Post {request.PostId} was not found.");
 				}
 
 				var authorEntity = await _dbContext.CommentAuthor
 					.FirstOrDefaultAsync(a => a.Id == author.Id, ct)
-					?? throw new KeyNotFoundException($"Comment author {author.Id} was not found.");
+					?? throw new CommentNotFoundException($"Comment author {author.Id} was not found.");
 
 				CommentEntity? parent = null;
 				string? mentionedDisplayName = null;
@@ -90,16 +89,16 @@ internal sealed class CreateCommentHandler : IRequestHandler<CreateCommentComman
 					var target = await _dbContext.Comment
 						.Include(c => c.Author)
 						.FirstOrDefaultAsync(c => c.Id == targetId, ct)
-						?? throw new KeyNotFoundException($"Comment {targetId} was not found.");
+						?? throw new CommentNotFoundException($"Comment {targetId} was not found.");
 
 					if (target.PostId != request.PostId)
 					{
-						throw new InvalidOperationException($"Comment {targetId} does not belong to post {request.PostId}.");
+						throw new CommentConflictException($"Comment {targetId} does not belong to post {request.PostId}.");
 					}
 
 					if (target.Status != DataCommentStatus.Visible)
 					{
-						throw new InvalidOperationException($"Comment {targetId} is not visible and cannot be replied to.");
+						throw new CommentConflictException($"Comment {targetId} is not visible and cannot be replied to.");
 					}
 
 					if (target.ParentId is Guid grandParentId)
@@ -109,11 +108,11 @@ internal sealed class CreateCommentHandler : IRequestHandler<CreateCommentComman
 						// is a column, never a prefix inside Content.
 						parent = await _dbContext.Comment
 							.FirstOrDefaultAsync(c => c.Id == grandParentId, ct)
-							?? throw new KeyNotFoundException($"Comment {grandParentId} was not found.");
+							?? throw new CommentNotFoundException($"Comment {grandParentId} was not found.");
 
 						if (parent.Status != DataCommentStatus.Visible)
 						{
-							throw new InvalidOperationException($"Comment {grandParentId} is not visible and cannot be replied to.");
+							throw new CommentConflictException($"Comment {grandParentId} is not visible and cannot be replied to.");
 						}
 
 						mentionedDisplayName = target.Author.DisplayName;

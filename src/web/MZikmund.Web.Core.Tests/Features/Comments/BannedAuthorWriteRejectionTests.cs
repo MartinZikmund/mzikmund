@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MZikmund.DataContracts.Blog.Comments;
 using MZikmund.Web.Core.Features.Comments;
 using MZikmund.Web.Core.Infrastructure;
+using MZikmund.Web.Core.Services.Comments;
 using MZikmund.Web.Core.Tests.Infrastructure;
 using MZikmund.Web.Data;
 using static MZikmund.Web.Core.Tests.Features.Comments.CommentSeed;
@@ -55,7 +56,7 @@ public class BannedAuthorWriteRejectionTests
 		var handlerReached = false;
 
 		// Act
-		await Assert.ThrowsAsync<UnauthorizedAccessException>(
+		await Assert.ThrowsAsync<CommentForbiddenException>(
 			() => behavior.Handle(
 				request,
 				_ =>

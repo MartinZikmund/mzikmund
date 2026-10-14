@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using MZikmund.Web.Core.Features.Comments;
+using MZikmund.Web.Core.Services.Comments;
 using MZikmund.Web.Core.Tests.Infrastructure;
 using MZikmund.Web.Data;
 using static MZikmund.Web.Core.Tests.Features.Comments.CommentSeed;
@@ -102,7 +103,7 @@ public class SetCommentVoteHandlerTests
 		var handler = CreateHandler(db);
 
 		// Act & Assert
-		await Assert.ThrowsAsync<InvalidOperationException>(
+		await Assert.ThrowsAsync<CommentConflictException>(
 			() => handler.Handle(new SetCommentVoteCommand(commentId, true), CancellationToken.None));
 		Assert.Equal(0, await db.CommentVote.CountAsync(CancellationToken.None));
 		var stored = await db.Comment.FirstAsync(c => c.Id == commentId, CancellationToken.None);
@@ -121,7 +122,7 @@ public class SetCommentVoteHandlerTests
 		var handler = CreateHandler(db);
 
 		// Act & Assert
-		await Assert.ThrowsAsync<InvalidOperationException>(
+		await Assert.ThrowsAsync<CommentConflictException>(
 			() => handler.Handle(new SetCommentVoteCommand(commentId, true), CancellationToken.None));
 		Assert.Equal(0, await db.CommentVote.CountAsync(CancellationToken.None));
 	}

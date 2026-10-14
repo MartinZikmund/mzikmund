@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using MZikmund.Web.Core.Services.Comments;
 using MZikmund.Web.Data;
 
 namespace MZikmund.Web.Core.Features.Comments;
@@ -20,7 +21,7 @@ internal sealed class BanAuthorHandler : IRequestHandler<BanAuthorCommand>
 	{
 		var author = await _dbContext.CommentAuthor
 			.FirstOrDefaultAsync(a => a.Id == request.AuthorId, cancellationToken)
-			?? throw new KeyNotFoundException($"Comment author {request.AuthorId} was not found.");
+			?? throw new CommentNotFoundException($"Comment author {request.AuthorId} was not found.");
 
 		if (author.IsBanned)
 		{

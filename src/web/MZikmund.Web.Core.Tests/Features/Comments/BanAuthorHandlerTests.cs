@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using MZikmund.Web.Core.Features.Comments;
+using MZikmund.Web.Core.Services.Comments;
 using MZikmund.Web.Core.Tests.Infrastructure;
 using MZikmund.Web.Data;
 using static MZikmund.Web.Core.Tests.Features.Comments.CommentSeed;
@@ -74,7 +75,7 @@ public class BanAuthorHandlerTests
 	}
 
 	[Fact]
-	public async Task Handle_UnknownAuthor_ThrowsKeyNotFoundException()
+	public async Task Handle_UnknownAuthor_ThrowsCommentNotFoundException()
 	{
 		// Arrange
 		using CommentsDbFixture fixture = new();
@@ -82,7 +83,7 @@ public class BanAuthorHandlerTests
 		var handler = CreateHandler(db);
 
 		// Act & Assert
-		await Assert.ThrowsAsync<KeyNotFoundException>(
+		await Assert.ThrowsAsync<CommentNotFoundException>(
 			() => handler.Handle(new BanAuthorCommand(Guid.NewGuid()), CancellationToken.None));
 	}
 
