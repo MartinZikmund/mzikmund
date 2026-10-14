@@ -45,6 +45,9 @@ const ICONS = [
 	'play-circle', 'play-fill', 'file-earmark-pdf',
 	'list', 'link-45deg', 'check-lg', 'image', 'rss', 'tag', 'folder2-open',
 	'chevron-right',
+	// Comments UI.
+	'chat-left-text', 'hand-thumbs-up', 'hand-thumbs-up-fill', 'reply', 'flag',
+	'trash3', 'person-circle', 'google', 'apple', 'envelope', 'x-lg', 'pencil',
 ];
 
 const iconDir = join(NM, 'bootstrap-icons', 'icons');
