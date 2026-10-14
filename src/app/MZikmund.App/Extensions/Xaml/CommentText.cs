@@ -69,12 +69,9 @@ public static class CommentText
 		{
 			if (i > 0)
 			{
+				// Inlines cannot take a half-height gap (a blank line is always a full one), so blocks
+				// simply start on the next line.
 				target.Add(new LineBreak());
-				if (!(blocks[i] is ListItemBlock && blocks[i - 1] is ListItemBlock))
-				{
-					// A full blank line between blocks looks like two; a small one gives a paragraph gap.
-					target.Add(new LineBreak { FontSize = 8 });
-				}
 			}
 
 			switch (blocks[i])
