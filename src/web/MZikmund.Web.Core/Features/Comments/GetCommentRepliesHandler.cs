@@ -20,15 +20,7 @@ internal sealed class GetCommentRepliesHandler : IRequestHandler<GetCommentRepli
 
 	public async Task<PagedResponse<CommentDto>> Handle(GetCommentRepliesQuery request, CancellationToken cancellationToken)
 	{
-		if (request.PageNumber < 1)
-		{
-			throw new CommentValidationException("Page number must be at least 1.");
-		}
-
-		if (request.PageSize < 1)
-		{
-			throw new CommentValidationException("Page size must be at least 1.");
-		}
+		CommentPaging.Validate(request.PageNumber, request.PageSize);
 
 		var parentPostId = await CommentProjection.Readable(_dbContext.Comment)
 			.Where(comment => comment.Id == request.CommentId)
@@ -49,6 +41,7 @@ internal sealed class GetCommentRepliesHandler : IRequestHandler<GetCommentRepli
 		var rows = await CommentProjection.SelectRows(
 			replies
 				.OrderBy(comment => comment.CreatedOn)
+				.ThenBy(comment => comment.Id)
 				.Skip((request.PageNumber - 1) * request.PageSize)
 				.Take(request.PageSize),
 			currentAuthorId)

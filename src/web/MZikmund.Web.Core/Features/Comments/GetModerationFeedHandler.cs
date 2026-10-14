@@ -17,7 +17,7 @@ internal sealed class GetModerationFeedHandler : IRequestHandler<GetModerationFe
 
 	public async Task<PagedResponse<CommentDto>> Handle(GetModerationFeedQuery request, CancellationToken cancellationToken)
 	{
-		ModerationPaging.Validate(request.PageNumber, request.PageSize);
+		CommentPaging.Validate(request.PageNumber, request.PageSize);
 
 		var query = CommentModerationFeed.Since(_dbContext, request.Since);
 		var totalCount = await query.CountAsync(cancellationToken);

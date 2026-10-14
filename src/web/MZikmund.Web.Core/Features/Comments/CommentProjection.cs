@@ -74,6 +74,7 @@ internal static class CommentProjection
 			var rows = await SelectRows(
 				VisibleRepliesOf(comments, parentId)
 					.OrderBy(comment => comment.CreatedOn)
+					.ThenBy(comment => comment.Id)
 					.Take(InlineReplyCount),
 				currentAuthorId)
 				.ToArrayAsync(cancellationToken);
@@ -146,6 +147,7 @@ internal static class CommentProjection
 			? comment.Replies
 				.Where(reply => reply.Status == DataCommentStatus.Visible)
 				.OrderBy(reply => reply.CreatedOn)
+				.ThenBy(reply => reply.Id)
 				.Take(InlineReplyCount)
 				.Select(reply => ToDto(reply, currentAuthorId, includeReplies: false))
 				.ToArray()

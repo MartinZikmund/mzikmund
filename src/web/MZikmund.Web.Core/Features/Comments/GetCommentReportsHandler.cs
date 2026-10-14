@@ -17,7 +17,7 @@ internal sealed class GetCommentReportsHandler : IRequestHandler<GetCommentRepor
 
 	public async Task<PagedResponse<CommentReportDto>> Handle(GetCommentReportsQuery request, CancellationToken cancellationToken)
 	{
-		ModerationPaging.Validate(request.PageNumber, request.PageSize);
+		CommentPaging.Validate(request.PageNumber, request.PageSize);
 
 		var openReports = _dbContext.CommentReport.Where(r => r.ResolvedOn == null);
 
@@ -53,10 +53,16 @@ internal sealed class GetCommentReportsHandler : IRequestHandler<GetCommentRepor
 			.Include(c => c.Author)
 			.ToDictionaryAsync(c => c.Id, cancellationToken);
 
-		var items = groups.Select(group =>
+		List<CommentReportDto> items = new();
+		foreach (var group in groups)
 		{
-			var comment = comments[group.CommentId];
-			return new CommentReportDto
+			// A comment can disappear between the two queries; skip its row rather than fail the page.
+			if (!comments.TryGetValue(group.CommentId, out var comment))
+			{
+				continue;
+			}
+
+			items.Add(new CommentReportDto
 			{
 				CommentId = group.CommentId,
 				AuthorId = comment.AuthorId,
@@ -69,9 +75,9 @@ internal sealed class GetCommentReportsHandler : IRequestHandler<GetCommentRepor
 					.OrderBy(r => r)
 					.ToArray(),
 				FirstReportedOn = group.FirstReportedOn,
-			};
-		}).ToArray();
+			});
+		}
 
-		return new PagedResponse<CommentReportDto>(items, request.PageNumber, request.PageSize, totalCount);
+		return new PagedResponse<CommentReportDto>(items.ToArray(), request.PageNumber, request.PageSize, totalCount);
 	}
 }

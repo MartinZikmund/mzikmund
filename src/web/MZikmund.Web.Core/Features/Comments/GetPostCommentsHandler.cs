@@ -21,15 +21,7 @@ internal sealed class GetPostCommentsHandler : IRequestHandler<GetPostCommentsQu
 
 	public async Task<PagedResponse<CommentDto>> Handle(GetPostCommentsQuery request, CancellationToken cancellationToken)
 	{
-		if (request.PageNumber < 1)
-		{
-			throw new CommentValidationException("Page number must be at least 1.");
-		}
-
-		if (request.PageSize < 1)
-		{
-			throw new CommentValidationException("Page size must be at least 1.");
-		}
+		CommentPaging.Validate(request.PageNumber, request.PageSize);
 
 		if (!await CommentPostVisibility.IsPublicAsync(_dbContext.Post, request.PostId, cancellationToken))
 		{
@@ -44,8 +36,8 @@ internal sealed class GetPostCommentsHandler : IRequestHandler<GetPostCommentsQu
 		var totalCount = await topLevel.CountAsync(cancellationToken);
 
 		IOrderedQueryable<CommentEntity> ordered = request.Sort == CommentSortOrder.Top
-			? topLevel.OrderByDescending(comment => comment.UpvoteCount).ThenBy(comment => comment.CreatedOn)
-			: topLevel.OrderByDescending(comment => comment.CreatedOn);
+			? topLevel.OrderByDescending(comment => comment.UpvoteCount).ThenBy(comment => comment.CreatedOn).ThenBy(comment => comment.Id)
+			: topLevel.OrderByDescending(comment => comment.CreatedOn).ThenByDescending(comment => comment.Id);
 
 		var rows = await CommentProjection.SelectRows(
 			ordered
