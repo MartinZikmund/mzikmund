@@ -35,24 +35,29 @@
                     ProfilePicture="{x:Bind local:CommentsView.ToAvatar(AvatarUri)}"
                     Visibility="{x:Bind IsNotTombstone, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
                 <StackPanel Grid.Column="1" Spacing="4">
-                    <StackPanel
-                        Orientation="Horizontal"
-                        Spacing="8"
-                        Visibility="{x:Bind IsNotTombstone, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Grid ColumnSpacing="8" Visibility="{x:Bind IsNotTombstone, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
                         <TextBlock
                             VerticalAlignment="Center"
                             Style="{StaticResource MzRowTitleTextStyle}"
                             Text="{x:Bind DisplayName}" />
                         <ContentControl
+                            Grid.Column="1"
                             VerticalAlignment="Center"
                             Content="{xaml:Localize Key=CommentAuthorBadge}"
                             Style="{StaticResource MzBadgeAccentStyle}"
                             Visibility="{x:Bind IsAuthorAdmin, Converter={StaticResource BoolToVisibilityConverter}}" />
                         <TextBlock
+                            Grid.Column="2"
                             VerticalAlignment="Center"
                             Style="{StaticResource MzMetaTextStyle}"
-                            Text="{x:Bind MetaText, Mode=OneWay}" />
-                    </StackPanel>
+                            Text="{x:Bind MetaText, Mode=OneWay}"
+                            TextTrimming="CharacterEllipsis" />
+                    </Grid>
                     <TextBlock
                         xaml:CommentText.Markdown="{x:Bind Content, Mode=OneWay}"
                         xaml:CommentText.Prefix="{x:Bind MentionPrefix}"
@@ -149,24 +154,29 @@
                     ProfilePicture="{x:Bind local:CommentsView.ToAvatar(AvatarUri)}"
                     Visibility="{x:Bind IsNotTombstone, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
                 <StackPanel Grid.Column="1" Spacing="4">
-                    <StackPanel
-                        Orientation="Horizontal"
-                        Spacing="8"
-                        Visibility="{x:Bind IsNotTombstone, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Grid ColumnSpacing="8" Visibility="{x:Bind IsNotTombstone, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
                         <TextBlock
                             VerticalAlignment="Center"
                             Style="{StaticResource MzRowTitleTextStyle}"
                             Text="{x:Bind DisplayName}" />
                         <ContentControl
+                            Grid.Column="1"
                             VerticalAlignment="Center"
                             Content="{xaml:Localize Key=CommentAuthorBadge}"
                             Style="{StaticResource MzBadgeAccentStyle}"
                             Visibility="{x:Bind IsAuthorAdmin, Converter={StaticResource BoolToVisibilityConverter}}" />
                         <TextBlock
+                            Grid.Column="2"
                             VerticalAlignment="Center"
                             Style="{StaticResource MzMetaTextStyle}"
-                            Text="{x:Bind MetaText, Mode=OneWay}" />
-                    </StackPanel>
+                            Text="{x:Bind MetaText, Mode=OneWay}"
+                            TextTrimming="CharacterEllipsis" />
+                    </Grid>
                     <TextBlock
                         xaml:CommentText.Markdown="{x:Bind Content, Mode=OneWay}"
                         IsTextSelectionEnabled="True"
