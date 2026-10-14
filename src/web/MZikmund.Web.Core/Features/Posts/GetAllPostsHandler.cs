@@ -45,6 +45,7 @@ internal sealed class GetAllPostsHandler : IRequestHandler<GetAllPostsQuery, Pag
 			HeroImageUrl = post.HeroImageUrl,
 			Tags = _mapper.Map<Tag[]>(post.Tags),
 			Categories = _mapper.Map<Category[]>(post.Categories),
+			IsPublished = post.Status == PostStatus.Published,
 		}, cancellationToken);
 
 		return new(posts, request.Page, request.PageSize, postCount);
