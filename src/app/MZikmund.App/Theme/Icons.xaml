@@ -47,5 +47,11 @@
 	<x:String x:Key="MzGlyphWarning">&#xF561;</x:String>
 	<x:String x:Key="MzGlyphInfo">&#xEA88;</x:String>
 	<x:String x:Key="MzGlyphError">&#xE877;</x:String>
+	<x:String x:Key="MzGlyphComment">&#xE581;</x:String>
+	<x:String x:Key="MzGlyphReply">&#xE139;</x:String>
+	<x:String x:Key="MzGlyphFlag">&#xE8B7;</x:String>
+	<x:String x:Key="MzGlyphEyeOff">&#xE889;</x:String>
+	<x:String x:Key="MzGlyphPersonProhibited">&#xEE01;</x:String>
+	<x:String x:Key="MzGlyphArrowUpFilled">&#xE1A6;</x:String>
 
 </ResourceDictionary>
