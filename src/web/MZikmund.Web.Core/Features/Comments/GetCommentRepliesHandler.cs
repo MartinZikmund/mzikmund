@@ -30,7 +30,7 @@ internal sealed class GetCommentRepliesHandler : IRequestHandler<GetCommentRepli
 			throw new CommentValidationException("Page size must be at least 1.");
 		}
 
-		var parentPostId = await CommentProjection.Visible(_dbContext.Comment)
+		var parentPostId = await CommentProjection.Readable(_dbContext.Comment)
 			.Where(comment => comment.Id == request.CommentId)
 			.Select(comment => (Guid?)comment.PostId)
 			.FirstOrDefaultAsync(cancellationToken);
@@ -42,8 +42,7 @@ internal sealed class GetCommentRepliesHandler : IRequestHandler<GetCommentRepli
 
 		var currentAuthorId = _currentUserAccessor.Current?.Id;
 
-		var replies = CommentProjection.Visible(_dbContext.Comment)
-			.Where(comment => comment.ParentId == request.CommentId);
+		var replies = CommentProjection.VisibleRepliesOf(_dbContext.Comment, request.CommentId);
 
 		var totalCount = await replies.CountAsync(cancellationToken);
 

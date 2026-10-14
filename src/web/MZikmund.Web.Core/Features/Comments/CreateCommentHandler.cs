@@ -96,13 +96,20 @@ internal sealed class CreateCommentHandler : IRequestHandler<CreateCommentComman
 						throw new CommentConflictException($"Comment {targetId} does not belong to post {request.PostId}.");
 					}
 
-					if (target.Status != DataCommentStatus.Visible)
+					if (target.Status == DataCommentStatus.HiddenByModerator)
 					{
 						throw new CommentConflictException($"Comment {targetId} is not visible and cannot be replied to.");
 					}
 
 					if (target.ParentId is Guid grandParentId)
 					{
+						// A deleted top-level comment is a tombstone people may still reply under;
+						// a deleted reply is not worth addressing.
+						if (target.Status != DataCommentStatus.Visible)
+						{
+							throw new CommentConflictException($"Comment {targetId} is not visible and cannot be replied to.");
+						}
+
 						// One level of threading only. A reply aimed at a reply is re-pointed at the
 						// grandparent and attributed to the comment it actually targeted. The mention
 						// is a column, never a prefix inside Content.
@@ -110,7 +117,7 @@ internal sealed class CreateCommentHandler : IRequestHandler<CreateCommentComman
 							.FirstOrDefaultAsync(c => c.Id == grandParentId, ct)
 							?? throw new CommentNotFoundException($"Comment {grandParentId} was not found.");
 
-						if (parent.Status != DataCommentStatus.Visible)
+						if (parent.Status == DataCommentStatus.HiddenByModerator)
 						{
 							throw new CommentConflictException($"Comment {grandParentId} is not visible and cannot be replied to.");
 						}

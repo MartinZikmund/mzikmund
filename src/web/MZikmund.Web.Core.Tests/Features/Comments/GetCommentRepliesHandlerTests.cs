@@ -162,7 +162,7 @@ public class GetCommentRepliesHandlerTests
 	}
 
 	[Fact]
-	public async Task Handle_WithHiddenParent_ThrowsKeyNotFound()
+	public async Task Handle_WithHiddenParentAndNothingVisibleUnderIt_ThrowsNotFound()
 	{
 		// Arrange
 		using CommentsDbFixture fixture = new();
@@ -172,7 +172,7 @@ public class GetCommentRepliesHandlerTests
 		AddPost(context, postId);
 		AddAuthor(context, authorId, "Nelson");
 		var parent = AddComment(context, postId, authorId, "hidden", Day(1), replyCount: 1, status: DataCommentStatus.HiddenByModerator);
-		AddComment(context, postId, authorId, "reply", Day(2), parentId: parent.Id);
+		AddComment(context, postId, authorId, "reply", Day(2), parentId: parent.Id, status: DataCommentStatus.HiddenByModerator);
 		await context.SaveChangesAsync(CancellationToken.None);
 		var handler = CreateHandler(context);
 
