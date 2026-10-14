@@ -98,6 +98,56 @@ public class TurnstileVerifierTests
 		Assert.False(result);
 	}
 
+	[Theory]
+	[InlineData("not json at all")]
+	[InlineData("{\"success\": ")]
+	[InlineData("")]
+	public async Task VerifyAsync_WhenTheBodyIsMalformed_ReturnsFalseInsteadOfThrowing(string body)
+	{
+		// Arrange
+		var handler = new FakeTurnstileHandler(body);
+		var verifier = CreateVerifier(handler);
+
+		// Act
+		var result = await verifier.VerifyAsync("dummy-token", null, CancellationToken.None);
+
+		// Assert
+		Assert.False(result);
+	}
+
+	[Fact]
+	public async Task VerifyAsync_WhenHostnameDoesNotMatchTheExpectedOne_ReturnsFalse()
+	{
+		// Arrange
+		_options.ExpectedHostname = "example.org";
+		var handler = new FakeTurnstileHandler(SuccessJson);
+		var verifier = CreateVerifier(handler);
+
+		// Act
+		var result = await verifier.VerifyAsync("dummy-token", null, CancellationToken.None);
+
+		// Assert
+		Assert.False(result);
+	}
+
+	[Theory]
+	[InlineData("mzikmund.dev")]
+	[InlineData("MZikmund.Dev")]
+	[InlineData("")]
+	public async Task VerifyAsync_WhenHostnameMatchesOrNoneIsConfigured_ReturnsTrue(string expectedHostname)
+	{
+		// Arrange
+		_options.ExpectedHostname = expectedHostname;
+		var handler = new FakeTurnstileHandler(SuccessJson);
+		var verifier = CreateVerifier(handler);
+
+		// Act
+		var result = await verifier.VerifyAsync("dummy-token", null, CancellationToken.None);
+
+		// Assert
+		Assert.True(result);
+	}
+
 	[Fact]
 	public async Task VerifyAsync_WithEmptyToken_ReturnsFalseWithoutCallingSiteverify()
 	{
