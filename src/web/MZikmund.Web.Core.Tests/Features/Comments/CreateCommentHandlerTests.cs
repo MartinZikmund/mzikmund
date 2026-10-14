@@ -205,6 +205,80 @@ public class CreateCommentHandlerTests
 	}
 
 	[Fact]
+	public async Task Handle_ReplyUnderADeletedTopLevelComment_IsAllowedAndCounted()
+	{
+		// Arrange
+		using CommentsDbFixture fixture = new();
+		using var db = fixture.CreateContext();
+		await SeedAsync(db);
+		var tombstone = AddComment(db, _postId, _otherAuthorId, "", replyCount: 1, status: DataCommentStatus.DeletedByAuthor);
+		await db.SaveChangesAsync(CancellationToken.None);
+		var handler = CreateHandler(db);
+
+		// Act
+		var result = await handler.Handle(new CreateCommentCommand(_postId, "still here", tombstone.Id), CancellationToken.None);
+
+		// Assert
+		Assert.Equal(tombstone.Id, result.ParentId);
+		var reloaded = await db.Comment.AsNoTracking().FirstAsync(c => c.Id == tombstone.Id, CancellationToken.None);
+		Assert.Equal(2, reloaded.ReplyCount);
+	}
+
+	[Fact]
+	public async Task Handle_ReplyToAReplyWhoseGrandparentWasDeleted_IsRepointedAndAllowed()
+	{
+		// Arrange
+		using CommentsDbFixture fixture = new();
+		using var db = fixture.CreateContext();
+		await SeedAsync(db);
+		var grandParent = AddComment(db, _postId, _otherAuthorId, "", replyCount: 1, status: DataCommentStatus.DeletedByAuthor);
+		var reply = AddComment(db, _postId, _otherAuthorId, parentId: grandParent.Id);
+		await db.SaveChangesAsync(CancellationToken.None);
+		var handler = CreateHandler(db);
+
+		// Act
+		var result = await handler.Handle(new CreateCommentCommand(_postId, "sure", reply.Id), CancellationToken.None);
+
+		// Assert
+		Assert.Equal(grandParent.Id, result.ParentId);
+		Assert.Equal("Jane", result.MentionedDisplayName);
+	}
+
+	[Fact]
+	public async Task Handle_ReplyToADeletedReply_ThrowsConflict()
+	{
+		// Arrange
+		using CommentsDbFixture fixture = new();
+		using var db = fixture.CreateContext();
+		await SeedAsync(db);
+		var parent = AddComment(db, _postId, _otherAuthorId);
+		var deletedReply = AddComment(db, _postId, _otherAuthorId, "", parentId: parent.Id, status: DataCommentStatus.DeletedByAuthor);
+		await db.SaveChangesAsync(CancellationToken.None);
+		var handler = CreateHandler(db);
+
+		// Act & Assert
+		await Assert.ThrowsAsync<CommentConflictException>(
+			() => handler.Handle(new CreateCommentCommand(_postId, "hello", deletedReply.Id), CancellationToken.None));
+	}
+
+	[Fact]
+	public async Task Handle_ReplyToAReplyWhoseGrandparentIsHidden_ThrowsConflict()
+	{
+		// Arrange
+		using CommentsDbFixture fixture = new();
+		using var db = fixture.CreateContext();
+		await SeedAsync(db);
+		var grandParent = AddComment(db, _postId, _otherAuthorId, status: DataCommentStatus.HiddenByModerator);
+		var reply = AddComment(db, _postId, _otherAuthorId, parentId: grandParent.Id);
+		await db.SaveChangesAsync(CancellationToken.None);
+		var handler = CreateHandler(db);
+
+		// Act & Assert
+		await Assert.ThrowsAsync<CommentConflictException>(
+			() => handler.Handle(new CreateCommentCommand(_postId, "hello", reply.Id), CancellationToken.None));
+	}
+
+	[Fact]
 	public async Task Handle_ReplyToCommentOnAnotherPost_ThrowsInvalidOperation()
 	{
 		// Arrange
