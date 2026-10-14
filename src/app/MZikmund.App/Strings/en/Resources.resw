@@ -354,4 +354,82 @@
   <data name="SaveFailed" xml:space="preserve">
     <value>Saving failed</value>
   </data>
+  <data name="HeroEyebrow" xml:space="preserve">
+    <value>Open-source developer &amp; speaker</value>
+  </data>
+  <data name="HeroLead" xml:space="preserve">
+    <value>I build cross-platform apps with .NET and Uno Platform, contribute to open source, and share what I learn along the way.</value>
+  </data>
+  <data name="ReadTheBlog" xml:space="preserve">
+    <value>Read the blog</value>
+  </data>
+  <data name="LatestPosts" xml:space="preserve">
+    <value>Latest posts</value>
+  </data>
+  <data name="LatestPostsSubtitle" xml:space="preserve">
+    <value>Thoughts on .NET, Uno Platform, and open source</value>
+  </data>
+  <data name="ViewAllPosts" xml:space="preserve">
+    <value>View all posts</value>
+  </data>
+  <data name="LatestVideos" xml:space="preserve">
+    <value>Latest videos</value>
+  </data>
+  <data name="LatestVideosSubtitle" xml:space="preserve">
+    <value>My latest video content on YouTube</value>
+  </data>
+  <data name="ViewAllVideos" xml:space="preserve">
+    <value>View all videos</value>
+  </data>
+  <data name="ContactLead" xml:space="preserve">
+    <value>Get in touch or find me on social media.</value>
+  </data>
+  <data name="Website" xml:space="preserve">
+    <value>Website</value>
+  </data>
+  <data name="VideosLead" xml:space="preserve">
+    <value>Talks, tutorials and live coding from my YouTube channel.</value>
+  </data>
+  <data name="NoVideosFound" xml:space="preserve">
+    <value>No videos yet</value>
+  </data>
+  <data name="OpenInBrowser" xml:space="preserve">
+    <value>Open in browser</value>
+  </data>
+  <data name="Appearance" xml:space="preserve">
+    <value>Appearance</value>
+  </data>
+  <data name="Theme" xml:space="preserve">
+    <value>Theme</value>
+  </data>
+  <data name="ThemeDescription" xml:space="preserve">
+    <value>Choose how the app looks</value>
+  </data>
+  <data name="ThemeSystem" xml:space="preserve">
+    <value>Use system setting</value>
+  </data>
+  <data name="ThemeLight" xml:space="preserve">
+    <value>Light</value>
+  </data>
+  <data name="ThemeDark" xml:space="preserve">
+    <value>Dark</value>
+  </data>
+  <data name="Account" xml:space="preserve">
+    <value>Account</value>
+  </data>
+  <data name="SignedInAsFormat" xml:space="preserve">
+    <value>Signed in as {0}</value>
+  </data>
+  <data name="NotSignedIn" xml:space="preserve">
+    <value>Not signed in</value>
+  </data>
+  <data name="About" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="RssFeed" xml:space="preserve">
+    <value>RSS feed</value>
+  </data>
+  <data name="SourceCode" xml:space="preserve">
+    <value>Source code</value>
+  </data>
 </root>

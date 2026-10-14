@@ -9,41 +9,33 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vmitems="using:MZikmund.ViewModels.Items"
     Background="{ThemeResource MzBgBaseBrush}"
+    NavigationCacheMode="Enabled"
     mc:Ignorable="d">
 
-    <Grid x:Name="PageRoot" Padding="{StaticResource MzPagePaddingCompact}">
-        <!--  The header and the cards share one container, so both sit in the same column.  -->
-        <Grid Style="{StaticResource MzPageContainerStyle}">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
+    <ScrollViewer x:Name="Scroller" ViewChanged="Scroller_ViewChanged">
+        <Grid x:Name="PageRoot" Padding="{StaticResource MzPagePaddingCompact}">
+            <Grid Style="{StaticResource MzPageContainerStyle}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
 
-            <!--  The shell still paints its own title below 768; Task 25 deletes ContentHeader.  -->
-            <StackPanel
-                Grid.Row="0"
-                Margin="0,0,0,24"
-                Spacing="{StaticResource MzSpace2}">
-                <TextBlock
-                    x:Name="PageTitle"
-                    Style="{StaticResource MzTitleTextStyle}"
-                    Text="{x:Bind ViewModel.Title, Mode=OneWay}" />
-                <TextBlock Style="{StaticResource MzLeadTextStyle}" Text="{x:Bind ViewModel.Lead, Mode=OneWay}" />
-            </StackPanel>
+                <StackPanel Style="{StaticResource MzPageHeaderPanelStyle}">
+                    <TextBlock
+                        x:Name="PageTitle"
+                        Style="{StaticResource MzTitleTextStyle}"
+                        Text="{x:Bind ViewModel.Title, Mode=OneWay}" />
+                    <TextBlock Style="{StaticResource MzLeadTextStyle}" Text="{x:Bind ViewModel.Lead, Mode=OneWay}" />
+                </StackPanel>
 
-            <ScrollViewer
-                x:Name="Scroller"
-                Grid.Row="1"
-                Padding="0,0,0,24"
-                ViewChanged="Scroller_ViewChanged">
-                <StackPanel Spacing="{StaticResource MzSpace5}">
-                    <!--  MzContentCardStyle reads the item through DataContext, and ItemsRepeater only
-                          assigns DataContext when the template root carries no x:Bind, so this template
-                          binds classically. x:DataType is kept for tooling.  -->
+                <StackPanel
+                    Grid.Row="1"
+                    Padding="0,0,0,24"
+                    Spacing="{StaticResource MzSpace5}">
+                    <!--  MzContentCardStyle reads the item through DataContext, which ItemsRepeater only assigns
+                          when the template root carries no x:Bind, so this template binds classically.  -->
                     <ItemsRepeater ItemsSource="{x:Bind ViewModel.Posts, Mode=OneWay}">
                         <ItemsRepeater.Layout>
-                            <!--  MinItemHeight is the exact row height rather than a floor, so it is left
-                                  unset: the rows take the measured card height and grow with text scale.  -->
                             <UniformGridLayout
                                 ItemsStretch="Fill"
                                 MinColumnSpacing="{StaticResource MzSpace5}"
@@ -79,39 +71,42 @@
                             Style="{StaticResource MzStandardButtonStyle}" />
                     </StackPanel>
                 </StackPanel>
-            </ScrollViewer>
 
-            <ProgressRing
-                Grid.Row="1"
-                Width="48"
-                Height="48"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
-                Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
-
-            <StackPanel
-                Grid.Row="1"
-                Style="{StaticResource MzEmptyStatePanelStyle}"
-                Visibility="{x:Bind ViewModel.IsEmpty, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                <FontIcon Glyph="{StaticResource MzGlyphNews}" Style="{StaticResource MzEmptyStateIconStyle}" />
-                <TextBlock Style="{StaticResource MzEmptyStateTitleTextStyle}" Text="{extensions:Localize Key=NoPostsFound}" />
-                <TextBlock Style="{StaticResource MzEmptyStateBodyTextStyle}" Text="{extensions:Localize Key=NoPostsFoundDescription}" />
-            </StackPanel>
-
-            <StackPanel
-                Grid.Row="1"
-                Style="{StaticResource MzEmptyStatePanelStyle}"
-                Visibility="{x:Bind ViewModel.HasError, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                <FontIcon Glyph="{StaticResource MzGlyphWarning}" Style="{StaticResource MzEmptyStateIconStyle}" />
-                <TextBlock Style="{StaticResource MzEmptyStateTitleTextStyle}" Text="{extensions:Localize Key=CouldNotLoadData}" />
-                <TextBlock Style="{StaticResource MzEmptyStateBodyTextStyle}" Text="{extensions:Localize Key=ErrorLoadingData}" />
-                <Button
+                <ProgressRing
+                    Grid.Row="1"
+                    Width="48"
+                    Height="48"
+                    Margin="0,64,0,0"
                     HorizontalAlignment="Center"
-                    Command="{x:Bind ViewModel.RetryCommand, Mode=OneWay}"
-                    Content="{extensions:Localize Key=Retry}"
-                    Style="{StaticResource MzStandardButtonStyle}" />
-            </StackPanel>
+                    VerticalAlignment="Top"
+                    IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                    Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+                <StackPanel
+                    Grid.Row="1"
+                    VerticalAlignment="Top"
+                    Style="{StaticResource MzEmptyStatePanelStyle}"
+                    Visibility="{x:Bind ViewModel.IsEmpty, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <FontIcon Glyph="{StaticResource MzGlyphNews}" Style="{StaticResource MzEmptyStateIconStyle}" />
+                    <TextBlock Style="{StaticResource MzEmptyStateTitleTextStyle}" Text="{extensions:Localize Key=NoPostsFound}" />
+                    <TextBlock Style="{StaticResource MzEmptyStateBodyTextStyle}" Text="{extensions:Localize Key=NoPostsFoundDescription}" />
+                </StackPanel>
+
+                <StackPanel
+                    Grid.Row="1"
+                    VerticalAlignment="Top"
+                    Style="{StaticResource MzEmptyStatePanelStyle}"
+                    Visibility="{x:Bind ViewModel.HasError, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <FontIcon Glyph="{StaticResource MzGlyphWarning}" Style="{StaticResource MzEmptyStateIconStyle}" />
+                    <TextBlock Style="{StaticResource MzEmptyStateTitleTextStyle}" Text="{extensions:Localize Key=CouldNotLoadData}" />
+                    <TextBlock Style="{StaticResource MzEmptyStateBodyTextStyle}" Text="{extensions:Localize Key=ErrorLoadingData}" />
+                    <Button
+                        HorizontalAlignment="Center"
+                        Command="{x:Bind ViewModel.RetryCommand, Mode=OneWay}"
+                        Content="{extensions:Localize Key=Retry}"
+                        Style="{StaticResource MzStandardButtonStyle}" />
+                </StackPanel>
+            </Grid>
         </Grid>
 
         <VisualStateManager.VisualStateGroups>
@@ -128,5 +123,5 @@
                 <VisualState x:Name="MzTypeScaleCompact" />
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
-    </Grid>
+    </ScrollViewer>
 </local:BlogViewBase>

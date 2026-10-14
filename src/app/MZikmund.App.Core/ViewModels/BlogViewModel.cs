@@ -106,6 +106,13 @@ public class BlogViewModel : PageViewModel
 	public override async void ViewNavigatedTo(object? parameter)
 	{
 		base.ViewNavigatedTo(parameter);
+
+		// The view is cached, so coming back from a post keeps the list and its scroll position.
+		if (Posts.Count > 0 || IsLoading)
+		{
+			return;
+		}
+
 		await ReloadAsync();
 	}
 

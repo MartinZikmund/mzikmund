@@ -38,6 +38,8 @@ public sealed class PostListItemViewModel : ObservableObject, ICardItem
 
 	public IReadOnlyList<string> CardBadges { get; }
 
+	public bool IsVideo => false;
+
 	/// <summary>
 	/// Formats the card date the way _PostListItem.cshtml does: the relative form for the first
 	/// 30 days, an absolute date after that. The site renders that date under the server culture

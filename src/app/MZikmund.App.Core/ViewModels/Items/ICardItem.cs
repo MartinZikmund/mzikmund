@@ -3,9 +3,7 @@
 namespace MZikmund.ViewModels.Items;
 
 /// <summary>
-/// Contract for anything rendered by <c>MzContentCardStyle</c> (Theme/Styles/Cards.xaml). The
-/// style's hover storyboard reaches the title and image by name inside the ControlTemplate, so
-/// implementers just need to supply the data via DataContext.
+/// Data for <c>MzContentCardStyle</c> (Theme/Styles/Cards.xaml), supplied through DataContext.
 /// </summary>
 public interface ICardItem
 {
@@ -20,4 +18,6 @@ public interface ICardItem
 	string CardMeta { get; }
 
 	IReadOnlyList<string> CardBadges { get; }
+
+	bool IsVideo { get; }
 }

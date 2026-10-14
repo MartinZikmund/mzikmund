@@ -27,7 +27,13 @@ public partial class WindowShellViewModel : ViewModelBase
 		UpdateAuthenticationState();
 	}
 
-	public string Title { get; set; } = "Martin Zikmund";
+	public string Title { get; } = "Martin Zikmund";
+
+	[ObservableProperty]
+	public partial bool CanGoBack { get; set; }
+
+	[ObservableProperty]
+	public partial string? UserName { get; set; }
 
 	[ObservableProperty]
 	public partial bool IsLoading { get; set; }
@@ -61,12 +67,14 @@ public partial class WindowShellViewModel : ViewModelBase
 	{
 		await _userService.LogoutAsync();
 		UpdateAuthenticationState();
-		_navigationService.Navigate<BlogViewModel>();
+		_navigationService.Navigate<HomeViewModel>();
+		_navigationService.ClearBackStack();
 	}
 
 	private void UpdateAuthenticationState()
 	{
 		IsLoggedIn = _userService.IsLoggedIn;
+		UserName = _userService.UserName;
 	}
 
 	public IDisposable BeginLoading()
@@ -104,6 +112,4 @@ public partial class WindowShellViewModel : ViewModelBase
 		return _refCountDisposable;
 	}
 
-
-	public void BackRequested() => _navigationService.GoBack();
 }

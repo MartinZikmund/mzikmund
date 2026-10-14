@@ -39,7 +39,7 @@ public sealed partial class PostEditorView : PostEditorViewBase
 		}
 		catch (Exception ex)
 		{
-			if (XamlRoot?.Content is WindowShell windowShell)
+			if (XamlRoot?.Content is MZikmund.App.Core.Infrastructure.IWindowShell windowShell)
 			{
 				var logger = windowShell.ServiceProvider.GetRequiredService<ILogger<PostEditorView>>();
 				logger.LogError(ex, "Failed to initialize WebView2 in PostEditorView");

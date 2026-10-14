@@ -345,4 +345,82 @@
   <data name="SaveFailed" xml:space="preserve">
     <value>Uložení se nezdařilo</value>
   </data>
+  <data name="HeroEyebrow" xml:space="preserve">
+    <value>Open-source vývojář a řečník</value>
+  </data>
+  <data name="HeroLead" xml:space="preserve">
+    <value>Tvořím multiplatformní aplikace v .NET a Uno Platform, přispívám do open source a sdílím, co se cestou naučím.</value>
+  </data>
+  <data name="ReadTheBlog" xml:space="preserve">
+    <value>Číst blog</value>
+  </data>
+  <data name="LatestPosts" xml:space="preserve">
+    <value>Nejnovější články</value>
+  </data>
+  <data name="LatestPostsSubtitle" xml:space="preserve">
+    <value>Postřehy o .NET, Uno Platform a open source</value>
+  </data>
+  <data name="ViewAllPosts" xml:space="preserve">
+    <value>Všechny články</value>
+  </data>
+  <data name="LatestVideos" xml:space="preserve">
+    <value>Nejnovější videa</value>
+  </data>
+  <data name="LatestVideosSubtitle" xml:space="preserve">
+    <value>Moje nejnovější videa na YouTube</value>
+  </data>
+  <data name="ViewAllVideos" xml:space="preserve">
+    <value>Všechna videa</value>
+  </data>
+  <data name="ContactLead" xml:space="preserve">
+    <value>Ozvěte se nebo mě najděte na sociálních sítích.</value>
+  </data>
+  <data name="Website" xml:space="preserve">
+    <value>Web</value>
+  </data>
+  <data name="VideosLead" xml:space="preserve">
+    <value>Přednášky, návody a živé kódování z mého YouTube kanálu.</value>
+  </data>
+  <data name="NoVideosFound" xml:space="preserve">
+    <value>Zatím žádná videa</value>
+  </data>
+  <data name="OpenInBrowser" xml:space="preserve">
+    <value>Otevřít v prohlížeči</value>
+  </data>
+  <data name="Appearance" xml:space="preserve">
+    <value>Vzhled</value>
+  </data>
+  <data name="Theme" xml:space="preserve">
+    <value>Motiv</value>
+  </data>
+  <data name="ThemeDescription" xml:space="preserve">
+    <value>Vyberte, jak má aplikace vypadat</value>
+  </data>
+  <data name="ThemeSystem" xml:space="preserve">
+    <value>Podle systému</value>
+  </data>
+  <data name="ThemeLight" xml:space="preserve">
+    <value>Světlý</value>
+  </data>
+  <data name="ThemeDark" xml:space="preserve">
+    <value>Tmavý</value>
+  </data>
+  <data name="Account" xml:space="preserve">
+    <value>Účet</value>
+  </data>
+  <data name="SignedInAsFormat" xml:space="preserve">
+    <value>Přihlášen jako {0}</value>
+  </data>
+  <data name="NotSignedIn" xml:space="preserve">
+    <value>Nepřihlášen</value>
+  </data>
+  <data name="About" xml:space="preserve">
+    <value>O aplikaci</value>
+  </data>
+  <data name="RssFeed" xml:space="preserve">
+    <value>RSS kanál</value>
+  </data>
+  <data name="SourceCode" xml:space="preserve">
+    <value>Zdrojový kód</value>
+  </data>
 </root>

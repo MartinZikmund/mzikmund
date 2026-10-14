@@ -1,7 +1,5 @@
-﻿using System.Runtime.InteropServices.ObjectiveC;
-using CommunityToolkit.Mvvm.DependencyInjection;
-using Microsoft.UI.Xaml.Navigation;
-using MZikmund.App;
+﻿using Microsoft.UI.Xaml.Navigation;
+using MZikmund.App.Core.Infrastructure;
 using MZikmund.ViewModels;
 using Windows.ApplicationModel;
 
@@ -67,7 +65,7 @@ public abstract partial class PageBase<TViewModel> : Page
 			return;
 		}
 
-		if (XamlRoot?.Content is WindowShell windowShell)
+		if (XamlRoot?.Content is IWindowShell windowShell)
 		{
 			ViewModel = windowShell.ServiceProvider.GetRequiredService<TViewModel>();
 		}

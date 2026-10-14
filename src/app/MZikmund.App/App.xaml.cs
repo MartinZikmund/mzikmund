@@ -119,6 +119,9 @@ public partial class MZikmundApp : Application, IApplication
 
 			// Place the frame in the current Window
 			MainWindow.Content = windowShell;
+
+			var themeManager = Host.Services.GetRequiredService<IThemeManager>();
+			themeManager.SetTheme(Host.Services.GetRequiredService<IAppPreferences>().Theme);
 		}
 
 		// Ensure the current window is active
@@ -127,7 +130,9 @@ public partial class MZikmundApp : Application, IApplication
 
 	private void ConfigureServices(IServiceCollection services)
 	{
+		services.AddScoped<HomeViewModel>();
 		services.AddScoped<BlogViewModel>();
+		services.AddScoped<ContactViewModel>();
 		services.AddScoped<VideosViewModel>();
 		services.AddScoped<SettingsViewModel>();
 		services.AddScoped<TagsManagerViewModel>();
