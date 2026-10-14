@@ -7,5 +7,9 @@
 	},
 	"AuthConfig": {
 		"ClientId": "your-auth0-client-id"
+	},
+	"SupabaseConfig": {
+		"Url": "http://127.0.0.1:54321",
+		"PublishableKey": "sb_publishable_from_npx_supabase_status"
 	}
 }
