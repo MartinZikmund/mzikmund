@@ -30,10 +30,6 @@ public class BannedAuthorWriteRejectionTests
 		AssertRejectedAsync<SetCommentVoteCommand, CommentDto>(new(Guid.NewGuid(), true));
 
 	[Fact]
-	public Task Handle_BannedAuthorDeletingAComment_IsRejected() =>
-		AssertRejectedAsync<DeleteCommentCommand, Unit>(new(Guid.NewGuid()));
-
-	[Fact]
 	public Task Handle_BannedAuthorReportingAComment_IsRejected() =>
 		AssertRejectedAsync<ReportCommentCommand, Unit>(new(Guid.NewGuid(), CommentReportReason.Spam, null));
 

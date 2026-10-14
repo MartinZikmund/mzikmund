@@ -30,8 +30,9 @@ internal sealed class DeleteCommentHandler : IRequestHandler<DeleteCommentComman
 
 		var deleted = false;
 
-		// EF re-runs this lambda on a transient failure: reload inside it so the parent's
-		// ReplyCount is decremented once, and a replay after a successful commit is a no-op.
+		// EF re-runs this lambda on a transient failure: reload inside it, and only the writer that
+		// flips Visible to DeletedByAuthor decrements the parent's ReplyCount, so a replay after a
+		// successful commit is a no-op.
 		var strategy = _dbContext.Database.CreateExecutionStrategy();
 		await strategy.ExecuteAsync(
 			async ct =>
@@ -39,7 +40,10 @@ internal sealed class DeleteCommentHandler : IRequestHandler<DeleteCommentComman
 				_dbContext.ChangeTracker.Clear();
 
 				var comment = await _dbContext.Comment
-					.FirstOrDefaultAsync(c => c.Id == request.CommentId, ct)
+					.AsNoTracking()
+					.Where(c => c.Id == request.CommentId)
+					.Select(c => new { c.Id, c.AuthorId, c.ParentId, c.Status })
+					.FirstOrDefaultAsync(ct)
 					?? throw new CommentNotFoundException($"Comment {request.CommentId} was not found.");
 
 				if (comment.AuthorId != author.Id)
@@ -61,22 +65,22 @@ internal sealed class DeleteCommentHandler : IRequestHandler<DeleteCommentComman
 
 				// The row and its replies stay: a tombstone keeps the thread intact, but the text
 				// itself is gone because the author asked for that.
-				comment.Status = DataCommentStatus.DeletedByAuthor;
-				comment.Content = "";
-				comment.ContentHtml = "";
+				var updated = await _dbContext.Comment
+					.Where(c => c.Id == comment.Id && c.Status == DataCommentStatus.Visible)
+					.ExecuteUpdateAsync(
+						s => s
+							.SetProperty(c => c.Status, DataCommentStatus.DeletedByAuthor)
+							.SetProperty(c => c.Content, "")
+							.SetProperty(c => c.ContentHtml, ""),
+						ct);
 
-				if (comment.ParentId is Guid parentId)
+				if (updated > 0 && comment.ParentId is Guid parentId)
 				{
-					var parent = await _dbContext.Comment.FirstOrDefaultAsync(c => c.Id == parentId, ct);
-					if (parent is not null && parent.ReplyCount > 0)
-					{
-						parent.ReplyCount -= 1;
-					}
+					await CommentCounters.DecrementReplyCountAsync(_dbContext, parentId, ct);
 				}
 
-				await _dbContext.SaveChangesAsync(ct);
 				await transaction.CommitAsync(ct);
-				deleted = true;
+				deleted = updated > 0;
 			},
 			cancellationToken);
 

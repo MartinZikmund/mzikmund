@@ -39,7 +39,7 @@ public class CreateCommentHandlerTests
 		var result = await handler.Handle(new CreateCommentCommand(_postId, "  **hello**  ", null), CancellationToken.None);
 
 		// Assert
-		var stored = await db.Comment.FirstAsync(c => c.Id == result.Id, CancellationToken.None);
+		var stored = await db.Comment.AsNoTracking().FirstAsync(c => c.Id == result.Id, CancellationToken.None);
 		Assert.Equal("**hello**", stored.Content);
 		Assert.Equal("<p>**hello**</p>", stored.ContentHtml);
 		Assert.Null(stored.ParentId);
@@ -66,10 +66,10 @@ public class CreateCommentHandlerTests
 		var result = await handler.Handle(new CreateCommentCommand(_postId, "A reply", parent.Id), CancellationToken.None);
 
 		// Assert
-		var stored = await db.Comment.FirstAsync(c => c.Id == result.Id, CancellationToken.None);
+		var stored = await db.Comment.AsNoTracking().FirstAsync(c => c.Id == result.Id, CancellationToken.None);
 		Assert.Equal(parent.Id, stored.ParentId);
 		Assert.Null(stored.MentionedDisplayName);
-		var reloadedParent = await db.Comment.FirstAsync(c => c.Id == parent.Id, CancellationToken.None);
+		var reloadedParent = await db.Comment.AsNoTracking().FirstAsync(c => c.Id == parent.Id, CancellationToken.None);
 		Assert.Equal(1, reloadedParent.ReplyCount);
 	}
 
@@ -89,15 +89,15 @@ public class CreateCommentHandlerTests
 		var result = await handler.Handle(new CreateCommentCommand(_postId, "Sure thing", reply.Id), CancellationToken.None);
 
 		// Assert
-		var stored = await db.Comment.FirstAsync(c => c.Id == result.Id, CancellationToken.None);
+		var stored = await db.Comment.AsNoTracking().FirstAsync(c => c.Id == result.Id, CancellationToken.None);
 		Assert.Equal(grandParent.Id, stored.ParentId);
 		Assert.Equal("Jane", stored.MentionedDisplayName);
 		Assert.Equal("Sure thing", stored.Content);
 		Assert.DoesNotContain("@Jane", stored.Content);
 
-		var reloadedGrandParent = await db.Comment.FirstAsync(c => c.Id == grandParent.Id, CancellationToken.None);
+		var reloadedGrandParent = await db.Comment.AsNoTracking().FirstAsync(c => c.Id == grandParent.Id, CancellationToken.None);
 		Assert.Equal(2, reloadedGrandParent.ReplyCount);
-		var reloadedReply = await db.Comment.FirstAsync(c => c.Id == reply.Id, CancellationToken.None);
+		var reloadedReply = await db.Comment.AsNoTracking().FirstAsync(c => c.Id == reply.Id, CancellationToken.None);
 		Assert.Equal(0, reloadedReply.ReplyCount);
 	}
 
@@ -131,7 +131,7 @@ public class CreateCommentHandlerTests
 		var result = await handler.Handle(new CreateCommentCommand(_postId, atLimit, null), CancellationToken.None);
 
 		// Assert
-		var stored = await db.Comment.FirstAsync(c => c.Id == result.Id, CancellationToken.None);
+		var stored = await db.Comment.AsNoTracking().FirstAsync(c => c.Id == result.Id, CancellationToken.None);
 		Assert.Equal(CommentLimits.MaxCommentLength, stored.Content.Length);
 	}
 
@@ -201,7 +201,7 @@ public class CreateCommentHandlerTests
 		// Act & Assert
 		await Assert.ThrowsAsync<CommentConflictException>(
 			() => handler.Handle(new CreateCommentCommand(_postId, "hello", target.Id), CancellationToken.None));
-		var reloaded = await db.Comment.FirstAsync(c => c.Id == target.Id, CancellationToken.None);
+		var reloaded = await db.Comment.AsNoTracking().FirstAsync(c => c.Id == target.Id, CancellationToken.None);
 		Assert.Equal(0, reloaded.ReplyCount);
 		Assert.Equal(1, await db.Comment.CountAsync(CancellationToken.None));
 	}

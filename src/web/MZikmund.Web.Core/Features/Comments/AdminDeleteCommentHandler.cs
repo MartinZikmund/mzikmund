@@ -25,23 +25,28 @@ internal sealed class AdminDeleteCommentHandler : IRequestHandler<AdminDeleteCom
 
 	public async Task Handle(AdminDeleteCommentCommand request, CancellationToken cancellationToken)
 	{
-		var comment = await _dbContext.Comment
-			.FirstOrDefaultAsync(c => c.Id == request.CommentId, cancellationToken)
-			?? throw new CommentNotFoundException($"Comment {request.CommentId} was not found.");
+		var resolvedOn = _dateProvider.UtcNow.UtcDateTime;
+		var resolvedReports = 0;
 
-		var resolvedReports = await CommentModeration.ResolveOpenReportsAsync(
-			_dbContext, comment, _dateProvider.UtcNow.UtcDateTime, cancellationToken);
-		await CommentModeration.HideAsync(_dbContext, comment, cancellationToken);
+		var strategy = _dbContext.Database.CreateExecutionStrategy();
+		await strategy.ExecuteAsync(
+			async ct =>
+			{
+				_dbContext.ChangeTracker.Clear();
 
-		// The row stays so replies keep their parent; only the text is purged.
-		comment.Content = "";
-		comment.ContentHtml = "";
+				var parentId = await CommentModeration.FindParentIdAsync(_dbContext, request.CommentId, ct);
 
-		await _dbContext.SaveChangesAsync(cancellationToken);
+				// The row stays so replies keep their parent; only the text is purged.
+				await using var transaction = await _dbContext.Database.BeginTransactionAsync(ct);
+				resolvedReports = await CommentModeration.ResolveOpenReportsAsync(_dbContext, request.CommentId, resolvedOn, ct);
+				await CommentModeration.HideAsync(_dbContext, request.CommentId, parentId, purgeContent: true, ct);
+				await transaction.CommitAsync(ct);
+			},
+			cancellationToken);
 
 		_logger.LogInformation(
 			"Comment {CommentId} deleted by moderator; {ResolvedReports} open report(s) auto-resolved.",
-			comment.Id,
+			request.CommentId,
 			resolvedReports);
 	}
 }

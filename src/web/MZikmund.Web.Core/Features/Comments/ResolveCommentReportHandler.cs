@@ -25,19 +25,27 @@ internal sealed class ResolveCommentReportHandler : IRequestHandler<ResolveComme
 
 	public async Task Handle(ResolveCommentReportCommand request, CancellationToken cancellationToken)
 	{
-		var comment = await _dbContext.Comment
-			.FirstOrDefaultAsync(c => c.Id == request.CommentId, cancellationToken)
-			?? throw new CommentNotFoundException($"Comment {request.CommentId} was not found.");
+		var resolvedOn = _dateProvider.UtcNow.UtcDateTime;
+		var resolvedReports = 0;
 
-		// "Reviewed and dismissed": the comment itself is left exactly as it is.
-		var resolvedReports = await CommentModeration.ResolveOpenReportsAsync(
-			_dbContext, comment, _dateProvider.UtcNow.UtcDateTime, cancellationToken);
+		var strategy = _dbContext.Database.CreateExecutionStrategy();
+		await strategy.ExecuteAsync(
+			async ct =>
+			{
+				_dbContext.ChangeTracker.Clear();
 
-		await _dbContext.SaveChangesAsync(cancellationToken);
+				await CommentModeration.FindParentIdAsync(_dbContext, request.CommentId, ct);
+
+				// "Reviewed and dismissed": the comment itself is left exactly as it is.
+				await using var transaction = await _dbContext.Database.BeginTransactionAsync(ct);
+				resolvedReports = await CommentModeration.ResolveOpenReportsAsync(_dbContext, request.CommentId, resolvedOn, ct);
+				await transaction.CommitAsync(ct);
+			},
+			cancellationToken);
 
 		_logger.LogInformation(
 			"{ResolvedReports} open report(s) on comment {CommentId} dismissed by moderator.",
 			resolvedReports,
-			comment.Id);
+			request.CommentId);
 	}
 }

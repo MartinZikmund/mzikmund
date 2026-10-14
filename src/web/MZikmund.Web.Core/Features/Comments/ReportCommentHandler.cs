@@ -72,8 +72,8 @@ internal sealed class ReportCommentHandler : IRequestHandler<ReportCommentComman
 					Note = note,
 					CreatedOn = createdOn,
 				});
-				comment.ReportCount += 1;
 				await _dbContext.SaveChangesAsync(ct);
+				await CommentCounters.IncrementReportCountAsync(_dbContext, comment.Id, ct);
 				await transaction.CommitAsync(ct);
 				reported = true;
 			},
