@@ -9,4 +9,9 @@ public sealed class CommentForbiddenException : CommentException
 		: base(message)
 	{
 	}
+
+	public CommentForbiddenException(string message, string code)
+		: base(message, code)
+	{
+	}
 }

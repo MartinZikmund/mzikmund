@@ -9,4 +9,9 @@ public sealed class CommentNotFoundException : CommentException
 		: base(message)
 	{
 	}
+
+	public CommentNotFoundException(string message, string code)
+		: base(message, code)
+	{
+	}
 }

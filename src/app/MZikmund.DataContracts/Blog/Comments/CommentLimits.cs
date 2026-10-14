@@ -25,4 +25,14 @@ public static class CommentLimits
 	/// Replies per page when a thread's overflow is expanded.
 	/// </summary>
 	public const int RepliesPageSize = 20;
+
+	/// <summary>
+	/// Minutes after posting during which an author can still edit a comment.
+	/// </summary>
+	public const int EditWindowMinutes = 15;
+
+	/// <summary>
+	/// How long after posting an author can still edit a comment.
+	/// </summary>
+	public static readonly TimeSpan EditWindow = TimeSpan.FromMinutes(EditWindowMinutes);
 }

@@ -59,12 +59,12 @@ internal sealed class SetCommentVoteHandler : IRequestHandler<SetCommentVoteComm
 
 				if (comment.AuthorId == author.Id)
 				{
-					throw new CommentConflictException("An author cannot vote on their own comment.");
+					throw new CommentConflictException("An author cannot vote on their own comment.", CommentErrorCodes.OwnComment);
 				}
 
 				if (comment.Status != DataCommentStatus.Visible)
 				{
-					throw new CommentConflictException($"Comment {comment.Id} is not visible and cannot be voted on.");
+					throw new CommentConflictException($"Comment {comment.Id} is not visible and cannot be voted on.", CommentErrorCodes.NotVisible);
 				}
 
 				var hasVoted = await VoteExistsAsync(comment.Id, author.Id, ct);

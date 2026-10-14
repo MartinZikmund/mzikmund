@@ -11,7 +11,6 @@ namespace MZikmund.Web.Core.Features.Comments;
 
 internal sealed class UpdateCommentHandler : IRequestHandler<UpdateCommentCommand, CommentDto>
 {
-	private static readonly TimeSpan EditWindow = TimeSpan.FromMinutes(15);
 
 	private readonly DatabaseContext _dbContext;
 	private readonly ICurrentUserAccessor _currentUserAccessor;
@@ -41,13 +40,14 @@ internal sealed class UpdateCommentHandler : IRequestHandler<UpdateCommentComman
 		var content = request.Content.Trim();
 		if (content.Length == 0)
 		{
-			throw new CommentValidationException("Comment content must not be empty.");
+			throw new CommentValidationException("Comment content must not be empty.", CommentErrorCodes.ContentEmpty);
 		}
 
 		if (content.Length > CommentLimits.MaxCommentLength)
 		{
 			throw new CommentValidationException(
-				$"Comment content must not exceed {CommentLimits.MaxCommentLength} characters.");
+				$"Comment content must not exceed {CommentLimits.MaxCommentLength} characters.",
+				CommentErrorCodes.ContentTooLong);
 		}
 
 		var comment = await _dbContext.Comment
@@ -68,14 +68,15 @@ internal sealed class UpdateCommentHandler : IRequestHandler<UpdateCommentComman
 
 		if (comment.Status != DataCommentStatus.Visible)
 		{
-			throw new CommentConflictException($"Comment {comment.Id} is not visible and cannot be edited.");
+			throw new CommentConflictException($"Comment {comment.Id} is not visible and cannot be edited.", CommentErrorCodes.NotVisible);
 		}
 
 		var now = _dateProvider.UtcNow.UtcDateTime;
-		if (now - comment.CreatedOn > EditWindow)
+		if (now - comment.CreatedOn > CommentLimits.EditWindow)
 		{
 			throw new CommentConflictException(
-				$"Comment {comment.Id} can only be edited within {EditWindow.TotalMinutes} minutes of posting.");
+				$"Comment {comment.Id} can only be edited within {CommentLimits.EditWindowMinutes} minutes of posting.",
+				CommentErrorCodes.EditWindowExpired);
 		}
 
 		// ParentId and MentionedDisplayName are decided once, at creation. Re-deriving them here
