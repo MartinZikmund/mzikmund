@@ -71,7 +71,18 @@ must be verified against a deployed HTTPS host.
 | `Supabase:LocalUrl` | `appsettings.Development.json` only — `http://127.0.0.1:54321` |
 | `Turnstile:SiteKey` | committed |
 | `Turnstile:SecretKey` | user-secret locally, App Service setting in production |
+| `Turnstile:ExpectedHostname` | optional, e.g. `mzikmund.dev`; empty skips the check (leave it empty with Cloudflare's test keys) |
 | `Comments:Enabled` | committed / App Service setting |
+| `RateLimits:CommentCreate` / `CommentVote` / `CommentReport` / `CommentEdit` / `GlobalWrites` | optional, each `{ PermitLimit, WindowMinutes }`; defaults are built in |
+
+### Behind a proxy
+
+The comment rate limits partition anonymous traffic and the global write limit by the connection's
+remote IP. If the site is ever put behind the Cloudflare proxy (or any other reverse proxy), every
+request will appear to come from the proxy and share one bucket, so `ForwardedHeaders` must be
+configured first (`UseForwardedHeaders` with the proxy's `KnownProxies` / `KnownNetworks`, reading
+`CF-Connecting-IP` / `X-Forwarded-For`). Azure App Service already sets `X-Forwarded-For`, so this
+only matters once something else sits in front of it.
 
 No Supabase **secret** key belongs in either application. It is used by hand, from
 `supabase/seed-admin.ps1`, against the local stack only.
