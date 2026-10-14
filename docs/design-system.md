@@ -251,6 +251,36 @@ in the diff.
 
 Prefer letting a component own its spacing over reaching for a utility.
 
+## Asset pipeline
+
+`npm run build` (run automatically by `dotnet build` via the `NpmBuild` MSBuild
+target) compiles SCSS to `site.css` and `site.min.css`, type-checks with
+`tsc --noEmit`, bundles TypeScript with esbuild, and verifies the bundles.
+Fonts and the icon sprite are generated separately by `npm run build:assets`
+and committed (see the Icons section).
+
+TypeScript is bundled by esbuild into three fixed, unhashed entry points:
+
+| Output | Format | Loaded as | Where |
+|---|---|---|---|
+| `wwwroot/js/theme-init.js` | IIFE | blocking classic `<script>` | every page, in `<head>` |
+| `wwwroot/js/site.js` | ESM | `<script type="module">` | every page, in `<head>` |
+| `wwwroot/js/comments.js` | ESM | `<script type="module">` | post pages only |
+
+Three rules hold this together:
+
+- `theme-init.js` must never become a module. Module scripts are ALWAYS
+  deferred, and a deferred theme applier is a flash of the wrong theme on every
+  navigation for every dark-mode visitor.
+- `site.js` must never gain a top-level `export`. The Uno app's
+  `Templates/PostPreviewTemplate.html` loads it as a plain `<script>`.
+- Filenames stay fixed and unhashed. `asp-append-version="true"` already
+  cache-busts via query string, and MSBuild globs `wwwroot` at evaluation time,
+  so a name that changes between builds goes missing from the publish output.
+  Do not enable esbuild's `splitting`.
+
+`npm run check:js` (`Scripts/check-bundles.mjs`) enforces all three.
+
 ## Contract with JavaScript
 
 Renaming any of these silently breaks a feature — no error:
@@ -267,7 +297,7 @@ Renaming any of these silently breaks a feature — no error:
 | `#back-to-top` + `.is-visible` | back-to-top control |
 | `localStorage["ui-theme"]` | stored theme preference — changing the key resets everyone |
 
-`Scripts/index.ts` initialises `TableOfContents` **before** `HeadingLinks`,
+`Scripts/site.ts` initialises `TableOfContents` **before** `HeadingLinks`,
 because the TOC assigns the heading ids that HeadingLinks requires.
 
 The 1280px breakpoint appears in both `TableOfContents.ts`
