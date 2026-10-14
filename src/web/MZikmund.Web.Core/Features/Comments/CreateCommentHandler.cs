@@ -72,7 +72,7 @@ internal sealed class CreateCommentHandler : IRequestHandler<CreateCommentComman
 					return;
 				}
 
-				if (!await CommentPostVisibility.IsPublicAsync(_dbContext.Post, request.PostId, ct))
+				if (!await CommentPostVisibility.IsPublicAsync(_dbContext.Post, request.PostId, _dateProvider.UtcNow, ct))
 				{
 					throw new CommentNotFoundException($"Post {request.PostId} was not found.");
 				}

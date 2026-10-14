@@ -394,5 +394,5 @@ public class GetPostCommentsHandlerTests
 	}
 
 	private static GetPostCommentsHandler CreateHandler(DatabaseContext context, Guid? currentAuthorId = null) =>
-		new(context, CurrentUser(currentAuthorId).Object);
+		new(context, CurrentUser(currentAuthorId).Object, FixedClock().Object);
 }
