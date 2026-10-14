@@ -29,9 +29,6 @@ public class CommentsController : Controller
 	/// </summary>
 	public const string TurnstileHeaderName = "CF-Turnstile-Response";
 
-	private const int PageSize = 20;
-	private const int RepliesPageSize = 20;
-
 	private readonly IMediator _mediator;
 	private readonly ITurnstileVerifier _turnstileVerifier;
 	private readonly ILogger<CommentsController> _logger;
@@ -67,7 +64,7 @@ public class CommentsController : Controller
 		Guid postId,
 		[FromQuery] CommentSortOrder sort = CommentSortOrder.Top,
 		[FromQuery] int pageNumber = 1) =>
-		Ok(await _mediator.Send(new GetPostCommentsQuery(postId, sort, pageNumber, PageSize)));
+		Ok(await _mediator.Send(new GetPostCommentsQuery(postId, sort, pageNumber, CommentLimits.PageSize)));
 
 	/// <summary>
 	/// Gets the replies of a comment beyond the first few returned inline.
@@ -80,7 +77,7 @@ public class CommentsController : Controller
 	[ProducesResponseType(StatusCodes.Status200OK)]
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
 	public async Task<IActionResult> GetCommentReplies(Guid id, [FromQuery] int pageNumber = 1) =>
-		Ok(await _mediator.Send(new GetCommentRepliesQuery(id, pageNumber, RepliesPageSize)));
+		Ok(await _mediator.Send(new GetCommentRepliesQuery(id, pageNumber, CommentLimits.RepliesPageSize)));
 
 	/// <summary>
 	/// Creates a comment or a reply on a post.

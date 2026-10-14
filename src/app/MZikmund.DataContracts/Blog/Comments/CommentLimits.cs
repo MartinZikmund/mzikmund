@@ -15,4 +15,14 @@ public static class CommentLimits
 	/// Maximum length of the optional note attached to a comment report, in characters.
 	/// </summary>
 	public const int MaxReportNoteLength = 500;
+
+	/// <summary>
+	/// Top-level comments per page, shared by the API and the server-rendered first page.
+	/// </summary>
+	public const int PageSize = 20;
+
+	/// <summary>
+	/// Replies per page when a thread's overflow is expanded.
+	/// </summary>
+	public const int RepliesPageSize = 20;
 }
