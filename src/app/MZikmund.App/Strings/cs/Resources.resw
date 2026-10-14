@@ -276,4 +276,73 @@
   <data name="Id" xml:space="preserve">
     <value>Id</value>
   </data>
+  <data name="AddCategory" xml:space="preserve">
+    <value>Přidat kategorii</value>
+  </data>
+  <data name="AddPost" xml:space="preserve">
+    <value>Přidat článek</value>
+  </data>
+  <data name="AddTag" xml:space="preserve">
+    <value>Přidat štítek</value>
+  </data>
+  <data name="Admin" xml:space="preserve">
+    <value>Administrace</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Zrušit</value>
+  </data>
+  <data name="Contact" xml:space="preserve">
+    <value>Kontakt</value>
+  </data>
+  <data name="DisplayName" xml:space="preserve">
+    <value>Zobrazovaný název</value>
+  </data>
+  <data name="EditCategory" xml:space="preserve">
+    <value>Upravit kategorii</value>
+  </data>
+  <data name="EditTag" xml:space="preserve">
+    <value>Upravit štítek</value>
+  </data>
+  <data name="Home" xml:space="preserve">
+    <value>Domů</value>
+  </data>
+  <data name="Localizations" xml:space="preserve">
+    <value>Lokalizace</value>
+  </data>
+  <data name="NoCategoriesSelected" xml:space="preserve">
+    <value>Nejsou vybrány žádné kategorie</value>
+  </data>
+  <data name="Ok" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Posts" xml:space="preserve">
+    <value>Články</value>
+  </data>
+  <data name="RouteName" xml:space="preserve">
+    <value>Název cesty</value>
+  </data>
+  <data name="Settings" xml:space="preserve">
+    <value>Nastavení</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>Přihlásit se</value>
+  </data>
+  <data name="Logout" xml:space="preserve">
+    <value>Odhlásit se</value>
+  </data>
+  <data name="SignInFailed" xml:space="preserve">
+    <value>Přihlášení se nezdařilo</value>
+  </data>
+  <data name="NewPost" xml:space="preserve">
+    <value>Nový článek</value>
+  </data>
+  <data name="UnsavedChanges" xml:space="preserve">
+    <value>Neuložené změny</value>
+  </data>
+  <data name="SavedAtFormat" xml:space="preserve">
+    <value>Uloženo v {0}</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>Uložení se nezdařilo</value>
+  </data>
 </root>

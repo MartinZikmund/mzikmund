@@ -1,5 +1,8 @@
 ﻿using Microsoft.UI.Dispatching;
+using MZikmund.Models.Dialogs;
 using MZikmund.Services.Account;
+using MZikmund.Services.Dialogs;
+using MZikmund.Services.Localization;
 using MZikmund.Services.Navigation;
 using Uno.Disposables;
 
@@ -10,10 +13,12 @@ public partial class WindowShellViewModel : ViewModelBase
 	private readonly IWindowShellProvider _provider;
 	private readonly INavigationService _navigationService;
 	private readonly IUserService _userService;
+	private readonly IDialogService _dialogService;
 	private RefCountDisposable? _refCountDisposable;
 
-	public WindowShellViewModel(IWindowShellProvider provider, INavigationService navigationService, IUserService userService)
+	public WindowShellViewModel(IWindowShellProvider provider, INavigationService navigationService, IUserService userService, IDialogService dialogService)
 	{
+		_dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
 		_provider = provider ?? throw new ArgumentNullException(nameof(provider));
 		_navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
 		_userService = userService ?? throw new ArgumentNullException(nameof(userService));
@@ -36,7 +41,18 @@ public partial class WindowShellViewModel : ViewModelBase
 	[RelayCommand]
 	private async Task LoginAsync()
 	{
-		await _userService.AuthenticateAsync();
+		try
+		{
+			await _userService.AuthenticateAsync();
+		}
+		catch (AuthenticationFailedException ex)
+		{
+			await _dialogService.ShowStatusMessageAsync(
+				StatusMessageDialogType.Error,
+				Localizer.Instance.GetString("SignInFailed"),
+				ex.Message);
+		}
+
 		UpdateAuthenticationState();
 	}
 

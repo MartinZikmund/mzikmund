@@ -339,4 +339,19 @@
   <data name="Id" xml:space="preserve">
     <value>Id</value>
   </data>
+  <data name="SignInFailed" xml:space="preserve">
+    <value>Sign-in failed</value>
+  </data>
+  <data name="NewPost" xml:space="preserve">
+    <value>New post</value>
+  </data>
+  <data name="UnsavedChanges" xml:space="preserve">
+    <value>Unsaved changes</value>
+  </data>
+  <data name="SavedAtFormat" xml:space="preserve">
+    <value>Saved at {0}</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>Saving failed</value>
+  </data>
 </root>
