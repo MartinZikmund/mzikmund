@@ -17,4 +17,10 @@ public class TurnstileOptions
 	/// user secrets locally, App Service configuration in Azure.
 	/// </summary>
 	public string SecretKey { get; set; } = "";
+
+	/// <summary>
+	/// Value that must match the widget's data-action. Cloudflare echoes the action back but does
+	/// not enforce it, so the verifier compares it. An empty value disables the check.
+	/// </summary>
+	public string ExpectedAction { get; set; } = "comment-create";
 }
