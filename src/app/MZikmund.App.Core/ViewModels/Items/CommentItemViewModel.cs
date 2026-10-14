@@ -45,7 +45,7 @@ public partial class CommentItemViewModel : ObservableObject
 	public string CreatedOnHumanized => Item.CreatedOn.Humanize();
 
 	public string MetaText => IsEdited ?
-		$"{CreatedOnHumanized} · {Localizer.Instance.GetString("CommentEdited")}" :
+		$"{CreatedOnHumanized} \u00B7 {Localizer.Instance.GetString("CommentEdited")}" :
 		CreatedOnHumanized;
 
 	public bool IsEdited => Item.EditedOn is not null && !IsTombstone;
