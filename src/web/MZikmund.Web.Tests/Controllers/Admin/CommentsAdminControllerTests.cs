@@ -211,6 +211,46 @@ public class CommentsAdminControllerTests
 	}
 
 	[Fact]
+	public async Task GetModerationFeed_WithOffsetlessSince_IsReadAsUtcNotServerLocalTime()
+	{
+		// Arrange
+		var since = new DateTime(2026, 8, 1, 12, 0, 0, DateTimeKind.Unspecified);
+		_mockMediator
+			.Setup(x => x.Send(It.IsAny<GetModerationFeedQuery>(), It.IsAny<CancellationToken>()))
+			.ReturnsAsync(new PagedResponse<CommentModerationDto>(Array.Empty<CommentModerationDto>(), 1, 20, 0));
+
+		// Act
+		await _controller.GetModerationFeed(since);
+
+		// Assert
+		_mockMediator.Verify(
+			x => x.Send(
+				It.Is<GetModerationFeedQuery>(q => q.Since == new DateTime(2026, 8, 1, 12, 0, 0, DateTimeKind.Utc) && q.Since!.Value.Kind == DateTimeKind.Utc),
+				It.IsAny<CancellationToken>()),
+			Times.Once);
+	}
+
+	[Fact]
+	public async Task CountNewComments_WithOffsetlessSince_IsReadAsUtcNotServerLocalTime()
+	{
+		// Arrange
+		var since = new DateTime(2026, 8, 1, 12, 0, 0, DateTimeKind.Unspecified);
+		_mockMediator
+			.Setup(x => x.Send(It.IsAny<CountNewCommentsQuery>(), It.IsAny<CancellationToken>()))
+			.ReturnsAsync(0);
+
+		// Act
+		await _controller.CountNewComments(since);
+
+		// Assert
+		_mockMediator.Verify(
+			x => x.Send(
+				It.Is<CountNewCommentsQuery>(q => q.Since == new DateTime(2026, 8, 1, 12, 0, 0, DateTimeKind.Utc) && q.Since!.Value.Kind == DateTimeKind.Utc),
+				It.IsAny<CancellationToken>()),
+			Times.Once);
+	}
+
+	[Fact]
 	public async Task CountNewComments_WithoutSince_SendsNull()
 	{
 		// Arrange
