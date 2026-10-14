@@ -364,7 +364,12 @@ public class UserService : IUserService
 		return context.Request.Url;
 	}
 #else
+#if __ANDROID__ || __IOS__
+	private static Uri GetRedirectUri() => new("mzikmund-app://oauthcallback");
+#else
+	// Browser: <origin>/authentication-callback
 	private static Uri GetRedirectUri() => WebAuthenticationBroker.GetCurrentApplicationCallbackUri();
+#endif
 
 	private static async Task<Uri?> GetAuthorizationCallbackAsync(Uri authUri, Uri redirectUri)
 	{
