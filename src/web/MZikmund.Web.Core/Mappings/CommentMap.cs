@@ -11,6 +11,7 @@ public class CommentMap : Profile
 		CreateMap<CommentEntity, CommentDto>()
 			.ForMember(dto => dto.AuthorDisplayName, opt => opt.MapFrom(entity => entity.Author.DisplayName))
 			.ForMember(dto => dto.AuthorAvatarUrl, opt => opt.MapFrom(entity => entity.Author.AvatarUrl))
+			.ForMember(dto => dto.AuthorIsAdmin, opt => opt.MapFrom(entity => entity.Author.IsAdmin))
 			// Per-caller and bounded members are hand-projected by the query handlers.
 			.ForMember(dto => dto.HasUpvoted, opt => opt.Ignore())
 			.ForMember(dto => dto.IsOwn, opt => opt.Ignore())

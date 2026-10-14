@@ -19,6 +19,11 @@ public class CommentAuthorEntity
 	public bool IsBanned { get; set; }
 
 	/// <summary>
+	/// Whether the author is the site owner, taken from the app_metadata role claim at each write.
+	/// </summary>
+	public bool IsAdmin { get; set; }
+
+	/// <summary>
 	/// Unused in v1; present so reply notifications need no migration later.
 	/// </summary>
 	public bool NotifyOnReply { get; set; } = true;

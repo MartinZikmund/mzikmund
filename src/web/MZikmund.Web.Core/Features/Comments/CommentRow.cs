@@ -13,6 +13,7 @@ internal sealed record CommentRow(
 	Guid? ParentId,
 	string AuthorDisplayName,
 	string? AuthorAvatarUrl,
+	bool AuthorIsAdmin,
 	string? MentionedDisplayName,
 	string Content,
 	string ContentHtml,

@@ -13,6 +13,11 @@ internal sealed class CommentReportConfiguration : IEntityTypeConfiguration<Comm
 
 		builder.HasIndex(r => new { r.CommentId, r.ResolvedOn });
 
+		// At most one open report per reporter and comment; resolved ones are history.
+		builder.HasIndex(r => new { r.CommentId, r.ReporterId })
+			.IsUnique()
+			.HasFilter("[ResolvedOn] IS NULL");
+
 		builder
 			.HasOne<CommentEntity>()
 			.WithMany()

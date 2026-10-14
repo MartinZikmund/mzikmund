@@ -31,6 +31,11 @@ public record CommentDto
 	public string? AuthorAvatarUrl { get; init; }
 
 	/// <summary>
+	/// Whether the author is the site owner.
+	/// </summary>
+	public bool AuthorIsAdmin { get; init; }
+
+	/// <summary>
 	/// Display name of the comment this reply was originally aimed at, when the reply was
 	/// re-pointed to its grandparent to keep the thread two levels deep.
 	/// </summary>

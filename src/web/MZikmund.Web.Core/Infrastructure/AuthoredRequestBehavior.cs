@@ -76,6 +76,7 @@ public sealed class AuthoredRequestBehavior<TRequest, TResponse> : IPipelineBeha
 		author.DisplayName = current.DisplayName;
 		author.AvatarUrl = current.AvatarUrl;
 		author.Email = current.Email;
+		author.IsAdmin = current.IsAdmin;
 		author.LastSeenOn = now;
 
 		await _dbContext.SaveChangesAsync(cancellationToken);
