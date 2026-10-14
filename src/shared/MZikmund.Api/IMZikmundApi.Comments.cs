@@ -6,6 +6,9 @@ namespace MZikmund.Api.Client;
 
 public partial interface IMZikmundApi
 {
+	// The commands answer 204 with no body, so they return the bodiless IApiResponse:
+	// ApiResponse<object?> tries to deserialize the empty body and reports it as an error.
+
 	// Reads come in two flavours on purpose. The plain method carries no Authorization header,
 	// so browsing a post never triggers RefitSettings.AuthorizationHeaderValueGetter and its
 	// interactive sign-in. The ...AuthenticatedAsync variant is called only when the user is
@@ -45,7 +48,7 @@ public partial interface IMZikmundApi
 
 	[Delete("/v1/comments/{id}")]
 	[Headers("Authorization: Bearer")]
-	Task<ApiResponse<object?>> DeleteCommentAsync(Guid id);
+	Task<IApiResponse> DeleteCommentAsync(Guid id);
 
 	[Put("/v1/comments/{id}/vote")]
 	[Headers("Authorization: Bearer")]
@@ -57,7 +60,7 @@ public partial interface IMZikmundApi
 
 	[Post("/v1/comments/{id}/report")]
 	[Headers("Authorization: Bearer")]
-	Task<ApiResponse<object?>> ReportCommentAsync(Guid id, [Body] ReportCommentRequest request);
+	Task<IApiResponse> ReportCommentAsync(Guid id, [Body] ReportCommentRequest request);
 
 	[Get("/v1/admin/comments/reports")]
 	[Headers("Authorization: Bearer")]
@@ -65,7 +68,7 @@ public partial interface IMZikmundApi
 
 	[Post("/v1/admin/comments/reports/{commentId}/resolve")]
 	[Headers("Authorization: Bearer")]
-	Task<ApiResponse<object?>> ResolveCommentReportAsync(Guid commentId);
+	Task<IApiResponse> ResolveCommentReportAsync(Guid commentId);
 
 	// "since" is sent as a round-trip ISO 8601 instant ("o"), keeping the offset and the
 	// milliseconds. Callers must pass a UTC DateTime: an Unspecified one is read as UTC by the server.
@@ -81,13 +84,13 @@ public partial interface IMZikmundApi
 
 	[Post("/v1/admin/comments/{id}/hide")]
 	[Headers("Authorization: Bearer")]
-	Task<ApiResponse<object?>> HideCommentAsync(Guid id);
+	Task<IApiResponse> HideCommentAsync(Guid id);
 
 	[Delete("/v1/admin/comments/{id}")]
 	[Headers("Authorization: Bearer")]
-	Task<ApiResponse<object?>> AdminDeleteCommentAsync(Guid id);
+	Task<IApiResponse> AdminDeleteCommentAsync(Guid id);
 
 	[Post("/v1/admin/authors/{id}/ban")]
 	[Headers("Authorization: Bearer")]
-	Task<ApiResponse<object?>> BanCommentAuthorAsync(Guid id);
+	Task<IApiResponse> BanCommentAuthorAsync(Guid id);
 }

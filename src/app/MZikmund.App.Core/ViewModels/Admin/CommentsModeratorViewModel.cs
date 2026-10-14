@@ -208,12 +208,15 @@ public partial class CommentsModeratorViewModel : PageViewModel
 			Localizer.Instance.GetString(textKey)) == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary;
 
 	// Every action can change both lists (a hide closes its reports, a ban hides a whole author), so the page reloads.
-	private async Task RunAsync(Func<Task<ApiResponse<object?>>> action)
+	private async Task RunAsync(Func<Task<IApiResponse>> action)
 	{
 		try
 		{
 			var response = await action();
-			await response.EnsureSuccessfulAsync();
+			if (response.Error is { } error)
+			{
+				throw error;
+			}
 		}
 		catch (Exception ex)
 		{
