@@ -34,4 +34,21 @@ public class PostPublishDatesTests
 
 		Assert.Equal(TimeSpan.FromHours(1), result.Offset);
 	}
+
+	[Theory]
+	[InlineData(true, 1, true)]
+	[InlineData(true, -1, false)]
+	[InlineData(true, 0, false)]
+	[InlineData(false, 1, false)]
+	[InlineData(null, 1, false)]
+	public void IsScheduled_OnlyForPublishedPostsWithAFutureDate(bool? isPublished, int daysFromNow, bool expected)
+	{
+		DateTimeOffset now = new(2027, 1, 15, 9, 0, 0, TimeSpan.Zero);
+
+		Assert.Equal(expected, PostPublishDates.IsScheduled(isPublished, now.AddDays(daysFromNow), now));
+	}
+
+	[Fact]
+	public void IsScheduled_IsFalseWithoutADate() =>
+		Assert.False(PostPublishDates.IsScheduled(true, null, DateTimeOffset.UtcNow));
 }

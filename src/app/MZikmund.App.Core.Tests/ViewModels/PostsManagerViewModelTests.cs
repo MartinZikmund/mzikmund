@@ -6,6 +6,7 @@ using MZikmund.DataContracts;
 using MZikmund.DataContracts.Blog;
 using MZikmund.Services.Dialogs;
 using MZikmund.Services.Navigation;
+using MZikmund.Services.Timers;
 using MZikmund.ViewModels.Admin;
 using Refit;
 
@@ -17,8 +18,10 @@ public class PostsManagerViewModelTests
 
 	private readonly Mock<IMZikmundApi> _api = new();
 
+	public PostsManagerViewModelTests() => TestLocalization.EnsureConfigured();
+
 	private PostsManagerViewModel CreateViewModel() =>
-		new(_api.Object, Mock.Of<IDialogService>(), Mock.Of<INavigationService>(), NullLogger<PostsManagerViewModel>.Instance);
+		new(_api.Object, Mock.Of<IDialogService>(), Mock.Of<INavigationService>(), Mock.Of<ITimerFactory>(), NullLogger<PostsManagerViewModel>.Instance);
 
 	private static ApiResponse<PagedResponse<PostListItem>> Page(int pageNumber, int totalCount, params string[] titles)
 	{
@@ -27,6 +30,27 @@ public class PostsManagerViewModelTests
 	}
 
 	private static TaskCompletionSource<ApiResponse<PagedResponse<PostListItem>>> PendingPage() => new();
+
+	[Fact]
+	public async Task ScheduledPost_GoesLiveInTheListWithoutARefresh()
+	{
+		var goesLive = DateTimeOffset.UtcNow.AddHours(1);
+		PostListItem post = new() { Id = Guid.NewGuid(), Title = "Soon", RouteName = "soon", IsPublished = true, PublishedDate = goesLive };
+		_api.Setup(a => a.GetAllPostsAsync(1)).ReturnsAsync(new ApiResponse<PagedResponse<PostListItem>>(
+			new HttpResponseMessage(HttpStatusCode.OK), new(new[] { post }, 1, PageSize, 1), new RefitSettings()));
+
+		var viewModel = CreateViewModel();
+		await viewModel.RefreshCommand.ExecuteAsync(null);
+		var row = Assert.Single(viewModel.VisiblePosts);
+		Assert.True(row.IsScheduled);
+
+		viewModel.UpdateSchedules(goesLive.AddMinutes(-5));
+		Assert.Equal("Goes live in 5m 0s", row.Countdown);
+
+		viewModel.UpdateSchedules(goesLive.AddSeconds(1));
+		Assert.False(row.IsScheduled);
+		_api.Verify(a => a.GetAllPostsAsync(1), Times.Once);
+	}
 
 	[Fact]
 	public async Task OverlappingRefreshes_DoNotDuplicatePosts()
@@ -45,7 +69,7 @@ public class PostsManagerViewModelTests
 		first.SetResult(Page(1, 1, "Post"));
 		await Task.WhenAll(firstRefresh, secondRefresh);
 
-		Assert.Equal("Post", Assert.Single(viewModel.VisiblePosts).Title);
+		Assert.Equal("Post", Assert.Single(viewModel.VisiblePosts).Post.Title);
 		Assert.False(viewModel.IsLoading);
 	}
 
@@ -111,7 +135,7 @@ public class PostsManagerViewModelTests
 		stalePage.SetResult(Page(2, 2, "Second"));
 		await loadMore;
 
-		Assert.Equal("First", Assert.Single(viewModel.VisiblePosts).Title);
+		Assert.Equal("First", Assert.Single(viewModel.VisiblePosts).Post.Title);
 		Assert.Equal(1, viewModel.CurrentPage);
 		Assert.True(viewModel.CanLoadMore);
 	}
@@ -129,7 +153,7 @@ public class PostsManagerViewModelTests
 		viewModel.SearchText = "oldest";
 		await viewModel.LoadMoreCommand.ExecutionTask!;
 
-		Assert.Equal("Oldest", Assert.Single(viewModel.VisiblePosts).Title);
+		Assert.Equal("Oldest", Assert.Single(viewModel.VisiblePosts).Post.Title);
 		Assert.Equal(3, viewModel.CurrentPage);
 	}
 

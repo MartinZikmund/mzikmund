@@ -1,7 +1,4 @@
 using System.Net;
-using CommunityToolkit.Mvvm.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -23,11 +20,7 @@ public class PostEditorViewModelTests
 {
 	private readonly Mock<IMZikmundApi> _api = new();
 
-	// The save error path reaches the static Localizer, which resolves through Ioc.Default.
-	static PostEditorViewModelTests() =>
-		Ioc.Default.ConfigureServices(new ServiceCollection()
-			.AddSingleton(Mock.Of<IStringLocalizer>())
-			.BuildServiceProvider());
+	public PostEditorViewModelTests() => TestLocalization.EnsureConfigured();
 
 	private PostEditorViewModel CreateViewModel() =>
 		new(
@@ -57,7 +50,75 @@ public class PostEditorViewModelTests
 
 	private static PostAdmin Draft() => new() { Id = Guid.NewGuid(), Title = "Draft", RouteName = "draft" };
 
-	private static PostAdmin Live() => new() { Id = Guid.NewGuid(), Title = "Live", RouteName = "live", IsPublished = true };
+	private static PostAdmin Live() => new() { Id = Guid.NewGuid(), Title = "Live", RouteName = "live", IsPublished = true, PublishedDate = DateTimeOffset.UtcNow.AddDays(-1) };
+
+	private static PostAdmin Scheduled() => new() { Id = Guid.NewGuid(), Title = "Scheduled", RouteName = "scheduled", IsPublished = true, PublishedDate = DateTimeOffset.UtcNow.AddDays(3) };
+
+	[Fact]
+	public void ScheduledPost_CountsDownInsteadOfClaimingToBeLive()
+	{
+		var viewModel = OpenPost(Scheduled());
+
+		Assert.True(viewModel.IsScheduled);
+		Assert.False(viewModel.IsLive);
+		Assert.False(viewModel.CanChangePublished);
+		Assert.StartsWith("Goes live in", viewModel.ScheduledCountdown);
+	}
+
+	[Fact]
+	public void LivePost_IsNotScheduled()
+	{
+		var viewModel = OpenPost(Live());
+
+		Assert.False(viewModel.IsScheduled);
+		Assert.True(viewModel.IsLive);
+		Assert.Equal("", viewModel.ScheduledCountdown);
+	}
+
+	[Fact]
+	public void ScheduledPost_BecomesLiveWhenItsDatePasses()
+	{
+		var post = Scheduled();
+		var viewModel = OpenPost(post);
+
+		viewModel.UpdateSchedule(post.PublishedDate!.Value.AddSeconds(1));
+
+		Assert.False(viewModel.IsScheduled);
+		Assert.True(viewModel.IsLive);
+		Assert.Equal("", viewModel.ScheduledCountdown);
+	}
+
+	[Fact]
+	public async Task SchedulingADraft_StartsTheCountdownOnceTheServerConfirms()
+	{
+		var post = Draft();
+		var goesLive = DateTimeOffset.UtcNow.AddDays(3);
+		var viewModel = OpenPost(post);
+		_api.Setup(a => a.UpdatePostAsync(post.Id, It.IsAny<Post>())).ReturnsAsync(Ok<Post>(new() { Id = post.Id, IsPublished = true, PublishedDate = goesLive }));
+		_api.Setup(a => a.GetPostForAdminAsync(post.Id)).ReturnsAsync(Ok(new PostAdmin { Id = post.Id, RouteName = post.RouteName, IsPublished = true, PublishedDate = goesLive }));
+
+		viewModel.IsPublished = true;
+		Assert.False(viewModel.IsScheduled);
+
+		await viewModel.SaveCommand.ExecuteAsync(null);
+
+		Assert.True(viewModel.IsScheduled);
+		Assert.False(viewModel.IsLive);
+	}
+
+	[Fact]
+	public async Task FailedSave_DoesNotStartACountdown()
+	{
+		var post = Draft();
+		var viewModel = OpenPost(post);
+		_api.Setup(a => a.UpdatePostAsync(post.Id, It.IsAny<Post>())).ReturnsAsync(Failed<Post>());
+
+		viewModel.IsPublished = true;
+		viewModel.PublishDateValue = DateTimeOffset.Now.AddDays(3);
+		await viewModel.SaveCommand.ExecuteAsync(null);
+
+		Assert.False(viewModel.IsScheduled);
+	}
 
 	[Fact]
 	public async Task Save_SendsTheOffsetOfThePickedDateRatherThanToday()
