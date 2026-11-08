@@ -422,7 +422,9 @@ public partial class PostEditorViewModel : PageViewModel
 		return timer;
 	}
 
-	private async void DraftTimerOnTick(DispatcherQueueTimer sender, object args)
+	private async void DraftTimerOnTick(DispatcherQueueTimer sender, object args) => await WriteDraftBackupAsync();
+
+	private async Task WriteDraftBackupAsync()
 	{
 		if (Post is null || !_isDraftDirty)
 		{
@@ -536,6 +538,9 @@ public partial class PostEditorViewModel : PageViewModel
 			_draftTimer.Tick -= DraftTimerOnTick;
 			_draftTimer = null;
 		}
+
+		// The timer can be up to 30 seconds behind the last keystroke.
+		_ = WriteDraftBackupAsync();
 	}
 
 	private void PopulateInfo(Post post)
