@@ -60,6 +60,26 @@ public class PostEditorViewModelTests
 	private static PostAdmin Live() => new() { Id = Guid.NewGuid(), Title = "Live", RouteName = "live", IsPublished = true };
 
 	[Fact]
+	public async Task Save_SendsTheOffsetOfThePickedDateRatherThanToday()
+	{
+		var post = Draft();
+		var viewModel = OpenPost(post);
+		Post? sent = null;
+		_api.Setup(a => a.UpdatePostAsync(post.Id, It.IsAny<Post>()))
+			.Callback((Guid _, Post body) => sent = body)
+			.ReturnsAsync(Ok<Post>(new() { Id = post.Id }));
+
+		// Half a year out lands on the other side of the clock change in zones that have one.
+		var picked = DateTime.Today.AddMonths(6);
+		viewModel.PublishDateValue = new DateTimeOffset(picked);
+		viewModel.PublishTime = new TimeSpan(9, 0, 0);
+		await viewModel.SaveCommand.ExecuteAsync(null);
+
+		var local = picked.AddHours(9);
+		Assert.Equal(new DateTimeOffset(local, TimeZoneInfo.Local.GetUtcOffset(local)), sent!.PublishedDate);
+	}
+
+	[Fact]
 	public void LivePost_LocksThePublishedToggle() =>
 		Assert.False(OpenPost(Live()).CanChangePublished);
 
