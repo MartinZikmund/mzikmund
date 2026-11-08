@@ -20,6 +20,23 @@ public class PostViewModelTests
 	private static ApiResponse<Post> PostResponse(Post? post, HttpStatusCode status = HttpStatusCode.OK) =>
 		new(new HttpResponseMessage(status), post, new RefitSettings());
 
+	[Theory]
+	[InlineData(true, 200, false)]
+	[InlineData(true, 0, false)]
+	[InlineData(true, 404, true)]
+	[InlineData(true, 500, true)]
+	[InlineData(false, 200, true)]
+	[InlineData(false, 0, true)]
+	public void OnContentLoaded_TreatsHttpErrorsAsFailures(bool isSuccess, int httpStatusCode, bool expectedError)
+	{
+		var viewModel = CreateViewModel();
+
+		viewModel.OnContentLoaded(isSuccess, httpStatusCode);
+
+		Assert.Equal(expectedError, viewModel.HasError);
+		Assert.False(viewModel.IsLoading);
+	}
+
 	[Fact]
 	public void Retry_RequestsReload_BecauseTheEmbedUrlDoesNotChange()
 	{
