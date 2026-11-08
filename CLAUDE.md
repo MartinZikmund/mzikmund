@@ -30,7 +30,7 @@ dotnet run
 ```bash
 cd src/app/MZikmund.App
 dotnet run -f net10.0-desktop              # Desktop (Windows, Mac, Linux)
-dotnet run -f net10.0-windows10.0.26100    # Windows (WinUI 3)
+dotnet run -f net10.0-windows10.0.26100 --property:Platform=x64    # Windows (WinUI 3); without a platform it fails on the self-contained architecture check
 dotnet run -f net10.0-browserwasm          # WebAssembly
 dotnet run -f net10.0-android              # Android
 dotnet run -f net10.0-ios                  # iOS (requires Mac)
@@ -102,6 +102,7 @@ Single project structure targeting Android, iOS, WASM, Desktop, Windows.
 - `MZikmund.App`: UI layer (XAML views in `Views/`), uses `WindowShell` pattern for main window
 - `MZikmund.App.Core`: ViewModels (CommunityToolkit.Mvvm with `[ObservableProperty]`, `[RelayCommand]`), services
 - `MZikmund.DataContracts`: Shared DTOs between web API and app
+- `MZikmund.App.Core.Tests`: xUnit and Moq tests for ViewModels, on `net10.0-desktop` because App.Core has no plain `net10.0` target
 
 Use Uno APP MCP to test the desktop app.
 
