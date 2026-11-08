@@ -89,6 +89,7 @@ public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, Post>
 		post.LastModifiedDate = _dateProvider.UtcNow;
 		post.LanguageCode = postEditModel.LanguageCode;
 		post.HeroImageUrl = string.IsNullOrWhiteSpace(postEditModel.HeroImageUrl) ? null : postEditModel.HeroImageUrl;
+		post.HeroImageAlt = string.IsNullOrWhiteSpace(postEditModel.HeroImageAlt) ? null : postEditModel.HeroImageAlt;
 
 		// 1. Add new tags to tag lib
 		var tags = postEditModel.Tags.ToArray();
