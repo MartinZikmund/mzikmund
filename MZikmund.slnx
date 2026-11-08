@@ -17,6 +17,10 @@
       <BuildType Solution="Ad-Hoc|*" Project="Debug" />
       <BuildType Solution="AppStore|*" Project="Debug" />
     </Project>
+    <Project Path="src/app/MZikmund.App.Core.Tests/MZikmund.App.Core.Tests.csproj">
+      <BuildType Solution="Ad-Hoc|*" Project="Debug" />
+      <BuildType Solution="AppStore|*" Project="Debug" />
+    </Project>
     <Project Path="src/app/MZikmund.App/MZikmund.App.csproj">
       <BuildType Solution="Ad-Hoc|*" Project="Debug" />
       <BuildType Solution="AppStore|*" Project="Debug" />
