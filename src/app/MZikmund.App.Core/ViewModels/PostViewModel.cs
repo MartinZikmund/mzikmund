@@ -74,10 +74,10 @@ public partial class PostViewModel : PageViewModel
 		}
 	}
 
-	public void OnContentLoaded(bool isSuccess)
+	public void OnContentLoaded(bool isSuccess, int httpStatusCode = 0)
 	{
 		IsLoading = false;
-		HasError = !isSuccess;
+		HasError = !isSuccess || httpStatusCode >= 400;
 	}
 
 	public event EventHandler? ReloadRequested;

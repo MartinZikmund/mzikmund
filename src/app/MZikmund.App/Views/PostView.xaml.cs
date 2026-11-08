@@ -77,7 +77,7 @@ public sealed partial class PostView : PostViewBase
 	}
 
 	private void WebView_NavigationCompleted(Microsoft.UI.Xaml.Controls.WebView2 sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs args) =>
-		ViewModel?.OnContentLoaded(args.IsSuccess);
+		ViewModel?.OnContentLoaded(args.IsSuccess, args.HttpStatusCode);
 
 	private void NavigateToPost()
 	{
