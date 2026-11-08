@@ -80,14 +80,19 @@ public partial class PostViewModel : PageViewModel
 		HasError = !isSuccess;
 	}
 
+	public event EventHandler? ReloadRequested;
+
 	[RelayCommand]
 	private void Retry()
 	{
 		IsLoading = true;
 		HasError = false;
-		var url = EmbedUrl;
-		EmbedUrl = null;
-		EmbedUrl = url;
+		ReloadRequested?.Invoke(this, EventArgs.Empty);
+
+		if (Post is null)
+		{
+			_ = LoadPostAsync();
+		}
 	}
 
 	private bool CanOpenInBrowser() => Post is not null;

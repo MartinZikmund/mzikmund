@@ -25,7 +25,13 @@ public sealed partial class PostView : PostViewBase
 			return;
 		}
 
+		ViewModel.ReloadRequested += ViewModel_ReloadRequested;
 		ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+		await InitializeWebViewAsync();
+	}
+
+	private async Task InitializeWebViewAsync()
+	{
 		try
 		{
 			await _webView.EnsureCoreWebView2Async();
@@ -36,7 +42,7 @@ public sealed partial class PostView : PostViewBase
 		catch (Exception ex)
 		{
 			this.Log().LogError(ex, "Initializing the post WebView failed");
-			ViewModel.OnContentLoaded(isSuccess: false);
+			ViewModel?.OnContentLoaded(isSuccess: false);
 		}
 	}
 
@@ -44,6 +50,7 @@ public sealed partial class PostView : PostViewBase
 	{
 		if (ViewModel is not null)
 		{
+			ViewModel.ReloadRequested -= ViewModel_ReloadRequested;
 			ViewModel.PropertyChanged -= ViewModel_PropertyChanged;
 		}
 	}
@@ -53,6 +60,19 @@ public sealed partial class PostView : PostViewBase
 		if (e.PropertyName == nameof(PostViewModel.EmbedUrl))
 		{
 			NavigateToPost();
+		}
+	}
+
+	private async void ViewModel_ReloadRequested(object? sender, EventArgs e)
+	{
+		if (!_isWebViewReady)
+		{
+			await InitializeWebViewAsync();
+		}
+		else if (ViewModel?.EmbedUrl is { } url)
+		{
+			// Source already holds this URL, so assigning it again would not navigate.
+			_webView.CoreWebView2.Navigate(url.AbsoluteUri);
 		}
 	}
 
