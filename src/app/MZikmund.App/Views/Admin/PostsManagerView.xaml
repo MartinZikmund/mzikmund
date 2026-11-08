@@ -3,9 +3,9 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:dto="using:MZikmund.DataContracts.Blog"
     xmlns:local="using:MZikmund.Views.Admin"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vmitems="using:MZikmund.ViewModels.Items"
     xmlns:xaml="using:MZikmund.Extensions.Xaml"
     Background="{ThemeResource MzBgBaseBrush}"
     mc:Ignorable="d">
@@ -70,9 +70,9 @@
                             <StackLayout Spacing="2" />
                         </ItemsRepeater.Layout>
                         <ItemsRepeater.ItemTemplate>
-                            <DataTemplate x:DataType="dto:PostListItem">
+                            <DataTemplate x:DataType="vmitems:AdminPostItemViewModel">
                                 <Button
-                                    AutomationProperties.Name="{x:Bind Title}"
+                                    AutomationProperties.Name="{x:Bind Post.Title}"
                                     Click="PostRow_Click"
                                     Style="{StaticResource MzListRowButtonStyle}"
                                     Tag="{x:Bind}">
@@ -94,24 +94,31 @@
                                                     FontSize="16"
                                                     Foreground="{ThemeResource MzTextTertiaryBrush}"
                                                     Glyph="{StaticResource MzGlyphImageOff}" />
-                                                <Image Source="{x:Bind local:PostsManagerView.ToThumbnail(HeroImageUrl)}" Stretch="UniformToFill" />
+                                                <Image Source="{x:Bind local:PostsManagerView.ToThumbnail(Post.HeroImageUrl)}" Stretch="UniformToFill" />
                                             </Grid>
                                         </Border>
                                         <StackPanel
                                             Grid.Column="1"
                                             VerticalAlignment="Center"
                                             Spacing="4">
-                                            <ContentControl
-                                                Content="{x:Bind local:PostsManagerView.StatusText(IsPublished)}"
-                                                Style="{x:Bind local:PostsManagerView.StatusStyle(IsPublished)}"
-                                                Visibility="{x:Bind local:PostsManagerView.HasStatus(IsPublished)}" />
-                                            <TextBlock Style="{StaticResource MzRowTitleTextStyle}" Text="{x:Bind Title}" />
-                                            <TextBlock Style="{StaticResource MzMetaTextStyle}" Text="{x:Bind local:PostsManagerView.FormatSubtitle(RouteName, Categories)}" />
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <ContentControl
+                                                    Content="{x:Bind local:PostsManagerView.StatusText(Post.IsPublished, IsScheduled), Mode=OneWay}"
+                                                    Style="{x:Bind local:PostsManagerView.StatusStyle(Post.IsPublished, IsScheduled), Mode=OneWay}"
+                                                    Visibility="{x:Bind local:PostsManagerView.HasStatus(Post.IsPublished)}" />
+                                                <TextBlock
+                                                    VerticalAlignment="Center"
+                                                    Style="{StaticResource MzMetaTextStyle}"
+                                                    Text="{x:Bind Countdown, Mode=OneWay}"
+                                                    Visibility="{x:Bind IsScheduled, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                            </StackPanel>
+                                            <TextBlock Style="{StaticResource MzRowTitleTextStyle}" Text="{x:Bind Post.Title}" />
+                                            <TextBlock Style="{StaticResource MzMetaTextStyle}" Text="{x:Bind local:PostsManagerView.FormatSubtitle(Post.RouteName, Post.Categories)}" />
                                         </StackPanel>
                                         <TextBlock
                                             Grid.Column="2"
                                             Style="{StaticResource MzCountTextStyle}"
-                                            Text="{x:Bind local:PostsManagerView.FormatDate(PublishedDate, LastModifiedDate)}" />
+                                            Text="{x:Bind local:PostsManagerView.FormatDate(Post.PublishedDate, Post.LastModifiedDate, IsScheduled), Mode=OneWay}" />
                                     </Grid>
                                 </Button>
                             </DataTemplate>

@@ -14,6 +14,7 @@ using MZikmund.Services.Navigation;
 using MZikmund.Services.Timers;
 using MZikmund.Shared.Blog;
 using MZikmund.Shared.Extensions;
+using MZikmund.ViewModels.Items;
 using MZikmund.Web.Core.Services;
 using Newtonsoft.Json;
 using Refit;
@@ -34,6 +35,8 @@ public partial class PostEditorViewModel : PageViewModel
 	private readonly ILogger<MediaBrowserDialogViewModel> _mediaBrowserLogger;
 	private DispatcherQueueTimer? _previewTimer;
 	private DispatcherQueueTimer? _draftTimer;
+	private DispatcherQueueTimer? _scheduleTimer;
+	private DateTimeOffset? _serverPublishedDate;
 	private bool _isPreviewDirty = true;
 	private bool _isDraftDirty;
 	private bool _isPopulating;
@@ -99,10 +102,20 @@ public partial class PostEditorViewModel : PageViewModel
 	// What the server last reported, so a failed save neither locks the toggle nor freezes the route.
 	[ObservableProperty]
 	[NotifyPropertyChangedFor(nameof(CanChangePublished))]
-	public partial bool IsLive { get; private set; }
+	[NotifyPropertyChangedFor(nameof(IsLive))]
+	public partial bool IsPublishedOnServer { get; private set; }
 
-	// The server has no way back from Published, so a live post must not offer one.
-	public bool CanChangePublished => !IsLive;
+	// The server has no way back from Published, so a live or scheduled post must not offer one.
+	public bool CanChangePublished => !IsPublishedOnServer;
+
+	[ObservableProperty]
+	[NotifyPropertyChangedFor(nameof(IsLive))]
+	public partial bool IsScheduled { get; private set; }
+
+	[ObservableProperty]
+	public partial string ScheduledCountdown { get; private set; } = "";
+
+	public bool IsLive => IsPublishedOnServer && !IsScheduled;
 
 	[ObservableProperty]
 	[NotifyPropertyChangedFor(nameof(PublishDateValue))]
@@ -164,7 +177,7 @@ public partial class PostEditorViewModel : PageViewModel
 	partial void OnPostTitleChanged(string oldValue, string newValue)
 	{
 		// Renaming a live post must not silently break its URL, nor overwrite a hand-tuned route.
-		if (!_isPopulating && !IsLive && PostRouteNames.FollowsTitle(PostRouteName, oldValue ?? ""))
+		if (!_isPopulating && !IsPublishedOnServer && PostRouteNames.FollowsTitle(PostRouteName, oldValue ?? ""))
 		{
 			PostRouteName = newValue.GenerateRouteName();
 		}
@@ -269,7 +282,7 @@ public partial class PostEditorViewModel : PageViewModel
 			// Kept before anything else can fail: without it the next save would create a duplicate post.
 			post.Id = savedPost.Id;
 			OnPropertyChanged(nameof(IsExistingPost));
-			IsLive = savedPost.IsPublished;
+			ApplyServerPublishState(savedPost.IsPublished, savedPost.PublishedDate);
 
 			// Edits typed while the request was in flight are not part of this save.
 			IsDirty = _editVersion != savedVersion;
@@ -298,7 +311,7 @@ public partial class PostEditorViewModel : PageViewModel
 
 			post.PreviewToken = refreshed.PreviewToken;
 			post.IsPublished = refreshed.IsPublished;
-			IsLive = refreshed.IsPublished;
+			ApplyServerPublishState(refreshed.IsPublished, refreshed.PublishedDate);
 			OpenPreviewCommand.NotifyCanExecuteChanged();
 
 			if (_editVersion == savedVersion)
@@ -420,6 +433,24 @@ public partial class PostEditorViewModel : PageViewModel
 
 		_draftTimer ??= CreateTimer(TimeSpan.FromSeconds(30), DraftTimerOnTick);
 		_draftTimer.Start();
+
+		_scheduleTimer ??= CreateTimer(TimeSpan.FromSeconds(1), ScheduleTimerOnTick);
+		_scheduleTimer.Start();
+	}
+
+	private void ScheduleTimerOnTick(DispatcherQueueTimer sender, object args) => UpdateSchedule(DateTimeOffset.UtcNow);
+
+	private void ApplyServerPublishState(bool isPublished, DateTimeOffset? publishedDate)
+	{
+		_serverPublishedDate = publishedDate;
+		IsPublishedOnServer = isPublished;
+		UpdateSchedule(DateTimeOffset.UtcNow);
+	}
+
+	public void UpdateSchedule(DateTimeOffset now)
+	{
+		IsScheduled = PostPublishDates.IsScheduled(IsPublishedOnServer, _serverPublishedDate, now);
+		ScheduledCountdown = IsScheduled ? PublishCountdownText.Format(_serverPublishedDate!.Value - now) : "";
 	}
 
 	private DispatcherQueueTimer CreateTimer(TimeSpan interval, Windows.Foundation.TypedEventHandler<DispatcherQueueTimer, object> tick)
@@ -547,6 +578,13 @@ public partial class PostEditorViewModel : PageViewModel
 			_draftTimer = null;
 		}
 
+		if (_scheduleTimer != null)
+		{
+			_scheduleTimer.Stop();
+			_scheduleTimer.Tick -= ScheduleTimerOnTick;
+			_scheduleTimer = null;
+		}
+
 		// The timer can be up to 30 seconds behind the last keystroke.
 		_ = WriteDraftBackupAsync();
 	}
@@ -566,7 +604,7 @@ public partial class PostEditorViewModel : PageViewModel
 			HeroImageUrl = post.HeroImageUrl;
 			HeroImageAlt = post.HeroImageAlt;
 			IsPublished = post.IsPublished;
-			IsLive = post.IsPublished;
+			ApplyServerPublishState(post.IsPublished, post.PublishedDate);
 
 			PostContent = post.Content;
 

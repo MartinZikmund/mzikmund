@@ -297,6 +297,27 @@
   <data name="PublishedLockedHint" xml:space="preserve">
     <value>Live posts can't be unpublished from the app.</value>
   </data>
+  <data name="Scheduled" xml:space="preserve">
+    <value>Scheduled</value>
+  </data>
+  <data name="ScheduledHint" xml:space="preserve">
+    <value>Change the date to reschedule. Scheduled posts can't go back to draft from the app.</value>
+  </data>
+  <data name="GoesLiveInFormat" xml:space="preserve">
+    <value>Goes live in {0}</value>
+  </data>
+  <data name="CountdownDays" xml:space="preserve">
+    <value>{0}d {1}h</value>
+  </data>
+  <data name="CountdownHours" xml:space="preserve">
+    <value>{0}h {1}m</value>
+  </data>
+  <data name="CountdownMinutes" xml:space="preserve">
+    <value>{0}m {1}s</value>
+  </data>
+  <data name="CountdownSeconds" xml:space="preserve">
+    <value>{0}s</value>
+  </data>
   <data name="PublishDate" xml:space="preserve">
     <value>Publish Date</value>
   </data>

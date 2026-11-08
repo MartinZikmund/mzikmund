@@ -87,7 +87,7 @@ Vertical slice architecture organized by feature domain:
 - `Controllers/`: Public endpoints (PostsController, CategoriesController, TagsController, SyndicationController)
 - `Controllers/Admin/`: Admin endpoints with `[Authorize(Policy = "AdminPolicy")]` (PostsAdminController, CategoriesAdminController, TagsAdminController, FilesAdminController, ImagesAdminController)
 
-**Data layer entities**: `PostEntity`, `CategoryEntity`, `TagEntity`, `PostCategoryEntity`, `PostTagEntity`, `PostRevisionEntity`. Post statuses: `Draft`, `Published`, `Deleted`. EF Core Fluent API configurations in `Entities/Configurations/`.
+**Data layer entities**: `PostEntity`, `CategoryEntity`, `TagEntity`, `PostCategoryEntity`, `PostTagEntity`, `PostRevisionEntity`. Post statuses: `Draft`, `Published`, `Deleted`. A `Published` post with a future `PublishedDate` is scheduled: public queries hide it through `IsPublishedAndVisible` until the date passes, with no background job involved. EF Core Fluent API configurations in `Entities/Configurations/`.
 
 **Key services**: `IMarkdownConverter` (Markdig), `IPostContentProcessor` (image optimization, link handling), `IFeedGenerator` (RSS/Atom/OPML via `Syndication/`), `IBlobStorage` (Azure Blob Storage), `ICache` (in-memory), `IDateProvider` (testable DateTime abstraction).
 

@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using Microsoft.UI.Dispatching;
 using MZikmund.Api.Client;
 using MZikmund.DataContracts.Blog;
 using MZikmund.Extensions;
@@ -7,6 +8,8 @@ using MZikmund.Services.Account;
 using MZikmund.Services.Dialogs;
 using MZikmund.Services.Localization;
 using MZikmund.Services.Navigation;
+using MZikmund.Services.Timers;
+using MZikmund.ViewModels.Items;
 
 namespace MZikmund.ViewModels.Admin;
 
@@ -15,25 +18,29 @@ public partial class PostsManagerViewModel : PageViewModel
 	private readonly IDialogService _dialogService;
 	private readonly INavigationService _navigationService;
 	private readonly IMZikmundApi _api;
+	private readonly ITimerFactory _timerFactory;
 	private readonly ILogger<PostsManagerViewModel> _logger;
-	private readonly List<PostListItem> _allPosts = new();
+	private readonly List<AdminPostItemViewModel> _allPosts = new();
+	private DispatcherQueueTimer? _scheduleTimer;
 	private int _loadGeneration;
 
 	public PostsManagerViewModel(
 		IMZikmundApi api,
 		IDialogService dialogService,
 		INavigationService navigationService,
+		ITimerFactory timerFactory,
 		ILogger<PostsManagerViewModel> logger)
 	{
 		_dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
 		_navigationService = navigationService;
 		_api = api ?? throw new ArgumentNullException(nameof(api));
+		_timerFactory = timerFactory;
 		_logger = logger;
 	}
 
 	public override string Title => Localizer.Instance.GetString("Posts");
 
-	public ObservableCollection<PostListItem> VisiblePosts { get; } = new();
+	public ObservableCollection<AdminPostItemViewModel> VisiblePosts { get; } = new();
 
 	[ObservableProperty]
 	public partial string SearchText { get; set; } = "";
@@ -97,7 +104,34 @@ public partial class PostsManagerViewModel : PageViewModel
 	public override async void ViewLoaded()
 	{
 		base.ViewLoaded();
+
+		if (_scheduleTimer is null)
+		{
+			_scheduleTimer = _timerFactory.CreateTimer();
+			_scheduleTimer.Interval = TimeSpan.FromSeconds(1);
+			_scheduleTimer.Tick += (_, _) => UpdateSchedules(DateTimeOffset.UtcNow);
+		}
+
+		_scheduleTimer.Start();
 		await RefreshCommand.ExecuteAsync(null);
+	}
+
+	public override void ViewUnloaded()
+	{
+		base.ViewUnloaded();
+		_scheduleTimer?.Stop();
+	}
+
+	// A row only ever leaves Scheduled, so the settled ones need no work.
+	public void UpdateSchedules(DateTimeOffset now)
+	{
+		foreach (var post in _allPosts)
+		{
+			if (post.IsScheduled)
+			{
+				post.UpdateSchedule(now);
+			}
+		}
 	}
 
 	[RelayCommand]
@@ -146,7 +180,8 @@ public partial class PostsManagerViewModel : PageViewModel
 
 		if (generation == _loadGeneration && response.Content is { } page)
 		{
-			_allPosts.AddRange(page.Data);
+			var now = DateTimeOffset.UtcNow;
+			_allPosts.AddRange(page.Data.Select(post => new AdminPostItemViewModel(post, now)));
 			TotalCount = page.TotalCount;
 			TotalPages = page.PageSize > 0 ? (int)Math.Ceiling((double)page.TotalCount / page.PageSize) : 1;
 			CurrentPage = page.PageNumber;
@@ -194,8 +229,8 @@ public partial class PostsManagerViewModel : PageViewModel
 		var matches = string.IsNullOrEmpty(query) ?
 			_allPosts :
 			_allPosts.Where(p =>
-				p.Title.Contains(query, StringComparison.CurrentCultureIgnoreCase) ||
-				p.RouteName.Contains(query, StringComparison.OrdinalIgnoreCase));
+				p.Post.Title.Contains(query, StringComparison.CurrentCultureIgnoreCase) ||
+				p.Post.RouteName.Contains(query, StringComparison.OrdinalIgnoreCase));
 
 		VisiblePosts.Clear();
 		foreach (var post in matches)

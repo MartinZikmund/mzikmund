@@ -10,4 +10,10 @@ public static class PostPublishDates
 		var local = DateTime.SpecifyKind(date.Date.Add(time), DateTimeKind.Unspecified);
 		return new DateTimeOffset(local, zone.GetUtcOffset(local));
 	}
+
+	/// <summary>
+	/// The server reports such a post as published, but it stays hidden until its date passes.
+	/// </summary>
+	public static bool IsScheduled(bool? isPublished, DateTimeOffset? publishedDate, DateTimeOffset now) =>
+		isPublished == true && publishedDate > now;
 }

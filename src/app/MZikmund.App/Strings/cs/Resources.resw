@@ -240,6 +240,27 @@
   <data name="PublishedLockedHint" xml:space="preserve">
     <value>Publikované příspěvky nelze z aplikace vrátit do konceptu.</value>
   </data>
+  <data name="Scheduled" xml:space="preserve">
+    <value>Naplánováno</value>
+  </data>
+  <data name="ScheduledHint" xml:space="preserve">
+    <value>Termín změníte úpravou data. Naplánované příspěvky nelze z aplikace vrátit do konceptu.</value>
+  </data>
+  <data name="GoesLiveInFormat" xml:space="preserve">
+    <value>Publikace za {0}</value>
+  </data>
+  <data name="CountdownDays" xml:space="preserve">
+    <value>{0} d {1} h</value>
+  </data>
+  <data name="CountdownHours" xml:space="preserve">
+    <value>{0} h {1} min</value>
+  </data>
+  <data name="CountdownMinutes" xml:space="preserve">
+    <value>{0} min {1} s</value>
+  </data>
+  <data name="CountdownSeconds" xml:space="preserve">
+    <value>{0} s</value>
+  </data>
   <data name="PublishDate" xml:space="preserve">
     <value>Datum publikace</value>
   </data>

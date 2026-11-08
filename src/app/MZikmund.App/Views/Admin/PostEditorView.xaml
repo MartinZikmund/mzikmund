@@ -176,6 +176,19 @@
                                 Text="{xaml:Localize Key=PublishedLockedHint}"
                                 TextWrapping="WrapWholeWords"
                                 Visibility="{x:Bind ViewModel.IsLive, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                            <StackPanel Spacing="4" Visibility="{x:Bind ViewModel.IsScheduled, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <ContentControl Content="{xaml:Localize Key=Scheduled}" Style="{StaticResource MzBadgeAccentStyle}" />
+                                    <TextBlock
+                                        VerticalAlignment="Center"
+                                        Style="{StaticResource MzMetaTextStyle}"
+                                        Text="{x:Bind ViewModel.ScheduledCountdown, Mode=OneWay}" />
+                                </StackPanel>
+                                <TextBlock
+                                    Style="{StaticResource MzMetaTextStyle}"
+                                    Text="{xaml:Localize Key=ScheduledHint}"
+                                    TextWrapping="WrapWholeWords" />
+                            </StackPanel>
                         </StackPanel>
 
                         <StackPanel Spacing="8">
