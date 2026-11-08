@@ -208,11 +208,8 @@ public partial class PostEditorViewModel : PageViewModel
 		_editVersion++;
 	}
 
-	private DateTimeOffset GetCombinedPublishDateTime()
-	{
-		var publishDateTime = PublishDate.Date.Add(PublishTime);
-		return new DateTimeOffset(publishDateTime, PublishDate.Offset);
-	}
+	private DateTimeOffset GetCombinedPublishDateTime() =>
+		PostPublishDates.Combine(PublishDate.Date, PublishTime, TimeZoneInfo.Local);
 
 	private Tag[] ParseTags() =>
 		Tags.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
