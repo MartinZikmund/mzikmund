@@ -14,6 +14,7 @@ public partial class SettingsViewModel : PageViewModel
 	private readonly IAppPreferences _appPreferences;
 	private readonly IThemeManager _themeManager;
 	private readonly IUserService _userService;
+	private SynchronizationContext? _uiContext;
 
 	public SettingsViewModel(IAppPreferences appPreferences, IThemeManager themeManager, IUserService userService)
 	{
@@ -61,7 +62,28 @@ public partial class SettingsViewModel : PageViewModel
 	public override void ViewLoaded()
 	{
 		base.ViewLoaded();
+		_uiContext = SynchronizationContext.Current;
+		_userService.AuthenticationChanged += OnAuthenticationChanged;
 		OnPropertyChanged(nameof(AccountDescription));
+	}
+
+	public override void ViewUnloaded()
+	{
+		base.ViewUnloaded();
+		_userService.AuthenticationChanged -= OnAuthenticationChanged;
+	}
+
+	// A token refresh can finish away from the UI thread.
+	private void OnAuthenticationChanged(object? sender, EventArgs e)
+	{
+		if (_uiContext is null || _uiContext == SynchronizationContext.Current)
+		{
+			OnPropertyChanged(nameof(AccountDescription));
+		}
+		else
+		{
+			_uiContext.Post(_ => OnPropertyChanged(nameof(AccountDescription)), null);
+		}
 	}
 
 	[RelayCommand]
