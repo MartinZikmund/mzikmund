@@ -52,6 +52,47 @@
 		<Setter Property="Foreground" Value="{ThemeResource MzTextSecondaryBrush}" />
 	</Style>
 
+	<!--  A post's publishing state: the dot and tint read at a glance, the label keeps it clear without color.  -->
+	<Style x:Key="MzBadgeStatusBaseStyle" TargetType="ContentControl" BasedOn="{StaticResource MzBadgeBaseStyle}">
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="ContentControl">
+					<Border Background="{TemplateBinding Background}" CornerRadius="{TemplateBinding CornerRadius}">
+						<StackPanel
+							Padding="{TemplateBinding Padding}"
+							Orientation="Horizontal"
+							Spacing="6">
+							<Ellipse
+								Width="8"
+								Height="8"
+								VerticalAlignment="Center"
+								Fill="{TemplateBinding Foreground}" />
+							<ContentPresenter
+								VerticalAlignment="Center"
+								Content="{TemplateBinding Content}"
+								ContentTemplate="{TemplateBinding ContentTemplate}" />
+						</StackPanel>
+					</Border>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+
+	<Style x:Key="MzBadgeStatusLiveStyle" TargetType="ContentControl" BasedOn="{StaticResource MzBadgeStatusBaseStyle}">
+		<Setter Property="Background" Value="{ThemeResource MzStatusLiveBackgroundBrush}" />
+		<Setter Property="Foreground" Value="{ThemeResource MzStatusLiveBrush}" />
+	</Style>
+
+	<Style x:Key="MzBadgeStatusScheduledStyle" TargetType="ContentControl" BasedOn="{StaticResource MzBadgeStatusBaseStyle}">
+		<Setter Property="Background" Value="{ThemeResource MzStatusScheduledBackgroundBrush}" />
+		<Setter Property="Foreground" Value="{ThemeResource MzStatusScheduledBrush}" />
+	</Style>
+
+	<Style x:Key="MzBadgeStatusDraftStyle" TargetType="ContentControl" BasedOn="{StaticResource MzBadgeStatusBaseStyle}">
+		<Setter Property="Background" Value="{ThemeResource MzStatusDraftBackgroundBrush}" />
+		<Setter Property="Foreground" Value="{ThemeResource MzStatusDraftBrush}" />
+	</Style>
+
 	<!--  Over photography: theme-invariant scrim and white text, or half the archive is illegible.  -->
 	<Style x:Key="MzBadgeOnPhotoStyle" TargetType="ContentControl" BasedOn="{StaticResource MzBadgeBaseStyle}">
 		<Setter Property="Background" Value="{ThemeResource MzScrimBrush}" />

@@ -35,6 +35,14 @@
 			<SolidColorBrush x:Key="MzAccentSubtleStrongBrush" Color="#290078D4" />
 			<SolidColorBrush x:Key="MzShimmerBrush" Color="#0A000000" />
 
+			<!--  A post's publishing state as a traffic light, in Fluent's status colors.  -->
+			<SolidColorBrush x:Key="MzStatusLiveBrush" Color="#FF0F7B0F" />
+			<SolidColorBrush x:Key="MzStatusLiveBackgroundBrush" Color="#FFDFF6DD" />
+			<SolidColorBrush x:Key="MzStatusScheduledBrush" Color="#FF9D5D00" />
+			<SolidColorBrush x:Key="MzStatusScheduledBackgroundBrush" Color="#FFFFF4CE" />
+			<SolidColorBrush x:Key="MzStatusDraftBrush" Color="#FFC42B1C" />
+			<SolidColorBrush x:Key="MzStatusDraftBackgroundBrush" Color="#FFFDE7E9" />
+
 			<!--  Theme-invariant: badges over photography must survive any upload.  -->
 			<SolidColorBrush x:Key="MzScrimBrush" Color="#B8000000" />
 			<SolidColorBrush x:Key="MzOnScrimTextBrush" Color="#FFFFFFFF" />
@@ -144,6 +152,14 @@
 			<SolidColorBrush x:Key="MzAccentSubtleStrongBrush" Color="#3376B9ED" />
 			<SolidColorBrush x:Key="MzShimmerBrush" Color="#0DFFFFFF" />
 
+			<!--  A post's publishing state as a traffic light, in Fluent's status colors.  -->
+			<SolidColorBrush x:Key="MzStatusLiveBrush" Color="#FF6CCB5F" />
+			<SolidColorBrush x:Key="MzStatusLiveBackgroundBrush" Color="#FF393D1B" />
+			<SolidColorBrush x:Key="MzStatusScheduledBrush" Color="#FFFCE100" />
+			<SolidColorBrush x:Key="MzStatusScheduledBackgroundBrush" Color="#FF433519" />
+			<SolidColorBrush x:Key="MzStatusDraftBrush" Color="#FFFF99A4" />
+			<SolidColorBrush x:Key="MzStatusDraftBackgroundBrush" Color="#FF442726" />
+
 			<SolidColorBrush x:Key="MzScrimBrush" Color="#B8000000" />
 			<SolidColorBrush x:Key="MzOnScrimTextBrush" Color="#FFFFFFFF" />
 			<SolidColorBrush x:Key="MzVideoScrimBrush" Color="#40000000" />
@@ -249,6 +265,14 @@
 			<StaticResource x:Key="MzAccentSubtleBrush" ResourceKey="SystemColorWindowColorBrush" />
 			<StaticResource x:Key="MzAccentSubtleStrongBrush" ResourceKey="SystemColorWindowColorBrush" />
 			<StaticResource x:Key="MzShimmerBrush" ResourceKey="SystemColorWindowColorBrush" />
+
+			<!--  System colors carry no state here, so the badge label does.  -->
+			<StaticResource x:Key="MzStatusLiveBrush" ResourceKey="SystemColorWindowTextColorBrush" />
+			<StaticResource x:Key="MzStatusLiveBackgroundBrush" ResourceKey="SystemColorWindowColorBrush" />
+			<StaticResource x:Key="MzStatusScheduledBrush" ResourceKey="SystemColorWindowTextColorBrush" />
+			<StaticResource x:Key="MzStatusScheduledBackgroundBrush" ResourceKey="SystemColorWindowColorBrush" />
+			<StaticResource x:Key="MzStatusDraftBrush" ResourceKey="SystemColorWindowTextColorBrush" />
+			<StaticResource x:Key="MzStatusDraftBackgroundBrush" ResourceKey="SystemColorWindowColorBrush" />
 
 			<StaticResource x:Key="MzScrimBrush" ResourceKey="SystemColorWindowColorBrush" />
 			<StaticResource x:Key="MzOnScrimTextBrush" ResourceKey="SystemColorWindowTextColorBrush" />

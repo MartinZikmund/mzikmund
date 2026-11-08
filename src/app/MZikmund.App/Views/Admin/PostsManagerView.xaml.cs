@@ -26,7 +26,7 @@ public sealed partial class PostsManagerView : PostsManagerViewBase
 		Localizer.Instance.GetString(isScheduled ? "Scheduled" : isPublished == true ? "Published" : "Draft");
 
 	public static Style StatusStyle(bool? isPublished, bool isScheduled) =>
-		(Style)Application.Current.Resources[isScheduled ? "MzBadgeAccentStyle" : isPublished == true ? "MzBadgeSubtleStyle" : "MzBadgeNeutralStyle"];
+		(Style)Application.Current.Resources[isScheduled ? "MzBadgeStatusScheduledStyle" : isPublished == true ? "MzBadgeStatusLiveStyle" : "MzBadgeStatusDraftStyle"];
 
 	public static string FormatSubtitle(string routeName, Category[] categories) =>
 		categories is { Length: > 0 } ?
