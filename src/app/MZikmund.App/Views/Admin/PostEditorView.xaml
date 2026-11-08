@@ -165,10 +165,18 @@
                     <StackPanel Padding="16" Spacing="16">
                         <TextBlock Style="{StaticResource MzSectionHeadingTextStyle}" Text="{xaml:Localize Key=PostDetails}" />
 
-                        <ToggleSwitch
-                            AutomationProperties.AutomationId="EditorPublished"
-                            Header="{xaml:Localize Key=Published}"
-                            IsOn="{x:Bind ViewModel.IsPublished, Mode=TwoWay}" />
+                        <StackPanel Spacing="4">
+                            <ToggleSwitch
+                                AutomationProperties.AutomationId="EditorPublished"
+                                Header="{xaml:Localize Key=Published}"
+                                IsEnabled="{x:Bind ViewModel.CanChangePublished, Mode=OneWay}"
+                                IsOn="{x:Bind ViewModel.IsPublished, Mode=TwoWay}" />
+                            <TextBlock
+                                Style="{StaticResource MzMetaTextStyle}"
+                                Text="{xaml:Localize Key=PublishedLockedHint}"
+                                TextWrapping="WrapWholeWords"
+                                Visibility="{x:Bind ViewModel.IsLive, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                        </StackPanel>
 
                         <StackPanel Spacing="8">
                             <CalendarDatePicker

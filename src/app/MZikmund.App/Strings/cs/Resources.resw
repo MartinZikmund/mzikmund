@@ -237,6 +237,9 @@
   <data name="Published" xml:space="preserve">
     <value>Publikováno</value>
   </data>
+  <data name="PublishedLockedHint" xml:space="preserve">
+    <value>Publikované příspěvky nelze z aplikace vrátit do konceptu.</value>
+  </data>
   <data name="PublishDate" xml:space="preserve">
     <value>Datum publikace</value>
   </data>

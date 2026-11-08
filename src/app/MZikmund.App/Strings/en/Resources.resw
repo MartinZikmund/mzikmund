@@ -294,6 +294,9 @@
   <data name="Published" xml:space="preserve">
     <value>Published</value>
   </data>
+  <data name="PublishedLockedHint" xml:space="preserve">
+    <value>Live posts can't be unpublished from the app.</value>
+  </data>
   <data name="PublishDate" xml:space="preserve">
     <value>Publish Date</value>
   </data>

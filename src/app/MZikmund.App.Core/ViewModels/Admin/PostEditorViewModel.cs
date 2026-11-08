@@ -96,6 +96,14 @@ public partial class PostEditorViewModel : PageViewModel
 	[ObservableProperty]
 	public partial bool IsPublished { get; set; }
 
+	// What the server last reported, so a failed save neither locks the toggle nor freezes the route.
+	[ObservableProperty]
+	[NotifyPropertyChangedFor(nameof(CanChangePublished))]
+	public partial bool IsLive { get; private set; }
+
+	// The server has no way back from Published, so a live post must not offer one.
+	public bool CanChangePublished => !IsLive;
+
 	[ObservableProperty]
 	[NotifyPropertyChangedFor(nameof(PublishDateValue))]
 	public partial DateTimeOffset PublishDate { get; set; } = DateTimeOffset.Now;
@@ -156,7 +164,7 @@ public partial class PostEditorViewModel : PageViewModel
 	partial void OnPostTitleChanged(string oldValue, string newValue)
 	{
 		// Renaming a live post must not silently break its URL, nor overwrite a hand-tuned route.
-		if (!_isPopulating && Post is not { IsPublished: true } && PostRouteNames.FollowsTitle(PostRouteName, oldValue ?? ""))
+		if (!_isPopulating && !IsLive && PostRouteNames.FollowsTitle(PostRouteName, oldValue ?? ""))
 		{
 			PostRouteName = newValue.GenerateRouteName();
 		}
@@ -264,6 +272,7 @@ public partial class PostEditorViewModel : PageViewModel
 			// Kept before anything else can fail: without it the next save would create a duplicate post.
 			post.Id = savedPost.Id;
 			OnPropertyChanged(nameof(IsExistingPost));
+			IsLive = savedPost.IsPublished;
 
 			// Edits typed while the request was in flight are not part of this save.
 			IsDirty = _editVersion != savedVersion;
@@ -292,12 +301,14 @@ public partial class PostEditorViewModel : PageViewModel
 
 			post.PreviewToken = refreshed.PreviewToken;
 			post.IsPublished = refreshed.IsPublished;
+			IsLive = refreshed.IsPublished;
 			OpenPreviewCommand.NotifyCanExecuteChanged();
 
-			if (_editVersion == savedVersion && PostRouteName != refreshed.RouteName)
+			if (_editVersion == savedVersion)
 			{
 				_isPopulating = true;
 				PostRouteName = refreshed.RouteName;
+				IsPublished = refreshed.IsPublished;
 				_isPopulating = false;
 			}
 		}
@@ -558,6 +569,7 @@ public partial class PostEditorViewModel : PageViewModel
 			HeroImageUrl = post.HeroImageUrl;
 			HeroImageAlt = post.HeroImageAlt;
 			IsPublished = post.IsPublished;
+			IsLive = post.IsPublished;
 
 			PostContent = post.Content;
 
