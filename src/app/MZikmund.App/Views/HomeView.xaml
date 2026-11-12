@@ -1,0 +1,184 @@
+<local:HomeViewBase
+    x:Class="MZikmund.Views.HomeView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:extensions="using:MZikmund.Extensions.Xaml"
+    xmlns:local="using:MZikmund.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vmitems="using:MZikmund.ViewModels.Items"
+    Background="{ThemeResource MzBgBaseBrush}"
+    NavigationCacheMode="Enabled"
+    mc:Ignorable="d">
+
+    <ScrollViewer>
+        <StackPanel>
+            <!--  Hero on the page ground, with the accent glow kept off to the top right, away from the text.  -->
+            <Grid x:Name="Hero" Padding="{StaticResource MzPagePaddingCompact}" Background="{ThemeResource MzHeroGlowBrush}">
+                <StackPanel
+                    Padding="0,48,0,48"
+                    Spacing="16"
+                    Style="{StaticResource MzPageContainerStackStyle}">
+                    <TextBlock
+                        Foreground="{ThemeResource MzAccentTextBrush}"
+                        Style="{StaticResource MzCaptionTextStyle}"
+                        Text="{extensions:Localize Key=HeroEyebrow}" />
+                    <TextBlock
+                        x:Name="HeroTitle"
+                        Style="{StaticResource MzDisplayTextStyle}"
+                        Text="Martin Zikmund" />
+                    <Border
+                        Width="64"
+                        Height="3"
+                        HorizontalAlignment="Left"
+                        Background="{ThemeResource MzAccentFillBrush}"
+                        CornerRadius="2" />
+                    <TextBlock Style="{StaticResource MzLeadTextStyle}" Text="{extensions:Localize Key=HeroLead}" />
+                    <StackPanel
+                        Margin="0,8,0,0"
+                        Orientation="Horizontal"
+                        Spacing="12">
+                        <Button
+                            AutomationProperties.AutomationId="HomeReadBlog"
+                            Command="{x:Bind ViewModel.BrowseBlogCommand}"
+                            Content="{extensions:Localize Key=ReadTheBlog}"
+                            Style="{StaticResource MzAccentButtonLargeStyle}" />
+                        <Button
+                            AutomationProperties.AutomationId="HomeGitHub"
+                            Command="{x:Bind ViewModel.OpenGitHubCommand}"
+                            Style="{StaticResource MzStandardButtonLargeStyle}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <PathIcon VerticalAlignment="Center" Data="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8" />
+                                <TextBlock Text="GitHub" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                    <TextBlock
+                        Margin="0,8,0,0"
+                        Style="{StaticResource MzMetaTextStyle}"
+                        Text=".NET  ·  Uno Platform  ·  WinUI  ·  C#" />
+                </StackPanel>
+            </Grid>
+
+            <Grid x:Name="Sections" Padding="{StaticResource MzPagePaddingCompact}">
+                <StackPanel
+                    Padding="0,0,0,48"
+                    Spacing="48"
+                    Style="{StaticResource MzPageContainerStackStyle}">
+                    <StackPanel Spacing="24">
+                        <Grid ColumnSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Spacing="4">
+                                <TextBlock Style="{StaticResource MzSectionHeadingTextStyle}" Text="{extensions:Localize Key=LatestPosts}" />
+                                <TextBlock
+                                    Foreground="{ThemeResource MzTextSecondaryBrush}"
+                                    Style="{StaticResource MzBodyTextStyle}"
+                                    Text="{extensions:Localize Key=LatestPostsSubtitle}" />
+                            </StackPanel>
+                            <Button
+                                Grid.Column="1"
+                                VerticalAlignment="Bottom"
+                                Command="{x:Bind ViewModel.BrowseBlogCommand}"
+                                Content="{extensions:Localize Key=ViewAllPosts}"
+                                Style="{StaticResource MzStandardButtonStyle}" />
+                        </Grid>
+
+                        <ItemsRepeater ItemsSource="{x:Bind ViewModel.LatestPosts}">
+                            <ItemsRepeater.Layout>
+                                <UniformGridLayout
+                                    ItemsStretch="Fill"
+                                    MinColumnSpacing="24"
+                                    MinItemWidth="320"
+                                    MinRowSpacing="24" />
+                            </ItemsRepeater.Layout>
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate x:DataType="vmitems:PostListItemViewModel">
+                                    <Button
+                                        AutomationProperties.Name="{Binding CardTitle}"
+                                        Click="PostCard_Click"
+                                        Style="{StaticResource MzContentCardStyle}"
+                                        Tag="{extensions:Localize Key=ReadMore}" />
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
+
+                        <ProgressRing
+                            HorizontalAlignment="Center"
+                            IsActive="{x:Bind ViewModel.IsLoadingPosts, Mode=OneWay}"
+                            Visibility="{x:Bind ViewModel.IsLoadingPosts, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+                        <StackPanel Style="{StaticResource MzEmptyStatePanelStyle}" Visibility="{x:Bind ViewModel.HasPostsError, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <FontIcon Glyph="{StaticResource MzGlyphWarning}" Style="{StaticResource MzEmptyStateIconStyle}" />
+                            <TextBlock Style="{StaticResource MzEmptyStateTitleTextStyle}" Text="{extensions:Localize Key=CouldNotLoadData}" />
+                            <Button
+                                HorizontalAlignment="Center"
+                                Command="{x:Bind ViewModel.LoadPostsCommand}"
+                                Content="{extensions:Localize Key=Retry}"
+                                Style="{StaticResource MzStandardButtonStyle}" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Spacing="24" Visibility="{x:Bind ViewModel.HasVideos, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Grid ColumnSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Spacing="4">
+                                <TextBlock Style="{StaticResource MzSectionHeadingTextStyle}" Text="{extensions:Localize Key=LatestVideos}" />
+                                <TextBlock
+                                    Foreground="{ThemeResource MzTextSecondaryBrush}"
+                                    Style="{StaticResource MzBodyTextStyle}"
+                                    Text="{extensions:Localize Key=LatestVideosSubtitle}" />
+                            </StackPanel>
+                            <Button
+                                Grid.Column="1"
+                                VerticalAlignment="Bottom"
+                                Command="{x:Bind ViewModel.BrowseVideosCommand}"
+                                Content="{extensions:Localize Key=ViewAllVideos}"
+                                Style="{StaticResource MzStandardButtonStyle}" />
+                        </Grid>
+
+                        <ItemsRepeater ItemsSource="{x:Bind ViewModel.LatestVideos}">
+                            <ItemsRepeater.Layout>
+                                <UniformGridLayout
+                                    ItemsStretch="Fill"
+                                    MinColumnSpacing="24"
+                                    MinItemWidth="320"
+                                    MinRowSpacing="24" />
+                            </ItemsRepeater.Layout>
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate x:DataType="vmitems:VideoCardViewModel">
+                                    <Button
+                                        AutomationProperties.Name="{Binding CardTitle}"
+                                        Click="VideoCard_Click"
+                                        Style="{StaticResource MzContentCardStyle}"
+                                        Tag="{extensions:Localize Key=WatchOnYouTube}" />
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="MzTypeScale">
+                <VisualState x:Name="MzTypeScaleWide">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="768" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="HeroTitle.Style" Value="{StaticResource MzDisplayWideTextStyle}" />
+                        <Setter Target="Hero.Padding" Value="{StaticResource MzPagePaddingWide}" />
+                        <Setter Target="Sections.Padding" Value="{StaticResource MzPagePaddingWide}" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="MzTypeScaleCompact" />
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+    </ScrollViewer>
+</local:HomeViewBase>

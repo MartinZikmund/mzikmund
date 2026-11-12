@@ -15,13 +15,8 @@ public sealed partial class MediaBrowserDialog : MediaBrowserDialogBase
 		InitializeComponent();
 	}
 
-	private void FileCard_Tapped(object sender, TappedRoutedEventArgs e)
-	{
-		if (sender is Grid grid && grid.Tag is StorageItemInfoViewModel file)
-		{
-			ViewModel!.SelectedFile = file;
-		}
-	}
+	private void FilesGrid_SelectionChanged(object sender, SelectionChangedEventArgs e) =>
+		ViewModel!.SelectedFile = FilesGrid.SelectedItem as StorageItemInfoViewModel;
 }
 
 public abstract partial class MediaBrowserDialogBase : DialogBase<MediaBrowserDialogViewModel>

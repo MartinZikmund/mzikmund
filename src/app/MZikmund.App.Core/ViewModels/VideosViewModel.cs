@@ -1,52 +1,52 @@
 using System.Collections.ObjectModel;
-using System.Windows.Input;
 using MZikmund.Api.Client;
-using MZikmund.DataContracts.Videos;
-using MZikmund.Services.Loading;
 using MZikmund.Services.Localization;
+using MZikmund.ViewModels.Items;
+using Launcher = Windows.System.Launcher;
 
 namespace MZikmund.ViewModels;
 
-public class VideosViewModel : PageViewModel
+public partial class VideosViewModel : PageViewModel
 {
 	private readonly IMZikmundApi _api;
-	private readonly ILoadingIndicator _loadingIndicator;
 	private readonly ILogger<VideosViewModel> _logger;
-	private bool _isLoading;
 
-	public VideosViewModel(
-		IMZikmundApi api,
-		ILoadingIndicator loadingIndicator,
-		ILogger<VideosViewModel> logger)
+	public VideosViewModel(IMZikmundApi api, ILogger<VideosViewModel> logger)
 	{
 		_api = api ?? throw new ArgumentNullException(nameof(api));
-		_loadingIndicator = loadingIndicator;
 		_logger = logger;
-		RefreshCommand = new AsyncRelayCommand(RefreshAsync);
 	}
 
-	public override string Title => Localizer.Instance.GetString("Videos") ?? "Videos";
+	public override string Title => Localizer.Instance.GetString("Videos");
 
-	public ObservableCollection<VideoDto> Videos { get; } = new();
+	public string Lead => Localizer.Instance.GetString("VideosLead");
 
-	public bool IsLoading
-	{
-		get => _isLoading;
-		private set => SetProperty(ref _isLoading, value);
-	}
+	public ObservableCollection<VideoCardViewModel> Videos { get; } = new();
 
-	public ICommand RefreshCommand { get; }
+	[ObservableProperty]
+	[NotifyPropertyChangedFor(nameof(IsEmpty))]
+	public partial bool IsLoading { get; set; }
+
+	[ObservableProperty]
+	[NotifyPropertyChangedFor(nameof(IsEmpty))]
+	public partial bool HasError { get; set; }
+
+	public bool IsEmpty => !IsLoading && !HasError && Videos.Count == 0;
 
 	public override async void ViewNavigatedTo(object? parameter)
 	{
 		base.ViewNavigatedTo(parameter);
-		await LoadVideosAsync();
+		if (Videos.Count == 0 && !IsLoading)
+		{
+			await RefreshAsync();
+		}
 	}
 
-	private async Task LoadVideosAsync()
+	[RelayCommand]
+	private async Task RefreshAsync()
 	{
-		using var _ = _loadingIndicator.BeginLoading();
 		IsLoading = true;
+		HasError = false;
 		try
 		{
 			var response = await _api.GetVideosAsync();
@@ -55,17 +55,19 @@ public class VideosViewModel : PageViewModel
 				Videos.Clear();
 				foreach (var video in response.Content)
 				{
-					Videos.Add(video);
+					Videos.Add(new VideoCardViewModel(video));
 				}
 			}
 			else
 			{
 				_logger.LogWarning("Failed to load videos. Status: {StatusCode}", response.StatusCode);
+				HasError = Videos.Count == 0;
 			}
 		}
 		catch (Exception ex)
 		{
 			_logger.LogError(ex, "Failed to load videos");
+			HasError = Videos.Count == 0;
 		}
 		finally
 		{
@@ -73,8 +75,11 @@ public class VideosViewModel : PageViewModel
 		}
 	}
 
-	private async Task RefreshAsync()
+	public static async Task OpenVideoAsync(VideoCardViewModel video)
 	{
-		await LoadVideosAsync();
+		if (video.Url is { } url)
+		{
+			await Launcher.LaunchUriAsync(url);
+		}
 	}
 }

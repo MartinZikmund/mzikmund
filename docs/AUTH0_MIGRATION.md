@@ -45,7 +45,8 @@ The application has been migrated from Microsoft Entra ID to Auth0 for authentic
 4. Configure:
    - **Name**: MZikmund App
    - **Allowed Callback URLs**: 
-     - `https://localhost/callback` (Windows - required for OAuth2Manager)
+     - `mzikmund-app://oauthcallback` (Windows - OAuth2Manager)
+     - `http://127.0.0.1:51842/callback` (Desktop - loopback)
      - `dev.mzikmund.MZikmund.App://callback` (Android/iOS)
    - **Allowed Logout URLs**: 
      - `https://localhost/logout`
@@ -75,24 +76,34 @@ For production, set these as environment variables or in Azure App Configuration
 
 ### Uno Platform App
 
-Update `src/app/MZikmund.App.Core/Services/Account/AuthenticationConstants.cs`:
+Auth0 settings live in the `AuthConfig` section of `appsettings.json` / `appsettings.development.json`
+(`src/app/MZikmund.App/`, embedded at build time):
 
-```csharp
-public static class AuthenticationConstants
-{
-    public const string Domain = "your-tenant.auth0.com";
-    public const string ClientId = "your-native-app-client-id";
-    public const string Audience = "https://api.mzikmund.dev";
-    
-    public static string[] DefaultScopes { get; } = new string[]
-    {
-        "openid",
-        "profile",
-        "email",
-        "offline_access"
-    };
+```json
+"AuthConfig": {
+  "ClientId": "your-native-app-client-id",
+  "Domain": "your-tenant.auth0.com",
+  "Audience": "https://mzikmund.dev/api",
+  "DesktopCallbackPort": 51842
 }
 ```
+
+Only `ClientId` is required; the others default to the production tenant. Any value can be overridden
+at run time with a `MZIKMUND_`-prefixed environment variable, which wins over the embedded files:
+
+```powershell
+$env:MZIKMUND_AuthConfig__ClientId = "your-native-app-client-id"
+$env:MZIKMUND_AppConfig__ApiUrl = "https://localhost:7007/api"
+dotnet run -f net10.0-desktop
+```
+
+Redirect URIs to allow in the Auth0 Native application, per head:
+
+| Head | Allowed Callback URL |
+|---|---|
+| Windows (packaged, `OAuth2Manager`) | `mzikmund-app://oauthcallback` |
+| Desktop (Skia, loopback) | `http://127.0.0.1:51842/callback` (port = `DesktopCallbackPort`) |
+| Android / iOS / WASM (`WebAuthenticationBroker`) | the app's callback URI (`WebAuthenticationBroker.GetCurrentApplicationCallbackUri()`) |
 
 ## Testing Authentication
 
@@ -130,7 +141,7 @@ curl --request GET \
 ### Windows
 The Windows implementation uses the **OAuth2Manager API** via `WebAuthenticationBroker` which provides native OAuth2 support:
 - Automatically handles the OAuth flow with a native Windows dialog
-- Uses `https://localhost/callback` as the redirect URI
+- Uses `mzikmund-app://oauthcallback` as the redirect URI (protocol activation, packaged app)
 - Implements PKCE (Proof Key for Code Exchange) for enhanced security
 - No additional configuration needed beyond Auth0 settings
 

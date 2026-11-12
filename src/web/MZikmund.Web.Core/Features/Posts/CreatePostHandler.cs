@@ -56,6 +56,7 @@ public class CreatePostHandler : IRequestHandler<CreatePostCommand, Post>
 			PublishedDate = request.NewPost.IsPublished ? (request.NewPost.PublishedDate ?? _dateProvider.UtcNow) : request.NewPost.PublishedDate,
 			Status = request.NewPost.IsPublished ? PostStatus.Published : PostStatus.Draft,
 			HeroImageUrl = string.IsNullOrWhiteSpace(request.NewPost.HeroImageUrl) ? null : request.NewPost.HeroImageUrl, // TODO: Generate hero image from content via Dall-E
+			HeroImageAlt = string.IsNullOrWhiteSpace(request.NewPost.HeroImageAlt) ? null : request.NewPost.HeroImageAlt,
 			PreviewToken = Guid.NewGuid(),
 		};
 

@@ -1,0 +1,41 @@
+<Project Sdk="Uno.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0-desktop</TargetFramework>
+		<OutputType>Exe</OutputType>
+		<UnoSingleProject>true</UnoSingleProject>
+		<IsUnoHead>false</IsUnoHead>
+		<IsPackable>false</IsPackable>
+		<IsTestProject>true</IsTestProject>
+		<UnoDisableHotDesign>true</UnoDisableHotDesign>
+		<UnoDisableMCPSupport>true</UnoDisableMCPSupport>
+		<UnoFeatures>
+			Hosting;
+			HttpRefit;
+			Configuration;
+			Serialization;
+			Mvvm;
+			Localization;
+			ThemeService;
+		</UnoFeatures>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.NET.Test.Sdk" />
+		<PackageReference Include="Moq" />
+		<PackageReference Include="xunit" />
+		<PackageReference Include="xunit.runner.visualstudio">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Using Include="Xunit" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\MZikmund.App.Core\MZikmund.App.Core.csproj" />
+	</ItemGroup>
+
+</Project>

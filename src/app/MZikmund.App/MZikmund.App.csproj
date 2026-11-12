@@ -32,10 +32,8 @@
 			Mvvm;
 			Lottie;
 			Logging;
-			Navigation;
 			Localization;
 			ThemeService;
-			SkiaRenderer;
 			WebView;
 		</UnoFeatures>
 	</PropertyGroup>
@@ -51,10 +49,25 @@
 	<ItemGroup>
 		<EmbeddedResource Include="Templates\PostPreviewTemplate.html" />
 	</ItemGroup>
+
+	<!-- Uno globs Assets/** only on non-WinAppSdk heads, and the WinAppSdk glob is images-only. -->
 	<ItemGroup>
-	  <PackageReference Include="CommunityToolkit.WinUI.Converters" />
+		<Content Include="Assets\Fonts\*.ttf" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <PackageReference Include="System.Security.Cryptography.Xml" />
 	  <PackageReference Include="Tmds.DBus.Protocol" />
+	</ItemGroup>
+
+	<!--
+		Elevation shadows are Windows-only. CommunityToolkit.WinUI.Media is bound to
+		WindowsAppSDK + Win2D and fails to restore (NU1202) on the Uno TFMs, and Uno's
+		compositor has no CreateDropShadow. Other heads fall back to the paired 1px
+		stroke via the MzElevation attached property.
+	-->
+	<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
+	  <PackageReference Include="CommunityToolkit.WinUI.Media" />
 	</ItemGroup>
 
 	<ItemGroup>

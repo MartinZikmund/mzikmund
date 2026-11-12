@@ -1,24 +1,60 @@
-﻿using Humanizer;
+﻿using System.Globalization;
+using Humanizer;
+using Microsoft.UI.Xaml.Media.Imaging;
 using MZikmund.DataContracts.Blog;
 using MZikmund.Web.Core.Services;
 
 namespace MZikmund.ViewModels.Items;
 
-public sealed class PostListItemViewModel : ObservableObject
+public sealed class PostListItemViewModel : ObservableObject, ICardItem
 {
-	private readonly IMarkdownConverter _markdownConverter;
+	private ImageSource? _cardImage;
 
 	public PostListItemViewModel(PostListItem item, IMarkdownConverter markdownConverter)
 	{
 		Item = item;
-		_markdownConverter = markdownConverter;
+		HeroImageUri = Uri.TryCreate(item.HeroImageUrl, UriKind.Absolute, out var heroImageUri) ? heroImageUri : null;
+		// Markdig ends every block with a newline, and a trailing one makes the card reserve an
+		// empty line it never draws, which pushes the card past its grid cell.
+		CardSummary = markdownConverter.ToPlainText(item.Abstract).Trim();
+		CardMeta = FormatCardMeta(item.PublishedDate ?? item.LastModifiedDate);
+		CardBadges = item.Categories.Select(category => category.DisplayName).ToArray();
 	}
-
-	public Uri? HeroImageUri => Item?.HeroImageUrl is not null ? new Uri(Item.HeroImageUrl) : null;
 
 	public PostListItem Item { get; }
 
-	public string AbstractPlain => _markdownConverter.ToPlainText(Item.Abstract);
+	public Uri? HeroImageUri { get; }
 
-	public string PublishedDate => (Item.PublishedDate ?? Item.LastModifiedDate)?.Humanize() ?? "";
+	// Creating the bitmap starts a download, so it waits until the card is actually realized.
+	public ImageSource? CardImage => _cardImage ??= HeroImageUri is { } uri ? new BitmapImage(uri) : null;
+
+	public bool HasCardImage => HeroImageUri is not null;
+
+	public string CardTitle => Item.Title;
+
+	public string CardSummary { get; }
+
+	public string CardMeta { get; }
+
+	public IReadOnlyList<string> CardBadges { get; }
+
+	public bool IsVideo => false;
+
+	/// <summary>
+	/// Formats the card date the way _PostListItem.cshtml does: the relative form for the first
+	/// 30 days, an absolute date after that. The site renders that date under the server culture
+	/// with a US pattern, so the app pins the invariant culture rather than pairing the pattern
+	/// with Czech month names.
+	/// </summary>
+	private static string FormatCardMeta(DateTimeOffset? date)
+	{
+		if (date is not { } value)
+		{
+			return "";
+		}
+
+		return (DateTimeOffset.UtcNow - value).TotalDays > 30
+			? value.ToString("MMM d, yyyy", CultureInfo.InvariantCulture)
+			: value.Humanize();
+	}
 }

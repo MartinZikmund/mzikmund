@@ -1,167 +1,176 @@
-﻿using CommunityToolkit.Mvvm.DependencyInjection;
-using Microsoft.UI;
+﻿using Microsoft.UI.Xaml.Navigation;
 using MZikmund.App.Core.Infrastructure;
-using MZikmund.Resources;
 using MZikmund.Services.Dialogs;
 using MZikmund.Services.Navigation;
-using MZikmund.Services.Theming;
 using MZikmund.ViewModels;
 using MZikmund.ViewModels.Admin;
-using Windows.ApplicationModel.Core;
-using Windows.Foundation.Metadata;
-using Windows.UI;
-using Windows.UI.Core;
-using Windows.UI.ViewManagement;
+using MUXC = Microsoft.UI.Xaml.Controls;
 
 namespace MZikmund.App;
 
 public sealed partial class WindowShell : Page, IWindowShell
 {
-	private readonly UISettings _uiSettings = new UISettings();
+	// Views reached from a menu item but not listed in the menu keep their parent highlighted.
+	private static readonly Dictionary<string, string> NestedViewTags = new()
+	{
+		["PostView"] = "Blog",
+		["PostEditorView"] = "PostsManager",
+	};
+
 	private readonly IServiceScope _windowScope;
 	private readonly Window _associatedWindow;
+	private readonly INavigationService _navigationService;
 
 	public WindowShell(IServiceProvider serviceProvider, Window associatedWindow)
 	{
 		InitializeComponent();
 
 		_windowScope = serviceProvider.CreateScope();
+		_associatedWindow = associatedWindow;
+
 		var windowShellProvider = (WindowShellProvider)ServiceProvider.GetRequiredService<IWindowShellProvider>();
 		windowShellProvider.SetShell(this, associatedWindow);
-		var navigationService = ServiceProvider.GetRequiredService<INavigationService>();
-		navigationService.RegisterViewsFromAssembly(typeof(MZikmundApp).Assembly);
+
+		_navigationService = ServiceProvider.GetRequiredService<INavigationService>();
+		_navigationService.RegisterViewsFromAssembly(typeof(MZikmundApp).Assembly);
 		ServiceProvider.GetRequiredService<IDialogService>().RegisterDialogsFromAssembly(typeof(MZikmundApp).Assembly);
 
 		ViewModel = ServiceProvider.GetRequiredService<WindowShellViewModel>();
 
-		_uiSettings.ColorValuesChanged += ColorValuesChanged;
-		_associatedWindow = associatedWindow;
 		CustomizeWindow();
 
-		Loaded += WindowShell_Loaded;
+#if HAS_UNO
+		// Hardware and browser back; WinAppSDK has no SystemNavigationManager for desktop windows.
+		_navigationService.Initialize();
+#endif
 
-		// Navigate to Blog as the default page
-		navigationService.Navigate<BlogViewModel>();
-		AppNavigation.SelectedItem = BlogNavigationViewItem;
+		_navigationService.Navigate<HomeViewModel>();
+
+		// The first navigation happens before NavigationView is loaded and can show its indicator.
+		AppNavigation.Loaded += (_, _) => SyncSelection(InnerFrame.CurrentSourcePageType);
 	}
 
 	public IServiceProvider ServiceProvider => _windowScope.ServiceProvider;
-
-	private void WindowShell_Loaded(object sender, RoutedEventArgs e)
-	{
-		SetTitlebarColors();
-	}
 
 	public WindowShellViewModel ViewModel { get; }
 
 	public Frame RootFrame => InnerFrame;
 
-	public bool HasCustomTitleBar { get; private set; }
-
 	private void CustomizeWindow()
 	{
-		if (ApiInformation.IsPropertyPresent("Microsoft.UI.Xaml.Window", "ExtendsContentIntoTitleBar"))
+		_associatedWindow.AppWindow.Title = ViewModel.Title;
+
+		// Mobile and browser heads have no caption area to extend into.
+		if (!OperatingSystem.IsAndroid() && !OperatingSystem.IsIOS() && !OperatingSystem.IsBrowser())
 		{
 			_associatedWindow.ExtendsContentIntoTitleBar = true;
 			_associatedWindow.SetTitleBar(TitleBarGrid);
-			HasCustomTitleBar = true;
+			TitleBarGrid.Visibility = Visibility.Visible;
 		}
-		_associatedWindow.AppWindow.Title = "Martin Zikmund";
 
-		if (ApiInformation.IsPropertyPresent("Microsoft.UI.Xaml.Window", "SystemBackdrop"))
-		{
-			_associatedWindow.SystemBackdrop = new MicaBackdrop();
-		}
+#if WINDOWS
+		_associatedWindow.SystemBackdrop = new MicaBackdrop();
+		// Let Mica show through the caption and navigation band; pages keep their own opaque ground.
+		ShellRoot.Background = new SolidColorBrush(Microsoft.UI.Colors.Transparent);
+#endif
 	}
 
-	private async void ColorValuesChanged(UISettings sender, object args)
+	private async void AppNavigation_ItemInvoked(MUXC.NavigationView sender, MUXC.NavigationViewItemInvokedEventArgs args)
 	{
-		await Dispatcher.RunAsync(
-			CoreDispatcherPriority.Normal,
-			SetTitlebarColors);
-	}
-
-	private void SetTitlebarColors()
-	{
-
-		//TODO:Titlebar colors
-		//#pragma warning disable CS8618
-		//#pragma warning disable Uno0001
-		//		var brandColor = ColorResources.BrandColor;
-		//		var titleBar = ApplicationView.GetForCurrentView().TitleBar;
-		//		titleBar.BackgroundColor = brandColor;
-		//		titleBar.ButtonBackgroundColor = Colors.Transparent;
-		//		titleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-		//		if (Ioc.Default.GetRequiredService<IThemeManager>().CurrentTheme == AppTheme.Dark)
-		//		{
-		//			titleBar.ButtonForegroundColor = Colors.White;
-		//			titleBar.ButtonInactiveForegroundColor = Colors.Gray;
-		//			titleBar.ButtonHoverBackgroundColor = Color.FromArgb(100, 100, 100, 100);
-		//			titleBar.ButtonHoverForegroundColor = Colors.White;
-		//			titleBar.ButtonPressedBackgroundColor = Color.FromArgb(200, 100, 100, 100);
-		//			titleBar.ButtonPressedForegroundColor = Colors.White;
-		//		}
-		//		else
-		//		{
-		//			titleBar.ButtonForegroundColor = Colors.Black;
-		//			titleBar.ButtonInactiveForegroundColor = Colors.Gray;
-		//			titleBar.ButtonHoverBackgroundColor = Color.FromArgb(100, 200, 200, 200);
-		//			titleBar.ButtonHoverForegroundColor = Colors.Black;
-		//			titleBar.ButtonPressedBackgroundColor = Color.FromArgb(200, 200, 200, 200);
-		//			titleBar.ButtonPressedForegroundColor = Colors.Black;
-		//		}
-		//#pragma warning restore Uno0001
-		//#pragma warning restore CS8618
-	}
-
-	private async void MenuItemInvoked(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs args)
-	{
-		var navigationService = ServiceProvider.GetRequiredService<INavigationService>();
-
 		if (args.IsSettingsInvoked)
 		{
-			navigationService.Navigate<SettingsViewModel>();
-		}
-
-		if (args.InvokedItemContainer == BlogNavigationViewItem)
-		{
-			navigationService.Navigate<BlogViewModel>();
-		}
-		else if (args.InvokedItemContainer == VideosNavigationViewItem)
-		{
-			navigationService.Navigate<VideosViewModel>();
-		}
-		else if (args.InvokedItemContainer == ContactNavigationViewItem)
-		{
-
-		}
-		else if (args.InvokedItemContainer == AdminPostsNavigationViewItem)
-		{
-			navigationService.Navigate<PostsManagerViewModel>();
-		}
-		else if (args.InvokedItemContainer == AdminMediaNavigationViewItem)
-		{
-			navigationService.Navigate<MediaBrowserViewModel>();
-		}
-		else if (args.InvokedItemContainer == AdminTagsNavigationViewItem)
-		{
-			navigationService.Navigate<TagsManagerViewModel>();
-		}
-		else if (args.InvokedItemContainer == AdminCategoriesNavigationViewItem)
-		{
-			navigationService.Navigate<CategoriesManagerViewModel>();
-		}
-		else if (args.InvokedItemContainer == LoginNavigationViewItem)
-		{
-			await ViewModel.LoginCommand.ExecuteAsync(null);
-			return;
-		}
-		else if (args.InvokedItemContainer == LogoutNavigationViewItem)
-		{
-			await ViewModel.LogoutCommand.ExecuteAsync(null);
+			NavigateTopLevel<SettingsViewModel>();
 			return;
 		}
 
-		navigationService.ClearBackStack();
+		switch ((args.InvokedItemContainer as FrameworkElement)?.Tag as string)
+		{
+			case "Home":
+				NavigateTopLevel<HomeViewModel>();
+				break;
+			case "Blog":
+				NavigateTopLevel<BlogViewModel>();
+				break;
+			case "Videos":
+				NavigateTopLevel<VideosViewModel>();
+				break;
+			case "Contact":
+				NavigateTopLevel<ContactViewModel>();
+				break;
+			case "PostsManager":
+				NavigateTopLevel<PostsManagerViewModel>();
+				break;
+			case "MediaBrowser":
+				NavigateTopLevel<MediaBrowserViewModel>();
+				break;
+			case "TagsManager":
+				NavigateTopLevel<TagsManagerViewModel>();
+				break;
+			case "CategoriesManager":
+				NavigateTopLevel<CategoriesManagerViewModel>();
+				break;
+			case "Login":
+				await ViewModel.LoginCommand.ExecuteAsync(null);
+				break;
+			case "Logout":
+				await ViewModel.LogoutCommand.ExecuteAsync(null);
+				break;
+		}
+	}
+
+	// Menu destinations are peers, so they start a fresh history instead of stacking on each other.
+	private void NavigateTopLevel<TViewModel>()
+	{
+		_navigationService.Navigate<TViewModel>();
+		_navigationService.ClearBackStack();
+		ViewModel.CanGoBack = InnerFrame.CanGoBack;
+	}
+
+	private void AppNavigation_BackRequested(MUXC.NavigationView sender, MUXC.NavigationViewBackRequestedEventArgs args) =>
+		_navigationService.GoBack();
+
+	private void InnerFrame_Navigated(object sender, NavigationEventArgs e)
+	{
+		ViewModel.CanGoBack = InnerFrame.CanGoBack;
+		SyncSelection(e.SourcePageType);
+	}
+
+	private void SyncSelection(Type? pageType)
+	{
+		if (pageType is null)
+		{
+			return;
+		}
+
+		var viewName = pageType.Name;
+		if (viewName == "SettingsView")
+		{
+			AppNavigation.SelectedItem = AppNavigation.SettingsItem;
+			return;
+		}
+
+		var tag = NestedViewTags.TryGetValue(viewName, out var parentTag) ?
+			parentTag :
+			viewName.EndsWith("View", StringComparison.Ordinal) ? viewName[..^"View".Length] : viewName;
+
+		AppNavigation.SelectedItem = FindItem(AppNavigation.MenuItems, tag);
+	}
+
+	private static MUXC.NavigationViewItem? FindItem(IList<object> items, string tag)
+	{
+		foreach (var item in items.OfType<MUXC.NavigationViewItem>())
+		{
+			if (item.Tag as string == tag)
+			{
+				return item;
+			}
+
+			if (FindItem(item.MenuItems, tag) is { } nested)
+			{
+				return nested;
+			}
+		}
+
+		return null;
 	}
 }

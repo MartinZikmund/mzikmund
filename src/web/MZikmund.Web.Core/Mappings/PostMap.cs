@@ -9,10 +9,12 @@ public class PostMap : Profile
 	public PostMap()
 	{
 		// Public mapping - Post doesn't include PreviewToken
-		CreateMap<PostEntity, Post>();
+		CreateMap<PostEntity, Post>()
+			.ForMember(dto => dto.IsPublished, options => options.MapFrom(entity => entity.Status == PostStatus.Published));
 
 		// Admin mapping - PostAdmin includes PreviewToken
-		CreateMap<PostEntity, PostAdmin>();
+		CreateMap<PostEntity, PostAdmin>()
+			.IncludeBase<PostEntity, Post>();
 
 		CreateMap<PostEntity, PostListItem>();
 	}

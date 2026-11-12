@@ -10,11 +10,11 @@
     PrimaryButtonText="{xaml:Localize Key=Ok}"
     SecondaryButtonText="{x:Bind ViewModel.SecondaryButtonText, Mode=OneWay}"
     CloseButtonText="{xaml:Localize Key=Cancel}"
-    Style="{ThemeResource DefaultContentDialogStyle}">
+    Style="{StaticResource DefaultContentDialogStyle}">
 
     <StackPanel Spacing="8">
         <TextBox
-            Header="Id"
+            Header="{xaml:Localize Key=Id}"
             IsReadOnly="True"
 			Visibility="{x:Bind ViewModel.IsEditing}"
             Text="{x:Bind ViewModel.Tag.Id, Mode=OneWay}" />

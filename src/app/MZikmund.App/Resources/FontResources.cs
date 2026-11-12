@@ -2,5 +2,5 @@
 
 public static class FontResources
 {
-	public static FontFamily IconFont => ResourceAccessor.GetResource<FontFamily>("IconFont");
+	public static FontFamily IconFont => ResourceAccessor.GetResource<FontFamily>("MzIconFontFamily");
 }

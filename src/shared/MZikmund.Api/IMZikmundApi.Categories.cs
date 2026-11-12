@@ -18,5 +18,5 @@ public partial interface IMZikmundApi
 
 	[Delete("/v1/admin/categories/{categoryId}")]
 	[Headers("Authorization: Bearer")]
-	Task<ApiResponse<object?>> DeleteCategoryAsync(Guid categoryId);
+	Task<IApiResponse> DeleteCategoryAsync(Guid categoryId); // 204 No Content: a typed response would fail to deserialize the empty body
 }

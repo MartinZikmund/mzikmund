@@ -7,7 +7,7 @@ namespace MZikmund.Api.Client;
 public partial interface IMZikmundApi
 {
 	[Get("/v1/posts")]
-	Task<ApiResponse<PagedResponse<PostListItem>>> GetPostsAsync(int pageNumber = 1);
+	Task<ApiResponse<PagedResponse<PostListItem>>> GetPostsAsync(int pageNumber = 1, CancellationToken cancellationToken = default);
 
 	[Get("/v1/posts/{postId}")]
 	Task<ApiResponse<Post>> GetPostAsync(Guid postId);
@@ -30,5 +30,5 @@ public partial interface IMZikmundApi
 
 	[Delete("/v1/admin/posts/{postId}")]
 	[Headers("Authorization: Bearer")]
-	Task<ApiResponse<object?>> DeletePostAsync(Guid postId);
+	Task<IApiResponse> DeletePostAsync(Guid postId); // 204 No Content: a typed response would fail to deserialize the empty body
 }

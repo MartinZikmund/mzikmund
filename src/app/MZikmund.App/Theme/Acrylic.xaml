@@ -1,0 +1,30 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+	<ResourceDictionary.ThemeDictionaries>
+
+		<ResourceDictionary x:Key="Light">
+			<!--  FallbackColor mirrors MzBgTertiaryBrush's colour; AcrylicBrush.FallbackColor is a Color, not a Brush.  -->
+			<AcrylicBrush
+				x:Key="MzAcrylicBrush"
+				AlwaysUseFallback="False"
+				FallbackColor="#FFF9F9F9"
+				TintColor="{ThemeResource MzAcrylicTintColor}"
+				TintOpacity="0.85" />
+		</ResourceDictionary>
+
+		<ResourceDictionary x:Key="Dark">
+			<AcrylicBrush
+				x:Key="MzAcrylicBrush"
+				AlwaysUseFallback="False"
+				FallbackColor="#FF282828"
+				TintColor="{ThemeResource MzAcrylicTintColor}"
+				TintOpacity="0.85" />
+		</ResourceDictionary>
+
+		<ResourceDictionary x:Key="HighContrast">
+			<StaticResource x:Key="MzAcrylicBrush" ResourceKey="SystemColorWindowColorBrush" />
+		</ResourceDictionary>
+
+	</ResourceDictionary.ThemeDictionaries>
+
+</ResourceDictionary>

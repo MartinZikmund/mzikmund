@@ -6,7 +6,7 @@
     xmlns:xaml="using:MZikmund.Extensions.Xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:blog="using:MZikmund.DataContracts.Blog"
-	Style="{ThemeResource DefaultContentDialogStyle}"
+	Style="{StaticResource DefaultContentDialogStyle}"
     Title="{xaml:Localize Key=PickCategories}"
     CloseButtonText="{xaml:Localize Key=Cancel}"
     DefaultButton="Primary"

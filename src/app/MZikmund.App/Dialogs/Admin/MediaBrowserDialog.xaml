@@ -9,194 +9,119 @@
     xmlns:local="using:MZikmund.App.Dialogs.Admin"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:xaml="using:MZikmund.Extensions.Xaml"
+    Title="{xaml:Localize Key=MediaBrowser}"
     CloseButtonText="{xaml:Localize Key=Cancel}"
     DefaultButton="Primary"
     IsPrimaryButtonEnabled="{x:Bind ViewModel.CanSelect, Mode=OneWay}"
     PrimaryButtonText="{xaml:Localize Key=Select}"
-    Style="{ThemeResource DefaultContentDialogStyle}"
+    Style="{StaticResource DefaultContentDialogStyle}"
     mc:Ignorable="d">
 
-    <Grid
-        Width="400"
-        Padding="16"
-        RowDefinitions="Auto,Auto,300,Auto">
-        <TextBlock
-            Grid.Row="0"
-            Margin="0,0,0,12"
-            Style="{ThemeResource TitleTextBlockStyle}"
-            Text="{xaml:Localize Key=MediaBrowser}" />
+    <local:MediaBrowserDialogBase.Resources>
+        <x:Double x:Key="ContentDialogMaxWidth">900</x:Double>
+    </local:MediaBrowserDialogBase.Resources>
 
-        <Grid
-            Grid.Row="1"
-            Margin="0,0,0,12"
-            ColumnDefinitions="Auto, *, Auto"
-            ColumnSpacing="8">
-            <Button Grid.Column="0" Command="{x:Bind ViewModel.UploadFileCommand}">
-                <StackPanel Orientation="Horizontal" Spacing="4">
-                    <SymbolIcon Symbol="Upload" />
+    <Grid
+        MinWidth="560"
+        RowDefinitions="Auto,360,Auto"
+        RowSpacing="12">
+        <Grid ColumnDefinitions="*, Auto" ColumnSpacing="8">
+            <TextBox
+                AutomationProperties.Name="{xaml:Localize Key=Search}"
+                PlaceholderText="{xaml:Localize Key=Search}"
+                Text="{x:Bind ViewModel.SearchFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <Button Grid.Column="1" Command="{x:Bind ViewModel.UploadFileCommand}">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon
+                        FontFamily="{StaticResource MzIconFontFamily}"
+                        FontSize="16"
+                        Glyph="{StaticResource MzGlyphArrowUpload}" />
                     <TextBlock Text="{xaml:Localize Key=Upload}" />
                 </StackPanel>
             </Button>
-
-            <TextBox
-                Grid.Column="1"
-                PlaceholderText="{xaml:Localize Key=Search}"
-                Text="{x:Bind ViewModel.SearchFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
         </Grid>
 
-        <Grid Grid.Row="2">
-            <ProgressRing
-                x:Name="LoadingRing"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" />
-
-            <ScrollViewer Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                <StackPanel>
-                    <ItemsControl ItemsSource="{x:Bind ViewModel.FilteredFiles, Mode=OneWay}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <ItemsWrapGrid Orientation="Horizontal" />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate x:DataType="items:StorageItemInfoViewModel">
-                                <Grid
-                                    Width="160"
-                                    Height="180"
-                                    Margin="8"
-                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                    BorderThickness="1"
-                                    CornerRadius="4"
-                                    Tag="{x:Bind}"
-                                    Tapped="FileCard_Tapped">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="*" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-
-                                    <!--  Preview Area  -->
-                                    <Border
-                                        Grid.Row="0"
-                                        Background="{ThemeResource LayerFillColorDefaultBrush}"
-                                        CornerRadius="4,4,0,0">
-                                        <Grid>
-                                            <!--  Image Preview (for images)  -->
-                                            <Image
-                                                Margin="4"
-                                                Stretch="Uniform"
-                                                Visibility="{x:Bind IsImage}">
-                                                <Image.Source>
-                                                    <BitmapImage UriSource="{x:Bind Url}" />
-                                                </Image.Source>
-                                            </Image>
-
-                                            <!--  File Icon (for non-images)  -->
-                                            <FontIcon
-                                                FontSize="48"
-                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                Glyph="&#xE7C3;"
-                                                Visibility="{x:Bind IsImage, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
-                                        </Grid>
-                                    </Border>
-
-                                    <!--  File Info  -->
-                                    <StackPanel Grid.Row="1" Padding="8,4,8,8">
-                                        <TextBlock
-                                            FontSize="12"
-                                            FontWeight="SemiBold"
-                                            Text="{x:Bind FileName}"
-                                            TextTrimming="CharacterEllipsis"
-                                            ToolTipService.ToolTip="{x:Bind FileName}" />
-                                        <TextBlock
-                                            FontSize="11"
-                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                            Text="{x:Bind FormattedSize}"
-                                            TextTrimming="CharacterEllipsis" />
-                                    </StackPanel>
-
-                                    <VisualStateManager.VisualStateGroups>
-                                        <VisualStateGroup x:Name="SelectionStates">
-                                            <VisualState x:Name="Selected">
-                                                <VisualState.Setters>
-                                                    <Setter Target="(Border.BorderBrush)">
-                                                        <Setter.Value>
-                                                            <SolidColorBrush Color="{ThemeResource SystemAccentColor}" />
-                                                        </Setter.Value>
-                                                    </Setter>
-                                                    <Setter Target="(Border.BorderThickness)" Value="2" />
-                                                </VisualState.Setters>
-                                            </VisualState>
-                                            <VisualState x:Name="Unselected" />
-                                        </VisualStateGroup>
-                                    </VisualStateManager.VisualStateGroups>
+        <Grid Grid.Row="1">
+            <GridView
+                x:Name="FilesGrid"
+                ItemsSource="{x:Bind ViewModel.FilteredFiles, Mode=OneWay}"
+                SelectionChanged="FilesGrid_SelectionChanged"
+                SelectionMode="Single"
+                Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                <GridView.ItemTemplate>
+                    <DataTemplate x:DataType="items:StorageItemInfoViewModel">
+                        <Grid
+                            Width="156"
+                            Height="150"
+                            RowDefinitions="*,Auto">
+                            <Border Background="{ThemeResource MzBgSecondaryBrush}" CornerRadius="{StaticResource MzControlCornerRadius}">
+                                <Grid>
+                                    <Image
+                                        Margin="4"
+                                        Stretch="Uniform"
+                                        Visibility="{x:Bind IsImage}">
+                                        <Image.Source>
+                                            <BitmapImage DecodePixelWidth="320" UriSource="{x:Bind Url}" />
+                                        </Image.Source>
+                                    </Image>
+                                    <FontIcon
+                                        FontFamily="{StaticResource MzIconFontFamily}"
+                                        FontSize="36"
+                                        Foreground="{ThemeResource MzTextTertiaryBrush}"
+                                        Glyph="{StaticResource MzGlyphDocumentPdf}"
+                                        Visibility="{x:Bind IsImage, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
                                 </Grid>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-
-                    <!--  Load More Button  -->
+                            </Border>
+                            <StackPanel Grid.Row="1" Padding="4,6,4,0">
+                                <TextBlock
+                                    FontSize="13"
+                                    Text="{x:Bind FileName}"
+                                    TextTrimming="CharacterEllipsis"
+                                    ToolTipService.ToolTip="{x:Bind FileName}" />
+                                <TextBlock Style="{StaticResource MzMetaTextStyle}" Text="{x:Bind FormattedSize}" />
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </GridView.ItemTemplate>
+                <GridView.Footer>
                     <Button
-                        Margin="8"
+                        Margin="0,8"
                         HorizontalAlignment="Center"
                         Command="{x:Bind ViewModel.LoadMoreCommand}"
-                        IsEnabled="{x:Bind ViewModel.HasMoreItems, Mode=OneWay}"
-                        Visibility="{x:Bind ViewModel.HasMoreItems, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <SymbolIcon Symbol="Download" Visibility="{x:Bind ViewModel.IsLoadingMore, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
-                            <ProgressRing
-                                Width="16"
-                                Height="16"
-                                IsActive="{x:Bind ViewModel.IsLoadingMore, Mode=OneWay}"
-                                Visibility="{x:Bind ViewModel.IsLoadingMore, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
-                            <TextBlock Text="{xaml:Localize Key=LoadMore}" />
-                        </StackPanel>
-                    </Button>
+                        Content="{xaml:Localize Key=LoadMore}"
+                        Visibility="{x:Bind ViewModel.HasMoreItems, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                </GridView.Footer>
+            </GridView>
 
-                    <!--  Empty State  -->
-                    <StackPanel
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        Spacing="8"
-                        Visibility="{x:Bind ViewModel.FilteredFiles, Mode=OneWay, Converter={StaticResource EmptyCollectionToVisibilityConverter}}">
-                        <SymbolIcon Foreground="{ThemeResource TextFillColorTertiaryBrush}" Symbol="Document" />
-                        <TextBlock
-                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                            Text="{xaml:Localize Key=NoFilesFound}"
-                            TextAlignment="Center" />
-                    </StackPanel>
-                </StackPanel>
-            </ScrollViewer>
-        </Grid>
+            <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" />
 
-        <Grid
-            Grid.Row="3"
-            Margin="0,12,0,0"
-            ColumnDefinitions="*, Auto"
-            ColumnSpacing="8">
-            <!--  Image Variant Selector  -->
             <StackPanel
-                Grid.Column="0"
-                Orientation="Horizontal"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
                 Spacing="8"
-                Visibility="{x:Bind ViewModel.SelectedFile, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
-                <TextBlock
-                    VerticalAlignment="Center"
-                    FontWeight="SemiBold"
-                    Text="{xaml:Localize Key=Size}" />
-                <ComboBox
-                    MinWidth="200"
-                    ItemsSource="{x:Bind ViewModel.AvailableVariants, Mode=OneWay}"
-                    SelectedItem="{x:Bind ViewModel.SelectedVariant, Mode=TwoWay}"
-                    Visibility="{x:Bind ViewModel.AvailableVariants, Mode=OneWay, Converter={StaticResource InverseEmptyCollectionToVisibilityConverter}}">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate x:DataType="blobs:ImageVariant">
-                            <TextBlock Text="{x:Bind DisplayText}" />
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>
+                Visibility="{x:Bind ViewModel.FilteredFiles, Mode=OneWay, Converter={StaticResource EmptyCollectionToVisibilityConverter}}">
+                <FontIcon Glyph="{StaticResource MzGlyphImageMultiple}" Style="{StaticResource MzEmptyStateIconStyle}" />
+                <TextBlock Style="{StaticResource MzEmptyStateBodyTextStyle}" Text="{xaml:Localize Key=NoFilesFound}" />
             </StackPanel>
         </Grid>
+
+        <StackPanel
+            Grid.Row="2"
+            Orientation="Horizontal"
+            Spacing="8"
+            Visibility="{x:Bind ViewModel.AvailableVariants, Mode=OneWay, Converter={StaticResource InverseEmptyCollectionToVisibilityConverter}}">
+            <TextBlock VerticalAlignment="Center" Text="{xaml:Localize Key=Size}" />
+            <ComboBox
+                MinWidth="200"
+                AutomationProperties.Name="{xaml:Localize Key=Size}"
+                ItemsSource="{x:Bind ViewModel.AvailableVariants, Mode=OneWay}"
+                SelectedItem="{x:Bind ViewModel.SelectedVariant, Mode=TwoWay}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate x:DataType="blobs:ImageVariant">
+                        <TextBlock Text="{x:Bind DisplayText}" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+        </StackPanel>
     </Grid>
 </local:MediaBrowserDialogBase>

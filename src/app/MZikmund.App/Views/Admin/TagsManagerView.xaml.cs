@@ -7,10 +7,12 @@ public sealed partial class TagsManagerView : TagsManagerViewBase
 {
 	public TagsManagerView() => InitializeComponent();
 
-	private void GridView_ItemClick(object sender, ItemClickEventArgs e)
+	private void TagPill_Click(object sender, RoutedEventArgs e)
 	{
-		var tag = (Tag)e.ClickedItem;
-		ViewModel!.UpdateTagCommand.Execute(tag);
+		if (sender is FrameworkElement { Tag: Tag tag })
+		{
+			ViewModel?.UpdateTagCommand.Execute(tag);
+		}
 	}
 }
 

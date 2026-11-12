@@ -19,7 +19,7 @@ public class AddOrUpdateCategoryDialogViewModel : DialogViewModel
 		Mode = DialogMode.Add;
 	}
 
-	public override string Title => Localizer.Instance.GetString($"{Mode}Tag");
+	public override string Title => Localizer.Instance.GetString($"{Mode}Category");
 
 	public DialogMode Mode { get; set; } = DialogMode.Add;
 
