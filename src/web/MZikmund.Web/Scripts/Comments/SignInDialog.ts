@@ -22,6 +22,7 @@ export class SignInDialog {
 	private readonly errorEl: HTMLElement | null;
 	private resolve: ((result: SignInResult) => void) | null = null;
 	private wired = false;
+	private pending = false;
 
 	public constructor(dialog: HTMLDialogElement) {
 		this.dialog = dialog;
@@ -100,6 +101,10 @@ export class SignInDialog {
 	}
 
 	private async sendCode(): Promise<void> {
+		if (this.pending) {
+			return;
+		}
+
 		const email = this.emailInput?.value.trim() ?? "";
 		if (!email) {
 			this.showError("Enter your email address first.");
@@ -125,6 +130,10 @@ export class SignInDialog {
 	}
 
 	private async verifyCode(): Promise<void> {
+		if (this.pending) {
+			return;
+		}
+
 		const email = this.emailInput?.value.trim() ?? "";
 		const code = this.codeInput?.value.trim() ?? "";
 		if (code.length !== 6) {
@@ -157,6 +166,7 @@ export class SignInDialog {
 	}
 
 	private busy(value: boolean): void {
+		this.pending = value;
 		if (this.sendButton) {
 			this.sendButton.disabled = value;
 		}
