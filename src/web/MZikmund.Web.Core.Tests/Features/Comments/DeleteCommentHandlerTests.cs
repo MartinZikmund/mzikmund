@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using MZikmund.DataContracts.Blog.Comments;
 using MZikmund.Web.Core.Features.Comments;
 using MZikmund.Web.Core.Services.Comments;
 using MZikmund.Web.Core.Tests.Infrastructure;
@@ -170,6 +171,28 @@ public class DeleteCommentHandlerTests
 		Assert.Equal(0, storedParent.ReplyCount);
 		var storedReply = await assertDb.Comment.FirstAsync(c => c.Id == reply.Id, CancellationToken.None);
 		Assert.Equal(DataCommentStatus.HiddenByModerator, storedReply.Status);
+	}
+
+	[Fact]
+	public async Task Handle_CommentWithOpenReports_ResolvesThemAndZeroesReportCount()
+	{
+		// Arrange
+		using CommentsDbFixture fixture = new();
+		using var db = fixture.CreateContext();
+		await SeedAsync(db);
+		var comment = AddComment(db, _postId, _authorId);
+		comment.ReportCount = 2;
+		AddReport(db, comment.Id, _otherAuthorId, CommentReportReason.Spam, Day(2));
+		await db.SaveChangesAsync(CancellationToken.None);
+		var handler = CreateHandler(db);
+
+		// Act
+		await handler.Handle(new DeleteCommentCommand(comment.Id), CancellationToken.None);
+
+		// Assert
+		Assert.Equal(0, await db.CommentReport.CountAsync(r => r.CommentId == comment.Id && r.ResolvedOn == null, CancellationToken.None));
+		var stored = await db.Comment.AsNoTracking().FirstAsync(c => c.Id == comment.Id, CancellationToken.None);
+		Assert.Equal(0, stored.ReportCount);
 	}
 
 	private async Task SeedAsync(DatabaseContext db)
