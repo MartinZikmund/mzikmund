@@ -87,7 +87,7 @@ az webapp config appsettings set --name webapp-mzikmund --resource-group mzikmun
 | `Turnstile__SecretKey` | secret | App Service only |
 | `Turnstile__ExpectedAction` | `comment-create` | already the default |
 | `Turnstile__ExpectedHostname` | `mzikmund.dev` | optional; empty skips the check |
-| `RateLimits__<Rule>__PermitLimit` / `__WindowMinutes` | optional | rules `CommentCreate` 5 per 10 min, `CommentVote` 30 per min, `CommentReport` 10 per hour, `CommentEdit` 20 per 10 min, `GlobalWrites` 20 per min per IP |
+| `RateLimits__<Rule>__PermitLimit` / `__WindowMinutes` | optional | rules `CommentCreate` 5 per 10 min, `CommentCreateApp` 2 per 60 min per user (app posts without a Turnstile token, header `X-MZikmund-Client: app`), `CommentVote` 30 per min, `CommentReport` 10 per hour, `CommentEdit` 20 per 10 min, `GlobalWrites` 20 per min per IP |
 
 Existing settings (`ConnectionStrings__DatabaseConnection`, blob storage,
 `APPLICATIONINSIGHTS_CONNECTION_STRING`) stay as they are. Verify:

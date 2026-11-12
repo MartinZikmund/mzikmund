@@ -15,6 +15,12 @@ public class RateLimitOptions
 	public RateLimitRule CommentCreate { get; set; } = new() { PermitLimit = 5, WindowMinutes = 10 };
 
 	/// <summary>
+	/// Comment creates sent by the Uno app without a Turnstile token, per user, on top of
+	/// <see cref="CommentCreate"/>. Default: 2 per 60 minutes.
+	/// </summary>
+	public RateLimitRule CommentCreateApp { get; set; } = new() { PermitLimit = 2, WindowMinutes = 60 };
+
+	/// <summary>
 	/// Votes, per author. Default: 30 per minute.
 	/// </summary>
 	public RateLimitRule CommentVote { get; set; } = new() { PermitLimit = 30, WindowMinutes = 1 };

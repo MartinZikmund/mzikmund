@@ -74,7 +74,7 @@ must be verified against a deployed HTTPS host.
 | `Turnstile:SecretKey` | user-secret locally, App Service setting in production |
 | `Turnstile:ExpectedHostname` | optional, e.g. `mzikmund.dev`; empty skips the check (leave it empty with Cloudflare's test keys) |
 | `Comments:Enabled` | committed / App Service setting |
-| `RateLimits:CommentCreate` / `CommentVote` / `CommentReport` / `CommentEdit` / `GlobalWrites` | optional, each `{ PermitLimit, WindowMinutes }`; defaults are built in |
+| `RateLimits:CommentCreate` / `CommentCreateApp` (app posts without Turnstile, header `X-MZikmund-Client: app`) / `CommentVote` / `CommentReport` / `CommentEdit` / `GlobalWrites` | optional, each `{ PermitLimit, WindowMinutes }`; defaults are built in |
 
 ### Behind a proxy
 

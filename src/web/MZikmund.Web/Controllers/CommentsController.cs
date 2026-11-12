@@ -1,3 +1,4 @@
+using System.Threading.RateLimiting;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -29,7 +30,18 @@ public class CommentsController : Controller
 	/// </summary>
 	public const string TurnstileHeaderName = "CF-Turnstile-Response";
 
+	/// <summary>
+	/// Header the Uno app sends (value <see cref="AppClientHeaderValue"/>) instead of a Turnstile token.
+	/// </summary>
+	public const string ClientHeaderName = "X-MZikmund-Client";
+
+	/// <summary>
+	/// Value of <see cref="ClientHeaderName"/> identifying the Uno app.
+	/// </summary>
+	public const string AppClientHeaderValue = "app";
+
 	private readonly IMediator _mediator;
+	private readonly AppCommentCreateLimiter _appCreateLimiter;
 	private readonly ITurnstileVerifier _turnstileVerifier;
 	private readonly ILogger<CommentsController> _logger;
 
@@ -38,13 +50,16 @@ public class CommentsController : Controller
 	/// </summary>
 	/// <param name="mediator">Mediator.</param>
 	/// <param name="turnstileVerifier">Cloudflare Turnstile verifier.</param>
+	/// <param name="appCreateLimiter">Tighter create limiter for token-less app requests.</param>
 	/// <param name="logger">Logger.</param>
 	public CommentsController(
 		IMediator mediator,
 		ITurnstileVerifier turnstileVerifier,
+		AppCommentCreateLimiter appCreateLimiter,
 		ILogger<CommentsController> logger)
 	{
 		_mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+		_appCreateLimiter = appCreateLimiter ?? throw new ArgumentNullException(nameof(appCreateLimiter));
 		_turnstileVerifier = turnstileVerifier ?? throw new ArgumentNullException(nameof(turnstileVerifier));
 		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	}
@@ -84,7 +99,7 @@ public class CommentsController : Controller
 	/// </summary>
 	/// <param name="postId">Post ID.</param>
 	/// <param name="request">Comment content and optional parent.</param>
-	/// <param name="turnstileToken">Cloudflare Turnstile token, when the caller is the web form.</param>
+	/// <param name="turnstileToken">Cloudflare Turnstile token; required unless the app header is sent.</param>
 	/// <param name="cancellationToken">Cancellation token.</param>
 	/// <returns>The created comment.</returns>
 	[HttpPost("posts/{postId}/comments")]
@@ -101,7 +116,21 @@ public class CommentsController : Controller
 		[FromHeader(Name = TurnstileHeaderName)] string? turnstileToken,
 		CancellationToken cancellationToken)
 	{
-		if (!await VerifyTurnstileAsync(turnstileToken, cancellationToken))
+		if (string.IsNullOrEmpty(turnstileToken) && IsAppClient())
+		{
+			using var lease = _appCreateLimiter.Acquire(HttpContext);
+			if (!lease.IsAcquired)
+			{
+				if (lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
+				{
+					Response.Headers.RetryAfter =
+						((int)retryAfter.TotalSeconds).ToString(System.Globalization.NumberFormatInfo.InvariantInfo);
+				}
+
+				return StatusCode(StatusCodes.Status429TooManyRequests);
+			}
+		}
+		else if (!await VerifyTurnstileAsync(turnstileToken, cancellationToken))
 		{
 			return BadRequest(new
 			{
@@ -209,9 +238,11 @@ public class CommentsController : Controller
 		return NoContent();
 	}
 
+	private bool IsAppClient() =>
+		string.Equals(Request.Headers[ClientHeaderName], AppClientHeaderValue, StringComparison.OrdinalIgnoreCase);
+
 	/// <summary>
-	/// Enforcement predicate: a token that is present MUST verify; an absent token is permitted
-	/// and logged, because the Uno app cannot render a Turnstile widget.
+	/// A token must be present and verify. The app's token-less path is handled before this is called.
 	/// </summary>
 	private async Task<bool> VerifyTurnstileAsync(string? token, CancellationToken cancellationToken)
 	{
@@ -219,12 +250,12 @@ public class CommentsController : Controller
 
 		if (string.IsNullOrEmpty(token))
 		{
-			if (_logger.IsEnabled(LogLevel.Information))
+			if (_logger.IsEnabled(LogLevel.Warning))
 			{
-				_logger.LogInformation("Comment write accepted without a Turnstile token from {RemoteIp}.", remoteIp);
+				_logger.LogWarning("Comment write rejected without a Turnstile token from {RemoteIp}.", remoteIp);
 			}
 
-			return true;
+			return false;
 		}
 
 		var verified = await _turnstileVerifier.VerifyAsync(token, remoteIp, cancellationToken);

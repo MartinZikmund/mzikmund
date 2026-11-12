@@ -11,8 +11,10 @@ public static class RateLimitingExtensions
 	/// Registers the comment write policies plus a per-IP limiter that only applies to comment
 	/// writes, so admin uploads and post saves are never throttled.
 	/// </summary>
-	public static IServiceCollection AddCommentRateLimiting(this IServiceCollection services, RateLimitOptions limits) =>
-		services.AddRateLimiter(options =>
+	public static IServiceCollection AddCommentRateLimiting(this IServiceCollection services, RateLimitOptions limits)
+	{
+		services.AddSingleton(new AppCommentCreateLimiter(limits.CommentCreateApp));
+		return services.AddRateLimiter(options =>
 		{
 			// The framework default is 503; the comment API contract is 429.
 			options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -74,6 +76,7 @@ public static class RateLimitingExtensions
 						_ => CreateFixedWindow(limits.GlobalWrites))
 					: RateLimitPartition.GetNoLimiter("not-a-comment-write"));
 		});
+	}
 
 	// QueueLimit 0: reject immediately rather than stalling an interactive request.
 	private static FixedWindowRateLimiterOptions CreateFixedWindow(RateLimitRule rule) => new()

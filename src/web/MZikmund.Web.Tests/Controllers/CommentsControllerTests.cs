@@ -34,6 +34,7 @@ public class CommentsControllerTests
 		_controller = new CommentsController(
 			_mockMediator.Object,
 			_mockTurnstileVerifier.Object,
+			new AppCommentCreateLimiter(new MZikmund.Web.Configuration.RateLimitRule { PermitLimit = 2, WindowMinutes = 60 }),
 			_mockLogger.Object);
 		_controller.ControllerContext = new ControllerContext
 		{
@@ -105,30 +106,6 @@ public class CommentsControllerTests
 		_mockMediator.Verify(
 			x => x.Send(
 				It.Is<GetCommentRepliesQuery>(q => q.CommentId == CommentId && q.PageSize == 20),
-				It.IsAny<CancellationToken>()),
-			Times.Once);
-	}
-
-	[Fact]
-	public async Task CreateComment_WithoutTurnstileToken_IsAcceptedAndSkipsVerification()
-	{
-		// Arrange
-		_mockMediator
-			.Setup(x => x.Send(It.IsAny<CreateCommentCommand>(), It.IsAny<CancellationToken>()))
-			.ReturnsAsync(CreateDto());
-		var request = new CreateCommentRequest { Content = "Hello" };
-
-		// Act
-		var result = await _controller.CreateComment(PostId, request, null, CancellationToken.None);
-
-		// Assert
-		Assert.IsType<OkObjectResult>(result);
-		_mockTurnstileVerifier.Verify(
-			x => x.VerifyAsync(It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()),
-			Times.Never);
-		_mockMediator.Verify(
-			x => x.Send(
-				It.Is<CreateCommentCommand>(c => c.PostId == PostId && c.Content == "Hello"),
 				It.IsAny<CancellationToken>()),
 			Times.Once);
 	}
