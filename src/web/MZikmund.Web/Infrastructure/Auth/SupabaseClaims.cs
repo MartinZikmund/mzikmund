@@ -28,6 +28,12 @@ public static class SupabaseClaims
 	/// <summary>Projected from app_metadata.role. Safe to authorize on.</summary>
 	public const string Role = "supabase:role";
 
+	/// <summary>Projected from app_metadata.provider and app_metadata.providers; one claim per provider. Safe to trust.</summary>
+	public const string Provider = "supabase:provider";
+
+	/// <summary>Provider value for Google sign-in.</summary>
+	public const string GoogleProvider = "google";
+
 	/// <summary>Projected from user_metadata.full_name or user_metadata.name.</summary>
 	public const string DisplayName = "supabase:display_name";
 

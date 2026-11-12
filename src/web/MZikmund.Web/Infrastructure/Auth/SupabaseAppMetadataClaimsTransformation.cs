@@ -36,6 +36,11 @@ public sealed class SupabaseAppMetadataClaimsTransformation : IClaimsTransformat
 			projected.AddClaim(new Claim(SupabaseClaims.Role, role));
 		}
 
+		foreach (var provider in ReadProviders(principal))
+		{
+			projected.AddClaim(new Claim(SupabaseClaims.Provider, provider));
+		}
+
 		if (TryReadMetadataString(principal, SupabaseClaims.UserMetadata, "full_name", out var displayName) ||
 			TryReadMetadataString(principal, SupabaseClaims.UserMetadata, "name", out displayName))
 		{
@@ -51,6 +56,45 @@ public sealed class SupabaseAppMetadataClaimsTransformation : IClaimsTransformat
 		ClaimsPrincipal clone = new(principal.Identities.Select(identity => identity.Clone()));
 		clone.AddIdentity(projected);
 		return Task.FromResult(clone);
+	}
+
+	private static HashSet<string> ReadProviders(ClaimsPrincipal principal)
+	{
+		var claim = principal.FindFirst(SupabaseClaims.AppMetadata);
+		if (claim is null || string.IsNullOrEmpty(claim.Value))
+		{
+			return new();
+		}
+
+		try
+		{
+			using var document = JsonDocument.Parse(claim.Value);
+			if (document.RootElement.ValueKind != JsonValueKind.Object)
+			{
+				return new();
+			}
+
+			HashSet<string> providers = new(StringComparer.OrdinalIgnoreCase);
+			if (document.RootElement.TryGetProperty("provider", out var single) && single.ValueKind == JsonValueKind.String)
+			{
+				providers.Add(single.GetString() ?? "");
+			}
+
+			if (document.RootElement.TryGetProperty("providers", out var many) && many.ValueKind == JsonValueKind.Array)
+			{
+				foreach (var item in many.EnumerateArray().Where(e => e.ValueKind == JsonValueKind.String))
+				{
+					providers.Add(item.GetString() ?? "");
+				}
+			}
+
+			providers.Remove("");
+			return providers;
+		}
+		catch (JsonException)
+		{
+			return new();
+		}
 	}
 
 	private static bool TryReadMetadataString(ClaimsPrincipal principal, string metadataClaimType, string propertyName, out string value)

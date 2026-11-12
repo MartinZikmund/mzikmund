@@ -62,7 +62,7 @@ public class CurrentUserAccessorTests
 		// Arrange
 		var principal = CreateSupabaseUser(
 			ReaderAppMetadata,
-			"{\"full_name\":\"Martin Zikmund\",\"avatar_url\":\"https://cdn.example/a.png\"}");
+			"{\"full_name\":\"Martin Zikmund\",\"avatar_url\":\"https://lh3.googleusercontent.com/a.png\"}");
 		var currentUserAccessor = CreateAccessor(principal);
 
 		// Act
@@ -72,7 +72,7 @@ public class CurrentUserAccessorTests
 		Assert.NotNull(current);
 		Assert.Equal(Guid.Parse(UserId), current!.Id);
 		Assert.Equal("Martin Zikmund", current.DisplayName);
-		Assert.Equal("https://cdn.example/a.png", current.AvatarUrl);
+		Assert.Equal("https://lh3.googleusercontent.com/a.png", current.AvatarUrl);
 		Assert.Equal("martin@zikmund.dev", current.Email);
 		Assert.False(current.IsAdmin);
 	}
@@ -109,12 +109,12 @@ public class CurrentUserAccessorTests
 	}
 
 	[Theory]
-	[InlineData("http://cdn.example/a.png")]
+	[InlineData("http://lh3.googleusercontent.com/a.png")]
 	[InlineData("javascript:alert(1)")]
 	[InlineData("data:image/png;base64,AAAA")]
-	[InlineData("//cdn.example/a.png")]
+	[InlineData("//lh3.googleusercontent.com/a.png")]
 	[InlineData("/relative/a.png")]
-	[InlineData("https://user:secret@cdn.example/a.png")]
+	[InlineData("https://user:secret@lh3.googleusercontent.com/a.png")]
 	[InlineData("not a url")]
 	public void Current_NonHttpsOrUnsafeAvatarUrl_IsDropped(string avatarUrl)
 	{
@@ -136,7 +136,7 @@ public class CurrentUserAccessorTests
 	public void Current_OverlongAvatarUrl_IsDropped()
 	{
 		// Arrange
-		var url = "https://cdn.example/" + new string('a', 2040);
+		var url = "https://lh3.googleusercontent.com/" + new string('a', 2040);
 		var principal = CreateSupabaseUser(ReaderAppMetadata, $"{{\"full_name\":\"Martin\",\"avatar_url\":\"{url}\"}}");
 		var currentUserAccessor = CreateAccessor(principal);
 

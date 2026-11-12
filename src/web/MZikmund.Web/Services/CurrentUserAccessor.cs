@@ -13,6 +13,7 @@ public sealed class CurrentUserAccessor : ICurrentUserAccessor
 	private const int MaxDisplayNameLength = 256;
 	private const int MaxAvatarUrlLength = 2048;
 	private const int MaxEmailLength = 320;
+	private const string GoogleAvatarDomain = "googleusercontent.com";
 
 	private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -58,7 +59,9 @@ public sealed class CurrentUserAccessor : ICurrentUserAccessor
 			return new CommentAuthorInfo(
 				id,
 				displayName,
-				CleanAvatarUrl(principal.FindFirstValue(SupabaseClaims.AvatarUrl)),
+				principal.HasClaim(SupabaseClaims.Provider, SupabaseClaims.GoogleProvider)
+					? CleanAvatarUrl(principal.FindFirstValue(SupabaseClaims.AvatarUrl))
+					: null,
 				email,
 				principal.HasClaim(SupabaseClaims.Role, SupabaseClaims.AdminRole));
 		}
@@ -75,7 +78,7 @@ public sealed class CurrentUserAccessor : ICurrentUserAccessor
 		return Truncate(withoutControls.Trim(), MaxDisplayNameLength).TrimEnd();
 	}
 
-	// Only absolute https URLs without credentials; an over-long URL is dropped rather than cut,
+	// Only absolute https URLs without credentials on Google's avatar host; an over-long URL is dropped rather than cut,
 	// because a truncated URL points nowhere.
 	private static string? CleanAvatarUrl(string? value)
 	{
@@ -88,9 +91,14 @@ public sealed class CurrentUserAccessor : ICurrentUserAccessor
 		return Uri.TryCreate(trimmed, UriKind.Absolute, out var uri)
 			&& uri.Scheme == Uri.UriSchemeHttps
 			&& string.IsNullOrEmpty(uri.UserInfo)
+			&& IsGoogleAvatarHost(uri.IdnHost)
 			? trimmed
 			: null;
 	}
+
+	private static bool IsGoogleAvatarHost(string host) =>
+		host.Equals(GoogleAvatarDomain, StringComparison.OrdinalIgnoreCase)
+		|| host.EndsWith("." + GoogleAvatarDomain, StringComparison.OrdinalIgnoreCase);
 
 	private static string Truncate(string value, int maxLength)
 	{
