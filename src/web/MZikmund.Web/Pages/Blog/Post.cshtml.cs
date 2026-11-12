@@ -19,6 +19,7 @@ public class PostModel : PageModel, IPostPageModel
 	private readonly CommentsOptions _commentsOptions;
 	private readonly SupabaseOptions _supabaseOptions;
 	private readonly TurnstileOptions _turnstileOptions;
+	private readonly ILogger<PostModel> _logger;
 
 	public PostModel(
 		IHostEnvironment host,
@@ -26,7 +27,8 @@ public class PostModel : PageModel, IPostPageModel
 		IPostContentProcessor postContentProcessor,
 		IOptions<CommentsOptions> commentsOptions,
 		IOptions<SupabaseOptions> supabaseOptions,
-		IOptions<TurnstileOptions> turnstileOptions)
+		IOptions<TurnstileOptions> turnstileOptions,
+		ILogger<PostModel> logger)
 	{
 		_host = host;
 		_mediator = mediator;
@@ -34,6 +36,7 @@ public class PostModel : PageModel, IPostPageModel
 		_commentsOptions = commentsOptions.Value;
 		_supabaseOptions = supabaseOptions.Value;
 		_turnstileOptions = turnstileOptions.Value;
+		_logger = logger;
 	}
 
 	public Post BlogPost { get; set; } = null!;
@@ -66,7 +69,15 @@ public class PostModel : PageModel, IPostPageModel
 
 		if (_commentsOptions.Enabled)
 		{
-			CommentsSection = await LoadCommentsAsync(comment, sort);
+			try
+			{
+				CommentsSection = await LoadCommentsAsync(comment, sort);
+			}
+			catch (Exception ex) when (ex is not OperationCanceledException)
+			{
+				// The post must render even when comments are broken.
+				_logger.LogError(ex, "Failed to load comments for post {PostId}.", BlogPost.Id);
+			}
 		}
 	}
 
