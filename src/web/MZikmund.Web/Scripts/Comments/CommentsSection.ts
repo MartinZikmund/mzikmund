@@ -1,4 +1,4 @@
-import { getSession, signOut } from "../Auth/SupabaseAuth";
+import { AuthUnavailableError, getSession, refreshSession, signOut } from "../Auth/SupabaseAuth";
 import {
 	ApiError,
 	createComment,
@@ -131,7 +131,12 @@ export class CommentsSection {
 
 		// The site has no cookie session, so the first paint always says hasUpvoted=false and
 		// isOwn=false. A signed-in reader gets the real state by re-fetching the page they see.
-		const session = await getSession();
+		let session = null;
+		try {
+			session = await getSession();
+		} catch {
+			// Cannot tell right now; the reader stays as they are and is asked again on their next action.
+		}
 		if (session) {
 			await this.onSignedIn();
 			await this.resumePendingDraft(oauthReturn);
@@ -236,8 +241,13 @@ export class CommentsSection {
 
 	/** Resolves "signed-in" immediately when a session exists, otherwise asks the reader to sign in. */
 	private async ensureSignedIn(): Promise<SignInResult> {
-		if (await getSession()) {
-			return "signed-in";
+		try {
+			if (await getSession()) {
+				return "signed-in";
+			}
+		} catch {
+			this.setStatus(this.describe(new AuthUnavailableError(null), ""));
+			return "cancelled";
 		}
 
 		const result = await this.signIn?.open(this.returnUrl()) ?? "cancelled";
@@ -248,7 +258,7 @@ export class CommentsSection {
 	}
 
 	private async onSignedIn(): Promise<void> {
-		const session = await getSession();
+		const session = await getSession().catch(() => null);
 		if (this.identityEl && this.identityName && session) {
 			this.identityName.textContent = `Signed in as ${session.user.email ?? "you"}`;
 			this.identityEl.hidden = false;
@@ -273,8 +283,9 @@ export class CommentsSection {
 	}
 
 	/**
-	 * Runs a write. A 401 means the session is stale or revoked, so the reader signs in again and
-	 * the write is retried once instead of ending in a dead-end message.
+	 * Runs a write. A 401 first gets one forced token refresh and a retry. Only when the refresh
+	 * token itself is rejected does the reader have to sign in again; a network failure keeps the
+	 * session and surfaces as a retryable error.
 	 */
 	private async authed<T>(operation: () => Promise<T>, beforeRetry?: () => void): Promise<T> {
 		try {
@@ -282,6 +293,18 @@ export class CommentsSection {
 		} catch (error) {
 			if (!(error instanceof ApiError) || error.status !== 401 || !this.signIn) {
 				throw error;
+			}
+
+			if (await refreshSession()) {
+				beforeRetry?.();
+				try {
+					return await operation();
+				} catch (retryError) {
+					if (!(retryError instanceof ApiError) || retryError.status !== 401) {
+						throw retryError;
+					}
+					// A fresh token was refused as well: this session is not coming back.
+				}
 			}
 
 			await this.dropSession();
@@ -992,6 +1015,9 @@ export class CommentsSection {
 	}
 
 	private describe(error: unknown, fallback: string): string {
+		if (error instanceof AuthUnavailableError || error instanceof TypeError) {
+			return "Could not reach the server. Check your connection and try again.";
+		}
 		if (!(error instanceof ApiError)) {
 			return fallback;
 		}

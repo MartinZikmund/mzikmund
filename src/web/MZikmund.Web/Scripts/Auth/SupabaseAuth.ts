@@ -1,5 +1,8 @@
 import {
 	createClient,
+	isAuthApiError,
+	isAuthSessionMissingError,
+	type AuthError,
 	type Session,
 	type SupabaseClient,
 } from "@supabase/supabase-js";
@@ -87,17 +90,76 @@ export async function verifyEmailCode(email: string, token: string): Promise<Ses
 	return data.session;
 }
 
+/** The session could not be read or refreshed right now (offline, server hiccup). It may still be valid. */
+export class AuthUnavailableError extends Error {
+	public readonly inner: unknown;
+
+	public constructor(inner: unknown) {
+		super("The session could not be checked right now.");
+		this.name = "AuthUnavailableError";
+		this.inner = inner;
+	}
+}
+
+const DeadRefreshTokenCodes = new Set([
+	"refresh_token_not_found",
+	"refresh_token_already_used",
+	"session_not_found",
+	"session_expired",
+]);
+
+/** True only when the server said the refresh token is no good; network and 5xx errors are not that. */
+function isRefreshTokenDead(error: AuthError): boolean {
+	if (isAuthSessionMissingError(error)) {
+		return true;
+	}
+	if (!isAuthApiError(error)) {
+		return false;
+	}
+	// Older GoTrue answers 400 invalid_grant with no code, only a message.
+	return (error.code !== undefined && DeadRefreshTokenCodes.has(error.code))
+		|| (error.status === 400 && /refresh token|invalid_grant/i.test(error.message));
+}
+
 /**
  * Reads from storage; the background ticker keeps the token fresh. It does not revalidate
  * the JWT - the API validates it against the Supabase JWKS, which is where the real check lives.
+ * Null means signed out. A refresh that failed for a transient reason throws AuthUnavailableError
+ * instead, so a laptop waking before wifi is back does not look like a sign-out.
  */
 export async function getSession(): Promise<Session | null> {
-	const { data } = await getClient().auth.getSession();
+	const { data, error } = await getClient().auth.getSession();
+	if (error && !data.session && !isRefreshTokenDead(error)) {
+		throw new AuthUnavailableError(error);
+	}
 	return data.session;
 }
 
+/** For API calls: a session that cannot be read right now just means an anonymous request. */
 export async function getAccessToken(): Promise<string | null> {
-	return (await getSession())?.access_token ?? null;
+	try {
+		return (await getSession())?.access_token ?? null;
+	} catch (error) {
+		if (error instanceof AuthUnavailableError) {
+			return null;
+		}
+		throw error;
+	}
+}
+
+/**
+ * Forces a refresh. Resolves false only when the refresh token is definitely rejected;
+ * anything transient throws AuthUnavailableError and leaves the session alone.
+ */
+export async function refreshSession(): Promise<boolean> {
+	const { data, error } = await getClient().auth.refreshSession();
+	if (!error && data.session) {
+		return true;
+	}
+	if (error && !isRefreshTokenDead(error)) {
+		throw new AuthUnavailableError(error);
+	}
+	return false;
 }
 
 /** The default scope would sign the reader out on every device. */
