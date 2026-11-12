@@ -4,12 +4,14 @@ import {
 	createComment,
 	deleteComment,
 	getComments,
+	getMyProfile,
 	getReplies,
 	reportComment,
 	setVote,
 	updateComment,
 	type CommentDto,
 	type CommentSort,
+	type CommenterProfile,
 	type ReportReason,
 } from "./CommentsApi";
 import { actionsMarkup, bodyMarkup, renderComment, setEditWindow } from "./CommentRenderer";
@@ -48,6 +50,8 @@ export class CommentsSection {
 	private identityName: HTMLElement | null = null;
 
 	private signIn: SignInDialog | null = null;
+	private profile: CommenterProfile | null = null;
+	private fallbackIdentity: string | null = null;
 	private reportDialog: HTMLDialogElement | null = null;
 	private reportTargetId: string | null = null;
 
@@ -191,6 +195,9 @@ export class CommentsSection {
 		this.root.querySelector<HTMLButtonElement>("[data-comment-signout]")
 			?.addEventListener("click", () => void this.signOutReader());
 
+		this.root.querySelector<HTMLButtonElement>("[data-comment-change-name]")
+			?.addEventListener("click", () => void this.changeName());
+
 		this.loadMoreButton?.addEventListener("click", () => void this.loadMore());
 
 		// One delegated listener: comments are added and replaced constantly.
@@ -256,7 +263,7 @@ export class CommentsSection {
 
 		const result = await this.signIn?.open(this.returnUrl()) ?? "cancelled";
 		if (result === "signed-in") {
-			await this.onSignedIn();
+			await this.onSignedIn(this.signIn?.takeProfile() ?? null);
 		}
 		return result;
 	}
@@ -277,19 +284,49 @@ export class CommentsSection {
 
 	private hideIdentity(): void {
 		this.signedIn = false;
+		this.profile = null;
 		if (this.identityEl) {
 			this.identityEl.hidden = true;
 		}
 	}
 
-	private async onSignedIn(): Promise<void> {
+	private async onSignedIn(profile: CommenterProfile | null = null): Promise<void> {
 		this.signedIn = true;
+		this.profile = profile ?? await getMyProfile().catch(() => null);
 		const session = await getSession().catch(() => null);
-		if (this.identityEl && this.identityName && session) {
-			this.identityName.textContent = `Signed in as ${session.user.email ?? "you"}`;
+		this.fallbackIdentity = session ? (session.user.email ?? "you") : null;
+		this.renderIdentity();
+		await this.refreshCurrentPage();
+	}
+
+	/** The comment name from /me; the email only when the profile could not be read. */
+	private renderIdentity(): void {
+		const name = this.profile?.displayName ?? this.fallbackIdentity;
+		if (this.identityEl && this.identityName && name) {
+			this.identityName.textContent = `Signed in as ${name}`;
 			this.identityEl.hidden = false;
 		}
-		await this.refreshCurrentPage();
+	}
+
+	private async changeName(): Promise<void> {
+		if (!this.signIn || this.signIn.isOpen) {
+			return;
+		}
+
+		// Always read the live name: it may have been changed in another tab.
+		try {
+			this.profile = await getMyProfile();
+		} catch {
+			// Fall back to the name already on screen; the server stays authoritative on save.
+		}
+
+		const updated = await this.signIn.openNameStep(this.profile?.displayName ?? "");
+		if (updated) {
+			this.profile = updated;
+			this.renderIdentity();
+			this.setStatus("Your name was updated.");
+			await this.refreshCurrentPage();
+		}
 	}
 
 	private async signOutReader(): Promise<void> {
@@ -344,7 +381,7 @@ export class CommentsSection {
 				throw error;
 			}
 
-			await this.onSignedIn();
+			await this.onSignedIn(this.signIn.takeProfile());
 			beforeRetry?.();
 			return await operation();
 		}
