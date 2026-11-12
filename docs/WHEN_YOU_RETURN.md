@@ -8,17 +8,17 @@ Two pull requests, stacked:
 
 | PR | Branch | Contents |
 |---|---|---|
-| 1 | `dev/mazi/appredesign` → `main` | Uno 7 migration, app Fluent redesign, working post editor, app sign-in fixes, small web fixes |
-| 2 | `worktree-comments` → `dev/mazi/appredesign` | Comments system, Supabase replaces Auth0 (web + app), esbuild asset pipeline, privacy policy |
+| 1 (#562, **merged 2026-11-12**) | `dev/mazi/appredesign` → `main` | Uno 7 migration, app Fluent redesign, working post editor, app sign-in fixes, small web fixes |
+| 2 (#563) | `dev/mazi/comments` → `main` | Comments system, Supabase replaces Auth0 (web + app), esbuild asset pipeline, privacy policy |
 
-Merge PR 1 first. PR 2 is based on it, so GitHub retargets PR 2 to `main` once PR 1 is merged.
+PR 1 is merged and PR 2 is rebased onto `main`, so only section 2 below is left.
 
 **Nothing was deployed and no hosted account was touched.** No real secrets are committed: production
 values are placeholders, and the only keys in the repo are the Supabase CLI's public local publishable
 key and Cloudflare's published Turnstile test keys. The local Supabase secret key is read at runtime
 (`npx supabase status -o env`), never committed.
 
-## 1. PR 1: the redesign (about an hour)
+## 1. PR 1: the redesign (done, merged 2026-11-12)
 
 1. Review it and run the app locally (see *Local development* below). On Windows the packaged head
    needs the Windows App Runtime 2.x (Uno 7 builds against WindowsAppSDK 2.x).
