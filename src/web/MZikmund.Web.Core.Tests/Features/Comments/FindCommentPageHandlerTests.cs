@@ -142,6 +142,44 @@ public class FindCommentPageHandlerTests
 		Assert.Equal(2, page);
 	}
 
+	[Fact]
+	public async Task Handle_TopSort_CountsVisibleCommentsAheadOfADeletedPlaceholder()
+	{
+		// Arrange
+		using CommentsDbFixture fixture = new();
+		using var context = fixture.CreateContext();
+		Seed(context);
+		AddComment(context, PostId, AuthorId, createdOn: Day(1), upvoteCount: 0);
+		AddComment(context, PostId, AuthorId, createdOn: Day(2), upvoteCount: 0);
+		var deleted = AddComment(context, PostId, AuthorId, "", createdOn: Day(3), upvoteCount: 99, status: DataCommentStatus.DeletedByAuthor);
+		await context.SaveChangesAsync(CancellationToken.None);
+		var handler = new FindCommentPageHandler(context);
+
+		// Act
+		var page = await handler.Handle(new FindCommentPageQuery(PostId, deleted.Id, CommentSortOrder.Top, 2), CancellationToken.None);
+
+		// Assert
+		Assert.Equal(2, page);
+	}
+
+	[Fact]
+	public async Task Handle_CommentOfAnotherPost_ReturnsNull()
+	{
+		// Arrange
+		using CommentsDbFixture fixture = new();
+		using var context = fixture.CreateContext();
+		Seed(context);
+		var comment = AddComment(context, PostId, AuthorId);
+		await context.SaveChangesAsync(CancellationToken.None);
+		var handler = new FindCommentPageHandler(context);
+
+		// Act
+		var page = await handler.Handle(new FindCommentPageQuery(Guid.NewGuid(), comment.Id, CommentSortOrder.New, 20), CancellationToken.None);
+
+		// Assert
+		Assert.Null(page);
+	}
+
 	private static void Seed(DatabaseContext context)
 	{
 		AddPost(context, PostId);

@@ -40,6 +40,28 @@ public class GetPostCommentsHandlerTests
 	}
 
 	[Fact]
+	public async Task Handle_SortTop_PutsDeletedPlaceholdersAfterVisibleComments()
+	{
+		// Arrange
+		using CommentsDbFixture fixture = new();
+		using var context = fixture.CreateContext();
+		var postId = Guid.NewGuid();
+		var authorId = Guid.NewGuid();
+		AddPost(context, postId);
+		AddAuthor(context, authorId, "Homer");
+		var deleted = AddComment(context, postId, authorId, "", Day(1), upvoteCount: 50, status: DataCommentStatus.DeletedByAuthor);
+		var quiet = AddComment(context, postId, authorId, "quiet", Day(2), upvoteCount: 0);
+		await context.SaveChangesAsync(CancellationToken.None);
+		var handler = CreateHandler(context);
+
+		// Act
+		var result = await handler.Handle(new GetPostCommentsQuery(postId, CommentSortOrder.Top, 1, 20), CancellationToken.None);
+
+		// Assert
+		Assert.Equal(new[] { quiet.Id, deleted.Id }, result.Data.Select(c => c.Id).ToArray());
+	}
+
+	[Fact]
 	public async Task Handle_DeletedReply_IsLeftOutSoReplyCountAndInlineRepliesAgree()
 	{
 		// Arrange
