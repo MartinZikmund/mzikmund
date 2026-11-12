@@ -147,4 +147,51 @@ public class CommentsViewModelTests
 		pendingB.SetResult(Page());
 		await loadB;
 	}
+
+	[Fact]
+	public async Task Post_ExplainsTheAppRateLimit_On429()
+	{
+		// Arrange
+		var postId = Guid.NewGuid();
+		_api.Setup(a => a.GetPostCommentsAsync(postId, It.IsAny<CommentSortOrder>(), It.IsAny<int>())).ReturnsAsync(Page());
+		_api.Setup(a => a.CreateCommentAsync(postId, It.IsAny<CreateCommentRequest>()))
+			.Returns(Failure<CommentDto>(HttpStatusCode.TooManyRequests));
+		var viewModel = CreateViewModel();
+		await viewModel.LoadAsync(postId);
+		viewModel.DraftText = "Hello";
+
+		// Act
+		await viewModel.PostCommand.ExecuteAsync(null);
+
+		// Assert
+		_dialogService.Verify(d => d.ShowStatusMessageAsync(StatusMessageDialogType.Error, "CommentPostFailed", "CommentAppRateLimited"), Times.Once);
+		_userService.Verify(u => u.InvalidateSessionAsync(), Times.Never);
+		Assert.Equal("Hello", viewModel.DraftText);
+	}
+
+	[Fact]
+	public async Task CreateComment_SendsTheAppClientHeader()
+	{
+		// Arrange
+		CapturingHandler handler = new();
+		RefitSettings settings = new() { AuthorizationHeaderValueGetter = (_, _) => Task.FromResult("token") };
+		var api = RestService.For<IMZikmundApi>(new HttpClient(handler) { BaseAddress = new Uri("https://localhost") }, settings);
+
+		// Act
+		await api.CreateCommentAsync(Guid.NewGuid(), new CreateCommentRequest { Content = "Hello" });
+
+		// Assert
+		Assert.Equal("app", Assert.Single(handler.Request!.Headers.GetValues("X-MZikmund-Client")));
+	}
+
+	private sealed class CapturingHandler : HttpMessageHandler
+	{
+		public HttpRequestMessage? Request { get; private set; }
+
+		protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+		{
+			Request = request;
+			return Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError) { RequestMessage = request });
+		}
+	}
 }
