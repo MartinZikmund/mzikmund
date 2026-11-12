@@ -172,6 +172,7 @@ public partial class CommentsViewModel : ViewModelBase
 		IsDisabled = false;
 		HasMorePages = false;
 		_currentPage = 0;
+		TotalCount = 0;
 		Comments.Clear();
 
 		try
@@ -359,6 +360,11 @@ public partial class CommentsViewModel : ViewModelBase
 
 			// A reload kicked off by the sign-in has to land before the new comment is placed.
 			await _loadTask;
+			if (postId != _postId)
+			{
+				return;
+			}
+
 			InsertCreated(created);
 			DraftText = "";
 			ReplyingTo = null;
