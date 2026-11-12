@@ -40,6 +40,7 @@ public partial class CommentsModeratorViewModel : PageViewModel
 
 	[ObservableProperty]
 	[NotifyPropertyChangedFor(nameof(IsQueueEmpty))]
+	[NotifyPropertyChangedFor(nameof(CanLoadMore))]
 	public partial bool IsLoading { get; set; }
 
 	[ObservableProperty]
@@ -58,7 +59,7 @@ public partial class CommentsModeratorViewModel : PageViewModel
 	[NotifyPropertyChangedFor(nameof(CountText))]
 	public partial int ReportCount { get; set; }
 
-	public bool CanLoadMore => HasMorePages && !IsLoadingMore;
+	public bool CanLoadMore => HasMorePages && !IsLoadingMore && !IsLoading;
 
 	public bool IsQueueEmpty => !IsLoading && !HasError && Reports.Count == 0;
 
@@ -161,17 +162,24 @@ public partial class CommentsModeratorViewModel : PageViewModel
 			return;
 		}
 
+		var version = _loadVersion;
 		IsLoadingMore = true;
 		try
 		{
 			var response = await _api.GetModerationFeedAsync(null, _feedPage + 1);
 			await response.EnsureSuccessfulAsync();
-			AppendFeed(response.Content!);
+			if (version == _loadVersion)
+			{
+				AppendFeed(response.Content!);
+			}
 		}
 		catch (Exception ex)
 		{
 			_logger.LogError(ex, "Loading more moderation feed entries failed");
-			await ShowFailureAsync();
+			if (version == _loadVersion)
+			{
+				await ShowFailureAsync();
+			}
 		}
 		finally
 		{
