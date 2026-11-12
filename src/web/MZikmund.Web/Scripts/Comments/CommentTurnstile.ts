@@ -1,5 +1,16 @@
 const ScriptUrl = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
 
+export const VerificationFailedMessage =
+	"Verification couldn't load. If you use an ad or script blocker, allow challenges.cloudflare.com and try again.";
+
+/** Thrown instead of sending a comment the server would reject for lacking a token. */
+export class VerificationUnavailableError extends Error {
+	public constructor() {
+		super(VerificationFailedMessage);
+		this.name = "VerificationUnavailableError";
+	}
+}
+
 /**
  * Owns the single Turnstile widget in the comment composer.
  *
@@ -12,6 +23,7 @@ export class CommentTurnstile {
 	private container: HTMLElement | null = null;
 	private siteKey = "";
 	private scriptLoaded = false;
+	private scriptFailed = false;
 	private renderedTheme: "light" | "dark" | null = null;
 	private token: string | null = null;
 	private waiters: ((token: string | null) => void)[] = [];
@@ -44,6 +56,11 @@ export class CommentTurnstile {
 		// Not async/defer: Cloudflare only allows turnstile.ready() on a synchronously loaded tag,
 		// and an explicit render() after `load` needs no ready() at all.
 		script.addEventListener("load", draw);
+		// A blocker or an offline reader: fail now so the message appears promptly, not after the timeout.
+		script.addEventListener("error", () => {
+			this.scriptFailed = true;
+			this.settle(null);
+		});
 		document.head.appendChild(script);
 	}
 
@@ -85,24 +102,27 @@ export class CommentTurnstile {
 
 	/**
 	 * Resolves with the current token, waiting for the challenge to solve itself if needed.
-	 * Resolves with null on timeout or error: the server permits an absent token (that is what
-	 * keeps the native app able to post), so a stuck widget must never block the reader.
+	 * Resolves with null when none can be had (script blocked, widget error, or no solve within
+	 * the timeout). The server rejects a web comment without a token, so the caller must not send.
 	 */
 	public getToken(timeoutMs = 8000): Promise<string | null> {
-		if (this.widgetId === undefined) {
+		if (this.scriptFailed || !this.container) {
 			return Promise.resolve(null);
 		}
 
-		if (this.token && !turnstile.isExpired(this.widgetId)) {
-			return Promise.resolve(this.token);
+		if (this.widgetId !== undefined) {
+			if (this.token && !turnstile.isExpired(this.widgetId)) {
+				return Promise.resolve(this.token);
+			}
+
+			const existing = turnstile.getResponse(this.widgetId);
+			if (existing) {
+				this.token = existing;
+				return Promise.resolve(existing);
+			}
 		}
 
-		const existing = turnstile.getResponse(this.widgetId);
-		if (existing) {
-			this.token = existing;
-			return Promise.resolve(existing);
-		}
-
+		// Also covers a script that is still loading: draw() settles the waiters once it solves.
 		return new Promise<string | null>((resolve) => {
 			const timer = window.setTimeout(() => {
 				this.waiters = this.waiters.filter((w) => w !== waiter);

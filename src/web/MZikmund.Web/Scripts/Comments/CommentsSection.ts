@@ -13,7 +13,7 @@ import {
 	type ReportReason,
 } from "./CommentsApi";
 import { actionsMarkup, bodyMarkup, renderComment, setEditWindow } from "./CommentRenderer";
-import { CommentTurnstile } from "./CommentTurnstile";
+import { CommentTurnstile, VerificationFailedMessage, VerificationUnavailableError } from "./CommentTurnstile";
 import { SignInDialog, type SignInResult } from "./SignInDialog";
 
 const DraftKey = "mz-comment-draft";
@@ -395,7 +395,14 @@ export class CommentsSection {
 
 		try {
 			const created = await this.authed(
-				async () => createComment(this.postId, content, parentId, await this.captcha.getToken()),
+				async () => {
+					// The server rejects a web comment without a token, so never send one.
+					const token = await this.captcha.getToken();
+					if (!token) {
+						throw new VerificationUnavailableError();
+					}
+					return createComment(this.postId, content, parentId, token);
+				},
 				() => this.captcha.reset());
 			this.insertCreated(created);
 			this.clearDraft();
@@ -1015,6 +1022,10 @@ export class CommentsSection {
 	}
 
 	private describe(error: unknown, fallback: string): string {
+		if (error instanceof VerificationUnavailableError
+			|| (error instanceof ApiError && error.status === 400 && /captcha|verification/i.test(error.detail ?? ""))) {
+			return VerificationFailedMessage;
+		}
 		if (error instanceof AuthUnavailableError || error instanceof TypeError) {
 			return "Could not reach the server. Check your connection and try again.";
 		}
