@@ -181,5 +181,5 @@ public class DeleteCommentHandlerTests
 	}
 
 	private DeleteCommentHandler CreateHandler(DatabaseContext dbContext) =>
-		new(dbContext, CurrentUser(_authorId, "Martin").Object, Logger<DeleteCommentHandler>().Object);
+		new(dbContext, CurrentUser(_authorId, "Martin").Object, FixedClock().Object, Logger<DeleteCommentHandler>().Object);
 }

@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MZikmund.DataContracts.Blog.Comments;
+using MZikmund.Web.Core.Services;
 using MZikmund.Web.Core.Services.Comments;
 using MZikmund.Web.Data;
 using DataCommentStatus = MZikmund.Web.Data.Entities.CommentStatus;
@@ -12,15 +13,18 @@ internal sealed class DeleteCommentHandler : IRequestHandler<DeleteCommentComman
 {
 	private readonly DatabaseContext _dbContext;
 	private readonly ICurrentUserAccessor _currentUserAccessor;
+	private readonly IDateProvider _dateProvider;
 	private readonly ILogger<DeleteCommentHandler> _logger;
 
 	public DeleteCommentHandler(
 		DatabaseContext dbContext,
 		ICurrentUserAccessor currentUserAccessor,
+		IDateProvider dateProvider,
 		ILogger<DeleteCommentHandler> logger)
 	{
 		_dbContext = dbContext;
 		_currentUserAccessor = currentUserAccessor;
+		_dateProvider = dateProvider;
 		_logger = logger;
 	}
 
@@ -75,9 +79,14 @@ internal sealed class DeleteCommentHandler : IRequestHandler<DeleteCommentComman
 							.SetProperty(c => c.ContentHtml, ""),
 						ct);
 
-				if (updated > 0 && comment.ParentId is Guid parentId)
+				if (updated > 0)
 				{
-					await CommentCounters.DecrementReplyCountAsync(_dbContext, parentId, ct);
+					if (comment.ParentId is Guid parentId)
+					{
+						await CommentCounters.DecrementReplyCountAsync(_dbContext, parentId, ct);
+					}
+
+					await CommentModeration.ResolveOpenReportsAsync(_dbContext, comment.Id, _dateProvider.UtcNow.UtcDateTime, ct);
 				}
 
 				await transaction.CommitAsync(ct);
