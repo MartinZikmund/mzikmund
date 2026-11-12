@@ -212,7 +212,8 @@
 		<h2 class="signin-dialog__title" id="signin-title">@Localizer["Sign in to continue"]</h2>
 		<p class="signin-dialog__lead">@Localizer["Your draft is saved. You will land right back here."]</p>
 
-		<div class="signin-dialog__providers">
+		@* Google and Apple are not configured in Supabase yet (#564). *@
+		<div class="signin-dialog__providers" hidden>
 			<button type="button" class="btn btn--standard btn--lg" data-signin-provider="google">
 				<svg class="icon" aria-hidden="true"><use href="#i-google"></use></svg>
 				@Localizer["Continue with Google"]
@@ -223,7 +224,7 @@
 			</button>
 		</div>
 
-		<p class="signin-dialog__divider"><span>@Localizer["or"]</span></p>
+		<p class="signin-dialog__divider" hidden><span>@Localizer["or"]</span></p>
 
 		<div class="signin-dialog__step" data-signin-email-step>
 			<label class="signin-dialog__label" for="signin-email">@Localizer["Email address"]</label>

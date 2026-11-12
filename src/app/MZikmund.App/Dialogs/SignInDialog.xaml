@@ -12,6 +12,7 @@
         <StackPanel
             Spacing="8"
             Visibility="{x:Bind ViewModel.IsChooseStep, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+            <!--  Google and Apple are not configured in Supabase yet (#564).  -->
             <Button
                 HorizontalAlignment="Stretch"
                 HorizontalContentAlignment="Center"
@@ -19,7 +20,8 @@
                 Command="{x:Bind ViewModel.SignInWithGoogleCommand}"
                 Content="{xaml:Localize Key=SignInWithGoogle}"
                 IsEnabled="{x:Bind ViewModel.IsNotBusy, Mode=OneWay}"
-                Style="{StaticResource MzStandardButtonStyle}" />
+                Style="{StaticResource MzStandardButtonStyle}"
+                Visibility="Collapsed" />
             <Button
                 HorizontalAlignment="Stretch"
                 HorizontalContentAlignment="Center"
@@ -27,7 +29,8 @@
                 Command="{x:Bind ViewModel.SignInWithAppleCommand}"
                 Content="{xaml:Localize Key=SignInWithApple}"
                 IsEnabled="{x:Bind ViewModel.IsNotBusy, Mode=OneWay}"
-                Style="{StaticResource MzStandardButtonStyle}" />
+                Style="{StaticResource MzStandardButtonStyle}"
+                Visibility="Collapsed" />
             <Button
                 HorizontalAlignment="Stretch"
                 HorizontalContentAlignment="Center"
