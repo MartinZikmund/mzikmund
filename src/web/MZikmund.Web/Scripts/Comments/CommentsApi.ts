@@ -32,6 +32,13 @@ export type CommentSort = "top" | "new";
 
 export type ReportReason = "Spam" | "Abuse" | "OffTopic" | "Other";
 
+/** Mirrors MZikmund.DataContracts.Blog.Comments.CommenterProfileDto. */
+export interface CommenterProfile {
+	displayName: string;
+	hasChosenDisplayName: boolean;
+	isBanned: boolean;
+}
+
 export class ApiError extends Error {
 	public readonly status: number;
 	public readonly retryAfterSeconds: number | null;
@@ -144,4 +151,16 @@ export async function reportComment(
 		body: JSON.stringify({ reason, note }),
 	});
 	await expectOk(response);
+}
+
+export async function getMyProfile(): Promise<CommenterProfile> {
+	return readJson<CommenterProfile>(await apiFetch("/api/v1/comments/me"));
+}
+
+export async function updateMyDisplayName(displayName: string): Promise<CommenterProfile> {
+	const response = await apiFetch("/api/v1/comments/me", {
+		method: "PUT",
+		body: JSON.stringify({ displayName }),
+	});
+	return readJson<CommenterProfile>(response);
 }

@@ -1,5 +1,7 @@
 import { isAuthApiError } from "@supabase/supabase-js";
+import { ApiError, getMyProfile, updateMyDisplayName, type CommenterProfile } from "./CommentsApi";
 import {
+	refreshSession,
 	sendEmailCode,
 	signInWithApple,
 	signInWithGoogle,
@@ -7,6 +9,13 @@ import {
 } from "../Auth/SupabaseAuth";
 
 const ResendSeconds = 60;
+const MinNameLength = 2;
+const MaxNameLength = 40;
+
+/** Same rule as the server: trimmed, runs of whitespace collapsed. */
+function normalizeName(value: string): string {
+	return value.trim().replace(/\s+/g, " ");
+}
 
 function isRateLimited(error: unknown): boolean {
 	return isAuthApiError(error)
@@ -33,7 +42,18 @@ export class SignInDialog {
 	private readonly statusEl: HTMLElement | null;
 	private readonly resendButton: HTMLButtonElement | null;
 	private readonly changeEmailButton: HTMLButtonElement | null;
+	private readonly nameStep: HTMLElement | null;
+	private readonly nameInput: HTMLInputElement | null;
+	private readonly nameSaveButton: HTMLButtonElement | null;
+	private readonly nameSkipButton: HTMLButtonElement | null;
+	private readonly headings: HTMLElement[];
+	private readonly skipLabel: string;
 	private readonly resendLabel: string;
+	/** Set while the name step is open: "signin" follows a verified code, "rename" was opened directly. */
+	private nameMode: "signin" | "rename" | null = null;
+	private nameResolve: ((profile: CommenterProfile | null) => void) | null = null;
+	private profile: CommenterProfile | null = null;
+	private signedInDone = false;
 	private resendTimer: number | undefined;
 	private resolve: ((result: SignInResult) => void) | null = null;
 	private wired = false;
@@ -51,6 +71,12 @@ export class SignInDialog {
 		this.statusEl = dialog.querySelector<HTMLElement>("[data-signin-status]");
 		this.resendButton = dialog.querySelector<HTMLButtonElement>("[data-signin-resend]");
 		this.changeEmailButton = dialog.querySelector<HTMLButtonElement>("[data-signin-change-email]");
+		this.nameStep = dialog.querySelector<HTMLElement>("[data-signin-name-step]");
+		this.nameInput = dialog.querySelector<HTMLInputElement>("[data-signin-name]");
+		this.nameSaveButton = dialog.querySelector<HTMLButtonElement>("[data-signin-name-save]");
+		this.nameSkipButton = dialog.querySelector<HTMLButtonElement>("[data-signin-name-skip]");
+		this.headings = Array.from(dialog.querySelectorAll<HTMLElement>("[data-signin-heading]"));
+		this.skipLabel = this.nameSkipButton?.textContent?.trim() ?? "Skip for now";
 		this.resendLabel = this.resendButton?.textContent?.trim() ?? "Resend code";
 	}
 
@@ -63,6 +89,13 @@ export class SignInDialog {
 		this.showError("");
 		this.showStatus("");
 		this.stopResendCountdown();
+		this.nameMode = null;
+		this.profile = null;
+		this.signedInDone = false;
+		this.setHeadingsHidden(false);
+		if (this.nameStep) {
+			this.nameStep.hidden = true;
+		}
 		if (this.emailStep) {
 			this.emailStep.hidden = false;
 		}
@@ -81,6 +114,30 @@ export class SignInDialog {
 		return result;
 	}
 
+	/** The profile loaded after the last sign-in, handed over once so the caller need not fetch it again. */
+	public takeProfile(): CommenterProfile | null {
+		const profile = this.profile;
+		this.profile = null;
+		return profile;
+	}
+
+	/** Opens straight at the name step for a signed-in reader. Resolves the saved profile, or null when dismissed. */
+	public openNameStep(currentName: string): Promise<CommenterProfile | null> {
+		this.wire("");
+		this.showError("");
+		this.showStatus("");
+		this.stopResendCountdown();
+		this.signedInDone = false;
+		this.nameMode = "rename";
+
+		const result = new Promise<CommenterProfile | null>((resolve) => {
+			this.nameResolve = resolve;
+		});
+		this.dialog.showModal();
+		this.showNameStep(currentName);
+		return result;
+	}
+
 	private wire(returnTo: string): void {
 		if (this.wired) {
 			return;
@@ -90,7 +147,9 @@ export class SignInDialog {
 		// Escape and the method="dialog" close button both fire `close`.
 		this.dialog.addEventListener("close", () => {
 			this.stopResendCountdown();
-			this.settle("cancelled");
+			this.settleName(null);
+			// Closing the name step still leaves the reader signed in.
+			this.settle(this.signedInDone ? "signed-in" : "cancelled");
 		});
 
 		for (const button of this.dialog.querySelectorAll<HTMLButtonElement>("[data-signin-provider]")) {
@@ -112,6 +171,15 @@ export class SignInDialog {
 
 		this.sendButton?.addEventListener("click", () => void this.sendCode());
 		this.verifyButton?.addEventListener("click", () => void this.verifyCode());
+
+		this.nameSaveButton?.addEventListener("click", () => void this.saveName());
+		this.nameSkipButton?.addEventListener("click", () => this.dialog.close());
+		this.nameInput?.addEventListener("keydown", (e) => {
+			if (e.key === "Enter") {
+				e.preventDefault();
+				void this.saveName();
+			}
+		});
 
 		this.resendButton?.addEventListener("click", () => void this.sendCode());
 		this.changeEmailButton?.addEventListener("click", () => this.showEmailStep());
@@ -239,6 +307,21 @@ export class SignInDialog {
 		this.busy(true);
 		try {
 			await verifyEmailCode(email, code);
+			this.signedInDone = true;
+
+			// The name step is a nicety: if the profile cannot be read, sign-in just carries on.
+			try {
+				this.profile = await getMyProfile();
+			} catch {
+				this.profile = null;
+			}
+
+			if (this.profile && !this.profile.hasChosenDisplayName && !this.profile.isBanned) {
+				this.nameMode = "signin";
+				this.showNameStep(this.profile.displayName);
+				return;
+			}
+
 			this.settle("signed-in");
 			this.dialog.close();
 		} catch (error) {
@@ -252,6 +335,101 @@ export class SignInDialog {
 		} finally {
 			this.busy(false);
 		}
+	}
+
+	private showNameStep(name: string): void {
+		this.setHeadingsHidden(true);
+		for (const step of [this.emailStep, this.codeStep]) {
+			if (step) {
+				step.hidden = true;
+			}
+		}
+		if (this.nameStep) {
+			this.nameStep.hidden = false;
+		}
+		if (this.nameSkipButton) {
+			this.nameSkipButton.textContent = this.nameMode === "rename" ? "Cancel" : this.skipLabel;
+		}
+		this.dialog.setAttribute("aria-labelledby", "signin-name-title");
+		if (this.nameInput) {
+			this.nameInput.value = name;
+			this.nameInput.focus();
+			this.nameInput.select();
+		}
+		this.showStatus(this.nameMode === "rename"
+			? "Change the name shown with your comments."
+			: "You are signed in. Choose the name shown with your comments.");
+	}
+
+	private async saveName(): Promise<void> {
+		if (this.pending) {
+			return;
+		}
+
+		const name = normalizeName(this.nameInput?.value ?? "");
+		if (name.length < MinNameLength || name.length > MaxNameLength) {
+			this.showError(`Use between ${MinNameLength} and ${MaxNameLength} characters.`);
+			return;
+		}
+
+		this.busy(true);
+		try {
+			let updated: CommenterProfile;
+			try {
+				updated = await updateMyDisplayName(name);
+			} catch (error) {
+				if (!(error instanceof ApiError) || error.status !== 401 || !(await refreshSession())) {
+					throw error;
+				}
+				updated = await updateMyDisplayName(name);
+			}
+
+			this.showError("");
+			if (this.nameMode === "signin") {
+				this.profile = updated;
+				this.settle("signed-in");
+			} else {
+				this.settleName(updated);
+			}
+			this.dialog.close();
+		} catch (error) {
+			this.showError(this.describeNameError(error));
+		} finally {
+			this.busy(false);
+		}
+	}
+
+	private describeNameError(error: unknown): string {
+		if (error instanceof ApiError) {
+			switch (error.status) {
+				case 400:
+					return error.detail ?? "That name cannot be used. Please pick another one.";
+				case 401:
+					return "Your session has expired. Please sign in again.";
+				case 403:
+					return error.detail ?? "You are not allowed to change your name.";
+				case 429:
+					return "Too many changes, try again in a few minutes.";
+				default:
+					return "The name could not be saved. Please try again.";
+			}
+		}
+		return "The name could not be saved. Check your connection and try again.";
+	}
+
+	private setHeadingsHidden(value: boolean): void {
+		for (const heading of this.headings) {
+			heading.hidden = value;
+		}
+		if (!value) {
+			this.dialog.setAttribute("aria-labelledby", "signin-title");
+		}
+	}
+
+	private settleName(profile: CommenterProfile | null): void {
+		const resolve = this.nameResolve;
+		this.nameResolve = null;
+		resolve?.(profile);
 	}
 
 	private setProvidersDisabled(value: boolean): void {
@@ -273,6 +451,9 @@ export class SignInDialog {
 		}
 		if (this.verifyButton) {
 			this.verifyButton.disabled = value;
+		}
+		if (this.nameSaveButton) {
+			this.nameSaveButton.disabled = value;
 		}
 	}
 

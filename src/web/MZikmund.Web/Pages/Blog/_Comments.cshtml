@@ -209,8 +209,8 @@
 			</button>
 		</form>
 
-		<h2 class="signin-dialog__title" id="signin-title">@Localizer["Sign in to continue"]</h2>
-		<p class="signin-dialog__lead">@Localizer["Your draft is saved. You will land right back here."]</p>
+		<h2 class="signin-dialog__title" id="signin-title" data-signin-heading>@Localizer["Sign in to continue"]</h2>
+		<p class="signin-dialog__lead" data-signin-heading>@Localizer["Your draft is saved. You will land right back here."]</p>
 
 		@* Google and Apple are not configured in Supabase yet (#564). *@
 		<div class="signin-dialog__providers" hidden>
@@ -243,6 +243,16 @@
 			<button type="button" class="btn btn--accent btn--lg" data-signin-verify>@Localizer["Verify and continue"]</button>
 			<button type="button" class="btn btn--standard" data-signin-resend>@Localizer["Resend code"]</button>
 			<button type="button" class="btn btn--subtle" data-signin-change-email>@Localizer["Use a different email"]</button>
+		</div>
+
+		<div class="signin-dialog__step" data-signin-name-step hidden>
+			<h2 class="signin-dialog__title" id="signin-name-title">@Localizer["What name should we show with your comments?"]</h2>
+			<label class="visually-hidden" for="signin-name">@Localizer["Display name"]</label>
+			<input class="signin-dialog__input" id="signin-name" type="text" maxlength="40"
+				   autocomplete="nickname" aria-describedby="signin-name-hint" data-signin-name />
+			<p class="signin-dialog__hint" id="signin-name-hint">@Localizer["Shown publicly next to your comments. You can change it later."]</p>
+			<button type="button" class="btn btn--accent btn--lg" data-signin-name-save>@Localizer["Save"]</button>
+			<button type="button" class="btn btn--standard" data-signin-name-skip>@Localizer["Skip for now"]</button>
 		</div>
 
 		<p class="visually-hidden" role="status" data-signin-status></p>
