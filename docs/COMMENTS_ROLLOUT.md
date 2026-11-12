@@ -67,13 +67,12 @@ privacy page and its footer link go public with the deploy, before the feature d
 
 ## C. App Service configuration
 
-The committed `appsettings.json` ships **placeholders** for Supabase and Turnstile, so either commit the
-real values or set them here. Do this once, before the deploy:
+The public values (Supabase project ref and publishable key, Turnstile site key) are committed in
+`appsettings.json`. Only the gate and the secrets go here. Do this once, before the deploy:
 
 ```bash
 az webapp config appsettings set --name webapp-mzikmund --resource-group mzikmund --settings \
   Comments__Enabled=false \
-  Turnstile__SiteKey=<site-key> \
   Turnstile__SecretKey=<secret-key> \
   Turnstile__ExpectedHostname=mzikmund.dev
 ```
@@ -84,7 +83,7 @@ az webapp config appsettings set --name webapp-mzikmund --resource-group mzikmun
 | `Supabase__ProjectRef` | `<ref>` | committed in `appsettings.json`; skip |
 | `Supabase__PublishableKey` | `sb_publishable_...` | committed in `appsettings.json`; skip. Never the secret key |
 | `Supabase__LocalUrl` | **not set** | dev-only; when present it overrides the project ref |
-| `Turnstile__SiteKey` | site key | skip if committed |
+| `Turnstile__SiteKey` | site key | committed in `appsettings.json`; skip |
 | `Turnstile__SecretKey` | secret | App Service only |
 | `Turnstile__ExpectedAction` | `comment-create` | already the default |
 | `Turnstile__ExpectedHostname` | `mzikmund.dev` | optional; empty skips the check |
