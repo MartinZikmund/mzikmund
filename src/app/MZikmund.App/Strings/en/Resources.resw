@@ -711,4 +711,31 @@
   <data name="CommentErrorHidden" xml:space="preserve">
     <value>A moderator hid this comment, so it cannot be deleted.</value>
   </data>
+  <data name="DisplayNameHeading" xml:space="preserve">
+    <value>What name should we show with your comments?</value>
+  </data>
+  <data name="DisplayNameHint" xml:space="preserve">
+    <value>Shown publicly next to your comments. You can change it later.</value>
+  </data>
+  <data name="DisplayNameSkip" xml:space="preserve">
+    <value>Skip for now</value>
+  </data>
+  <data name="DisplayNameLengthFormat" xml:space="preserve">
+    <value>The name must be {0} to {1} characters long.</value>
+  </data>
+  <data name="DisplayNameRateLimited" xml:space="preserve">
+    <value>Too many changes, try again in a few minutes.</value>
+  </data>
+  <data name="DisplayNameReserved" xml:space="preserve">
+    <value>That name is reserved. Please pick another one.</value>
+  </data>
+  <data name="DisplayNameInvalid" xml:space="preserve">
+    <value>That name can't be used. Please pick another one.</value>
+  </data>
+  <data name="ChangeName" xml:space="preserve">
+    <value>Change name</value>
+  </data>
+  <data name="ChangeNameTitle" xml:space="preserve">
+    <value>Change your name</value>
+  </data>
 </root>

@@ -97,6 +97,40 @@
                 Content="{xaml:Localize Key=UseDifferentEmail}" />
         </StackPanel>
 
+        <StackPanel
+            Spacing="8"
+            Visibility="{x:Bind ViewModel.IsNameStep, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+            <TextBlock
+                Style="{StaticResource MzRowTitleTextStyle}"
+                Text="{xaml:Localize Key=DisplayNameHeading}"
+                TextWrapping="Wrap" />
+            <TextBox
+                AutomationProperties.AutomationId="SignInDisplayNameBox"
+                AutomationProperties.Name="{xaml:Localize Key=DisplayNameHeading}"
+                MaxLength="{x:Bind ViewModel.MaxDisplayNameLength}"
+                Text="{x:Bind ViewModel.DisplayName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBlock
+                Style="{StaticResource MzMetaTextStyle}"
+                Text="{xaml:Localize Key=DisplayNameHint}"
+                TextWrapping="Wrap" />
+            <Button
+                HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Center"
+                AutomationProperties.AutomationId="SignInDisplayNameSave"
+                Command="{x:Bind ViewModel.SaveDisplayNameCommand}"
+                Content="{xaml:Localize Key=Save}"
+                IsEnabled="{x:Bind ViewModel.IsNotBusy, Mode=OneWay}"
+                Style="{StaticResource MzAccentButtonStyle}" />
+            <Button
+                HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Center"
+                AutomationProperties.AutomationId="SignInDisplayNameSkip"
+                Command="{x:Bind ViewModel.SkipDisplayNameCommand}"
+                Content="{xaml:Localize Key=DisplayNameSkip}"
+                IsEnabled="{x:Bind ViewModel.IsNotBusy, Mode=OneWay}"
+                Style="{StaticResource MzStandardButtonStyle}" />
+        </StackPanel>
+
         <ProgressRing
             Width="24"
             Height="24"

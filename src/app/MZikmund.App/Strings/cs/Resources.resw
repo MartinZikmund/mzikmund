@@ -711,4 +711,31 @@
   <data name="CommentErrorHidden" xml:space="preserve">
     <value>Komentář skryl moderátor, takže ho nelze smazat.</value>
   </data>
+  <data name="DisplayNameHeading" xml:space="preserve">
+    <value>Jaké jméno máme zobrazovat u vašich komentářů?</value>
+  </data>
+  <data name="DisplayNameHint" xml:space="preserve">
+    <value>Zobrazuje se veřejně u vašich komentářů. Později ho můžete změnit.</value>
+  </data>
+  <data name="DisplayNameSkip" xml:space="preserve">
+    <value>Zatím přeskočit</value>
+  </data>
+  <data name="DisplayNameLengthFormat" xml:space="preserve">
+    <value>Jméno musí mít {0} až {1} znaků.</value>
+  </data>
+  <data name="DisplayNameRateLimited" xml:space="preserve">
+    <value>Příliš mnoho změn, zkuste to znovu za pár minut.</value>
+  </data>
+  <data name="DisplayNameReserved" xml:space="preserve">
+    <value>Toto jméno je vyhrazené. Zvolte prosím jiné.</value>
+  </data>
+  <data name="DisplayNameInvalid" xml:space="preserve">
+    <value>Toto jméno nelze použít. Zvolte prosím jiné.</value>
+  </data>
+  <data name="ChangeName" xml:space="preserve">
+    <value>Změnit jméno</value>
+  </data>
+  <data name="ChangeNameTitle" xml:space="preserve">
+    <value>Změna jména</value>
+  </data>
 </root>
