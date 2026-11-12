@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
+using MZikmund.DataContracts.Blog.Comments;
 
 namespace MZikmund.Web.Core.Services.Comments;
 
@@ -35,8 +36,8 @@ public readonly record struct DisplayNameCheck(string Name, DisplayNameProblem P
 /// </summary>
 public static class DisplayNameRules
 {
-	public const int MinLength = 2;
-	public const int MaxLength = 40;
+	public const int MinLength = CommentLimits.MinDisplayNameLength;
+	public const int MaxLength = CommentLimits.MaxDisplayNameLength;
 
 	private static readonly string[] ReservedFragments = ["martinzikmund", "mzikmund"];
 

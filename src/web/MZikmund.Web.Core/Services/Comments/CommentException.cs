@@ -6,11 +6,17 @@ namespace MZikmund.Web.Core.Services.Comments;
 /// </summary>
 public abstract class CommentException : Exception
 {
-	protected CommentException(string message, string? code = null)
+	protected CommentException(string message, string? code = null, string? publicDetail = null)
 		: base(message)
 	{
 		Code = code;
+		PublicDetail = publicDetail;
 	}
+
+	/// <summary>
+	/// Client-safe explanation that replaces the fixed message for the <see cref="Code"/>, when the reason needs spelling out.
+	/// </summary>
+	public string? PublicDetail { get; }
 
 	/// <summary>
 	/// One of <see cref="MZikmund.DataContracts.Blog.Comments.CommentErrorCodes"/> when the failure has a

@@ -63,6 +63,14 @@ public partial interface IMZikmundApi
 	[Headers("Authorization: Bearer")]
 	Task<IApiResponse> ReportCommentAsync(Guid id, [Body] ReportCommentRequest request);
 
+	[Get("/v1/comments/me")]
+	[Headers("Authorization: Bearer")]
+	Task<ApiResponse<CommentProfile>> GetMyCommentProfileAsync();
+
+	[Put("/v1/comments/me")]
+	[Headers("Authorization: Bearer")]
+	Task<ApiResponse<CommentProfile>> UpdateMyCommentProfileAsync([Body] UpdateCommentProfileRequest request);
+
 	[Get("/v1/admin/comments/reports")]
 	[Headers("Authorization: Bearer")]
 	Task<ApiResponse<PagedResponse<CommentReportDto>>> GetCommentReportsAsync([Query] int pageNumber = 1);

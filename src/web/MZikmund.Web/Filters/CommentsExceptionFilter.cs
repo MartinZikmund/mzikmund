@@ -45,7 +45,7 @@ public sealed class CommentsExceptionFilterAttribute : ExceptionFilterAttribute
 		ProblemDetails problem = new()
 		{
 			Status = status,
-			Detail = PublicMessage(code),
+			Detail = (context.Exception as CommentException)?.PublicDetail ?? PublicMessage(code),
 		};
 		problem.Extensions["code"] = code;
 
@@ -69,6 +69,8 @@ public sealed class CommentsExceptionFilterAttribute : ExceptionFilterAttribute
 		CommentErrorCodes.EditWindowExpired => $"A comment can only be edited within {CommentLimits.EditWindowMinutes} minutes of posting.",
 		CommentErrorCodes.NotVisible => "That comment is no longer visible.",
 		CommentErrorCodes.OwnComment => "You cannot do that to your own comment.",
+		CommentErrorCodes.DisplayNameInvalid => "That name is not valid.",
+		CommentErrorCodes.DisplayNameReserved => "That name is reserved. Please pick another one.",
 		CommentErrorCodes.HiddenByModerator => "A moderator hid this comment, so it cannot be deleted.",
 		_ => "The request could not be completed.",
 	};
