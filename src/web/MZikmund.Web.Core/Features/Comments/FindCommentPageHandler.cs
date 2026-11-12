@@ -19,7 +19,7 @@ internal sealed class FindCommentPageHandler : IRequestHandler<FindCommentPageQu
 	{
 		var target = await _dbContext.Comment
 			.AsNoTracking()
-			.Where(comment => comment.Id == request.CommentId)
+			.Where(comment => comment.Id == request.CommentId && comment.PostId == request.PostId)
 			.Select(comment => new { comment.ParentId, comment.Status })
 			.FirstOrDefaultAsync(cancellationToken);
 
@@ -35,20 +35,23 @@ internal sealed class FindCommentPageHandler : IRequestHandler<FindCommentPageQu
 
 		var anchor = await topLevel
 			.Where(comment => comment.Id == anchorId)
-			.Select(comment => new { comment.PostId, comment.CreatedOn, comment.UpvoteCount })
+			.Select(comment => new { comment.CreatedOn, comment.UpvoteCount, comment.Status })
 			.FirstOrDefaultAsync(cancellationToken);
 		if (anchor is null)
 		{
 			return null;
 		}
 
-		// Mirrors the ordering of GetPostCommentsHandler.
-		var siblings = topLevel.Where(comment => comment.PostId == anchor.PostId);
+		// Mirrors the ordering of GetPostCommentsHandler: under Top, non-visible comments sort last.
+		var siblings = topLevel.Where(comment => comment.PostId == request.PostId);
+		var anchorRank = anchor.Status == DataCommentStatus.Visible ? 0 : 1;
 		var precedingCount = request.Sort == CommentSortOrder.New
 			? await siblings.CountAsync(comment => comment.CreatedOn > anchor.CreatedOn, cancellationToken)
 			: await siblings.CountAsync(
-				comment => comment.UpvoteCount > anchor.UpvoteCount
-					|| (comment.UpvoteCount == anchor.UpvoteCount && comment.CreatedOn < anchor.CreatedOn),
+				comment => (comment.Status == DataCommentStatus.Visible ? 0 : 1) < anchorRank
+					|| ((comment.Status == DataCommentStatus.Visible ? 0 : 1) == anchorRank
+						&& (comment.UpvoteCount > anchor.UpvoteCount
+							|| (comment.UpvoteCount == anchor.UpvoteCount && comment.CreatedOn < anchor.CreatedOn))),
 				cancellationToken);
 
 		var pageSize = Math.Max(request.PageSize, 1);

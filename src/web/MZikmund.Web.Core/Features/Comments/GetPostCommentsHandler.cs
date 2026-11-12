@@ -6,6 +6,7 @@ using MZikmund.Web.Core.Services;
 using MZikmund.Web.Core.Services.Comments;
 using MZikmund.Web.Data;
 using MZikmund.Web.Data.Entities;
+using DataCommentStatus = MZikmund.Web.Data.Entities.CommentStatus;
 
 namespace MZikmund.Web.Core.Features.Comments;
 
@@ -42,7 +43,10 @@ internal sealed class GetPostCommentsHandler : IRequestHandler<GetPostCommentsQu
 		var totalCount = await topLevel.CountAsync(cancellationToken);
 
 		IOrderedQueryable<CommentEntity> ordered = request.Sort == CommentSortOrder.Top
-			? topLevel.OrderByDescending(comment => comment.UpvoteCount).ThenBy(comment => comment.CreatedOn).ThenBy(comment => comment.Id)
+			? topLevel
+				.OrderBy(comment => comment.Status == DataCommentStatus.Visible ? 0 : 1)
+				.ThenByDescending(comment => comment.UpvoteCount)
+				.ThenBy(comment => comment.CreatedOn).ThenBy(comment => comment.Id)
 			: topLevel.OrderByDescending(comment => comment.CreatedOn).ThenByDescending(comment => comment.Id);
 
 		var rows = await CommentProjection.SelectRows(

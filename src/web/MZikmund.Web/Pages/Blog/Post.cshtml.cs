@@ -92,7 +92,7 @@ public class PostModel : PageModel, IPostPageModel
 		var pageNumber = 1;
 		if (highlightCommentId is { } commentId)
 		{
-			pageNumber = await _mediator.Send(new FindCommentPageQuery(commentId, sortOrder, CommentLimits.PageSize)) ?? 1;
+			pageNumber = await _mediator.Send(new FindCommentPageQuery(BlogPost.Id, commentId, sortOrder, CommentLimits.PageSize)) ?? 1;
 		}
 
 		var comments = await _mediator.Send(
