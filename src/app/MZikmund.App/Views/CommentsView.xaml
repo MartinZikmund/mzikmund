@@ -1,6 +1,7 @@
 <UserControl
     x:Class="MZikmund.Views.CommentsView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:controls="using:MZikmund.Controls"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:items="using:MZikmund.ViewModels.Items"
@@ -284,7 +285,7 @@
                         BorderThickness="2,0,0,0"
                         Visibility="{x:Bind local:CommentsView.HasReplies(Replies.Count, HasMoreReplies), Mode=OneWay}">
                         <StackPanel Spacing="12">
-                            <ItemsRepeater ItemTemplate="{StaticResource ReplyTemplate}" ItemsSource="{x:Bind Replies}">
+                            <ItemsRepeater ItemTemplate="{StaticResource ReplyTemplate}" controls:MzRepeater.ItemsSource="{x:Bind Replies}">
                                 <ItemsRepeater.Layout>
                                     <StackLayout Spacing="12" />
                                 </ItemsRepeater.Layout>
@@ -409,7 +410,7 @@
                     </StackPanel>
                 </Border>
 
-                <ItemsRepeater ItemTemplate="{StaticResource CommentTemplate}" ItemsSource="{x:Bind ViewModel.Comments}">
+                <ItemsRepeater ItemTemplate="{StaticResource CommentTemplate}" controls:MzRepeater.ItemsSource="{x:Bind ViewModel.Comments}">
                     <ItemsRepeater.Layout>
                         <StackLayout Spacing="20" />
                     </ItemsRepeater.Layout>
