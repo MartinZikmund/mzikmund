@@ -86,8 +86,9 @@ public static class DisplayNameRules
 
 	/// <summary>
 	/// Normalizes and validates a name. Reserved names are accepted when <paramref name="isAdmin"/> is set.
+	/// A placeholder-shaped name ("Reader 4F2A") is only allowed when it is <paramref name="userId"/>'s own.
 	/// </summary>
-	public static DisplayNameCheck Check(string? value, bool isAdmin)
+	public static DisplayNameCheck Check(string? value, bool isAdmin, Guid? userId = null)
 	{
 		var name = Normalize(value);
 		var length = new StringInfo(name).LengthInTextElements;
@@ -107,7 +108,7 @@ public static class DisplayNameRules
 			return new(name, DisplayNameProblem.NoLettersOrDigits);
 		}
 
-		if (!isAdmin && IsReserved(name))
+		if (!isAdmin && (IsReserved(name) || IsSomeoneElsesPlaceholder(name, userId)))
 		{
 			return new(name, DisplayNameProblem.Reserved);
 		}
@@ -117,9 +118,19 @@ public static class DisplayNameRules
 
 	public static bool IsReserved(string name)
 	{
-		var key = new string(name.Normalize(NormalizationForm.FormKC).ToLowerInvariant().Where(char.IsLetterOrDigit).ToArray());
+		var key = ToKey(name);
 		return ReservedNames.Contains(key) || ReservedFragments.Any(key.Contains);
 	}
+
+	private static bool IsSomeoneElsesPlaceholder(string name, Guid? userId)
+	{
+		var key = ToKey(name);
+		var isPlaceholderShaped = key.Length == 10 && key.StartsWith("reader", StringComparison.Ordinal) && key[6..].All(Uri.IsHexDigit);
+		return isPlaceholderShaped && (userId is not { } id || key != ToKey(FallbackName(id)));
+	}
+
+	private static string ToKey(string name) =>
+		new(name.Normalize(NormalizationForm.FormKC).ToLowerInvariant().Where(char.IsLetterOrDigit).ToArray());
 
 	/// <summary>
 	/// Stable per-user placeholder, e.g. <c>Reader 3FA9</c>.
@@ -135,7 +146,7 @@ public static class DisplayNameRules
 	/// </summary>
 	public static string FromToken(string? tokenName, Guid userId, bool isAdmin)
 	{
-		var check = Check(tokenName, isAdmin);
+		var check = Check(tokenName, isAdmin, userId);
 		return check.IsValid ? check.Name : FallbackName(userId);
 	}
 }

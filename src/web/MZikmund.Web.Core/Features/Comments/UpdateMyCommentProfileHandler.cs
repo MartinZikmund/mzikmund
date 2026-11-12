@@ -33,7 +33,7 @@ internal sealed class UpdateMyCommentProfileHandler : IRequestHandler<UpdateMyCo
 		var current = _currentUserAccessor.Current
 			?? throw new CommentForbiddenException("A signed-in author is required to set a display name.");
 
-		var check = DisplayNameRules.Check(request.DisplayName, current.IsAdmin);
+		var check = DisplayNameRules.Check(request.DisplayName, current.IsAdmin, current.Id);
 		if (check.IsReserved)
 		{
 			throw new CommentValidationException(
