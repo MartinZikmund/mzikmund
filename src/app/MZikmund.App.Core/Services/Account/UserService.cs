@@ -17,6 +17,8 @@ public class UserService : IUserService
 {
 	private static readonly TimeSpan SignInTimeout = TimeSpan.FromMinutes(5);
 	private static readonly TimeSpan RefreshMargin = TimeSpan.FromMinutes(5);
+	private static readonly TimeSpan RefreshBackoff = TimeSpan.FromSeconds(30);
+	private const string TimedOutMessage = "The sign-in server timed out. Try again.";
 
 	private readonly SemaphoreSlim _authenticationLock = new(1, 1);
 	private readonly IAppPreferences _appPreferences;
@@ -29,6 +31,7 @@ public class UserService : IUserService
 	private SupabaseIdentity? _identity;
 	private string? _accessToken;
 	private string? _refreshToken;
+	private DateTimeOffset _refreshBackoffUntil;
 
 	public UserService(IAppPreferences appPreferences, IOptions<SupabaseConfig> config)
 		: this(appPreferences, config, null, TimeProvider.System)
@@ -73,7 +76,7 @@ public class UserService : IUserService
 				throw new AuthenticationFailedException("Sign in to continue.");
 			}
 
-			if (_identity.ExpiresOn < DateTimeOffset.UtcNow.Add(RefreshMargin))
+			if (_identity.ExpiresOn < _timeProvider.GetUtcNow().Add(RefreshMargin))
 			{
 				await RefreshCoreAsync(cancellationToken);
 			}
@@ -95,6 +98,12 @@ public class UserService : IUserService
 			throw new AuthenticationFailedException("Your session expired. Sign in again.");
 		}
 
+		var tokenStillValid = _identity!.ExpiresOn > _timeProvider.GetUtcNow();
+		if (tokenStillValid && _timeProvider.GetUtcNow() < _refreshBackoffUntil)
+		{
+			return;
+		}
+
 		try
 		{
 			SetSession(await GetClient().RefreshAsync(_refreshToken, cancellationToken));
@@ -105,20 +114,25 @@ public class UserService : IUserService
 			ClearSession();
 			throw new AuthenticationFailedException("Your session expired. Sign in again.", ex);
 		}
-		catch (Exception ex) when (ex is HttpRequestException or SupabaseAuthException && _identity!.ExpiresOn > DateTimeOffset.UtcNow)
+		catch (Exception ex) when (ex is HttpRequestException or SupabaseAuthException or OperationCanceledException && !cancellationToken.IsCancellationRequested)
 		{
+			_refreshBackoffUntil = _timeProvider.GetUtcNow().Add(RefreshBackoff);
+			if (!tokenStillValid)
+			{
+				throw new AuthenticationFailedException(DescribeTransientFailure(ex), ex);
+			}
+
 			// Server or network trouble: keep the session and use the token while it is still valid.
 			Debug.WriteLine($"Token refresh failed, using the current token: {ex.Message}");
-		}
-		catch (SupabaseAuthException ex)
-		{
-			throw new AuthenticationFailedException(ex.Message, ex);
 		}
 		catch (FormatException ex)
 		{
 			throw new AuthenticationFailedException("Sign-in server returned an invalid token.", ex);
 		}
 	}
+
+	private static string DescribeTransientFailure(Exception ex) =>
+		ex is OperationCanceledException ? TimedOutMessage : ex.Message;
 
 	public async Task SignInWithProviderAsync(SupabaseOAuthProvider provider, CancellationToken cancellationToken = default)
 	{
@@ -181,9 +195,9 @@ public class UserService : IUserService
 		{
 			throw new AuthenticationFailedException("Too many codes requested, wait a minute and try again.", ex);
 		}
-		catch (Exception ex) when (ex is HttpRequestException or SupabaseAuthException)
+		catch (Exception ex) when (ex is HttpRequestException or SupabaseAuthException or OperationCanceledException)
 		{
-			throw new AuthenticationFailedException(ex.Message, ex);
+			throw new AuthenticationFailedException(DescribeTransientFailure(ex), ex);
 		}
 	}
 
@@ -205,9 +219,9 @@ public class UserService : IUserService
 		{
 			throw new AuthenticationFailedException("That code is wrong or has expired.", ex);
 		}
-		catch (Exception ex) when (ex is HttpRequestException or SupabaseAuthException or FormatException)
+		catch (Exception ex) when (ex is HttpRequestException or SupabaseAuthException or FormatException or OperationCanceledException)
 		{
-			throw new AuthenticationFailedException(ex.Message, ex);
+			throw new AuthenticationFailedException(DescribeTransientFailure(ex), ex);
 		}
 		finally
 		{
