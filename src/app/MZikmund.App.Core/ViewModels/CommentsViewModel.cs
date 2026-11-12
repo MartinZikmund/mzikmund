@@ -352,7 +352,8 @@ public partial class CommentsViewModel : ViewModelBase
 
 			var (success, created) = await TryWriteAsync(
 				() => _api.CreateCommentAsync(postId, new CreateCommentRequest { Content = content, ParentId = parentId }),
-				"CommentPostFailed");
+				"CommentPostFailed",
+				"CommentAppRateLimited");
 			if (!success || created is null || postId != _postId)
 			{
 				return;
@@ -579,7 +580,7 @@ public partial class CommentsViewModel : ViewModelBase
 	/// Runs a write call. A rejected or missing session re-prompts sign-in once; any other failure
 	/// is logged and shown, and the call reports <c>Success: false</c>.
 	/// </summary>
-	private Task<(bool Success, T? Content)> TryWriteAsync<T>(Func<Task<ApiResponse<T>>> call, string failureTitleKey) =>
+	private Task<(bool Success, T? Content)> TryWriteAsync<T>(Func<Task<ApiResponse<T>>> call, string failureTitleKey, string? rateLimitedKey = null) =>
 		TryRunAsync(
 			async () =>
 			{
@@ -587,7 +588,8 @@ public partial class CommentsViewModel : ViewModelBase
 				await response.EnsureSuccessfulAsync();
 				return response.Content;
 			},
-			failureTitleKey);
+			failureTitleKey,
+			rateLimitedKey);
 
 	private Task<(bool Success, object? Content)> TryWriteAsync(Func<Task<IApiResponse>> call, string failureTitleKey) =>
 		TryRunAsync<object?>(
@@ -602,7 +604,7 @@ public partial class CommentsViewModel : ViewModelBase
 			},
 			failureTitleKey);
 
-	private async Task<(bool Success, T? Content)> TryRunAsync<T>(Func<Task<T?>> action, string failureTitleKey)
+	private async Task<(bool Success, T? Content)> TryRunAsync<T>(Func<Task<T?>> action, string failureTitleKey, string? rateLimitedKey = null)
 	{
 		for (var attempt = 0; ; attempt++)
 		{
@@ -626,7 +628,7 @@ public partial class CommentsViewModel : ViewModelBase
 			catch (Exception ex) when (ex is ApiException or HttpRequestException or AuthenticationFailedException or TaskCanceledException)
 			{
 				_logger.LogError(ex, "A comment request failed");
-				await ShowErrorAsync(ex, failureTitleKey);
+				await ShowErrorAsync(ex, failureTitleKey, rateLimitedKey);
 				return (false, default);
 			}
 		}
@@ -635,13 +637,13 @@ public partial class CommentsViewModel : ViewModelBase
 	private static bool IsUnauthorized(Exception ex) =>
 		ex is AuthenticationFailedException || ex is ApiException { StatusCode: HttpStatusCode.Unauthorized };
 
-	private async Task ShowErrorAsync(Exception ex, string titleKey) =>
+	private async Task ShowErrorAsync(Exception ex, string titleKey, string? rateLimitedKey = null) =>
 		await _dialogService.ShowStatusMessageAsync(
 			StatusMessageDialogType.Error,
 			Localizer.Instance.GetString(titleKey),
-			Describe(ex));
+			Describe(ex, rateLimitedKey));
 
-	private static string Describe(Exception ex)
+	private static string Describe(Exception ex, string? rateLimitedKey = null)
 	{
 		if (ex is AuthenticationFailedException)
 		{
@@ -655,6 +657,11 @@ public partial class CommentsViewModel : ViewModelBase
 
 		if (api.StatusCode == HttpStatusCode.TooManyRequests)
 		{
+			if (rateLimitedKey is not null)
+			{
+				return Localizer.Instance.GetString(rateLimitedKey);
+			}
+
 			return api.Headers?.RetryAfter?.Delta is { } wait && wait > TimeSpan.Zero ?
 				string.Format(CultureInfo.CurrentCulture, Localizer.Instance.GetString("CommentSlowDownWaitFormat"), wait.Humanize()) :
 				Localizer.Instance.GetString("CommentSlowDown");

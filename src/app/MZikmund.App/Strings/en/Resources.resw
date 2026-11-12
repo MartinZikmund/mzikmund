@@ -588,6 +588,9 @@
   <data name="CommentSlowDownWaitFormat" xml:space="preserve">
     <value>Slow down a little. Try again in {0}.</value>
   </data>
+  <data name="CommentAppRateLimited" xml:space="preserve">
+    <value>You're commenting too fast from the app. Try again later.</value>
+  </data>
   <data name="CommentBanned" xml:space="preserve">
     <value>You can no longer comment.</value>
   </data>

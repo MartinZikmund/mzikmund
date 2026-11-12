@@ -38,8 +38,9 @@ public partial interface IMZikmundApi
 		Guid id,
 		[Query] int pageNumber = 1);
 
+	// The server skips its bot check for requests that say they come from the app, and rate-limits them per user instead.
 	[Post("/v1/posts/{postId}/comments")]
-	[Headers("Authorization: Bearer")]
+	[Headers("Authorization: Bearer", "X-MZikmund-Client: app")]
 	Task<ApiResponse<CommentDto>> CreateCommentAsync(Guid postId, [Body] CreateCommentRequest request);
 
 	[Patch("/v1/comments/{id}")]

@@ -588,6 +588,9 @@
   <data name="CommentSlowDownWaitFormat" xml:space="preserve">
     <value>Zpomalte prosím. Zkuste to znovu za {0}.</value>
   </data>
+  <data name="CommentAppRateLimited" xml:space="preserve">
+    <value>Z aplikace komentujete příliš rychle. Zkuste to později.</value>
+  </data>
   <data name="CommentBanned" xml:space="preserve">
     <value>Už nemůžete komentovat.</value>
   </data>
