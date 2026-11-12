@@ -5,6 +5,9 @@ namespace MZikmund.Controls;
 /// </summary>
 public partial class MzSettingsCard : ContentControl
 {
+	// Same breakpoint as the Toolkit's SettingsCard: below it the content wraps under the text.
+	private const double CompactWidth = 476;
+
 	public static readonly DependencyProperty HeaderProperty =
 		DependencyProperty.Register(nameof(Header), typeof(string), typeof(MzSettingsCard), new PropertyMetadata(""));
 
@@ -17,6 +20,19 @@ public partial class MzSettingsCard : ContentControl
 	public MzSettingsCard()
 	{
 		DefaultStyleKey = typeof(MzSettingsCard);
+		SizeChanged += (_, _) => UpdateLayoutState();
+	}
+
+	protected override void OnApplyTemplate()
+	{
+		base.OnApplyTemplate();
+		UpdateLayoutState();
+	}
+
+	private void UpdateLayoutState()
+	{
+		var isCompact = Content is not null && ActualWidth > 0 && ActualWidth < CompactWidth;
+		VisualStateManager.GoToState(this, isCompact ? "Compact" : "Wide", useTransitions: false);
 	}
 
 	public string Header

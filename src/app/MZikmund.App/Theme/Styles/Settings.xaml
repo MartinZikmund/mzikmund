@@ -25,6 +25,24 @@
 						BorderThickness="{TemplateBinding BorderThickness}"
 						CornerRadius="{TemplateBinding CornerRadius}">
 						<Grid ColumnSpacing="16">
+							<VisualStateManager.VisualStateGroups>
+								<VisualStateGroup x:Name="LayoutStates">
+									<VisualState x:Name="Wide" />
+									<VisualState x:Name="Compact">
+										<VisualState.Setters>
+											<Setter Target="ContentPresenter.(Grid.Row)" Value="1" />
+											<Setter Target="ContentPresenter.(Grid.Column)" Value="1" />
+											<Setter Target="ContentPresenter.(Grid.ColumnSpan)" Value="2" />
+											<Setter Target="ContentPresenter.HorizontalAlignment" Value="Left" />
+											<Setter Target="ContentPresenter.Margin" Value="0,8,0,0" />
+										</VisualState.Setters>
+									</VisualState>
+								</VisualStateGroup>
+							</VisualStateManager.VisualStateGroups>
+							<Grid.RowDefinitions>
+								<RowDefinition Height="Auto" />
+								<RowDefinition Height="Auto" />
+							</Grid.RowDefinitions>
 							<Grid.ColumnDefinitions>
 								<ColumnDefinition Width="Auto" />
 								<ColumnDefinition Width="*" />
@@ -52,6 +70,7 @@
 									TextWrapping="Wrap" />
 							</StackPanel>
 							<ContentPresenter
+								x:Name="ContentPresenter"
 								Grid.Column="2"
 								HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
 								VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
