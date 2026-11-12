@@ -80,6 +80,109 @@ public class UserServiceTests
 		Assert.Contains("wrong or has expired", exception.Message);
 	}
 
+	[Fact]
+	public async Task GetAccessTokenAsync_KeepsTheSession_WhenRefreshTimesOut()
+	{
+		// Arrange
+		var token = CreateToken(_time.GetUtcNow().AddMinutes(2));
+		var service = CreateService(token);
+		_handler.Throw(new TaskCanceledException("timeout"));
+
+		// Act
+		var result = await service.GetAccessTokenAsync();
+
+		// Assert
+		Assert.Equal(token, result);
+		Assert.True(service.IsLoggedIn);
+	}
+
+	[Fact]
+	public async Task GetAccessTokenAsync_SaysItTimedOut_WhenTheTokenIsExpired()
+	{
+		// Arrange
+		var service = CreateService(CreateToken(_time.GetUtcNow().AddMinutes(-1)));
+		_handler.Throw(new TaskCanceledException("timeout"));
+
+		// Act
+		var exception = await Assert.ThrowsAsync<AuthenticationFailedException>(() => service.GetAccessTokenAsync());
+
+		// Assert
+		Assert.Contains("timed out", exception.Message);
+		Assert.True(service.IsLoggedIn);
+	}
+
+	[Fact]
+	public async Task GetAccessTokenAsync_WrapsNetworkFailure_WhenTheTokenIsExpired()
+	{
+		// Arrange
+		var service = CreateService(CreateToken(_time.GetUtcNow().AddMinutes(-1)));
+		_handler.Throw(new HttpRequestException("offline"));
+
+		// Act / Assert
+		await Assert.ThrowsAsync<AuthenticationFailedException>(() => service.GetAccessTokenAsync());
+		Assert.True(service.IsLoggedIn);
+	}
+
+	[Fact]
+	public async Task GetAccessTokenAsync_PropagatesCancellation_WhenTheCallerCancelled()
+	{
+		// Arrange
+		var service = CreateService(CreateToken(_time.GetUtcNow().AddMinutes(2)));
+		_handler.Throw(new OperationCanceledException());
+		using CancellationTokenSource cts = new();
+		await cts.CancelAsync();
+
+		// Act / Assert
+		await Assert.ThrowsAnyAsync<OperationCanceledException>(() => service.GetAccessTokenAsync(cts.Token));
+		Assert.True(service.IsLoggedIn);
+	}
+
+	[Fact]
+	public async Task GetAccessTokenAsync_BacksOffAfterAFailedRefresh()
+	{
+		// Arrange
+		var token = CreateToken(_time.GetUtcNow().AddMinutes(2));
+		var service = CreateService(token);
+		_handler.Throw(new TaskCanceledException("timeout"));
+
+		// Act
+		await service.GetAccessTokenAsync();
+		await service.GetAccessTokenAsync();
+		_time.Advance(TimeSpan.FromSeconds(31));
+		await service.GetAccessTokenAsync();
+
+		// Assert
+		Assert.Equal(2, _handler.Calls);
+	}
+
+	[Fact]
+	public async Task SendEmailCodeAsync_SaysItTimedOut()
+	{
+		// Arrange
+		var service = CreateService(null);
+		_handler.Throw(new TaskCanceledException("timeout"));
+
+		// Act
+		var exception = await Assert.ThrowsAsync<AuthenticationFailedException>(() => service.SendEmailCodeAsync("a@b.test"));
+
+		// Assert
+		Assert.Contains("timed out", exception.Message);
+	}
+
+	[Fact]
+	public async Task VerifyEmailCodeAsync_SaysItTimedOut()
+	{
+		// Arrange
+		var service = CreateService(null);
+		_handler.Throw(new TaskCanceledException("timeout"));
+
+		// Act
+		var exception = await Assert.ThrowsAsync<AuthenticationFailedException>(() => service.VerifyEmailCodeAsync("a@b.test", "123456"));
+
+		// Assert
+		Assert.Contains("timed out", exception.Message);
+	}
+
 	private UserService CreateService(string? accessToken)
 	{
 		_preferences.SetupAllProperties();
