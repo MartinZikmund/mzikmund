@@ -75,11 +75,18 @@
                     Icon="{extensions:MzFontIcon GlyphKey=MzGlyphMail}"
                     Tag="Contact" />
                 <mux:NavigationViewItem
+                    x:Name="NavAdminItem"
                     AutomationProperties.AutomationId="NavAdmin"
                     Content="{extensions:Localize Key=Admin}"
                     Icon="{extensions:MzFontIcon GlyphKey=MzGlyphShield}"
                     SelectsOnInvoked="False"
-                    Visibility="{x:Bind ViewModel.IsLoggedIn, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <mux:NavigationViewItem.InfoBadge>
+                        <mux:InfoBadge
+                            AutomationProperties.AutomationId="NavAdminBadge"
+                            Style="{StaticResource DotInfoBadgeStyle}"
+                            Visibility="{x:Bind ViewModel.HasUnreadComments, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                    </mux:NavigationViewItem.InfoBadge>
                     <mux:NavigationViewItem.MenuItems>
                         <mux:NavigationViewItem
                             AutomationProperties.AutomationId="NavAdminPosts"
@@ -101,6 +108,19 @@
                             Content="{extensions:Localize Key=Categories}"
                             Icon="{extensions:MzFontIcon GlyphKey=MzGlyphFolder}"
                             Tag="CategoriesManager" />
+                        <mux:NavigationViewItem
+                            x:Name="NavAdminComments"
+                            AutomationProperties.AutomationId="NavAdminComments"
+                            Content="{extensions:Localize Key=Comments}"
+                            Icon="{extensions:MzFontIcon GlyphKey=MzGlyphComment}"
+                            Tag="CommentsModerator">
+                            <mux:NavigationViewItem.InfoBadge>
+                                <mux:InfoBadge
+                                    AutomationProperties.AutomationId="NavAdminCommentsBadge"
+                                    Value="{x:Bind ViewModel.UnreadCommentsValue, Mode=OneWay}"
+                                    Visibility="{x:Bind ViewModel.HasUnreadComments, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                            </mux:NavigationViewItem.InfoBadge>
+                        </mux:NavigationViewItem>
                     </mux:NavigationViewItem.MenuItems>
                 </mux:NavigationViewItem>
             </mux:NavigationView.MenuItems>

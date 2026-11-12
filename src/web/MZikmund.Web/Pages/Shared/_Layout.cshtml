@@ -2,7 +2,7 @@
 @using MZikmund.Web.Core.Services
 @inject IVersionInfoProvider VersionInfo
 @*
-	No data-theme is rendered on <html>. site.js sets it render-blocking in
+	No data-theme is rendered on <html>. theme-init.js sets it render-blocking in
 	<head> from the stored preference; without JS the CSS falls back to
 	prefers-color-scheme. Hard-coding "light" here (as before) forced a flash of
 	light for dark-mode visitors and defeated the media-query fallback.
@@ -163,6 +163,7 @@
             </div>
 
             <div class="site-footer__meta">
+                <a asp-page="/Privacy">Privacy</a>
                 <span>Proudly running @RuntimeInformation.FrameworkDescription</span>
                 @if (!string.IsNullOrEmpty(VersionInfo.CommitUrl))
                 {

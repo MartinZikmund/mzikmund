@@ -11,6 +11,7 @@ using MZikmund.DataContracts.Serialization;
 using MZikmund.Infrastructure;
 using MZikmund.Services.Account;
 using MZikmund.Services.Caching;
+using MZikmund.Services.Comments;
 using MZikmund.Services.Dialogs;
 using MZikmund.Services.Endpoints;
 using MZikmund.Services.Loading;
@@ -54,8 +55,9 @@ public partial class MZikmundApp : Application, IApplication
 						.EmbeddedSource<MZikmundApp>()
 						.Section<AppConfig>()
 						.Section<AuthConfig>()
+						.Section<SupabaseConfig>()
 				)
-				// e.g. MZIKMUND_AppConfig__ApiUrl, MZIKMUND_AuthConfig__ClientId
+				// e.g. MZIKMUND_AppConfig__ApiUrl, MZIKMUND_SupabaseConfig__Url
 				.ConfigureAppConfiguration((_, configBuilder) => configBuilder.AddEnvironmentVariables("MZIKMUND_"))
 				.UseLogging(configure: (context, logBuilder) =>
 				{
@@ -140,8 +142,10 @@ public partial class MZikmundApp : Application, IApplication
 		services.AddScoped<AddOrUpdateCategoryDialogViewModel>();
 		services.AddScoped<AddOrUpdateTagDialogViewModel>();
 		services.AddScoped<PostsManagerViewModel>();
+		services.AddScoped<CommentsModeratorViewModel>();
 		services.AddScoped<MediaBrowserViewModel>();
 		services.AddScoped<PostViewModel>();
+		services.AddTransient<CommentsViewModel>();
 		services.AddScoped<WindowShellViewModel>();
 		services.AddTransient<PostEditorViewModel>();
 		services.AddTransient<MediaBrowserDialogViewModel>();
@@ -157,7 +161,9 @@ public partial class MZikmundApp : Application, IApplication
 		services.AddScoped<IDialogService, DialogService>();
 		services.AddScoped<IWindowShellProvider, WindowShellProvider>();
 		services.AddScoped<ITimerFactory, TimerFactory>();
-		services.AddScoped<IUserService, UserService>();
+		services.AddScoped<ICommentsBadgeService, CommentsBadgeService>();
+		services.AddSingleton<IUserService, UserService>();
+		services.AddScoped<ISignInPrompt, SignInPrompt>();
 		services.AddSingleton<IMarkdownConverter, MarkdownConverter>();
 		services.AddSingleton<IPostContentProcessor, PostContentProcessor>();
 
@@ -181,27 +187,16 @@ public partial class MZikmundApp : Application, IApplication
 
 		async Task<string> GetTokenAsync(HttpRequestMessage message, CancellationToken cancellationToken)
 		{
-			var userService = provider.GetRequiredService<IUserService>();
-			if (!userService.IsLoggedIn || userService.NeedsRefresh)
-			{
-				await userService.AuthenticateAsync();
-			}
-
-			if (userService.AccessToken is not { } accessToken)
-			{
-				throw new AuthenticationFailedException("Sign in to continue.");
-			}
-
-			return accessToken;
+			return await provider.GetRequiredService<IUserService>().GetAccessTokenAsync(cancellationToken);
 		}
 	}
 
 #if WINDOWS
 	internal void OnUriCallback(Uri uri)
 	{
-		if (!Microsoft.Security.Authentication.OAuth.OAuth2Manager.CompleteAuthRequest(uri))
+		if (!UserService.TryCompleteProtocolCallback(uri))
 		{
-			this.Log().LogError("Could not authenticate");
+			this.Log().LogError("Received a sign-in callback nobody was waiting for");
 		}
 	}
 #endif

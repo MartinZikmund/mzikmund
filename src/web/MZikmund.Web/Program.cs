@@ -1,9 +1,7 @@
 using System.Text.Json.Serialization;
 using AutoMapper;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using MZikmund.Web.Configuration;
 using MZikmund.Web.Configuration.Connections;
 using MZikmund.Web.Core.Content.Meta;
@@ -13,9 +11,14 @@ using MZikmund.Web.Core.Middleware;
 using MZikmund.Web.Core.Properties;
 using MZikmund.Web.Core.Services;
 using MZikmund.Web.Core.Services.Blobs;
+using MZikmund.Web.Core.Services.Comments;
 using MZikmund.Web.Core.Syndication;
 using MZikmund.Web.Data;
 using MZikmund.Web.Data.Extensions;
+using MZikmund.Web.Filters;
+using MZikmund.Web.Infrastructure;
+using MZikmund.Web.Infrastructure.Auth;
+using MZikmund.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,18 +38,33 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 	services.Configure<YouTubeOptions>(youtubeConfig);
 	ValidateYouTubeOptions(youtubeConfig);
 
+	services.Configure<CommentsOptions>(configuration.GetSection("Comments"));
+	services.Configure<SupabaseOptions>(configuration.GetSection("Supabase"));
+	services.Configure<TurnstileOptions>(configuration.GetSection("Turnstile"));
+
+	services.AddScoped<CommentsEnabledFilter>();
+	services.AddCommentRateLimiting(
+		configuration.GetSection("RateLimits").Get<RateLimitOptions>() ?? new RateLimitOptions());
+
 	services.AddAutoMapper(c => c.AddMaps(typeof(CoreAssemblyMarker)));
 	services.AddSingleton<ICache, Cache>();
 	services.AddSingleton<IConnectionStringProvider, ConnectionStringProvider>();
 	services.AddSingleton<IMarkdownConverter, MarkdownConverter>();
 	services.AddSingleton<IPostContentProcessor, PostContentProcessor>();
+	services.AddSingleton<ICommentContentRenderer, CommentContentRenderer>();
 	services.AddSingleton<IBlobUrlProvider, BlobUrlProvider>();
 	services.AddSingleton<IFeedGenerator, FeedGenerator>();
 	services.AddScoped<ISyndicationDataSource, SyndicationDataSource>();
 	services.AddHttpClient("YouTube");
+	services.AddHttpClient(TurnstileVerifier.HttpClientName, client =>
+	{
+		client.Timeout = TimeSpan.FromSeconds(10);
+	});
+	services.AddSingleton<ITurnstileVerifier, TurnstileVerifier>();
 	services.AddScoped<YouTubeRssFeedParser>();
 	services.AddHttpContextAccessor();
 	services.AddScoped<MetaTagsInfo>();
+	services.AddScoped<ICurrentUserAccessor, CurrentUserAccessor>();
 	services.AddCors(options =>
 	{
 		options.AddPolicy("WasmAppPolicy",
@@ -67,44 +85,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 		option.AppendTrailingSlash = false;
 	});
 
-	services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-		.AddJwtBearer(options =>
-		{
-			var auth0Config = configuration.GetSection("Auth0");
-			var domain = auth0Config["Domain"];
-			var audience = auth0Config["Audience"];
-
-			// Validate that Auth0 configuration is not using placeholder values
-			if (string.IsNullOrEmpty(domain) || domain.Contains("your-auth0-domain") ||
-				string.IsNullOrEmpty(audience) || audience.Contains("your-api-identifier"))
-			{
-				throw new InvalidOperationException(
-					"Auth0 configuration is not set or contains placeholder values. " +
-					"Please configure Auth0:Domain and Auth0:Audience in appsettings.json, " +
-					"User Secrets, or environment variables. See docs/AUTH0_MIGRATION.md for details.");
-			}
-
-			options.Authority = $"https://{domain}";
-			options.Audience = audience;
-			options.TokenValidationParameters = new TokenValidationParameters
-			{
-				ValidateIssuer = true,
-				ValidateAudience = true,
-				ValidateLifetime = true,
-				ValidateIssuerSigningKey = true
-			};
-		});
-
-	// Add authorization policies
-	services.AddAuthorization(options =>
-	{
-		options.AddPolicy("AdminPolicy", policy =>
-		{
-			policy.RequireAuthenticatedUser();
-			// Check for "admin:all" permission in the permissions claim
-			policy.RequireClaim("permissions", "admin:all");
-		});
-	});
+	services.AddSupabaseAuthentication(configuration);
 
 	services.AddLocalization(options => options.ResourcesPath = "Resources");
 
@@ -125,6 +106,10 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 	services.AddMediatR(config =>
 	{
 		config.RegisterServicesFromAssemblyContaining<CoreAssemblyMarker>();
+
+		// Upserts the comment author and rejects banned authors for every IAuthoredRequest.
+		// The DI container honours the generic constraint, so unmarked requests are unaffected.
+		config.AddOpenBehavior(typeof(AuthoredRequestBehavior<,>));
 	});
 
 	services.AddSingleton<IDateProvider, DateProvider>();
@@ -174,6 +159,8 @@ async Task Configure(WebApplication app)
 	app.UseCors("WasmAppPolicy");
 
 	app.UseAuthentication();
+	// After UseAuthentication: the partitioner reads HttpContext.User.
+	app.UseRateLimiter();
 	app.UseAuthorization();
 
 	app.MapHealthChecks("/health");

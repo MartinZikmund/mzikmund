@@ -42,3 +42,8 @@ info EA88
 error_circle E877
 image EA52
 sign_out F08D
+comment E581
+arrow_reply E139
+flag E8B7
+eye_off E889
+person_prohibited EE01

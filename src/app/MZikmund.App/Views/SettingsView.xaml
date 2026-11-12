@@ -75,6 +75,14 @@
                             Content="GitHub"
                             Style="{StaticResource MzStandardButtonSmallStyle}" />
                     </controls:MzSettingsCard>
+                    <controls:MzSettingsCard Glyph="{StaticResource MzGlyphShield}" Header="{extensions:Localize Key=PrivacyPolicy}">
+                        <Button
+                            AutomationProperties.AutomationId="SettingsPrivacy"
+                            Command="{x:Bind ViewModel.OpenLinkCommand}"
+                            CommandParameter="https://mzikmund.dev/privacy"
+                            Content="mzikmund.dev/privacy"
+                            Style="{StaticResource MzStandardButtonSmallStyle}" />
+                    </controls:MzSettingsCard>
                 </StackPanel>
             </StackPanel>
         </Grid>

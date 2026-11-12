@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using MZikmund.DataContracts;
 using MZikmund.DataContracts.Blobs;
 using MZikmund.DataContracts.Blog;
+using MZikmund.DataContracts.Blog.Comments;
 using MZikmund.DataContracts.Storage;
 using MZikmund.DataContracts.Videos;
 using Refit;
@@ -90,8 +91,38 @@ namespace MZikmund.Api.Serialization;
 [JsonSerializable(typeof(List<VideoDto>))]
 [JsonSerializable(typeof(ApiResponse<List<VideoDto>>))]
 
+// Comment types
+[JsonSerializable(typeof(CommentDto))]
+[JsonSerializable(typeof(CommentDto[]))]
+[JsonSerializable(typeof(IEnumerable<CommentDto>))]
+[JsonSerializable(typeof(PagedResponse<CommentDto>))]
+[JsonSerializable(typeof(ApiResponse<CommentDto>))]
+[JsonSerializable(typeof(ApiResponse<PagedResponse<CommentDto>>))]
+[JsonSerializable(typeof(CreateCommentRequest))]
+[JsonSerializable(typeof(UpdateCommentRequest))]
+[JsonSerializable(typeof(ReportCommentRequest))]
+[JsonSerializable(typeof(CommentStatus))]
+[JsonSerializable(typeof(CommentReportReason))]
+[JsonSerializable(typeof(CommentSortOrder))]
+
+// Comment moderation types
+[JsonSerializable(typeof(CommentModerationDto))]
+[JsonSerializable(typeof(CommentModerationDto[]))]
+[JsonSerializable(typeof(IEnumerable<CommentModerationDto>))]
+[JsonSerializable(typeof(PagedResponse<CommentModerationDto>))]
+[JsonSerializable(typeof(ApiResponse<PagedResponse<CommentModerationDto>>))]
+
+// Comment report types
+[JsonSerializable(typeof(CommentReportDto))]
+[JsonSerializable(typeof(CommentReportDto[]))]
+[JsonSerializable(typeof(IEnumerable<CommentReportDto>))]
+[JsonSerializable(typeof(PagedResponse<CommentReportDto>))]
+[JsonSerializable(typeof(ApiResponse<PagedResponse<CommentReportDto>>))]
+
 // Common types
 [JsonSerializable(typeof(ApiResponse<object?>))]
+[JsonSerializable(typeof(ApiResponse<int>))]
+[JsonSerializable(typeof(int))]
 [JsonSerializable(typeof(Guid))]
 [JsonSerializable(typeof(DateTimeOffset))]
 [JsonSerializable(typeof(DateTimeOffset?))]

@@ -5,6 +5,9 @@ using Moq;
 using MZikmund.Api.Client;
 using MZikmund.Business.Models;
 using MZikmund.DataContracts.Blog;
+using MZikmund.Services.Account;
+using MZikmund.Services.Dialogs;
+using MZikmund.Services.Navigation;
 using MZikmund.ViewModels;
 using Refit;
 
@@ -15,7 +18,16 @@ public class PostViewModelTests
 	private readonly Mock<IMZikmundApi> _api = new();
 
 	private PostViewModel CreateViewModel() =>
-		new(_api.Object, Options.Create(new AppConfig { WebUrl = "https://example.test" }), NullLogger<PostViewModel>.Instance);
+		new(_api.Object, Options.Create(new AppConfig { WebUrl = "https://example.test" }), CreateComments(), NullLogger<PostViewModel>.Instance);
+
+	private CommentsViewModel CreateComments() =>
+		new(
+			_api.Object,
+			Mock.Of<IUserService>(),
+			Mock.Of<ISignInPrompt>(),
+			Mock.Of<IDialogService>(),
+			Mock.Of<IWindowShellProvider>(),
+			NullLogger<CommentsViewModel>.Instance);
 
 	private static ApiResponse<Post> PostResponse(Post? post, HttpStatusCode status = HttpStatusCode.OK) =>
 		new(new HttpResponseMessage(status), post, new RefitSettings());

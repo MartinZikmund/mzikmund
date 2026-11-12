@@ -4,17 +4,25 @@ public sealed record OAuthCallbackResult(string? Code, string? Error, string? Er
 
 public static class OAuthCallback
 {
-	public static OAuthCallbackResult Parse(Uri callbackUri, string expectedState)
+	/// <param name="expectedState">The state sent with the request, or null when the provider does not echo one (GoTrue).</param>
+	public static OAuthCallbackResult Parse(Uri callbackUri, string? expectedState)
 	{
 		var query = ParseQuery(callbackUri.Query);
 
-		if (query.TryGetValue("error", out var error))
+		// GoTrue reports some failures in the fragment instead of the query.
+		var fragment = ParseQuery(callbackUri.Fragment.TrimStart('#'));
+
+		if (query.TryGetValue("error", out var error) || fragment.TryGetValue("error", out error))
 		{
-			query.TryGetValue("error_description", out var description);
+			if (!query.TryGetValue("error_description", out var description))
+			{
+				fragment.TryGetValue("error_description", out description);
+			}
+
 			return new(null, error, description);
 		}
 
-		if (!query.TryGetValue("state", out var state) || state != expectedState)
+		if (expectedState is not null && (!query.TryGetValue("state", out var state) || state != expectedState))
 		{
 			return new(null, "state_mismatch");
 		}

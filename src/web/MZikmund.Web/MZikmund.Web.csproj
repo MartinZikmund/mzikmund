@@ -6,6 +6,11 @@
 		<UserSecretsId>bd1e8e97-122b-43d8-95ca-784bd84a83d9</UserSecretsId>
 	</PropertyGroup>
 
+	<!-- Inputs/Outputs make this a no-op once node_modules matches the lockfile. -->
+	<Target Name="NpmInstall" BeforeTargets="NpmBuild" Inputs="package-lock.json" Outputs="node_modules\.package-lock.json">
+		<Exec Command="npm ci" WorkingDirectory="$(MSBuildProjectDirectory)" />
+	</Target>
+
 	<Target Name="NpmBuild" BeforeTargets="Build">
 		<Exec Command="npm run build" WorkingDirectory="$(MSBuildProjectDirectory)" />
 	</Target>
