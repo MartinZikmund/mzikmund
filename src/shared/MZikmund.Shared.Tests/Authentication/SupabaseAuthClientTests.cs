@@ -138,6 +138,39 @@ public class SupabaseAuthClientTests
 		Assert.False(exception.IsRejected);
 	}
 
+	[Theory]
+	[InlineData(HttpStatusCode.BadRequest)]
+	[InlineData(HttpStatusCode.Unauthorized)]
+	[InlineData(HttpStatusCode.Forbidden)]
+	public async Task RefreshAsync_IsARejection_OnBadTokenStatuses(HttpStatusCode status)
+	{
+		// Arrange
+		StubHandler handler = new(status, "{}");
+		var client = CreateClient(handler);
+
+		// Act
+		var exception = await Assert.ThrowsAsync<SupabaseAuthException>(() => client.RefreshAsync("r"));
+
+		// Assert
+		Assert.True(exception.IsRejected);
+	}
+
+	[Theory]
+	[InlineData(HttpStatusCode.TooManyRequests)]
+	[InlineData(HttpStatusCode.RequestTimeout)]
+	public async Task RefreshAsync_IsNotARejection_OnRateLimitOrTimeout(HttpStatusCode status)
+	{
+		// Arrange
+		StubHandler handler = new(status, "{}");
+		var client = CreateClient(handler);
+
+		// Act
+		var exception = await Assert.ThrowsAsync<SupabaseAuthException>(() => client.RefreshAsync("r"));
+
+		// Assert
+		Assert.False(exception.IsRejected);
+	}
+
 	[Fact]
 	public async Task SendEmailCodeAsync_ExposesTheStatusCode_OnRateLimit()
 	{

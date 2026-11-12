@@ -22,15 +22,25 @@ public class UserService : IUserService
 	private readonly IAppPreferences _appPreferences;
 	private readonly IOptions<SupabaseConfig> _config;
 
+	private readonly TimeProvider _timeProvider;
+	private readonly HttpClient? _httpClient;
+
 	private SupabaseAuthClient? _client;
 	private SupabaseIdentity? _identity;
 	private string? _accessToken;
 	private string? _refreshToken;
 
 	public UserService(IAppPreferences appPreferences, IOptions<SupabaseConfig> config)
+		: this(appPreferences, config, null, TimeProvider.System)
+	{
+	}
+
+	internal UserService(IAppPreferences appPreferences, IOptions<SupabaseConfig> config, HttpClient? httpClient, TimeProvider timeProvider)
 	{
 		_appPreferences = appPreferences;
 		_config = config;
+		_timeProvider = timeProvider;
+		_httpClient = httpClient;
 
 		LoadCachedSession();
 	}
@@ -246,7 +256,7 @@ public class UserService : IUserService
 	private SupabaseAuthClient GetClient()
 	{
 		EnsureConfigured();
-		return _client ??= new(new HttpClient { Timeout = TimeSpan.FromSeconds(30) }, Config.Url!, Config.PublishableKey!);
+		return _client ??= new(_httpClient ?? new HttpClient { Timeout = TimeSpan.FromSeconds(30) }, Config.Url!, Config.PublishableKey!);
 	}
 
 	private void LoadCachedSession()

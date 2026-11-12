@@ -46,6 +46,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<InternalsVisibleTo Include="MZikmund.App.Core.Tests" />
+	</ItemGroup>
+	<ItemGroup>
 		<Compile Include="..\MZikmund.App\GlobalUsings.cs" Link="GlobalUsings.cs" />
 	</ItemGroup>
 	<ItemGroup>
