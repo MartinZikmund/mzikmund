@@ -16,7 +16,7 @@ import { actionsMarkup, bodyMarkup, renderComment, setEditWindow } from "./Comme
 import { CommentTurnstile, VerificationFailedMessage, VerificationUnavailableError } from "./CommentTurnstile";
 import { SignInDialog, type SignInResult } from "./SignInDialog";
 
-const DraftKey = "mz-comment-draft";
+const DraftKeyPrefix = "mz-comment-draft:";
 const MaxLength = 4000;
 /** A draft older than this never posts itself after a sign-in redirect. */
 const DraftFreshMs = 10 * 60 * 1000;
@@ -267,6 +267,13 @@ export class CommentsSection {
 	}
 
 	private async signOutReader(): Promise<void> {
+		// A draft should not outlive the reader who wrote it on a shared computer.
+		this.clearDraft();
+		if (this.textarea) {
+			this.textarea.value = "";
+		}
+		this.updateCounter();
+		this.setReplyTarget(null, null);
 		await this.dropSession();
 		await this.refreshCurrentPage();
 	}
@@ -443,6 +450,10 @@ export class CommentsSection {
 
 	// --- Draft ---------------------------------------------------------------
 
+	private draftKey(): string {
+		return `${DraftKeyPrefix}${this.postId}`;
+	}
+
 	private saveDraft(submit: boolean): void {
 		const content = this.textarea?.value ?? "";
 		if (!content.trim()) {
@@ -459,7 +470,7 @@ export class CommentsSection {
 		};
 
 		try {
-			window.sessionStorage.setItem(DraftKey, JSON.stringify(draft));
+			window.sessionStorage.setItem(this.draftKey(), JSON.stringify(draft));
 		} catch {
 			// Private mode or a full quota: the draft is a convenience, never a reason to break posting.
 		}
@@ -467,7 +478,7 @@ export class CommentsSection {
 
 	private readDraft(): CommentDraft | null {
 		try {
-			const raw = window.sessionStorage.getItem(DraftKey);
+			const raw = window.sessionStorage.getItem(this.draftKey());
 			if (!raw) {
 				return null;
 			}
@@ -480,7 +491,7 @@ export class CommentsSection {
 
 	private clearDraft(): void {
 		try {
-			window.sessionStorage.removeItem(DraftKey);
+			window.sessionStorage.removeItem(this.draftKey());
 		} catch {
 			// See saveDraft.
 		}
@@ -507,7 +518,7 @@ export class CommentsSection {
 		const armed = draft.submit && oauthReturn && Date.now() - (draft.savedAt ?? 0) <= DraftFreshMs;
 		if (draft.submit) {
 			try {
-				window.sessionStorage.setItem(DraftKey, JSON.stringify({ ...draft, submit: false }));
+				window.sessionStorage.setItem(this.draftKey(), JSON.stringify({ ...draft, submit: false }));
 			} catch {
 				// See saveDraft.
 			}
