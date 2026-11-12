@@ -9,8 +9,7 @@ namespace MZikmund.Web.Services;
 /// </summary>
 public sealed class CurrentUserAccessor : ICurrentUserAccessor
 {
-	// Column lengths of CommentAuthor.
-	private const int MaxDisplayNameLength = 256;
+	// Column lengths of CommentAuthor (the display name is capped by DisplayNameRules).
 	private const int MaxAvatarUrlLength = 2048;
 	private const int MaxEmailLength = 320;
 	private const string GoogleAvatarDomain = "googleusercontent.com";
@@ -42,19 +41,11 @@ public sealed class CurrentUserAccessor : ICurrentUserAccessor
 
 			var email = Truncate(principal.FindFirstValue(SupabaseClaims.Email) ?? "", MaxEmailLength);
 
-			// user_metadata is editable by the user themselves, so nothing in it is trusted as is.
-			var displayName = CleanDisplayName(principal.FindFirstValue(SupabaseClaims.DisplayName));
-			if (displayName.Length == 0)
-			{
-				// Apple returns no name in the web OAuth response, and only on first sign-in natively.
-				var separatorIndex = email.IndexOf('@');
-				displayName = separatorIndex > 0 ? CleanDisplayName(email[..separatorIndex]) : "";
-			}
+			var isAdmin = principal.HasClaim(SupabaseClaims.Role, SupabaseClaims.AdminRole);
 
-			if (displayName.Length == 0)
-			{
-				displayName = "Anonymous";
-			}
+			// user_metadata is editable by the user themselves, so the name goes through the same rules as a chosen one.
+			// The email is never used as a name.
+			var displayName = DisplayNameRules.FromToken(principal.FindFirstValue(SupabaseClaims.DisplayName), id, isAdmin);
 
 			return new CommentAuthorInfo(
 				id,
@@ -63,19 +54,8 @@ public sealed class CurrentUserAccessor : ICurrentUserAccessor
 					? CleanAvatarUrl(principal.FindFirstValue(SupabaseClaims.AvatarUrl))
 					: null,
 				email,
-				principal.HasClaim(SupabaseClaims.Role, SupabaseClaims.AdminRole));
+				isAdmin);
 		}
-	}
-
-	private static string CleanDisplayName(string? value)
-	{
-		if (string.IsNullOrWhiteSpace(value))
-		{
-			return "";
-		}
-
-		var withoutControls = string.Concat(value.Where(c => !char.IsControl(c)));
-		return Truncate(withoutControls.Trim(), MaxDisplayNameLength).TrimEnd();
 	}
 
 	// Only absolute https URLs without credentials on Google's avatar host; an over-long URL is dropped rather than cut,

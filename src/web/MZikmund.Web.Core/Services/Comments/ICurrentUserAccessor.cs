@@ -16,7 +16,7 @@ public interface ICurrentUserAccessor
 /// Identity of the authenticated caller, projected from Supabase access-token claims.
 /// </summary>
 /// <param name="Id">Supabase user id (the "sub" claim).</param>
-/// <param name="DisplayName">Display name, never empty — falls back to the email local part.</param>
+/// <param name="DisplayName">Display name, never empty and never derived from the email; falls back to <c>Reader XXXX</c>.</param>
 /// <param name="AvatarUrl">Avatar URL, or <c>null</c> when the provider supplied none.</param>
 /// <param name="Email">Email address from the flat "email" claim.</param>
 /// <param name="IsAdmin">Whether app_metadata.role is "admin".</param>
