@@ -2,6 +2,7 @@
     x:Class="MZikmund.Views.Admin.MediaBrowserView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:MZikmund.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:items="using:MZikmund.ViewModels.Items"
     xmlns:local="using:MZikmund.Views.Admin"
@@ -59,7 +60,7 @@
                     </ComboBox>
                 </Grid>
 
-                <ItemsRepeater ItemsSource="{x:Bind ViewModel.MediaFiles, Mode=OneWay}">
+                <ItemsRepeater controls:MzRepeater.ItemsSource="{x:Bind ViewModel.MediaFiles, Mode=OneWay}">
                     <ItemsRepeater.Layout>
                         <UniformGridLayout
                             ItemsStretch="Fill"
