@@ -170,6 +170,39 @@ public class UpdateCommentHandlerTests
 		Assert.Equal("original", stored.Content);
 	}
 
+	[Fact]
+	public async Task Handle_CommentDeletedBetweenReadAndWrite_ThrowsConflictAndStaysDeleted()
+	{
+		// Arrange
+		using CommentsDbFixture fixture = new();
+		using var seedDb = fixture.CreateContext();
+		await SeedAsync(seedDb);
+		var comment = AddComment(seedDb, _postId, _authorId, createdOn: Now.UtcDateTime.AddMinutes(-5));
+		await seedDb.SaveChangesAsync(CancellationToken.None);
+
+		using var racer = fixture.CreateContext();
+		await racer.Comment.AnyAsync(CancellationToken.None);
+		RaceInterceptor race = new("FROM \"Comment\"", async () =>
+		{
+			await racer.Comment
+				.Where(c => c.Id == comment.Id)
+				.ExecuteUpdateAsync(
+					s => s.SetProperty(c => c.Status, DataCommentStatus.DeletedByAuthor).SetProperty(c => c.Content, ""),
+					CancellationToken.None);
+		});
+		using var db = fixture.CreateContext(race);
+		var handler = CreateHandler(db);
+
+		// Act & Assert
+		await Assert.ThrowsAsync<CommentConflictException>(
+			() => handler.Handle(new UpdateCommentCommand(comment.Id, "resurrected"), CancellationToken.None));
+		Assert.True(race.Fired);
+		using var assertDb = fixture.CreateContext();
+		var stored = await assertDb.Comment.FirstAsync(c => c.Id == comment.Id, CancellationToken.None);
+		Assert.Equal(DataCommentStatus.DeletedByAuthor, stored.Status);
+		Assert.Equal("", stored.Content);
+	}
+
 	private async Task SeedAsync(DatabaseContext db)
 	{
 		AddPost(db, _postId);
