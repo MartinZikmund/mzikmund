@@ -100,6 +100,8 @@ public partial class CommentsViewModel : ViewModelBase
 
 	public bool IsEmpty => !IsLoading && !HasError && Comments.Count == 0;
 
+	public bool IsSignedIn => _userService.IsLoggedIn;
+
 	public bool IsPanelVisible => !IsDisabled;
 
 	public bool CanLoadMore => HasMorePages && !IsLoadingMore && !IsLoading;
@@ -146,18 +148,44 @@ public partial class CommentsViewModel : ViewModelBase
 
 	private void OnAuthenticationChanged(object? sender, EventArgs e)
 	{
-		if (_postId == Guid.Empty)
+		void Refresh()
 		{
-			return;
+			OnPropertyChanged(nameof(IsSignedIn));
+			if (_postId != Guid.Empty)
+			{
+				_ = ReloadAsync();
+			}
 		}
 
 		if (_shellProvider.DispatcherQueue.HasThreadAccess)
 		{
-			_ = ReloadAsync();
+			Refresh();
 		}
 		else
 		{
-			_shellProvider.DispatcherQueue.TryEnqueue(() => _ = ReloadAsync());
+			_shellProvider.DispatcherQueue.TryEnqueue(Refresh);
+		}
+	}
+
+	[RelayCommand]
+	private async Task ChangeNameAsync()
+	{
+		if (!_userService.IsLoggedIn)
+		{
+			return;
+		}
+
+		var (success, profile) = await TryWriteAsync(() => _api.GetMyCommentProfileAsync(), "CommentActionFailed");
+		if (!success || profile is null)
+		{
+			return;
+		}
+
+		ChangeDisplayNameDialogViewModel dialogViewModel = new(_api, profile.DisplayName);
+		await _dialogService.ShowAsync(dialogViewModel);
+		if (dialogViewModel.Saved)
+		{
+			await ReloadAsync();
 		}
 	}
 

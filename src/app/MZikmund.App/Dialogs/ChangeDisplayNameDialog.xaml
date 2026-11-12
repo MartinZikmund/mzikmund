@@ -1,0 +1,30 @@
+<local:ChangeDisplayNameDialogBase
+    x:Class="MZikmund.Dialogs.ChangeDisplayNameDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:MZikmund.Dialogs"
+    xmlns:xaml="using:MZikmund.Extensions.Xaml"
+    Title="{x:Bind ViewModel.Title}"
+    CloseButtonText="{xaml:Localize Key=Cancel}"
+    DefaultButton="Primary"
+    PrimaryButtonText="{xaml:Localize Key=Save}"
+    Style="{StaticResource DefaultContentDialogStyle}">
+
+    <StackPanel MinWidth="300" Spacing="8">
+        <TextBox
+            AutomationProperties.AutomationId="ChangeDisplayNameBox"
+            AutomationProperties.Name="{xaml:Localize Key=ChangeName}"
+            MaxLength="{x:Bind ViewModel.MaxDisplayNameLength}"
+            Text="{x:Bind ViewModel.DisplayName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBlock
+            Style="{StaticResource MzMetaTextStyle}"
+            Text="{xaml:Localize Key=DisplayNameHint}"
+            TextWrapping="Wrap" />
+        <TextBlock
+            AutomationProperties.AutomationId="ChangeDisplayNameError"
+            Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+            Text="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
+            TextWrapping="Wrap"
+            Visibility="{x:Bind ViewModel.HasError, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+    </StackPanel>
+</local:ChangeDisplayNameDialogBase>
