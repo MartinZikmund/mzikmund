@@ -28,14 +28,17 @@ privacy page and its footer link go public with the deploy, before the feature d
 3. Check the discovery document has an absolute issuer:
    `curl -s https://<ref>.supabase.co/auth/v1/.well-known/openid-configuration` -> `issuer` is
    `https://<ref>.supabase.co/auth/v1`.
-4. **Authentication > Providers:** enable **Email** (code sign-in; nobody gets a password), **Google**
+4. **Authentication > Providers:** enable **Email** (code sign-in; nobody gets a password). Google and
+   Apple are deferred to #564 and their buttons are hidden until then; when you get to them, enable **Google**
    and **Apple**. Provider setup is in `docs/SUPABASE_AUTH.md` (Google: Web OAuth client; Apple:
    Services ID, key, domain verification, plus a calendar reminder because the Apple client secret
    expires every 6 months). Callback to register at both providers:
    `https://<ref>.supabase.co/auth/v1/callback`.
-5. **Authentication > Emails > Magic Link:** change the template body to show `{{ .Token }}` instead of
-   `{{ .ConfirmationURL }}`, otherwise users get a link and no 6-digit code. A mirror of the template
-   is in `supabase/templates/magic_link.html`.
+5. **Authentication > Emails:** set up **custom SMTP** first (SMTP Settings). Supabase only lets you
+   edit templates with custom SMTP, and its built-in sender allows about 2 emails an hour. Then change
+   **both** the **Magic Link** template (returning users) and the **Confirm signup** template (first
+   sign-in) to show `{{ .Token }}` instead of `{{ .ConfirmationURL }}`. Otherwise users get a link and
+   no 6-digit code. Mirrors: `supabase/templates/magic_link.html` and `confirmation.html`.
 6. **Authentication > URL Configuration:** Site URL `https://mzikmund.dev`. Redirect URLs (add all):
    - `https://mzikmund.dev/**`
    - `https://mzikmund.app/**` (WASM app origin; its callback is `<origin>/authentication-callback`)
@@ -70,8 +73,6 @@ real values or set them here. Do this once, before the deploy:
 ```bash
 az webapp config appsettings set --name webapp-mzikmund --resource-group mzikmund --settings \
   Comments__Enabled=false \
-  Supabase__ProjectRef=<ref> \
-  Supabase__PublishableKey=<sb_publishable_...> \
   Turnstile__SiteKey=<site-key> \
   Turnstile__SecretKey=<secret-key> \
   Turnstile__ExpectedHostname=mzikmund.dev
@@ -80,8 +81,8 @@ az webapp config appsettings set --name webapp-mzikmund --resource-group mzikmun
 | Key | Value | Note |
 |---|---|---|
 | `Comments__Enabled` | `false` | pinned off so no future deploy can flip it |
-| `Supabase__ProjectRef` | `<ref>` | skip if committed |
-| `Supabase__PublishableKey` | `sb_publishable_...` | skip if committed; never the secret key |
+| `Supabase__ProjectRef` | `<ref>` | committed in `appsettings.json`; skip |
+| `Supabase__PublishableKey` | `sb_publishable_...` | committed in `appsettings.json`; skip. Never the secret key |
 | `Supabase__LocalUrl` | **not set** | dev-only; when present it overrides the project ref |
 | `Turnstile__SiteKey` | site key | skip if committed |
 | `Turnstile__SecretKey` | secret | App Service only |
