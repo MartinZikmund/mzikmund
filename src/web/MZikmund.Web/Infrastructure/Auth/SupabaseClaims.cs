@@ -19,6 +19,9 @@ public static class SupabaseClaims
 	/// <summary>The only audience Supabase issues access tokens for.</summary>
 	public const string Audience = "authenticated";
 
+	/// <summary>Flat boolean claim set to true on Supabase anonymous sign-in tokens.</summary>
+	public const string IsAnonymous = "is_anonymous";
+
 	/// <summary>Server-controlled metadata. Value is a raw JSON object, not a flat string.</summary>
 	public const string AppMetadata = "app_metadata";
 

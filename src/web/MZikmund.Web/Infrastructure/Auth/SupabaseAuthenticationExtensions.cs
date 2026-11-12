@@ -67,6 +67,8 @@ public static class SupabaseAuthenticationExtensions
 				// becomes a genuine ASP.NET role for every signed-in user.
 				options.MapInboundClaims = false;
 
+				options.Events = new JwtBearerEvents { OnTokenValidated = RejectAnonymousUsers };
+
 				options.TokenValidationParameters = new TokenValidationParameters
 				{
 					ValidateIssuer = true,
@@ -101,5 +103,17 @@ public static class SupabaseAuthenticationExtensions
 		});
 
 		return services;
+	}
+
+	// Supabase anonymous sign-ins get aud=authenticated tokens too; they must not count as commenters.
+	private static Task RejectAnonymousUsers(TokenValidatedContext context)
+	{
+		var isAnonymous = context.Principal?.FindFirst(SupabaseClaims.IsAnonymous)?.Value;
+		if (string.Equals(isAnonymous, "true", StringComparison.OrdinalIgnoreCase))
+		{
+			context.Fail("Anonymous Supabase users are not accepted.");
+		}
+
+		return Task.CompletedTask;
 	}
 }
