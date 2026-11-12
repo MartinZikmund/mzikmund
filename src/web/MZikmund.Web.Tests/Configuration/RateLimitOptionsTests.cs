@@ -19,6 +19,8 @@ public class RateLimitOptionsTests
 		var globalWrites = options.GlobalWrites;
 
 		// Assert
+		Assert.Equal(2, options.CommentCreateApp.PermitLimit);
+		Assert.Equal(TimeSpan.FromMinutes(60), options.CommentCreateApp.Window);
 		Assert.Equal(5, create.PermitLimit);
 		Assert.Equal(TimeSpan.FromMinutes(10), create.Window);
 		Assert.Equal(30, vote.PermitLimit);

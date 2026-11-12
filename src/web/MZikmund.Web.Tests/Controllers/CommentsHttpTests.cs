@@ -97,6 +97,7 @@ public class CommentsHttpTests
 		using var host = await StartHostAsync(mediator, commentsEnabled: true);
 		using var client = host.GetTestClient();
 		client.DefaultRequestHeaders.Add(TestAuthHandler.Header, "reader");
+		client.DefaultRequestHeaders.Add(CommentsController.ClientHeaderName, "app");
 
 		// Act
 		var response = await client.PostAsJsonAsync($"/api/v1/posts/{Id}/comments", new { content = "Hi" });

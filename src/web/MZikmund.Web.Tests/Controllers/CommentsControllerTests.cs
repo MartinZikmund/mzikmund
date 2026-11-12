@@ -111,6 +111,49 @@ public class CommentsControllerTests
 	}
 
 	[Fact]
+	public async Task CreateComment_WithoutTokenAndWithoutAppHeader_ReturnsBadRequestAndSendsNothing()
+	{
+		// Arrange
+		var request = new CreateCommentRequest { Content = "Hello" };
+
+		// Act
+		var result = await _controller.CreateComment(PostId, request, null, CancellationToken.None);
+
+		// Assert
+		Assert.IsType<BadRequestObjectResult>(result);
+		_mockMediator.Verify(
+			x => x.Send(It.IsAny<CreateCommentCommand>(), It.IsAny<CancellationToken>()),
+			Times.Never);
+	}
+
+	[Fact]
+	public async Task CreateComment_AppHeaderWithoutToken_IsAcceptedUntilTheAppLimitThen429()
+	{
+		// Arrange
+		_mockMediator
+			.Setup(x => x.Send(It.IsAny<CreateCommentCommand>(), It.IsAny<CancellationToken>()))
+			.ReturnsAsync(CreateDto());
+		_controller.ControllerContext.HttpContext.Request.Headers[CommentsController.ClientHeaderName] = "app";
+		var request = new CreateCommentRequest { Content = "Hello" };
+
+		// Act
+		var first = await _controller.CreateComment(PostId, request, null, CancellationToken.None);
+		var second = await _controller.CreateComment(PostId, request, null, CancellationToken.None);
+		var third = await _controller.CreateComment(PostId, request, null, CancellationToken.None);
+
+		// Assert
+		Assert.IsType<OkObjectResult>(first);
+		Assert.IsType<OkObjectResult>(second);
+		Assert.Equal(429, Assert.IsType<StatusCodeResult>(third).StatusCode);
+		_mockTurnstileVerifier.Verify(
+			x => x.VerifyAsync(It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()),
+			Times.Never);
+		_mockMediator.Verify(
+			x => x.Send(It.IsAny<CreateCommentCommand>(), It.IsAny<CancellationToken>()),
+			Times.Exactly(2));
+	}
+
+	[Fact]
 	public async Task CreateComment_WithVerifyingTurnstileToken_SendsCommand()
 	{
 		// Arrange
@@ -157,13 +200,16 @@ public class CommentsControllerTests
 	{
 		// Arrange
 		var parentId = new Guid("33333333-3333-3333-3333-333333333333");
+		_mockTurnstileVerifier
+			.Setup(x => x.VerifyAsync("good-token", It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+			.ReturnsAsync(true);
 		_mockMediator
 			.Setup(x => x.Send(It.IsAny<CreateCommentCommand>(), It.IsAny<CancellationToken>()))
 			.ReturnsAsync(CreateDto());
 		var request = new CreateCommentRequest { Content = "Reply", ParentId = parentId };
 
 		// Act
-		await _controller.CreateComment(PostId, request, null, CancellationToken.None);
+		await _controller.CreateComment(PostId, request, "good-token", CancellationToken.None);
 
 		// Assert
 		_mockMediator.Verify(
