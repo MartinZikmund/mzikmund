@@ -22,7 +22,7 @@ public class FindCommentPageHandlerTests
 		var handler = new FindCommentPageHandler(context);
 
 		// Act
-		var page = await handler.Handle(new FindCommentPageQuery(Guid.NewGuid(), CommentSortOrder.New, 20), CancellationToken.None);
+		var page = await handler.Handle(new FindCommentPageQuery(PostId, Guid.NewGuid(), CommentSortOrder.New, 20), CancellationToken.None);
 
 		// Assert
 		Assert.Null(page);
@@ -49,7 +49,7 @@ public class FindCommentPageHandlerTests
 		var handler = new FindCommentPageHandler(context);
 
 		// Act
-		var page = await handler.Handle(new FindCommentPageQuery(target.Id, CommentSortOrder.New, 20), CancellationToken.None);
+		var page = await handler.Handle(new FindCommentPageQuery(PostId, target.Id, CommentSortOrder.New, 20), CancellationToken.None);
 
 		// Assert
 		Assert.Equal(2, page);
@@ -77,7 +77,7 @@ public class FindCommentPageHandlerTests
 		var handler = new FindCommentPageHandler(context);
 
 		// Act
-		var page = await handler.Handle(new FindCommentPageQuery(reply.Id, CommentSortOrder.New, 20), CancellationToken.None);
+		var page = await handler.Handle(new FindCommentPageQuery(PostId, reply.Id, CommentSortOrder.New, 20), CancellationToken.None);
 
 		// Assert
 		Assert.Equal(2, page);
@@ -98,7 +98,7 @@ public class FindCommentPageHandlerTests
 		var handler = new FindCommentPageHandler(context);
 
 		// Act
-		var page = await handler.Handle(new FindCommentPageQuery(target.Id, CommentSortOrder.Top, 3), CancellationToken.None);
+		var page = await handler.Handle(new FindCommentPageQuery(PostId, target.Id, CommentSortOrder.Top, 3), CancellationToken.None);
 
 		// Assert
 		Assert.Equal(2, page);
@@ -116,7 +116,7 @@ public class FindCommentPageHandlerTests
 		var handler = new FindCommentPageHandler(context);
 
 		// Act
-		var page = await handler.Handle(new FindCommentPageQuery(hidden.Id, CommentSortOrder.New, 20), CancellationToken.None);
+		var page = await handler.Handle(new FindCommentPageQuery(PostId, hidden.Id, CommentSortOrder.New, 20), CancellationToken.None);
 
 		// Assert
 		Assert.Null(page);
@@ -136,7 +136,7 @@ public class FindCommentPageHandlerTests
 		var handler = new FindCommentPageHandler(context);
 
 		// Act
-		var page = await handler.Handle(new FindCommentPageQuery(oldest.Id, CommentSortOrder.New, 1), CancellationToken.None);
+		var page = await handler.Handle(new FindCommentPageQuery(PostId, oldest.Id, CommentSortOrder.New, 1), CancellationToken.None);
 
 		// Assert
 		Assert.Equal(2, page);
