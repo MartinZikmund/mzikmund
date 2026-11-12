@@ -1,9 +1,19 @@
+import { isAuthApiError } from "@supabase/supabase-js";
 import {
 	sendEmailCode,
 	signInWithApple,
 	signInWithGoogle,
 	verifyEmailCode,
 } from "../Auth/SupabaseAuth";
+
+const ResendSeconds = 60;
+
+function isRateLimited(error: unknown): boolean {
+	return isAuthApiError(error)
+		&& (error.status === 429
+			|| error.code === "over_email_send_rate_limit"
+			|| error.code === "over_request_rate_limit");
+}
 
 export type SignInResult = "signed-in" | "cancelled" | "redirecting";
 
@@ -20,6 +30,11 @@ export class SignInDialog {
 	private readonly sendButton: HTMLButtonElement | null;
 	private readonly verifyButton: HTMLButtonElement | null;
 	private readonly errorEl: HTMLElement | null;
+	private readonly statusEl: HTMLElement | null;
+	private readonly resendButton: HTMLButtonElement | null;
+	private readonly changeEmailButton: HTMLButtonElement | null;
+	private readonly resendLabel: string;
+	private resendTimer: number | undefined;
 	private resolve: ((result: SignInResult) => void) | null = null;
 	private wired = false;
 	private pending = false;
@@ -33,11 +48,17 @@ export class SignInDialog {
 		this.sendButton = dialog.querySelector<HTMLButtonElement>("[data-signin-send]");
 		this.verifyButton = dialog.querySelector<HTMLButtonElement>("[data-signin-verify]");
 		this.errorEl = dialog.querySelector<HTMLElement>("[data-signin-error]");
+		this.statusEl = dialog.querySelector<HTMLElement>("[data-signin-status]");
+		this.resendButton = dialog.querySelector<HTMLButtonElement>("[data-signin-resend]");
+		this.changeEmailButton = dialog.querySelector<HTMLButtonElement>("[data-signin-change-email]");
+		this.resendLabel = this.resendButton?.textContent?.trim() ?? "Resend code";
 	}
 
 	public open(returnTo: string): Promise<SignInResult> {
 		this.wire(returnTo);
 		this.showError("");
+		this.showStatus("");
+		this.stopResendCountdown();
 		if (this.emailStep) {
 			this.emailStep.hidden = false;
 		}
@@ -63,7 +84,10 @@ export class SignInDialog {
 		this.wired = true;
 
 		// Escape and the method="dialog" close button both fire `close`.
-		this.dialog.addEventListener("close", () => this.settle("cancelled"));
+		this.dialog.addEventListener("close", () => {
+			this.stopResendCountdown();
+			this.settle("cancelled");
+		});
 
 		for (const button of this.dialog.querySelectorAll<HTMLButtonElement>("[data-signin-provider]")) {
 			button.addEventListener("click", () => {
@@ -84,6 +108,9 @@ export class SignInDialog {
 
 		this.sendButton?.addEventListener("click", () => void this.sendCode());
 		this.verifyButton?.addEventListener("click", () => void this.verifyCode());
+
+		this.resendButton?.addEventListener("click", () => void this.sendCode());
+		this.changeEmailButton?.addEventListener("click", () => this.showEmailStep());
 
 		this.emailInput?.addEventListener("keydown", (e) => {
 			if (e.key === "Enter") {
@@ -111,21 +138,85 @@ export class SignInDialog {
 			return;
 		}
 
+		const resending = this.codeStep?.hidden === false;
 		this.busy(true);
 		try {
 			await sendEmailCode(email);
-			if (this.emailStep) {
-				this.emailStep.hidden = true;
-			}
-			if (this.codeStep) {
-				this.codeStep.hidden = false;
-			}
-			this.codeInput?.focus();
 			this.showError("");
-		} catch {
-			this.showError("That code could not be sent. Check the address and try again.");
+			this.showCodeStep(resending);
+		} catch (error) {
+			if (isRateLimited(error)) {
+				this.showError("Please wait a minute before requesting another code.");
+				if (resending) {
+					this.startResendCountdown();
+				}
+			} else if (isAuthApiError(error) && error.status >= 400 && error.status < 500) {
+				this.showError("That code could not be sent. Check the address and try again.");
+			} else {
+				this.showError("The code could not be sent. Check your connection and try again.");
+			}
 		} finally {
 			this.busy(false);
+		}
+	}
+
+	private showCodeStep(resent: boolean): void {
+		if (this.emailStep) {
+			this.emailStep.hidden = true;
+		}
+		if (this.codeStep) {
+			this.codeStep.hidden = false;
+		}
+		this.codeInput?.focus();
+		this.startResendCountdown();
+		this.showStatus(resent
+			? "A new code was sent."
+			: `We sent a 6-digit code to ${this.emailInput?.value.trim() ?? "your email"}.`);
+	}
+
+	private showEmailStep(): void {
+		this.stopResendCountdown();
+		this.showError("");
+		if (this.codeInput) {
+			this.codeInput.value = "";
+		}
+		if (this.codeStep) {
+			this.codeStep.hidden = true;
+		}
+		if (this.emailStep) {
+			this.emailStep.hidden = false;
+		}
+		this.emailInput?.focus();
+		this.showStatus("Enter your email address.");
+	}
+
+	private startResendCountdown(): void {
+		this.stopResendCountdown();
+		const button = this.resendButton;
+		if (!button) {
+			return;
+		}
+
+		let remaining = ResendSeconds;
+		const tick = (): void => {
+			if (remaining <= 0) {
+				this.stopResendCountdown();
+				return;
+			}
+			button.disabled = true;
+			button.textContent = `${this.resendLabel} (${remaining}s)`;
+			remaining -= 1;
+		};
+		tick();
+		this.resendTimer = window.setInterval(tick, 1000);
+	}
+
+	private stopResendCountdown(): void {
+		window.clearInterval(this.resendTimer);
+		this.resendTimer = undefined;
+		if (this.resendButton) {
+			this.resendButton.disabled = false;
+			this.resendButton.textContent = this.resendLabel;
 		}
 	}
 
@@ -146,8 +237,14 @@ export class SignInDialog {
 			await verifyEmailCode(email, code);
 			this.settle("signed-in");
 			this.dialog.close();
-		} catch {
-			this.showError("That code is not valid. Request a new one if it has expired.");
+		} catch (error) {
+			if (isRateLimited(error)) {
+				this.showError("Too many attempts. Please wait a minute and try again.");
+			} else if (isAuthApiError(error) && error.status >= 400 && error.status < 500) {
+				this.showError("That code is not valid or has expired. Check it, or request a new one.");
+			} else {
+				this.showError("The code could not be checked. Check your connection and try again.");
+			}
 		} finally {
 			this.busy(false);
 		}
@@ -172,6 +269,12 @@ export class SignInDialog {
 		}
 		if (this.verifyButton) {
 			this.verifyButton.disabled = value;
+		}
+	}
+
+	private showStatus(message: string): void {
+		if (this.statusEl) {
+			this.statusEl.textContent = message;
 		}
 	}
 

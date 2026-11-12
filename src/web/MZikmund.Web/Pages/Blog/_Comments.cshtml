@@ -241,8 +241,11 @@
 			<input class="signin-dialog__input signin-dialog__input--code" id="signin-code" type="text"
 				   inputmode="numeric" autocomplete="one-time-code" maxlength="6" data-signin-code />
 			<button type="button" class="btn btn--accent btn--lg" data-signin-verify>@Localizer["Verify and continue"]</button>
+			<button type="button" class="btn btn--standard" data-signin-resend>@Localizer["Resend code"]</button>
+			<button type="button" class="btn btn--subtle" data-signin-change-email>@Localizer["Use a different email"]</button>
 		</div>
 
+		<p class="visually-hidden" role="status" data-signin-status></p>
 		<p class="signin-dialog__error" role="alert" data-signin-error></p>
 	</dialog>
 
