@@ -133,6 +133,41 @@ public class CurrentUserAccessorTests
 	}
 
 	[Fact]
+	public void Current_EmailUserWithAvatarUrl_HasNoAvatar()
+	{
+		// Arrange
+		var principal = CreateSupabaseUser(
+			"{\"provider\":\"email\",\"providers\":[\"email\"]}",
+			"{\"avatar_url\":\"https://lh3.googleusercontent.com/a.png\"}");
+		var currentUserAccessor = CreateAccessor(principal);
+
+		// Act
+		var current = currentUserAccessor.Current;
+
+		// Assert
+		Assert.Null(current!.AvatarUrl);
+	}
+
+	[Theory]
+	[InlineData("https://googleusercontent.com/a.png", true)]
+	[InlineData("https://lh3.googleusercontent.com/a.png", true)]
+	[InlineData("https://cdn.example/a.png", false)]
+	[InlineData("https://evilgoogleusercontent.com/a.png", false)]
+	[InlineData("https://googleusercontent.com.evil.example/a.png", false)]
+	public void Current_GoogleUser_KeepsOnlyGoogleAvatarHosts(string avatarUrl, bool kept)
+	{
+		// Arrange
+		var principal = CreateSupabaseUser(ReaderAppMetadata, $"{{\"avatar_url\":\"{avatarUrl}\"}}");
+		var currentUserAccessor = CreateAccessor(principal);
+
+		// Act
+		var current = currentUserAccessor.Current;
+
+		// Assert
+		Assert.Equal(kept ? avatarUrl : null, current!.AvatarUrl);
+	}
+
+	[Fact]
 	public void Current_OverlongAvatarUrl_IsDropped()
 	{
 		// Arrange
