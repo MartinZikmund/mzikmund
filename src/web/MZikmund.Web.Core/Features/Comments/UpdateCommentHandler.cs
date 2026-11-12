@@ -51,6 +51,7 @@ internal sealed class UpdateCommentHandler : IRequestHandler<UpdateCommentComman
 		}
 
 		var comment = await _dbContext.Comment
+			.AsNoTracking()
 			.Include(c => c.Author)
 			.Include(c => c.Votes)
 			.FirstOrDefaultAsync(c => c.Id == request.CommentId, cancellationToken)
@@ -81,11 +82,26 @@ internal sealed class UpdateCommentHandler : IRequestHandler<UpdateCommentComman
 
 		// ParentId and MentionedDisplayName are decided once, at creation. Re-deriving them here
 		// would double-prefix a mention or silently re-thread an existing reply.
-		comment.Content = content;
-		comment.ContentHtml = _contentRenderer.RenderHtml(content);
-		comment.EditedOn = now;
+		var contentHtml = _contentRenderer.RenderHtml(content);
 
-		await _dbContext.SaveChangesAsync(cancellationToken);
+		// The status filter makes this the guard: a concurrent delete or hide cannot be overwritten.
+		var updated = await _dbContext.Comment
+			.Where(c => c.Id == comment.Id && c.Status == DataCommentStatus.Visible)
+			.ExecuteUpdateAsync(
+				s => s
+					.SetProperty(c => c.Content, content)
+					.SetProperty(c => c.ContentHtml, contentHtml)
+					.SetProperty(c => c.EditedOn, (DateTime?)now),
+				cancellationToken);
+
+		if (updated == 0)
+		{
+			throw new CommentConflictException($"Comment {comment.Id} is not visible and cannot be edited.", CommentErrorCodes.NotVisible);
+		}
+
+		comment.Content = content;
+		comment.ContentHtml = contentHtml;
+		comment.EditedOn = now;
 
 		_logger.LogInformation("Comment {CommentId} edited by its author.", comment.Id);
 

@@ -41,7 +41,8 @@ public class UpdateCommentHandlerTests
 		var result = await handler.Handle(new UpdateCommentCommand(comment.Id, "  edited body  "), CancellationToken.None);
 
 		// Assert
-		var stored = await db.Comment.FirstAsync(c => c.Id == comment.Id, CancellationToken.None);
+		using var assertDb = fixture.CreateContext();
+		var stored = await assertDb.Comment.FirstAsync(c => c.Id == comment.Id, CancellationToken.None);
 		Assert.Equal("edited body", stored.Content);
 		Assert.Equal("<p>edited body</p>", stored.ContentHtml);
 		Assert.Equal(Now.UtcDateTime, stored.EditedOn);
@@ -122,7 +123,8 @@ public class UpdateCommentHandlerTests
 		await handler.Handle(new UpdateCommentCommand(reply.Id, "edited reply"), CancellationToken.None);
 
 		// Assert
-		var stored = await db.Comment.FirstAsync(c => c.Id == reply.Id, CancellationToken.None);
+		using var assertDb = fixture.CreateContext();
+		var stored = await assertDb.Comment.FirstAsync(c => c.Id == reply.Id, CancellationToken.None);
 		Assert.Equal("edited reply", stored.Content);
 		Assert.Equal("Jane", stored.MentionedDisplayName);
 		Assert.Equal(parent.Id, stored.ParentId);
