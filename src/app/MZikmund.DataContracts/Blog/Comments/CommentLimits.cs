@@ -17,6 +17,16 @@ public static class CommentLimits
 	public const int MaxReportNoteLength = 500;
 
 	/// <summary>
+	/// Minimum length of a display name, in characters (text elements).
+	/// </summary>
+	public const int MinDisplayNameLength = 2;
+
+	/// <summary>
+	/// Maximum length of a display name, in characters (text elements).
+	/// </summary>
+	public const int MaxDisplayNameLength = 40;
+
+	/// <summary>
 	/// Top-level comments per page, shared by the API and the server-rendered first page.
 	/// </summary>
 	public const int PageSize = 20;

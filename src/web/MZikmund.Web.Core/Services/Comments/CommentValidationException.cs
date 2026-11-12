@@ -14,4 +14,9 @@ public sealed class CommentValidationException : CommentException
 		: base(message, code)
 	{
 	}
+
+	public CommentValidationException(string message, string code, string publicDetail)
+		: base(message, code, publicDetail)
+	{
+	}
 }

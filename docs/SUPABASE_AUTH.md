@@ -51,6 +51,10 @@ Local and hosted are identical in shape:
   `SupabaseAppMetadataClaimsTransformation` projects the nested value into a `supabase:role` claim,
   which is what `AdminPolicy` checks.
 
+## Comment display names
+
+Readers choose their comment name in the web UI or the app (`PUT /api/v1/comments/me`). The name is stored in our own database (`CommentAuthor.DisplayName`, flagged by `HasChosenDisplayName`) and validated server-side: 2 to 40 characters, normalized, at least one letter or digit, and names that impersonate the site owner or staff (`admin`, `moderator`, anything containing `mzikmund`, and so on) are reserved for the admin. Until a name is chosen, the token's `full_name`/`name` is used if it passes the same rules; otherwise the reader gets a stable `Reader XXXX` placeholder. A chosen name is never overwritten from the token. The email address is never used for display.
+
 ## Getting a token for manual API testing
 
 ```powershell

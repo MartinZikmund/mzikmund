@@ -38,13 +38,14 @@ public class AuthoredRequestBehaviorTests : IDisposable
 			_mockDateProvider.Object,
 			new Mock<ILogger<AuthoredRequestBehavior<TestAuthoredRequest, string>>>().Object);
 
-	private async Task SeedAuthorAsync(bool isBanned, string displayName = "Old Name")
+	private async Task SeedAuthorAsync(bool isBanned, string displayName = "Old Name", bool hasChosenDisplayName = false)
 	{
 		using var context = _fixture.CreateContext();
 		context.CommentAuthor.Add(new CommentAuthorEntity
 		{
 			Id = AuthorId,
 			DisplayName = displayName,
+			HasChosenDisplayName = hasChosenDisplayName,
 			AvatarUrl = null,
 			Email = "old@example.com",
 			IsBanned = isBanned,
@@ -112,6 +113,54 @@ public class AuthoredRequestBehaviorTests : IDisposable
 		using var assertContext = _fixture.CreateContext();
 		var author = await assertContext.CommentAuthor.SingleAsync(a => a.Id == AuthorId, CancellationToken.None);
 		Assert.Equal(isAdmin, author.IsAdmin);
+	}
+
+	[Theory]
+	[InlineData(false, "Token Name")]
+	[InlineData(true, "Chosen Name")]
+	public async Task Handle_OnlyOverwritesTheDisplayNameWhenTheAuthorHasNotChosenOne(bool hasChosen, string expected)
+	{
+		// Arrange
+		await SeedAuthorAsync(isBanned: false, displayName: "Chosen Name", hasChosenDisplayName: hasChosen);
+		_mockCurrentUserAccessor
+			.Setup(a => a.Current)
+			.Returns(new CommentAuthorInfo(AuthorId, "Token Name", "https://cdn/new.png", "new@example.com", true));
+
+		using var context = _fixture.CreateContext();
+		var behavior = CreateBehavior(context);
+
+		// Act
+		await behavior.Handle(new TestAuthoredRequest("payload"), _ => Task.FromResult("handled"), CancellationToken.None);
+
+		// Assert
+		using var assertContext = _fixture.CreateContext();
+		var author = await assertContext.CommentAuthor.SingleAsync(a => a.Id == AuthorId, CancellationToken.None);
+		Assert.Equal(expected, author.DisplayName);
+		Assert.Equal(hasChosen, author.HasChosenDisplayName);
+		Assert.Equal("https://cdn/new.png", author.AvatarUrl);
+		Assert.Equal("new@example.com", author.Email);
+		Assert.True(author.IsAdmin);
+		Assert.Equal(Now.UtcDateTime, author.LastSeenOn);
+	}
+
+	[Fact]
+	public async Task Handle_WhenAuthorDoesNotExist_InsertsWithoutAChosenName()
+	{
+		// Arrange
+		_mockCurrentUserAccessor
+			.Setup(a => a.Current)
+			.Returns(new CommentAuthorInfo(AuthorId, "Reader ABCD", null, "reader@example.com", false));
+		using var context = _fixture.CreateContext();
+		var behavior = CreateBehavior(context);
+
+		// Act
+		await behavior.Handle(new TestAuthoredRequest("payload"), _ => Task.FromResult("handled"), CancellationToken.None);
+
+		// Assert
+		using var assertContext = _fixture.CreateContext();
+		var author = await assertContext.CommentAuthor.SingleAsync(a => a.Id == AuthorId, CancellationToken.None);
+		Assert.False(author.HasChosenDisplayName);
+		Assert.Equal("Reader ABCD", author.DisplayName);
 	}
 
 	[Fact]

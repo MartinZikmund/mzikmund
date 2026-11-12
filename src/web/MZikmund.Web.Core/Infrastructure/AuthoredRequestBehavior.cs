@@ -106,7 +106,11 @@ public sealed class AuthoredRequestBehavior<TRequest, TResponse> : IPipelineBeha
 
 	private static void ApplyProfile(CommentAuthorEntity author, CommentAuthorInfo current, DateTime now)
 	{
-		author.DisplayName = current.DisplayName;
+		if (!author.HasChosenDisplayName)
+		{
+			author.DisplayName = current.DisplayName;
+		}
+
 		author.AvatarUrl = current.AvatarUrl;
 		author.Email = current.Email;
 		author.IsAdmin = current.IsAdmin;

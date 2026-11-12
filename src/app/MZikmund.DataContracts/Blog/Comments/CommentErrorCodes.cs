@@ -18,4 +18,6 @@ public static class CommentErrorCodes
 	public const string NotVisible = "not_visible";
 	public const string OwnComment = "own_comment";
 	public const string HiddenByModerator = "hidden_by_moderator";
+	public const string DisplayNameInvalid = "display_name_invalid";
+	public const string DisplayNameReserved = "display_name_reserved";
 }

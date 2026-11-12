@@ -12,6 +12,11 @@ public class CommentAuthorEntity
 
 	public string DisplayName { get; set; } = "";
 
+	/// <summary>
+	/// Whether the author picked <see cref="DisplayName"/> themselves; if so it is no longer overwritten from the token.
+	/// </summary>
+	public bool HasChosenDisplayName { get; set; }
+
 	public string? AvatarUrl { get; set; }
 
 	public string Email { get; set; } = "";

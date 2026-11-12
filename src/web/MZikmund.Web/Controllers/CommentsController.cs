@@ -238,6 +238,35 @@ public class CommentsController : Controller
 		return NoContent();
 	}
 
+	/// <summary>
+	/// Gets the caller's comment identity: the name their comments carry, or would carry.
+	/// </summary>
+	/// <param name="cancellationToken">Cancellation token.</param>
+	/// <returns>The caller's comment profile.</returns>
+	[HttpGet("comments/me")]
+	[ProducesResponseType(StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+	public async Task<IActionResult> GetMyProfile(CancellationToken cancellationToken) =>
+		Ok(await _mediator.Send(new GetMyCommentProfileQuery(), cancellationToken));
+
+	/// <summary>
+	/// Sets the caller's display name. It applies to all of their comments.
+	/// </summary>
+	/// <param name="request">The wanted name.</param>
+	/// <param name="cancellationToken">Cancellation token.</param>
+	/// <returns>The updated comment profile.</returns>
+	[HttpPut("comments/me")]
+	[EnableRateLimiting(RateLimitPolicies.CommentEdit)]
+	[ProducesResponseType(StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status400BadRequest)]
+	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+	[ProducesResponseType(StatusCodes.Status403Forbidden)]
+	[ProducesResponseType(StatusCodes.Status429TooManyRequests)]
+	public async Task<IActionResult> UpdateMyProfile(
+		[FromBody] UpdateCommentProfileRequest request,
+		CancellationToken cancellationToken) =>
+		Ok(await _mediator.Send(new UpdateMyCommentProfileCommand(request.DisplayName), cancellationToken));
+
 	private bool IsAppClient() =>
 		string.Equals(Request.Headers[ClientHeaderName], AppClientHeaderValue, StringComparison.OrdinalIgnoreCase);
 
