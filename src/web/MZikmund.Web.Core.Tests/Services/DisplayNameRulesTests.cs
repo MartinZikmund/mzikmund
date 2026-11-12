@@ -85,4 +85,34 @@ public class DisplayNameRulesTests
 	[InlineData("Jane Doe", false, "Jane Doe")]
 	public void FromToken_UsesTheNameOnlyWhenItPassesTheRules(string? token, bool isAdmin, string expectedPrefix) =>
 		Assert.StartsWith(expectedPrefix, DisplayNameRules.FromToken(token, Guid.NewGuid(), isAdmin));
+
+	[Theory]
+	[InlineData("Reader 4F2A")]
+	[InlineData("reader 4f2a")]
+	[InlineData("Reader4F2A")]
+	[InlineData("ＲＥＡＤＥＲ ４Ｆ２Ａ")]
+	public void Check_RejectsAnotherReadersPlaceholderName(string input)
+	{
+		Guid someoneElse = Guid.Parse("11111111-1111-1111-1111-111111111111");
+
+		Assert.Equal(DisplayNameProblem.Reserved, DisplayNameRules.Check(input, isAdmin: false, someoneElse).Problem);
+	}
+
+	[Fact]
+	public void Check_AllowsKeepingYourOwnPlaceholderName()
+	{
+		Guid userId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+		var own = DisplayNameRules.FallbackName(userId);
+
+		Assert.True(DisplayNameRules.Check(own, isAdmin: false, userId).IsValid);
+		Assert.True(DisplayNameRules.Check(own.ToLowerInvariant(), isAdmin: false, userId).IsValid);
+	}
+
+	[Theory]
+	[InlineData("Reader")]
+	[InlineData("Reader Joe")]
+	[InlineData("Reader 4F2A5")]
+	public void Check_AllowsNamesThatAreNotPlaceholderShaped(string input) =>
+		Assert.True(DisplayNameRules.Check(input, isAdmin: false, Guid.NewGuid()).IsValid);
 }
+
