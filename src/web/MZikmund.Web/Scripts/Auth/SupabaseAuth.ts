@@ -162,6 +162,16 @@ export async function refreshSession(): Promise<boolean> {
 	return false;
 }
 
+/** Follows sign-ins and sign-outs, including those made in other tabs. TOKEN_REFRESHED is ignored. */
+export function onSignInChanged(handler: (signedIn: boolean) => void): void {
+	// The callback runs inside the client's lock and must not call back into it, so it hands off.
+	getClient().auth.onAuthStateChange((event) => {
+		if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
+			window.setTimeout(() => handler(event === "SIGNED_IN"), 0);
+		}
+	});
+}
+
 /** The default scope would sign the reader out on every device. */
 export async function signOut(): Promise<void> {
 	await getClient().auth.signOut({ scope: "local" });

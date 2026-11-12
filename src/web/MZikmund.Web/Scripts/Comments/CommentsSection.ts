@@ -1,4 +1,4 @@
-import { AuthUnavailableError, getSession, refreshSession, signOut } from "../Auth/SupabaseAuth";
+import { AuthUnavailableError, getSession, onSignInChanged, refreshSession, signOut } from "../Auth/SupabaseAuth";
 import {
 	ApiError,
 	createComment,
@@ -64,6 +64,8 @@ export class CommentsSection {
 	private repliesPageSize = 20;
 	private total = 0;
 	private posting = false;
+	/** What the page currently shows, so an auth event only acts on a real change. */
+	private signedIn = false;
 	private reporting = false;
 
 	public init(): void {
@@ -131,6 +133,8 @@ export class CommentsSection {
 
 		// The site has no cookie session, so the first paint always says hasUpvoted=false and
 		// isOwn=false. A signed-in reader gets the real state by re-fetching the page they see.
+		onSignInChanged((signedIn) => void this.onAuthChanged(signedIn));
+
 		let session = null;
 		try {
 			session = await getSession();
@@ -257,7 +261,29 @@ export class CommentsSection {
 		return result;
 	}
 
+	/** Sign-in or sign-out from another tab. This tab's own flows already update themselves. */
+	private async onAuthChanged(signedIn: boolean): Promise<void> {
+		if (signedIn === this.signedIn || this.signIn?.isOpen) {
+			return;
+		}
+
+		if (signedIn) {
+			await this.onSignedIn();
+		} else {
+			this.hideIdentity();
+			await this.refreshCurrentPage();
+		}
+	}
+
+	private hideIdentity(): void {
+		this.signedIn = false;
+		if (this.identityEl) {
+			this.identityEl.hidden = true;
+		}
+	}
+
 	private async onSignedIn(): Promise<void> {
+		this.signedIn = true;
 		const session = await getSession().catch(() => null);
 		if (this.identityEl && this.identityName && session) {
 			this.identityName.textContent = `Signed in as ${session.user.email ?? "you"}`;
@@ -279,13 +305,11 @@ export class CommentsSection {
 	}
 
 	private async dropSession(): Promise<void> {
+		this.hideIdentity();
 		try {
 			await signOut();
 		} catch {
 			// Nothing to revoke is fine; the local session is gone either way.
-		}
-		if (this.identityEl) {
-			this.identityEl.hidden = true;
 		}
 	}
 

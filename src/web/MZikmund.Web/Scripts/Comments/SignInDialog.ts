@@ -54,6 +54,10 @@ export class SignInDialog {
 		this.resendLabel = this.resendButton?.textContent?.trim() ?? "Resend code";
 	}
 
+	public get isOpen(): boolean {
+		return this.dialog.open;
+	}
+
 	public open(returnTo: string): Promise<SignInResult> {
 		this.wire(returnTo);
 		this.showError("");
