@@ -62,7 +62,7 @@ public class CurrentUserAccessorTests
 		// Arrange
 		var principal = CreateSupabaseUser(
 			ReaderAppMetadata,
-			"{\"full_name\":\"Martin Zikmund\",\"avatar_url\":\"https://lh3.googleusercontent.com/a.png\"}");
+			"{\"full_name\":\"Jane Doe\",\"avatar_url\":\"https://lh3.googleusercontent.com/a.png\"}");
 		var currentUserAccessor = CreateAccessor(principal);
 
 		// Act
@@ -71,14 +71,14 @@ public class CurrentUserAccessorTests
 		// Assert
 		Assert.NotNull(current);
 		Assert.Equal(Guid.Parse(UserId), current!.Id);
-		Assert.Equal("Martin Zikmund", current.DisplayName);
+		Assert.Equal("Jane Doe", current.DisplayName);
 		Assert.Equal("https://lh3.googleusercontent.com/a.png", current.AvatarUrl);
 		Assert.Equal("martin@zikmund.dev", current.Email);
 		Assert.False(current.IsAdmin);
 	}
 
 	[Fact]
-	public void Current_NoDisplayNameClaim_FallsBackToEmailLocalPart()
+	public void Current_NoDisplayNameClaim_FallsBackToReaderNameNotTheEmail()
 	{
 		// Arrange — Apple never returns a name in the web OAuth response.
 		var principal = CreateSupabaseUser(ReaderAppMetadata, userMetadataJson: null);
@@ -89,7 +89,8 @@ public class CurrentUserAccessorTests
 
 		// Assert
 		Assert.NotNull(current);
-		Assert.Equal("martin", current!.DisplayName);
+		Assert.Matches("^Reader [0-9A-F]{4}$", current!.DisplayName);
+		Assert.DoesNotContain("martin", current.DisplayName, StringComparison.OrdinalIgnoreCase);
 		Assert.Null(current.AvatarUrl);
 	}
 
@@ -183,10 +184,27 @@ public class CurrentUserAccessorTests
 	}
 
 	[Fact]
-	public void Current_DisplayName_IsTrimmedStrippedOfControlCharactersAndCappedAt256()
+	public void Current_DisplayName_IsTrimmedAndStrippedOfControlCharacters()
 	{
 		// Arrange
-		var name = "  Mar\\u0000tin\\n" + new string('x', 400);
+		var principal = CreateSupabaseUser(ReaderAppMetadata, "{\"full_name\":\"  Jane\\u0000 \\u200BDoe\\n\"}");
+		var currentUserAccessor = CreateAccessor(principal);
+
+		// Act
+		var current = currentUserAccessor.Current;
+
+		// Assert
+		Assert.Equal("Jane Doe", current!.DisplayName);
+	}
+
+	[Theory]
+	[InlineData("Martin Zikmund")]
+	[InlineData("Admin")]
+	[InlineData("J")]
+	[InlineData("!!")]
+	public void Current_ReservedOrInvalidTokenName_FallsBackToReaderNameForReaders(string name)
+	{
+		// Arrange
 		var principal = CreateSupabaseUser(ReaderAppMetadata, $"{{\"full_name\":\"{name}\"}}");
 		var currentUserAccessor = CreateAccessor(principal);
 
@@ -194,38 +212,49 @@ public class CurrentUserAccessorTests
 		var current = currentUserAccessor.Current;
 
 		// Assert
-		Assert.NotNull(current);
-		Assert.Equal(256, current!.DisplayName.Length);
-		Assert.StartsWith("Martinxxx", current.DisplayName);
+		Assert.Matches("^Reader [0-9A-F]{4}$", current!.DisplayName);
 	}
 
 	[Fact]
-	public void Current_WhitespaceOnlyDisplayName_FallsBackToEmailLocalPart()
+	public void Current_ReservedTokenName_IsKeptForAdmins()
 	{
 		// Arrange
-		var principal = CreateSupabaseUser(ReaderAppMetadata, "{\"full_name\":\"  \t \"}");
+		var principal = CreateSupabaseUser(AdminAppMetadata, "{\"full_name\":\"Martin Zikmund\"}");
 		var currentUserAccessor = CreateAccessor(principal);
 
 		// Act
 		var current = currentUserAccessor.Current;
 
 		// Assert
-		Assert.Equal("martin", current!.DisplayName);
+		Assert.Equal("Martin Zikmund", current!.DisplayName);
 	}
 
 	[Fact]
-	public void Current_DisplayNameCutInsideASurrogatePair_DoesNotSplitIt()
+	public void Current_OverlongTokenName_FallsBackToReaderName()
 	{
 		// Arrange
-		var name = new string('a', 255) + "😀";
-		var principal = CreateSupabaseUser(ReaderAppMetadata, $"{{\"full_name\":\"{name}\"}}");
+		var principal = CreateSupabaseUser(ReaderAppMetadata, $"{{\"full_name\":\"{new string('x', 400)}\"}}");
 		var currentUserAccessor = CreateAccessor(principal);
 
 		// Act
 		var current = currentUserAccessor.Current;
 
 		// Assert
-		Assert.Equal(255, current!.DisplayName.Length);
+		Assert.Matches("^Reader [0-9A-F]{4}$", current!.DisplayName);
+	}
+
+	[Fact]
+	public void Current_WhitespaceOnlyDisplayName_FallsBackToReaderName()
+	{
+		// Arrange
+		var principal = CreateSupabaseUser(ReaderAppMetadata, "{\"full_name\":\"  	 \"}");
+		var currentUserAccessor = CreateAccessor(principal);
+
+		// Act
+		var current = currentUserAccessor.Current;
+
+		// Assert
+		Assert.Matches("^Reader [0-9A-F]{4}$", current!.DisplayName);
 	}
 
 	private static CurrentUserAccessor CreateAccessor(ClaimsPrincipal principal)
