@@ -13,7 +13,8 @@ public class SupabaseAuthException : Exception
 	public HttpStatusCode StatusCode { get; }
 
 	/// <summary>
-	/// True when GoTrue refused the code, token or OTP (HTTP 4xx); false for server errors.
+	/// True when GoTrue refused the code, token or OTP (400, 401 or 403). Rate limits (429), timeouts (408)
+	/// and server errors are transient and not a rejection.
 	/// </summary>
-	public bool IsRejected => (int)StatusCode is >= 400 and < 500;
+	public bool IsRejected => StatusCode is HttpStatusCode.BadRequest or HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden;
 }

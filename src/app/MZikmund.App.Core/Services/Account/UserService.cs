@@ -187,6 +187,10 @@ public class UserService : IUserService
 		{
 			SetSession(await GetClient().VerifyEmailCodeAsync(email.Trim(), code.Trim()));
 		}
+		catch (SupabaseAuthException ex) when (ex.StatusCode == HttpStatusCode.TooManyRequests)
+		{
+			throw new AuthenticationFailedException("Too many attempts, wait a minute and try again.", ex);
+		}
 		catch (SupabaseAuthException ex) when (ex.IsRejected)
 		{
 			throw new AuthenticationFailedException("That code is wrong or has expired.", ex);
