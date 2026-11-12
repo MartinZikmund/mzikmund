@@ -194,4 +194,76 @@ public class CommentsViewModelTests
 			return Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError) { RequestMessage = request });
 		}
 	}
+
+	private void SetupDialogToSave(string typedName, List<string>? prefills = null) =>
+		_dialogService.Setup(d => d.ShowAsync(It.IsAny<ChangeDisplayNameDialogViewModel>()))
+			.Returns<ChangeDisplayNameDialogViewModel>(async dialog =>
+			{
+				prefills?.Add(dialog.DisplayName);
+				dialog.DisplayName = typedName;
+				await dialog.SaveAsync();
+				return ContentDialogResult.None;
+			});
+
+	[Fact]
+	public async Task ChangeName_ReloadsTheComments_AfterSaving()
+	{
+		// Arrange
+		var postId = Guid.NewGuid();
+		_userService.SetupGet(u => u.IsLoggedIn).Returns(true);
+		_api.Setup(a => a.GetPostCommentsAuthenticatedAsync(postId, It.IsAny<CommentSortOrder>(), It.IsAny<int>())).ReturnsAsync(Page());
+		_api.Setup(a => a.GetMyCommentProfileAsync())
+			.ReturnsAsync(Ok(new CommentProfile { DisplayName = "Old name", HasChosenDisplayName = true, IsBanned = false }));
+		_api.Setup(a => a.UpdateMyCommentProfileAsync(It.IsAny<UpdateCommentProfileRequest>()))
+			.ReturnsAsync(Ok(new CommentProfile { DisplayName = "New name", HasChosenDisplayName = true, IsBanned = false }));
+		List<string> prefills = new();
+		SetupDialogToSave("New name", prefills);
+		var viewModel = CreateViewModel();
+		await viewModel.LoadAsync(postId);
+
+		// Act
+		await viewModel.ChangeNameCommand.ExecuteAsync(null);
+
+		// Assert
+		Assert.Equal("Old name", Assert.Single(prefills));
+		_api.Verify(a => a.UpdateMyCommentProfileAsync(It.Is<UpdateCommentProfileRequest>(r => r.DisplayName == "New name")));
+		_api.Verify(a => a.GetPostCommentsAuthenticatedAsync(postId, It.IsAny<CommentSortOrder>(), It.IsAny<int>()), Times.Exactly(2));
+	}
+
+	[Fact]
+	public async Task ChangeName_DoesNotReload_WhenTheSaveFails()
+	{
+		// Arrange
+		var postId = Guid.NewGuid();
+		_userService.SetupGet(u => u.IsLoggedIn).Returns(true);
+		_api.Setup(a => a.GetPostCommentsAuthenticatedAsync(postId, It.IsAny<CommentSortOrder>(), It.IsAny<int>())).ReturnsAsync(Page());
+		_api.Setup(a => a.GetMyCommentProfileAsync())
+			.ReturnsAsync(Ok(new CommentProfile { DisplayName = "Old name", HasChosenDisplayName = true, IsBanned = false }));
+		_api.Setup(a => a.UpdateMyCommentProfileAsync(It.IsAny<UpdateCommentProfileRequest>()))
+			.Returns(Failure<CommentProfile>(HttpStatusCode.TooManyRequests));
+		SetupDialogToSave("New name");
+		var viewModel = CreateViewModel();
+		await viewModel.LoadAsync(postId);
+
+		// Act
+		await viewModel.ChangeNameCommand.ExecuteAsync(null);
+
+		// Assert
+		_api.Verify(a => a.GetPostCommentsAuthenticatedAsync(postId, It.IsAny<CommentSortOrder>(), It.IsAny<int>()), Times.Once);
+	}
+
+	[Fact]
+	public async Task ChangeName_DoesNothing_WhenSignedOut()
+	{
+		// Arrange
+		_userService.SetupGet(u => u.IsLoggedIn).Returns(false);
+		var viewModel = CreateViewModel();
+
+		// Act
+		await viewModel.ChangeNameCommand.ExecuteAsync(null);
+
+		// Assert
+		Assert.False(viewModel.IsSignedIn);
+		_api.Verify(a => a.GetMyCommentProfileAsync(), Times.Never);
+	}
 }
