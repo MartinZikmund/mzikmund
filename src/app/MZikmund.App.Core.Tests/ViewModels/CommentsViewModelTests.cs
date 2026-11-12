@@ -98,4 +98,53 @@ public class CommentsViewModelTests
 		Assert.False(viewModel.HasError);
 		Assert.Single(viewModel.Comments);
 	}
+
+	[Fact]
+	public async Task Post_DoesNotLandInAnotherPost_WhenTheViewModelMovedOnWhileWaitingForTheReload()
+	{
+		// Arrange
+		var postA = Guid.NewGuid();
+		var postB = Guid.NewGuid();
+		TaskCompletionSource<ApiResponse<PagedResponse<CommentDto>>> pendingA = new();
+		var existingB = Comment(postId: postB);
+		_api.Setup(a => a.GetPostCommentsAsync(postA, It.IsAny<CommentSortOrder>(), It.IsAny<int>())).Returns(pendingA.Task);
+		_api.Setup(a => a.GetPostCommentsAsync(postB, It.IsAny<CommentSortOrder>(), It.IsAny<int>())).ReturnsAsync(Page(existingB));
+		_api.Setup(a => a.CreateCommentAsync(postA, It.IsAny<CreateCommentRequest>())).ReturnsAsync(Ok(Comment(postId: postA)));
+		var viewModel = CreateViewModel();
+		var loadA = viewModel.LoadAsync(postA);
+		viewModel.DraftText = "Hello";
+		var posting = viewModel.PostCommand.ExecuteAsync(null);
+
+		// Act
+		await viewModel.LoadAsync(postB);
+		pendingA.SetResult(Page());
+		await posting;
+		await loadA;
+
+		// Assert
+		Assert.Equal(existingB.Id, Assert.Single(viewModel.Comments).Id);
+		Assert.Equal(1, viewModel.TotalCount);
+	}
+
+	[Fact]
+	public async Task Load_ResetsTheCount_WhenAnotherPostStartsLoading()
+	{
+		// Arrange
+		var postA = Guid.NewGuid();
+		var postB = Guid.NewGuid();
+		TaskCompletionSource<ApiResponse<PagedResponse<CommentDto>>> pendingB = new();
+		_api.Setup(a => a.GetPostCommentsAsync(postA, It.IsAny<CommentSortOrder>(), It.IsAny<int>())).ReturnsAsync(Page(Comment(), Comment()));
+		_api.Setup(a => a.GetPostCommentsAsync(postB, It.IsAny<CommentSortOrder>(), It.IsAny<int>())).Returns(pendingB.Task);
+		var viewModel = CreateViewModel();
+		await viewModel.LoadAsync(postA);
+		Assert.Equal(2, viewModel.TotalCount);
+
+		// Act
+		var loadB = viewModel.LoadAsync(postB);
+
+		// Assert
+		Assert.Equal(0, viewModel.TotalCount);
+		pendingB.SetResult(Page());
+		await loadB;
+	}
 }
