@@ -236,7 +236,7 @@ export class CommentsSection {
 	// --- Sign-in -------------------------------------------------------------
 
 	private returnUrl(): string {
-		return `${window.location.origin}${window.location.pathname}${window.location.search}`;
+		return `${window.location.origin}${window.location.pathname}${window.location.search}${window.location.hash}`;
 	}
 
 	/** Resolves "signed-in" immediately when a session exists, otherwise asks the reader to sign in. */
