@@ -32,4 +32,9 @@ public interface IUserService
 	Task VerifyEmailCodeAsync(string email, string code);
 
 	Task LogoutAsync();
+
+	/// <summary>
+	/// Drops the local session without contacting the server, for when the API rejected our token.
+	/// </summary>
+	Task InvalidateSessionAsync();
 }

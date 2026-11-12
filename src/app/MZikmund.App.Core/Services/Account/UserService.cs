@@ -257,6 +257,21 @@ public class UserService : IUserService
 		}
 	}
 
+	public async Task InvalidateSessionAsync()
+	{
+		await _authenticationLock.WaitAsync();
+		var before = Snapshot();
+		try
+		{
+			ClearSession();
+		}
+		finally
+		{
+			_authenticationLock.Release();
+			RaiseIfChanged(before);
+		}
+	}
+
 	private void EnsureConfigured()
 	{
 		if (!Config.IsConfigured)

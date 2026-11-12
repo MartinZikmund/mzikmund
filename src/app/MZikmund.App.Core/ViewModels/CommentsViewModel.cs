@@ -265,7 +265,7 @@ public partial class CommentsViewModel : ViewModelBase
 				await authenticated.EnsureSuccessfulAsync();
 				return authenticated.Content!;
 			}
-			catch (AuthenticationFailedException)
+			catch (Exception ex) when (ex is AuthenticationFailedException or ApiException { StatusCode: HttpStatusCode.Unauthorized })
 			{
 			}
 		}
@@ -285,7 +285,7 @@ public partial class CommentsViewModel : ViewModelBase
 				await authenticated.EnsureSuccessfulAsync();
 				return authenticated.Content!;
 			}
-			catch (AuthenticationFailedException)
+			catch (Exception ex) when (ex is AuthenticationFailedException or ApiException { StatusCode: HttpStatusCode.Unauthorized })
 			{
 			}
 		}
@@ -606,6 +606,12 @@ public partial class CommentsViewModel : ViewModelBase
 			}
 			catch (Exception ex) when (attempt == 0 && IsUnauthorized(ex))
 			{
+				// A 401 means the API rejected our token: the local session is stale and sign-in has to run again.
+				if (ex is ApiException)
+				{
+					await _userService.InvalidateSessionAsync();
+				}
+
 				if (!await _signInPrompt.EnsureSignedInAsync())
 				{
 					return (false, default);
