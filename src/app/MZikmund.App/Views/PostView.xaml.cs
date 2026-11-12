@@ -9,11 +9,13 @@ public sealed partial class PostView : PostViewBase
 	private readonly Microsoft.UI.Xaml.Controls.WebView2 _webView;
 	private bool _isWebViewReady;
 
+	// Bumped on every load and unload, so callbacks started by an earlier load can tell they are stale.
+	private int _loadGeneration;
+
 	public PostView()
 	{
 		InitializeComponent();
 		WebViewContainer.Content = _webView = new Microsoft.UI.Xaml.Controls.WebView2();
-		_webView.NavigationCompleted += WebView_NavigationCompleted;
 		Loaded += PostView_Loaded;
 		Unloaded += PostView_Unloaded;
 	}
@@ -25,33 +27,56 @@ public sealed partial class PostView : PostViewBase
 			return;
 		}
 
+		_loadGeneration++;
 		ViewModel.ReloadRequested += ViewModel_ReloadRequested;
 		ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+		_webView.NavigationCompleted += WebView_NavigationCompleted;
+		ActualThemeChanged += PostView_ActualThemeChanged;
 		await InitializeWebViewAsync();
 	}
 
 	private async Task InitializeWebViewAsync()
 	{
+		var generation = _loadGeneration;
 		try
 		{
 			await _webView.EnsureCoreWebView2Async();
 			_isWebViewReady = true;
+			if (generation != _loadGeneration)
+			{
+				return;
+			}
+
 			ApplyColorScheme();
 			NavigateToPost();
 		}
 		catch (Exception ex)
 		{
 			this.Log().LogError(ex, "Initializing the post WebView failed");
-			ViewModel?.OnContentLoaded(isSuccess: false);
+			if (generation == _loadGeneration)
+			{
+				ViewModel?.OnContentLoaded(isSuccess: false);
+			}
 		}
 	}
 
 	private void PostView_Unloaded(object sender, RoutedEventArgs e)
 	{
+		_loadGeneration++;
+		_webView.NavigationCompleted -= WebView_NavigationCompleted;
+		ActualThemeChanged -= PostView_ActualThemeChanged;
 		if (ViewModel is not null)
 		{
 			ViewModel.ReloadRequested -= ViewModel_ReloadRequested;
 			ViewModel.PropertyChanged -= ViewModel_PropertyChanged;
+		}
+	}
+
+	private void PostView_ActualThemeChanged(FrameworkElement sender, object args)
+	{
+		if (_isWebViewReady)
+		{
+			ApplyColorScheme();
 		}
 	}
 
