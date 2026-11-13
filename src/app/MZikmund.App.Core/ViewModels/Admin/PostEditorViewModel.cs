@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.UI.Dispatching;
@@ -37,7 +37,7 @@ public partial class PostEditorViewModel : PageViewModel
 	private DispatcherQueueTimer? _draftTimer;
 	private DispatcherQueueTimer? _scheduleTimer;
 	private DateTimeOffset? _serverPublishedDate;
-	private bool _isPreviewDirty = true;
+	private readonly PreviewRefreshPolicy _previewRefresh = new(TimeSpan.FromMilliseconds(300), TimeSpan.FromMilliseconds(1500));
 	private bool _isDraftDirty;
 	private bool _isPopulating;
 	private int _editVersion;
@@ -187,7 +187,7 @@ public partial class PostEditorViewModel : PageViewModel
 
 	partial void OnPostContentChanged(string value)
 	{
-		_isPreviewDirty = true;
+		_previewRefresh.NotifyEdit(DateTimeOffset.UtcNow);
 		MarkDirty();
 	}
 
@@ -428,7 +428,7 @@ public partial class PostEditorViewModel : PageViewModel
 	public override void ViewLoaded()
 	{
 		base.ViewLoaded();
-		_previewTimer ??= CreateTimer(TimeSpan.FromMilliseconds(500), PreviewTimerOnTick);
+		_previewTimer ??= CreateTimer(TimeSpan.FromMilliseconds(100), PreviewTimerOnTick);
 		_previewTimer.Start();
 
 		_draftTimer ??= CreateTimer(TimeSpan.FromSeconds(30), DraftTimerOnTick);
@@ -504,7 +504,7 @@ public partial class PostEditorViewModel : PageViewModel
 
 	private async void PreviewTimerOnTick(DispatcherQueueTimer sender, object args)
 	{
-		if (!_isPreviewDirty)
+		if (!_previewRefresh.TryBeginRender(DateTimeOffset.UtcNow))
 		{
 			return;
 		}
@@ -512,8 +512,8 @@ public partial class PostEditorViewModel : PageViewModel
 		sender.Stop();
 		try
 		{
-			_isPreviewDirty = false;
-			HtmlPreview = await _postContentProcessor.ProcessAsync(PostContent);
+			var content = PostContent;
+			HtmlPreview = await Task.Run(() => _postContentProcessor.ProcessPreviewAsync(content));
 		}
 		catch (Exception ex)
 		{
@@ -618,7 +618,7 @@ public partial class PostEditorViewModel : PageViewModel
 		}
 
 		IsDirty = false;
-		_isPreviewDirty = true;
+		_previewRefresh.RequestImmediate();
 	}
 
 	// TimePicker has minute precision and writes a truncated value back, which must not count as an edit.
