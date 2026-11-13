@@ -25,6 +25,11 @@ public class PostListItem
 	public Tag[] Tags { get; set; } = Array.Empty<Tag>();
 
 	/// <summary>
+	/// Estimated whole minutes to read the post; 0 when not reported.
+	/// </summary>
+	public int ReadingTimeMinutes { get; set; }
+
+	/// <summary>
 	/// Only filled by the admin list; null when the server does not report it.
 	/// </summary>
 	public bool? IsPublished { get; set; }

@@ -11,13 +11,16 @@ public class PostPreviewModel : PageModel, IPostPageModel
 {
 	private readonly IMediator _mediator;
 	private readonly IPostContentProcessor _postContentProcessor;
+	private readonly ReadingTimeProvider _readingTime;
 
 	public PostPreviewModel(
 		IMediator mediator,
-		IPostContentProcessor postContentProcessor)
+		IPostContentProcessor postContentProcessor,
+		ReadingTimeProvider readingTime)
 	{
 		_mediator = mediator;
 		_postContentProcessor = postContentProcessor;
+		_readingTime = readingTime;
 	}
 
 	public Post BlogPost { get; set; } = null!;
@@ -28,6 +31,8 @@ public class PostPreviewModel : PageModel, IPostPageModel
 
 	public string? SafeHeroImageUrl { get; set; }
 
+	public int ReadingTimeMinutes { get; private set; }
+
 	public async Task<IActionResult> OnGet(Guid previewToken)
 	{
 		try
@@ -35,6 +40,7 @@ public class PostPreviewModel : PageModel, IPostPageModel
 			BlogPost = await _mediator.Send(new GetPostByPreviewTokenQuery(previewToken));
 			HtmlContent = await _postContentProcessor.ProcessAsync(BlogPost.Content);
 			MetaKeywords = string.Join(", ", BlogPost.Tags.Select(t => t.DisplayName));
+			ReadingTimeMinutes = await _readingTime.GetMinutesAsync(BlogPost.Id, BlogPost.LastModifiedDate, BlogPost.Content);
 
 			// Validate and sanitize hero image URL
 			// Only allow http:// and https:// URLs for security

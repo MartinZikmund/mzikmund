@@ -48,6 +48,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 
 	services.AddAutoMapper(c => c.AddMaps(typeof(CoreAssemblyMarker)));
 	services.AddSingleton<ICache, Cache>();
+	services.AddSingleton<ReadingTimeProvider>();
 	services.AddSingleton<IConnectionStringProvider, ConnectionStringProvider>();
 	services.AddSingleton<IMarkdownConverter, MarkdownConverter>();
 	services.AddSingleton<IPostContentProcessor, PostContentProcessor>();
