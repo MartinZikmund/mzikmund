@@ -9,17 +9,125 @@
 <link rel="stylesheet" href="https://mzikmund.dev/css/site.min.css" />
 <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
 <script src="https://mzikmund.dev/js/site.js"></script>
+<style>
+    .gist-preview { display: block; width: 100%; min-height: 4rem; border: 0; }
+</style>
+<script>
+    // The editor loads this page once and then only swaps content in, so typing never reloads it.
+    (() => {
+        const container = () => document.querySelector(".post-content");
+
+        // Source lines shift with every edit above a block, so they are not part of its identity.
+        const keyOf = node => {
+            if (node.nodeType !== Node.ELEMENT_NODE) {
+                return "#" + node.nodeType + ":" + node.textContent;
+            }
+
+            const clone = node.cloneNode(true);
+            clone.removeAttribute("data-line");
+            return clone.outerHTML;
+        };
+
+        const fitGist = frame => frame.addEventListener("load", () => {
+            const height = frame.contentDocument?.documentElement?.scrollHeight;
+            if (height) {
+                frame.style.height = height + "px";
+            }
+        });
+
+        // Keeps unchanged blocks in place (no image or gist reloads) and only swaps the ones that changed.
+        const morph = html => {
+            const target = container();
+            const incoming = document.createElement("div");
+            incoming.innerHTML = html;
+
+            const pool = new Map();
+            for (const node of Array.from(target.childNodes)) {
+                const queue = pool.get(node.mzKey) ?? [];
+                queue.push(node);
+                pool.set(node.mzKey, queue);
+            }
+
+            const plan = Array.from(incoming.childNodes).map(node => {
+                const key = keyOf(node);
+                return { node, key, reuse: pool.get(key)?.shift() };
+            });
+
+            for (const queue of pool.values()) {
+                queue.forEach(node => node.remove());
+            }
+
+            let cursor = target.firstChild;
+            for (const { node, key, reuse } of plan) {
+                if (reuse) {
+                    if (reuse === cursor) {
+                        cursor = cursor.nextSibling;
+                    } else {
+                        target.insertBefore(reuse, cursor);
+                    }
+
+                    if (node.nodeType === Node.ELEMENT_NODE && node.hasAttribute("data-line")) {
+                        reuse.setAttribute("data-line", node.getAttribute("data-line"));
+                    }
+                } else {
+                    node.mzKey = key;
+                    target.insertBefore(node, cursor);
+                    if (node.nodeType === Node.ELEMENT_NODE) {
+                        node.querySelectorAll?.(".gist-preview").forEach(fitGist);
+                        if (node.matches(".gist-preview")) {
+                            fitGist(node);
+                        }
+                    }
+                }
+            }
+        };
+
+        const topOf = element => element.getBoundingClientRect().top + window.scrollY;
+
+        // Scrolls so the block under the caret sits at the same height as the caret in the editor.
+        const sync = (line, totalLines, ratio) => {
+            const target = container();
+            let previous = null;
+            let next = null;
+            for (const anchor of target.querySelectorAll(":scope > [data-line]")) {
+                if (Number(anchor.dataset.line) <= line) {
+                    previous = anchor;
+                } else {
+                    next = anchor;
+                    break;
+                }
+            }
+
+            let y = topOf(target);
+            if (previous) {
+                const fromLine = Number(previous.dataset.line);
+                const fromTop = topOf(previous);
+                const toLine = next ? Number(next.dataset.line) : totalLines;
+                const toTop = next ? topOf(next) : target.getBoundingClientRect().bottom + window.scrollY;
+                const progress = toLine > fromLine ? Math.min(1, (line - fromLine) / (toLine - fromLine)) : 0;
+                y = fromTop + (toTop - fromTop) * progress;
+            }
+
+            window.scrollTo({ top: Math.max(0, y - ratio * window.innerHeight), behavior: "instant" });
+        };
+
+        window.mzPreview = {
+            update: (html, line, totalLines, ratio) => {
+                morph(html);
+                sync(line, totalLines, ratio);
+            },
+            sync,
+        };
+    })();
+</script>
 </head>
-<body>    
+<body>
     <div b-mkd0nzmx6b class="container">
         <main b-mkd0nzmx6b role="main" class="pb-4">
             <article class="blog-post">
-
-                <div class="post-content">
-                    {POSTCONTENT}
-                </div>
+                <div class="post-content"></div>
             </article>
         </main>
-    </div>    
+    </div>
 </body>
 </html>
