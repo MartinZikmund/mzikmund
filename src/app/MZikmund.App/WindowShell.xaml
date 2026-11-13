@@ -84,7 +84,7 @@
                     <mux:NavigationViewItem.InfoBadge>
                         <mux:InfoBadge
                             AutomationProperties.AutomationId="NavAdminBadge"
-                            Style="{StaticResource DotInfoBadgeStyle}"
+                            Style="{StaticResource AttentionDotInfoBadgeStyle}"
                             Visibility="{x:Bind ViewModel.HasUnreadComments, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
                     </mux:NavigationViewItem.InfoBadge>
                     <mux:NavigationViewItem.MenuItems>
