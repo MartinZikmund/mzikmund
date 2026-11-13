@@ -8,4 +8,6 @@ public interface IPostPageModel
 	string HtmlContent { get; set; }
 	string MetaKeywords { get; set; }
 	string? SafeHeroImageUrl { get; set; }
+
+	int ReadingTimeMinutes { get; }
 }

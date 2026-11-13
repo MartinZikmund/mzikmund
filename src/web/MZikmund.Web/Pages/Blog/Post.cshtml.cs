@@ -16,6 +16,7 @@ public class PostModel : PageModel, IPostPageModel
 	private readonly IHostEnvironment _host;
 	private readonly IMediator _mediator;
 	private readonly IPostContentProcessor _postContentProcessor;
+	private readonly ReadingTimeProvider _readingTime;
 	private readonly CommentsOptions _commentsOptions;
 	private readonly SupabaseOptions _supabaseOptions;
 	private readonly TurnstileOptions _turnstileOptions;
@@ -25,6 +26,7 @@ public class PostModel : PageModel, IPostPageModel
 		IHostEnvironment host,
 		IMediator mediator,
 		IPostContentProcessor postContentProcessor,
+		ReadingTimeProvider readingTime,
 		IOptions<CommentsOptions> commentsOptions,
 		IOptions<SupabaseOptions> supabaseOptions,
 		IOptions<TurnstileOptions> turnstileOptions,
@@ -33,6 +35,7 @@ public class PostModel : PageModel, IPostPageModel
 		_host = host;
 		_mediator = mediator;
 		_postContentProcessor = postContentProcessor;
+		_readingTime = readingTime;
 		_commentsOptions = commentsOptions.Value;
 		_supabaseOptions = supabaseOptions.Value;
 		_turnstileOptions = turnstileOptions.Value;
@@ -47,6 +50,8 @@ public class PostModel : PageModel, IPostPageModel
 
 	public string? SafeHeroImageUrl { get; set; }
 
+	public int ReadingTimeMinutes { get; private set; }
+
 	/// <summary>
 	/// Null when Comments:Enabled is false, in which case the section is not rendered at all.
 	/// </summary>
@@ -57,6 +62,7 @@ public class PostModel : PageModel, IPostPageModel
 		BlogPost = await _mediator.Send(new GetPostByRouteNameQuery(routeName));
 		HtmlContent = await _postContentProcessor.ProcessAsync(BlogPost.Content);
 		MetaKeywords = string.Join(", ", BlogPost.Tags.Select(t => t.DisplayName));
+		ReadingTimeMinutes = await _readingTime.GetMinutesAsync(BlogPost.Id, BlogPost.LastModifiedDate, BlogPost.Content);
 
 		// Validate and sanitize hero image URL
 		// Only allow http:// and https:// URLs for security

@@ -16,17 +16,20 @@ internal sealed class GetPostsHandler : IRequestHandler<GetPostsQuery, PagedResp
 	private readonly IMarkdownConverter _markdownConverter;
 	private readonly IMediator _mediator;
 	private readonly IMapper _mapper;
+	private readonly ReadingTimeProvider _readingTime;
 
 	public GetPostsHandler(
 		IRepository<PostEntity> postsRepository,
 		IMarkdownConverter markdownConverter,
 		IMediator mediator,
-		IMapper mapper)
+		IMapper mapper,
+		ReadingTimeProvider readingTime)
 	{
 		_postsRepository = postsRepository;
 		_markdownConverter = markdownConverter;
 		_mediator = mediator;
 		_mapper = mapper;
+		_readingTime = readingTime;
 	}
 
 	public async Task<PagedResponse<PostListItem>> Handle(GetPostsQuery request, CancellationToken cancellationToken)
@@ -46,7 +49,16 @@ internal sealed class GetPostsHandler : IRequestHandler<GetPostsQuery, PagedResp
 			HeroImageUrl = post.HeroImageUrl,
 			Tags = _mapper.Map<Tag[]>(post.Tags),
 			Categories = _mapper.Map<Category[]>(post.Categories),
+			Content = post.Content,
 		});
+
+		foreach (var post in posts)
+		{
+			post.ReadingTimeMinutes = await _readingTime.GetMinutesAsync(post.Id, post.LastModifiedDate, post.Content, cancellationToken);
+
+			// Loaded only for the estimate; lists don't return the content.
+			post.Content = "";
+		}
 
 		return new(posts, request.Page, request.PageSize, postCount);
 	}

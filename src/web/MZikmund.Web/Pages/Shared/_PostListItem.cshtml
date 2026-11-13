@@ -42,6 +42,13 @@
                     @postDate.Humanize()
                 }
             </span>
+            @if (Model.ReadingTimeMinutes > 0)
+            {
+                <span class="meta__item">
+                    <svg class="icon" aria-hidden="true"><use href="#i-clock"></use></svg>
+                    @Model.ReadingTimeMinutes min read
+                </span>
+            }
         </div>
         <h3 class="card__title">
             <a class="card__link" asp-page="/Blog/Post" asp-route-routename="@Model.RouteName" aria-label="Read blog post: @Model.Title">@Model.Title</a>

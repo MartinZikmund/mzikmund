@@ -38,6 +38,13 @@
                     {
                         <span class="meta__item">Draft</span>
                     }
+                    @if (Model.ReadingTimeMinutes > 0)
+                    {
+                        <span class="meta__item">
+                            <svg class="icon" aria-hidden="true"><use href="#i-clock"></use></svg>
+                            @Model.ReadingTimeMinutes min read
+                        </span>
+                    }
                 </div>
             </div>
         </div>
