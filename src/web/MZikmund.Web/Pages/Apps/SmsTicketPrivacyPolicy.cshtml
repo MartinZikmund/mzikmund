@@ -1,0 +1,75 @@
+@page "/Apps/SmsTicket/PrivacyPolicy"
+@model MZikmund.Web.Pages.Apps.SmsTicketPrivacyPolicyModel
+@{
+    MetaTags.Title = "SMS Ticket Privacy Policy";
+}
+
+<div class="prose-page prose">
+    <h1>Privacy Policy for SMS Ticket</h1>
+    <p>Last updated: 21 November 2026</p>
+
+    <p>This privacy policy applies to the SMS Ticket app (SMS Jízdenka, hereby referred to as "Application") for mobile
+        devices that was created by Martin Zikmund (hereby referred to as "Service Provider") as an Open Source service. The
+        source code is available at <a href="https://github.com/MartinZikmund/SmsTicket">github.com/MartinZikmund/SmsTicket</a>.
+        The Application prepares SMS messages for buying Czech public transport tickets.</p>
+
+    <h2>Accounts and servers</h2>
+    <p>The Application has no user accounts and no server of its own. The Service Provider does not collect, store or sell
+        your personal data.</p>
+
+    <h2>Data stored on your device</h2>
+    <p>The following data is stored only on your device and is removed when you uninstall the Application:</p>
+    <ul>
+        <li>settings (city, theme and language),</li>
+        <li>favorite tickets,</li>
+        <li>purchase history (which ticket was prepared and when),</li>
+        <li>the text of ticket confirmation SMS messages, but only those you explicitly paste or share into the Application,
+            or approve in Android's system SMS consent prompt.</li>
+    </ul>
+
+    <h2>SMS messages</h2>
+    <p>The Application never sends SMS messages itself. It opens your messaging app with a prepared message, and you send it
+        yourself. The Application does not read your SMS inbox and does not have the SMS read permission.</p>
+    <p>On Android, the Application uses Google's SMS User Consent API. It shows a single incoming message to the
+        Application only after you approve it in a system dialog.</p>
+
+    <h2>Location</h2>
+    <p>Location is used only if you tap "Use my location" or turn on "Select the nearest city on launch". The Application
+        uses approximate location only, on your device, to pick the nearest city. Location is never stored or sent
+        anywhere.</p>
+
+    <h2>Notifications</h2>
+    <p>The Application can show reminders before a ticket expires. These are local notifications scheduled on your device.
+        No push notification service is used.</p>
+
+    <h2>Ticket price data</h2>
+    <p>Ticket price data is downloaded from GitHub (raw.githubusercontent.com). GitHub may log technical data such as your
+        IP address, as described in the
+        <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHub General
+            Privacy Statement</a>.</p>
+
+    <h2>Advertising</h2>
+    <p>The Application shows banner ads from Google AdMob. Google may collect and use device identifiers (such as the
+        advertising ID or IDFA), your IP address and usage data to serve and measure ads, and, with your consent, to
+        personalize them.</p>
+    <ul>
+        <li>In the European Economic Area, the United Kingdom and Switzerland, Google's consent form asks for your consent
+            first. You can change your choice at any time in the Application under Settings, "Ad privacy settings".</li>
+        <li>On iOS, Apple's App Tracking Transparency prompt controls tracking.</li>
+    </ul>
+    <p>Learn more in <a href="https://policies.google.com/privacy">Google's Privacy Policy</a> and
+        <a href="https://policies.google.com/technologies/partner-sites">How Google uses information from sites or apps
+            that use our services</a>.</p>
+
+    <h2>Children</h2>
+    <p>The Application is not directed at children under the age of 13, and the Service Provider does not knowingly collect
+        personal information from children.</p>
+
+    <h2>Changes</h2>
+    <p>This Privacy Policy may be updated from time to time. Changes will be published on this page, and the "Last updated"
+        date above will change.</p>
+
+    <h2>Contact Us</h2>
+    <p>If you have any questions regarding privacy while using the Application, please contact the Service Provider via
+        email at <a href="mailto:martin@zikmund.dev">martin@zikmund.dev</a>.</p>
+</div>
